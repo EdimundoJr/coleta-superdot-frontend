@@ -1,24 +1,65 @@
 import "./App.css";
-import { BrowserRouter, Route, Routes } from "react-router-dom";
-import RegisterPage from "./pages/register/RegisterPage";
-import ProtectedRoute from "./components/ProtectedRoute/ProtectedRoute";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import RegisterPage from "./pages/RegisterPage/RegisterPage";
+import InnerNavBar from "./components/Inner/InnerNavBar/InnerNavBar";
+import OuterNavBar from "./components/Outer/OuterNavBar/OuterNavBar";
+import GuardRoute from "./components/GuardRoute/GuardRoute";
 
-function App() {
+function OuterLayout() {
     return (
-        <BrowserRouter>
-            <Routes>
-                <Route path="/" element={<RegisterPage />}></Route>
-                <Route
-                    path="/home"
-                    element={
-                        <ProtectedRoute>
-                            <p>Tela inicial</p>
-                        </ProtectedRoute>
-                    }
-                ></Route>
-            </Routes>
-        </BrowserRouter>
+        <div className="relative h-full overflow-auto bg-slate-950 bg-opacity-50 bg-[url('src/assets/background.png')] bg-cover bg-no-repeat bg-blend-multiply">
+            <OuterNavBar />
+            <GuardRoute scope="OUTER">
+                <Outlet />
+            </GuardRoute>
+        </div>
     );
 }
 
-export default App;
+function InnerLayout() {
+    return (
+        <div className="bg-white">
+            <InnerNavBar />
+            <GuardRoute scope="INNER">
+                <Outlet />
+            </GuardRoute>
+        </div>
+    );
+}
+
+function LoginPageTemp() {
+    return <p>Login Page</p>;
+}
+
+function HomePageTemp() {
+    return <p>Login Page</p>;
+}
+
+const router = createBrowserRouter([
+    {
+        path: "/",
+        Component: OuterLayout,
+        children: [
+            { index: true, Component: LoginPageTemp },
+            { path: "register", Component: RegisterPage },
+        ],
+    },
+    {
+        path: "/app",
+        Component: InnerLayout,
+        children: [
+            {
+                path: "home",
+                Component: HomePageTemp,
+            },
+        ],
+    },
+    {
+        path: "/*",
+        Component: OuterLayout,
+    },
+]);
+
+export default function App() {
+    return <RouterProvider router={router} />;
+}
