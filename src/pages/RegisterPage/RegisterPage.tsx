@@ -9,6 +9,7 @@ import { InputField } from "../../components/Outer/InputField/InputField";
 import { SelectField } from "../../components/Outer/SelectField/SelectField";
 import { registerResearcher } from "../../api/auth.api";
 import { saveTokens } from "../../utils/tokensHandler";
+import { redirect, useNavigate } from "react-router-dom";
 
 const RegisterPage = () => {
     const {
@@ -17,8 +18,7 @@ const RegisterPage = () => {
         watch,
         formState: { errors },
     } = useForm({ resolver: yupResolver(registerSchema) });
-
-    console.log(import.meta.env.VITE_BACKEND_HOST);
+    const navigate = useNavigate();
 
     const onSubmit = handleSubmit(async (data) => {
         const formData = new FormData();
@@ -42,14 +42,11 @@ const RegisterPage = () => {
 
         formData.set("personal_data[birth_date]", data.personal_data.birth_date.toISOString());
 
-        for (const pair of formData.entries()) {
-            console.log(`${pair[0]}, ${pair[1]}`);
-        }
-
         try {
             const result = await registerResearcher(formData);
-            if (result.status === 200) {
-                saveTokens(result.data.accessToken, result.data.refreshToken);
+            if (result.data) {
+                saveTokens(result.data);
+                navigate("/app/home");
             }
             console.log(result);
         } catch (error) {
@@ -57,10 +54,8 @@ const RegisterPage = () => {
         }
     });
 
-    console.log(errors);
-
     return (
-        <div className="relative h-full overflow-auto bg-slate-950 bg-opacity-50 bg-[url('src/assets/background.png')] bg-cover bg-no-repeat bg-blend-multiply ">
+        <>
             <header className="p-6 text-4xl">Criar uma conta</header>
             <h3>Seus dados</h3>
             <Form.Root onSubmit={onSubmit} className="mx-auto w-9/12">
@@ -183,7 +178,7 @@ const RegisterPage = () => {
                     </div>
                 </div>
             </Form.Root>
-        </div>
+        </>
     );
 };
 
