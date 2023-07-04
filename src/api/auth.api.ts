@@ -1,15 +1,14 @@
 import axios from "axios";
-import { setAuthHeaders } from "../utils/tokensHandler";
-
-interface RegisterResponse {
-    accessToken: string;
-    refreshToken: string;
-}
+import { Tokens, clearTokens, setAuthHeaders } from "../utils/tokensHandler";
 
 export const registerResearcher = async (data: FormData) => {
-    return axios.post<RegisterResponse>(`${import.meta.env.VITE_BACKEND_HOST}/api/auth/register`, data, {
+    return axios.post<Tokens>(`${import.meta.env.VITE_BACKEND_HOST}/api/auth/register`, data, {
         method: "POST",
     });
+};
+
+export const logoutUser = async () => {
+    clearTokens();
 };
 
 interface IsValidSessionResponse {
