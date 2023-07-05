@@ -1,6 +1,5 @@
 import axios from "axios";
 import { Tokens, clearTokens, setAuthHeaders } from "../utils/tokensHandler";
-import { setAuthHeaders } from "../utils/tokensHandler";
 import { LoginValues } from "../schemas/loginSchema";
 
 export const registerResearcher = async (data: FormData) => {

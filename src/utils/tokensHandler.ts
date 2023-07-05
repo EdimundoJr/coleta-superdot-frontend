@@ -25,11 +25,3 @@ export const setAuthHeaders = () => {
         return request;
     });
 };
-
-export const isLoggedIn = (): boolean => {
-    const accessToken = localStorage.getItem(import.meta.env.VITE_ACCESS_TOKEN_KEY);
-    if (accessToken) {
-        return true;
-    }
-    return false;
-};
