@@ -5,11 +5,12 @@ import { isMobile } from "../../../utils/mediaQuery.utils";
 
 interface SideMenuProps {
     userRole: string;
+    menuOpen: boolean;
+    onCollapseMenuClicked: () => void;
+    onExpandMenuClicked: () => void;
 }
 
-const SideMenu = ({ userRole }: SideMenuProps) => {
-    const [menuOpen, setMenuOpen] = useState(false);
-
+const SideMenu = ({ userRole, menuOpen, onExpandMenuClicked, onCollapseMenuClicked }: SideMenuProps) => {
     return (
         <>
             {menuOpen ? (
@@ -19,7 +20,7 @@ const SideMenu = ({ userRole }: SideMenuProps) => {
                     }
                     showAdmOptions={userRole === import.meta.env.VITE_ROLE_ADM}
                     isMobile={isMobile()}
-                    onCollapseMenuClicked={() => setMenuOpen(false)}
+                    onCollapseMenuClicked={onCollapseMenuClicked}
                 />
             ) : (
                 <SideMenuCollapsed
@@ -28,7 +29,7 @@ const SideMenu = ({ userRole }: SideMenuProps) => {
                     }
                     showAdmOptions={userRole === import.meta.env.VITE_ROLE_ADM}
                     isMobile={isMobile()}
-                    onExpandMenuClicked={() => setMenuOpen(true)}
+                    onExpandMenuClicked={onExpandMenuClicked}
                 />
             )}
         </>

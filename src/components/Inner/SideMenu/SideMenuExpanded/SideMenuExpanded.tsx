@@ -1,6 +1,7 @@
 import { CheckIcon, FilePlusIcon, HamburgerMenuIcon, HomeIcon, PersonIcon, ReaderIcon } from "@radix-ui/react-icons";
 import * as NavigationMenu from "@radix-ui/react-navigation-menu";
 import * as Separator from "@radix-ui/react-separator";
+import { Link } from "react-router-dom";
 
 interface SideMenuExpandedProps {
     onCollapseMenuClicked: () => void;
@@ -66,7 +67,7 @@ const SideMenuExpanded = ({
                         </div>
                         <NavigationMenu.Item className="my-6 flex items-center">
                             <PersonIcon className="mr-3" />
-                            <NavigationMenu.Link>Usuários</NavigationMenu.Link>
+                            <Link to="users">Usuários</Link>
                         </NavigationMenu.Item>
                     </>
                 )}
