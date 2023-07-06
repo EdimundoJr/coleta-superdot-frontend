@@ -5,11 +5,12 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import { useForm } from "react-hook-form";
 import { RegisterValues, registerSchema } from "../../schemas/registerSchema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { InputField } from "../../components/Outer/InputField/InputField";
-import { SelectField } from "../../components/Outer/SelectField/SelectField";
+import { InputField } from "../../components/InputField/InputField";
+import { SelectField } from "../../components/SelectField/SelectField";
 import { registerResearcher } from "../../api/auth.api";
 import { saveTokens } from "../../utils/tokensHandler";
 import { redirect, useNavigate } from "react-router-dom";
+import Button from "../../components/Inner/Button/Button";
 
 const RegisterPage = () => {
     const {
@@ -61,57 +62,56 @@ const RegisterPage = () => {
             <Form.Root onSubmit={onSubmit} className="mx-auto w-9/12">
                 <div className="-mx-3 mb-6 mt-11 grid grid-cols-1 gap-y-9 md:grid-cols-2 lg:grid-cols-3">
                     <InputField
-                        placeholder="FOTO DE PERFIL"
-                        error={!!errors.personal_data?.profile_photo}
+                        label="FOTO DE PERFIL"
                         errorMessage={errors.personal_data?.profile_photo?.message?.toString()}
                         type="file"
+                        scope="OUTER"
                         className="file:h-[35px] file:border-none file:bg-transparent file:text-black"
                         {...register("personal_data.profile_photo")}
                     ></InputField>
 
                     <InputField
-                        placeholder="NOME COMPLETO*"
-                        error={!!errors.personal_data?.full_name}
+                        label="NOME COMPLETO*"
                         errorMessage={errors.personal_data?.full_name?.message}
                         type="text"
+                        scope="OUTER"
                         {...register("personal_data.full_name")}
                     ></InputField>
 
                     <InputField
-                        placeholder="DATA DE NASCIMENTO*"
-                        error={!!errors.personal_data?.birth_date}
+                        label="DATA DE NASCIMENTO*"
                         errorMessage={errors.personal_data?.birth_date?.message}
                         type="date"
+                        scope="OUTER"
                         {...register("personal_data.birth_date")}
                     ></InputField>
 
                     <InputField
-                        placeholder="EMAIL (a ser público)*"
-                        error={!!errors.email}
+                        label="EMAIL (a ser público)*"
                         errorMessage={errors.email?.message}
                         type="email"
+                        scope="OUTER"
                         {...register("email")}
                     ></InputField>
 
                     <InputField
-                        placeholder="CONFIRMAR EMAIL*"
-                        error={!!errors.confirm_email}
+                        label="CONFIRMAR EMAIL*"
                         errorMessage={errors.confirm_email?.message}
                         type="email"
+                        scope="OUTER"
                         {...register("confirm_email")}
                     ></InputField>
 
                     <InputField
-                        placeholder="INSTITUIÇÃO DE TRABALHO*"
-                        error={!!errors.instituition}
+                        label="INSTITUIÇÃO DE TRABALHO*"
                         errorMessage={errors.instituition?.message}
                         type="text"
+                        scope="OUTER"
                         {...register("instituition")}
                     ></InputField>
 
                     <SelectField
-                        placeholder="ESTADO*"
-                        error={!!errors.personal_data?.country_state}
+                        label="ESTADO*"
                         errorMessage={errors.personal_data?.country_state?.message}
                         {...register("personal_data.country_state")}
                     >
@@ -123,27 +123,27 @@ const RegisterPage = () => {
                     </SelectField>
 
                     <InputField
-                        placeholder="TELEFONE*"
-                        error={!!errors.personal_data?.phone}
+                        label="TELEFONE*"
                         errorMessage={errors.personal_data?.phone?.message}
                         type="text"
+                        scope="OUTER"
                         maxLength={11}
                         {...register("personal_data.phone")}
                     ></InputField>
 
                     <InputField
-                        placeholder="SENHA*"
-                        error={!!errors.password}
+                        label="SENHA*"
                         errorMessage={errors.password?.message}
                         type="password"
+                        scope="OUTER"
                         {...register("password")}
                     ></InputField>
 
                     <InputField
-                        placeholder="CONFIRMAR SENHA*"
-                        error={!!errors.password_confirmation}
+                        label="CONFIRMAR SENHA*"
                         errorMessage={errors.password_confirmation?.message}
                         type="password"
+                        scope="OUTER"
                         {...register("password_confirmation")}
                     ></InputField>
                 </div>
@@ -167,9 +167,7 @@ const RegisterPage = () => {
                 </div>
 
                 <Form.Submit asChild className="mt-10">
-                    <button className="mt-[10px] box-border inline-flex h-[35px]  items-center justify-center rounded-[4px] bg-violet-800 px-[15px] font-medium leading-none text-white shadow-[0_2px_10px] shadow-blackA7 hover:bg-violet-600 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none">
-                        Continuar
-                    </button>
+                    <Button placeholder="Continuar" scope="OUTER" />
                 </Form.Submit>
                 <div className="mb-5 mt-10">
                     <div className=" text-red-600 ">* Campos obrigatórios</div>

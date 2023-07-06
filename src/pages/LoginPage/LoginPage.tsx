@@ -2,7 +2,7 @@ import * as Form from "@radix-ui/react-form";
 import { useForm } from "react-hook-form";
 import { LoginValues, loginSchema } from "../../schemas/loginSchema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { InputField } from "../../components/Outer/InputField/InputField";
+import { InputField } from "../../components/InputField/InputField";
 import { loginResearcher } from "../../api/auth.api";
 import { saveTokens } from "../../utils/tokensHandler";
 import { useNavigate } from "react-router-dom";
@@ -35,16 +35,16 @@ export const LoginPage = () => {
             <Form.Root onSubmit={onSubmit} className="sm:5/12 mx-auto w-7/12 md:w-4/12 lg:w-3/12 ">
                 <div className="-mx-3 mb-6 mt-11 grid grid-cols-1 gap-y-9 ">
                     <InputField
-                        placeholder="Email"
-                        error={!!errors.email}
+                        label="Email"
+                        scope="OUTER"
                         errorMessage={errors.email?.message}
                         type="email"
                         {...register("email")}
                     ></InputField>
 
                     <InputField
-                        placeholder="Senha"
-                        error={!!errors.password}
+                        label="Senha"
+                        scope="OUTER"
                         errorMessage={errors.password?.message}
                         type="password"
                         {...register("password")}
