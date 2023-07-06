@@ -14,6 +14,16 @@ export const loginResearcher = async (data: LoginValues) => {
     });
 };
 
+export const fetchUserRole = async (userId: string) => {
+    setAuthHeaders();
+    return axios.get<string>(`${import.meta.env.VITE_BACKEND_HOST}/api/auth/userRole/${userId}`);
+};
+
+export const setUserRole = async (userId: string, newRole: string, emailMessage: string | undefined) => {
+    setAuthHeaders();
+    return axios.patch(`${import.meta.env.VITE_BACKEND_HOST}/api/auth/setUserRole`, { userId, newRole, emailMessage });
+};
+
 export const logoutUser = async () => {
     clearTokens();
 };
