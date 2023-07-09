@@ -10,6 +10,8 @@ import { LoginPage } from "./pages/LoginPage/LoginPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import { useState } from "react";
 import { isMobile } from "./utils/mediaQuery.utils";
+import CreateSamplePage from "./pages/CreateSamplePage/CreateSamplePage";
+import ChooseSampleGroupPage from "./pages/ChooseSampleGroupPage/ChooseSampleGroupPage";
 
 function OuterLayout() {
     return (
@@ -63,6 +65,14 @@ const router = createBrowserRouter([
             {
                 path: "home",
                 Component: HomePageTemp,
+            },
+            {
+                path: "chooseSampleGroup",
+                Component: ChooseSampleGroupPage,
+            },
+            {
+                path: "createSample",
+                Component: CreateSamplePage,
             },
             {
                 path: "users",

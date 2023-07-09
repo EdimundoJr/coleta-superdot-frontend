@@ -45,7 +45,7 @@ const SideMenuExpanded = ({
                 </NavigationMenu.Item>
                 <NavigationMenu.Item className="my-6 flex items-center">
                     <FilePlusIcon className="mr-3" />
-                    <NavigationMenu.Link>Criar Amostra</NavigationMenu.Link>
+                    <Link to="createSample">Criar Amostra</Link>
                 </NavigationMenu.Item>
                 {showReviewOptions && (
                     <>
