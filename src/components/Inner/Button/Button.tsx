@@ -10,7 +10,7 @@ const Button = ({ placeholder, scope, className, ...rest }: ButtonProps) => {
     return (
         <button
             {...rest}
-            className={`${className} mt-[10px] box-border inline-flex h-[35px] items-center justify-center rounded-[4px] p-3 font-medium leading-none shadow-[0_2px_10px] shadow-blackA7 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none ${
+            className={`${className} box-border inline-flex h-[35px] items-center justify-center rounded-[4px] p-3 font-medium leading-none shadow-[0_2px_10px] shadow-blackA7 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none ${
                 scope === "OUTER" ? styleOuter : styleInner
             }`}
         >
