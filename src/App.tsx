@@ -12,6 +12,7 @@ import { useState } from "react";
 import { isMobile } from "./utils/mediaQuery.utils";
 import CreateSamplePage from "./pages/CreateSamplePage/CreateSamplePage";
 import ChooseSampleGroupPage from "./pages/ChooseSampleGroupPage/ChooseSampleGroupPage";
+import SampleReviewPage from "./pages/SampleReviewPage/SampleReviewPage";
 
 function OuterLayout() {
     return (
@@ -77,6 +78,10 @@ const router = createBrowserRouter([
             {
                 path: "users",
                 Component: UsersPage,
+            },
+            {
+                path: "requests",
+                Component: SampleReviewPage,
             },
         ],
     },
