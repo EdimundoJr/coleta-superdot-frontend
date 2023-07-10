@@ -18,7 +18,7 @@ export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>
         const messageStyleInner = "text-black";
 
         return (
-            <Form.Field className="relative mb-6 w-full" name={name}>
+            <Form.Field className="relative mb-6 w-full px-3" name={name}>
                 <Form.Label
                     className={`mb-2 block text-left text-xs font-bold uppercase tracking-wide ${
                         scope === "OUTER" ? "text-white-700" : "text-blue-700"
