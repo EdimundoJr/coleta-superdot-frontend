@@ -1,4 +1,5 @@
 import { InferType, number, object, string } from "yup";
+import { BRAZIL_REGIONS_ARRAY, INSTITUITION_TYPE_ARRAY } from "../utils/consts.utils";
 
 export const sampleSchema = object({
     research_title: string().required("Por favor, insira o título da pesquisa."),
@@ -14,14 +15,14 @@ export const sampleSchema = object({
         tale_document: string(),
     }),
     country_region: string()
-        .oneOf(["Norte", "Nordeste", "Centro-Oeste", "Sudeste", "Sul"], "Por favor, selecione uma região válida.")
+        .oneOf(BRAZIL_REGIONS_ARRAY, "Por favor, selecione uma região válida.")
         .required("Por favor, informe a região dos participantes da amostra."),
     country_state: string().required("Por favor, informe o estado dos participantes da amostra."),
     country_city: string().required("Por favor, informe a cidade dos participantes da amostra."),
     instituition: object({
         name: string().required("Por favor, informe o nome da instituição dos participantes."),
         instType: string()
-            .oneOf(["Pública", "Particular"], "Por favor, selecione um tipo válido.")
+            .oneOf(INSTITUITION_TYPE_ARRAY, "Por favor, selecione um tipo válido.")
             .required("Por favor, informe o tipo de instituição."),
     }),
 });

@@ -1,5 +1,5 @@
 import { Pencil1Icon } from "@radix-ui/react-icons";
-import Pagination from "./Pagination/Pagination";
+import Pagination from "../Pagination/Pagination";
 import { PAGE_SIZE, ResearchersPaginated } from "../../../../api/researchers.api";
 
 interface UsersTableProps {

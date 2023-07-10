@@ -1,4 +1,4 @@
-import { InferType, array, date, mixed, object, string } from "yup";
+import { InferType, date, mixed, object, string } from "yup";
 
 export const registerSchema = object({
     personal_data: object({

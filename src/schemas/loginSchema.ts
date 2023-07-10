@@ -1,4 +1,4 @@
-import { InferType, array, date, mixed, object, string } from "yup";
+import { InferType, object, string } from "yup";
 
 export const loginSchema = object({
     email: string().email("Insira um e-mail válido").required("Por favor, insira o email"),

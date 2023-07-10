@@ -111,6 +111,7 @@ const RegisterPage = () => {
                     ></InputField>
 
                     <SelectField
+                        scope="OUTER"
                         label="ESTADO*"
                         errorMessage={errors.personal_data?.country_state?.message}
                         {...register("personal_data.country_state")}
