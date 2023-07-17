@@ -1,11 +1,10 @@
 import type { Config } from "tailwindcss";
-import { blackA, violet, mauve, slate } from "@radix-ui/colors";
 
 export default {
     content: ["./src/**/*.{html,ts,tsx}"],
     theme: {
         extend: {
-            colors: { ...blackA, ...violet, ...mauve, ...slate, ...violet },
+            colors: { primary: "#7C2AE8", primaryLight: "#B57CFF", neutralDark: "#737373", neutralLight: "#C9C9C9" },
             keyframes: {
                 hide: {
                     from: { opacity: "1" },
