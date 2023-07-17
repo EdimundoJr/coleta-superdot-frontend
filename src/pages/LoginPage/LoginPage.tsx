@@ -1,17 +1,19 @@
 import * as Form from "@radix-ui/react-form";
 import { useForm } from "react-hook-form";
-import { LoginValues, loginSchema } from "../../schemas/loginSchema";
+import { loginSchema } from "../../schemas/loginSchema";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { InputField } from "../../components/InputField/InputField";
 import { loginResearcher } from "../../api/auth.api";
 import { saveTokens } from "../../utils/tokensHandler";
 import { useNavigate } from "react-router-dom";
+import saly16 from "../../assets/Saly-16.svg";
+import googleLogo from "../../assets/google-logo.svg";
+import * as Separator from "@radix-ui/react-separator";
+import { Link } from "react-router-dom";
 
 export const LoginPage = () => {
     const {
         register,
         handleSubmit,
-        watch,
         formState: { errors },
     } = useForm({ resolver: yupResolver(loginSchema) });
     const navigate = useNavigate();
@@ -31,38 +33,48 @@ export const LoginPage = () => {
 
     return (
         <>
-            <header className="p-6 text-4xl">Login</header>
-            <Form.Root onSubmit={onSubmit} className="sm:5/12 mx-auto w-7/12 md:w-4/12 lg:w-3/12 ">
-                <div className="-mx-3 mb-6 mt-11 grid grid-cols-1 gap-y-9 ">
-                    <InputField
-                        label="Email"
-                        scope="OUTER"
-                        errorMessage={errors.email?.message}
-                        type="email"
-                        {...register("email")}
-                    ></InputField>
-
-                    <InputField
-                        label="Senha"
-                        scope="OUTER"
-                        errorMessage={errors.password?.message}
-                        type="password"
-                        {...register("password")}
-                    ></InputField>
+            <div className="h-full md:flex">
+                <div className="bg-default-gradient hidden h-full align-middle md:flex md:w-9/12">
+                    <img className="m-auto h-full" src={saly16}></img>
                 </div>
-
-                <div>
-                    <Form.Submit asChild className="mt-10">
-                        <button className="sahdow-[0_2px_10px] mt-[10px] box-border inline-flex h-[35px] items-center justify-center rounded-[4px] bg-violet-800 px-[15px] font-medium leading-none text-white shadow-blackA7 hover:bg-violet-600 focus:shadow-[0_0_0_2px] focus:shadow-black focus:outline-none">
-                            Continuar
+                <div className="flex h-full w-full overflow-auto bg-slate-100 text-[#4F4F4F]">
+                    <div className="mt-24 w-full">
+                        <Form.Root onSubmit={onSubmit} className="m-auto w-8/12 sm:w-6/12">
+                            <h1>Login</h1>
+                            <Form.Field name="email" className="mt-12">
+                                <Form.Control placeholder="E-mail" type="email" {...register("email")}></Form.Control>
+                                {errors?.email && (
+                                    <Form.Message className="error-message">{errors.email.message}</Form.Message>
+                                )}
+                            </Form.Field>
+                            <Form.Field name="password" className="mt-4">
+                                <Form.Control
+                                    placeholder="Senha"
+                                    type="password"
+                                    {...register("password")}
+                                ></Form.Control>
+                                {errors?.password && (
+                                    <Form.Message className="error-message">{errors.password.message}</Form.Message>
+                                )}
+                            </Form.Field>
+                            <Form.Submit asChild>
+                                <button className="button-primary mb-4 mt-9 w-full">Continuar</button>
+                            </Form.Submit>
+                            <Link className="text-sm" to="/register">
+                                Não tenho uma conta...
+                            </Link>
+                        </Form.Root>
+                        <div className="my-14  flex h-6 w-full">
+                            <Separator.Root className="m-auto h-px w-full bg-black" />
+                            <div className="w-full font-bold">Ou acesse com</div>
+                            <Separator.Root className="m-auto h-px w-full bg-black" />
+                        </div>
+                        <button className="m-auto flex items-center rounded-md border border-[#C2C2C2] p-2 font-medium hover:bg-slate-200">
+                            <img src={googleLogo} className="pr-2"></img>Google
                         </button>
-                    </Form.Submit>
-
-                    <div className="mb-5 mt-3 text-xs">
-                        <a href="#">Já tenho uma conta...</a>
                     </div>
                 </div>
-            </Form.Root>
+            </div>
         </>
     );
 };
