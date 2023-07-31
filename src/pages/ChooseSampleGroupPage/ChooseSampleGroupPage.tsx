@@ -19,9 +19,9 @@ const ChooseSampleGroupPage = () => {
 
     return (
         <>
-            <header className="p-6 text-4xl font-bold text-blue-950">Identificação de Grupo</header>
-            <h3 className="text-blue-950">Selecione um grupo para criar uma amostra</h3>
-            <div className="mt-10 grid grid-cols-1 content-center justify-items-center gap-x-3 gap-y-8 sm:grid-cols-2 lg:grid-cols-3">
+            <header className="p-6 text-4xl font-bold">Identificação de Grupo</header>
+            <h3>Selecione um grupo para criar uma amostra</h3>
+            <div className="mt-10 grid grid-cols-1 content-center justify-items-center gap-x-3 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
                 {sampleGroups?.map((group, index) => {
                     return (
                         <Card.Root key={index}>
@@ -35,15 +35,16 @@ const ChooseSampleGroupPage = () => {
                             </Card.Content>
                             <Card.Actions>
                                 <Card.Action
+                                    disabled={!group.available}
                                     onClick={() =>
-                                        navigate("/app/createSample", {
+                                        navigate("/app/create-sample", {
                                             state: {
                                                 groupSelected: group.title,
                                             },
                                         })
                                     }
                                 >
-                                    Selecionar
+                                    {group.available ? "Selecionar" : "Em construção"}
                                 </Card.Action>
                             </Card.Actions>
                         </Card.Root>
