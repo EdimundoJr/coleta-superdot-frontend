@@ -1,19 +1,21 @@
 import axios from "axios";
 import { setAuthHeaders } from "../utils/tokensHandler";
 import { SampleValues } from "../schemas/sample.schema";
-import { SampleStatus } from "../utils/consts.utils";
+import { InstituitionType, SampleStatus } from "../utils/consts.utils";
+import { MySamplesFilters } from "../schemas/mySample.Schema";
+import { ISampleReview } from "./sampleReview.api";
 
 export const FILES_TO_UPLOAD = [
     {
-        key: "research_cep[research_document]",
+        key: "researchCep[researchDocument]",
         label: "Projeto de pesquisa",
     },
     {
-        key: "research_cep[tcle_document]",
+        key: "researchCep[tcleDocument]",
         label: "TCLE",
     },
     {
-        key: "research_cep[tale_document]",
+        key: "researchCep[taleDocument]",
         label: "TALE",
     },
 ];
@@ -39,20 +41,66 @@ export interface SampleSummary {
     };
 }
 
-export interface Page {
+export default interface ISample {
+    _id?: string;
+    researchTitle: string;
+    sampleTitle: string;
+    sampleGroup: string;
+    qttParticipantsRequested: number;
+    qttParticipantsAuthorized?: number;
+    qttParticipantsRegistered: number;
+    researchCep: {
+        cepCode: string;
+        researchDocument?: string;
+        tcleDocument?: string;
+        taleDocument?: string;
+    };
+    status?: SampleStatus;
+    countryRegion: string;
+    countryState: string;
+    countryCity: string;
+    instituition: {
+        name: string;
+        instType: InstituitionType;
+    };
+    reviews?: [ISampleReview];
+    participants?: [];
+    approvedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
+}
+
+export interface PageSampleSummary {
     pagination: {
         totalItems: number;
-        page: 1;
+        page: number;
     };
     data: [SampleSummary];
 }
 
 export const paginateAllSamples = async (currentPage: number, itemsPerPage: number, filterStatus = "") => {
     setAuthHeaders();
-    return axios.get<Page>(
+    return axios.get<PageSampleSummary>(
         `${
             import.meta.env.VITE_BACKEND_HOST
         }/api/sample/paginateAll/${itemsPerPage}/page/${currentPage}?status=${filterStatus}`
+    );
+};
+
+export interface PageSample {
+    pagination?: {
+        totalItems: number;
+        page: number;
+    };
+    data?: ISample[];
+}
+
+export const paginateSamples = async (currentPage: number, itemsPerPage: number, filters?: MySamplesFilters) => {
+    setAuthHeaders();
+    return axios.get<PageSample>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/sample/paginate/${itemsPerPage}/page/${currentPage}?researchTitle=${
+            filters?.researcherTitle
+        }&sampleTitle=${filters?.sampleTitle}`
     );
 };
 
@@ -61,4 +109,9 @@ export const seeAttachment = async (fileName: string) => {
     return axios.get(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/attachment/${fileName}`, {
         responseType: "blob",
     });
+};
+
+export const deleteSample = async (sampleId: string | undefined) => {
+    setAuthHeaders();
+    return axios.delete(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/deleteSample/${sampleId}`);
 };
