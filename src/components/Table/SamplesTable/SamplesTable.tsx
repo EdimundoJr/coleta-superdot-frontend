@@ -1,8 +1,8 @@
 import { ClipboardIcon, MagnifyingGlassIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import Pagination from "../Pagination/Pagination";
-import { PAGE_SIZE } from "../../../../api/researchers.api";
-import { Page, SampleSummary } from "../../../../api/sample.api";
-import { SampleStatus } from "../../../../utils/consts.utils";
+import { PAGE_SIZE } from "../../../api/researchers.api";
+import { Page, SampleSummary } from "../../../api/sample.api";
+import { SampleStatus } from "../../../utils/consts.utils";
 
 interface SamplesTableProps {
     page?: Page;
@@ -27,41 +27,41 @@ const SamplesTable = ({
 }: SamplesTableProps) => {
     return (
         <>
-            <div className="mt-11 flex gap-5 sm:justify-center ">
+            <div className="mt-11 flex gap-5 text-alternative-text sm:justify-center ">
                 <div
                     onClick={() => onChangeFilterStatus("")}
                     className={`w-fit cursor-pointer rounded-t-lg p-1 ${
-                        !currentStatus ? "bg-gray-500" : "bg-blue-950"
-                    } hover:bg-blue-600`}
+                        !currentStatus ? "bg-primary" : "bg-gray-500"
+                    } hover:bg-primary-light`}
                 >
                     Todos
                 </div>
                 <div
                     onClick={() => onChangeFilterStatus("Pendente")}
                     className={`w-fit cursor-pointer rounded-t-lg ${
-                        currentStatus === "Pendente" ? "bg-gray-500" : "bg-blue-950"
-                    } p-1 hover:bg-blue-600`}
+                        currentStatus === "Pendente" ? "bg-primary" : "bg-gray-500"
+                    } p-1 hover:bg-primary-light`}
                 >
                     Pendentes
                 </div>
                 <div
                     onClick={() => onChangeFilterStatus("Autorizado")}
                     className={`w-fit cursor-pointer rounded-t-lg ${
-                        currentStatus === "Autorizado" ? "bg-gray-500" : "bg-blue-950"
-                    } p-1 hover:bg-blue-600`}
+                        currentStatus === "Autorizado" ? "bg-primary" : "bg-gray-500"
+                    } p-1 hover:bg-primary-light`}
                 >
                     Autorizados
                 </div>
                 <div
                     onClick={() => onChangeFilterStatus("Não Autorizado")}
                     className={`w-fit cursor-pointer rounded-t-lg ${
-                        currentStatus === "Não Autorizado" ? "bg-gray-500" : "bg-blue-950"
-                    } p-1 hover:bg-blue-600`}
+                        currentStatus === "Não Autorizado" ? "bg-primary" : "bg-gray-500"
+                    } p-1 hover:bg-primary-light`}
                 >
                     Não autorizados
                 </div>
             </div>
-            <table className="mx-auto w-11/12 border-collapse rounded-md bg-blue-950">
+            <table className="bg-dark-gradient mx-auto w-11/12 border-collapse rounded-md text-alternative-text">
                 <thead>
                     <tr>
                         <th className="px-6 py-3">Nome do Pesquisador</th>
@@ -73,7 +73,7 @@ const SamplesTable = ({
                         <th className="px-6 py-3">Ações</th>
                     </tr>
                 </thead>
-                <tbody className="bg-white text-blue-950">
+                <tbody className="bg-white text-primary">
                     {page?.data?.map((sample) => (
                         <tr key={sample.sample_id} className="odd:bg-gray-200">
                             <td className="border-x-2 border-gray-600 px-6 py-3">{sample.researcher_name}</td>
@@ -111,7 +111,7 @@ const SamplesTable = ({
                             <Pagination
                                 currentPage={currentPage}
                                 pageSize={PAGE_SIZE}
-                                totalCount={page?.pagination.totalItems || 0}
+                                totalCount={page?.pagination?.totalItems || 0}
                                 onPageChange={(page: number) => setCurrentPage(page)}
                             />
                         </td>

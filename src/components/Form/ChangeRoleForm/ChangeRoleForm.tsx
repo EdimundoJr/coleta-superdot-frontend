@@ -2,10 +2,9 @@ import * as Form from "@radix-ui/react-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { SelectField } from "../../../SelectField/SelectField";
-import { TextAreaField } from "../../../TextAreaField/TextAreaField";
-import { setUserRole } from "../../../../api/auth.api";
-import Button from "../../Button/Button";
+import { SelectField } from "../../SelectField/SelectField";
+import { TextAreaField } from "../../TextAreaField/TextAreaField";
+import { setUserRole } from "../../../api/auth.api";
 
 const usersPageSearchFormSchema = yup.object({
     newRole: yup
@@ -48,7 +47,6 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
             <SelectField
                 defaultValue={currentUserRole}
                 errorMessage={errors?.newRole?.message}
-                scope="INNER"
                 label="Perfil"
                 {...register("newRole")}
             >
@@ -58,12 +56,11 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
             </SelectField>
             <TextAreaField
                 errorMessage={errors?.emailMessage?.message}
-                scope="INNER"
                 label="Mensagem"
                 {...register("emailMessage")}
             />
             <Form.Submit asChild>
-                <Button className="float-right mr-3 text-white" placeholder="Salvar" scope="INNER" />
+                <button className="float-right mr-3 text-white">Salvar</button>
             </Form.Submit>
         </Form.Root>
     );
