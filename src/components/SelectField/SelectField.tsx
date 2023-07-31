@@ -5,25 +5,15 @@ interface SelectFieldProps extends React.PropsWithRef<React.JSX.IntrinsicElement
     label: string;
     name: string;
     errorMessage?: string;
-    scope: "INNER" | "OUTER";
     extraItem?: ReactNode;
 }
 
 export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
-    ({ label, name, errorMessage, className, children, scope, extraItem, ...rest }, ref) => {
-        const controlStyleOuter = "border bg-violet-400 text-white";
-        const controlStyleInner = "border-2 border-gray-500 bg-white text-black";
-
-        const messageStyleOuter = "text-white opacity-[0.8]";
-        const messageStyleInner = "text-black";
+    ({ label, name, errorMessage, className, children, extraItem, ...rest }, ref) => {
         return (
             <Form.Field className="mb-6 w-full px-3" name={name}>
                 <div className="flex items-baseline justify-between">
-                    <Form.Label
-                        className={`mb-2 block text-left text-xs font-bold uppercase tracking-wide ${
-                            scope === "OUTER" ? "text-white-700" : "text-blue-700"
-                        }`}
-                    >
+                    <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
                         {label}
                     </Form.Label>
                 </div>
@@ -32,9 +22,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         <select
                             ref={ref}
                             {...rest}
-                            className={`h-[35px] w-full rounded-[4px] px-4 text-sm  ${className} ${
-                                scope === "OUTER" ? controlStyleOuter : controlStyleInner
-                            }`}
+                            className={`h-[35px] w-full rounded-[4px] px-4 text-sm ${className}}`}
                         >
                             {children}
                         </select>
@@ -42,11 +30,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     {extraItem}
                 </div>
                 {errorMessage && (
-                    <Form.Message
-                        className={`h-[35px] w-full rounded-[4px] px-4 text-sm  ${className} ${
-                            scope === "OUTER" ? messageStyleOuter : messageStyleInner
-                        }`}
-                    >
+                    <Form.Message className={`h-[35px] w-full rounded-[4px] px-4 text-sm ${className}`}>
                         {errorMessage}
                     </Form.Message>
                 )}
