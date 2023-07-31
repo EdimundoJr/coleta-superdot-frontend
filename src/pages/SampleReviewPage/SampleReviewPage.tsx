@@ -1,11 +1,10 @@
-import Button from "../../components/Inner/Button/Button";
 import { PAGE_SIZE } from "../../api/researchers.api";
 import { useEffect, useState } from "react";
-import Modal from "../../components/Inner/Modal/Modal";
+import Modal from "../../components/Modal/Modal";
 import * as Toast from "@radix-ui/react-toast";
-import SamplesTable from "../../components/Inner/Table/SamplesTable/SamplesTable";
-import { Page, paginateAllSamples, seeAttachment } from "../../api/sample.api";
-import SampleReviewForm from "../../components/Inner/Form/SampleReviewForm/SampleReviewForm";
+import SamplesTable from "../../components/Table/SamplesTable/SamplesTable";
+import { PageSampleSummary, paginateAllSamples, seeAttachment } from "../../api/sample.api";
+import SampleReviewForm from "../../components/Form/SampleReviewForm/SampleReviewForm";
 import { SampleReviewWithReviewerName, findReviewsBySampleId } from "../../api/sampleReview.api";
 import ReviewCard from "../../components/ReviewCard/ReviewCard";
 import { SampleSummary } from "../../api/sample.api";
@@ -17,7 +16,7 @@ const SampleReviewPage = () => {
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
 
     /* TABLE STATES */
-    const [tablePageData, setTablePageData] = useState<Page>();
+    const [tablePageData, setTablePageData] = useState<PageSampleSummary>();
     const [currentTablePage, setCurrentTablePage] = useState(1);
     const [filterStatus, setFilterStatus] = useState<SampleStatus | "">("");
     const [refreshTable, setRefreshTable] = useState(false);
@@ -90,7 +89,7 @@ const SampleReviewPage = () => {
 
     return (
         <Toast.Provider swipeDirection="left">
-            <header className="mt-6 text-2xl font-bold text-blue-950">Solicitações</header>
+            <header className="mt-6 text-2xl font-bold">Solicitações</header>
             <div className="mb-8 overflow-x-scroll">
                 <SamplesTable
                     onClickToReviewSample={handleOnClickToReviewSample}
@@ -135,34 +134,34 @@ const SampleReviewPage = () => {
                     {attachmentsToDisplay?.research_document && (
                         <li>
                             Projeto de pesquisa:
-                            <Button
+                            <button
                                 onClick={() => handleSeeAttachment(attachmentsToDisplay.research_document || "")}
-                                scope="INNER"
-                                placeholder="Visualizar"
                                 className="m-4 text-white"
-                            ></Button>
+                            >
+                                Visualizar
+                            </button>
                         </li>
                     )}
                     {attachmentsToDisplay?.tcle_document && (
                         <li>
                             TCLE:
-                            <Button
+                            <button
                                 onClick={() => handleSeeAttachment(attachmentsToDisplay.tcle_document || "")}
-                                scope="INNER"
-                                placeholder="Visualizar"
                                 className="m-4 text-white"
-                            ></Button>
+                            >
+                                Visualizar
+                            </button>
                         </li>
                     )}
                     {attachmentsToDisplay?.tale_document && (
                         <li>
                             TALE:
-                            <Button
+                            <button
                                 onClick={() => handleSeeAttachment(attachmentsToDisplay.tale_document || "")}
-                                scope="INNER"
-                                placeholder="Visualizar"
                                 className="m-4 text-white"
-                            ></Button>
+                            >
+                                Visualizar
+                            </button>
                         </li>
                     )}
                 </ul>
