@@ -29,38 +29,57 @@ html {
     overflow: auto;
 }
 
+/** DEFAULT ELEMENTS **/
+
+h1,
+h3 {
+    @apply font-bold;
+}
+
 h1 {
-    @apply text-3xl font-bold;
+    @apply text-3xl;
 }
 
 h3 {
-    @apply text-xl font-bold;
+    @apply text-xl;
 }
 
-.bg-default-gradient {
-    @apply bg-gradient-to-br from-[#CDA5FF] to-[#F5EDFF];
-}
-
-input {
+input,
+select,
+textarea {
     @apply w-full rounded-[10px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium text-[#999999];
 }
+
+/** CUSTOM ELEMENTS **/
 
 span.error-message {
     @apply block px-2 text-left text-sm text-rose-500;
 }
 
+/** BACKGROUNDS, COLORS AND GRADIENTS **/
+
+.bg-dark-gradient {
+    @apply bg-gradient-to-br from-[#5300B8] to-[#7F35E1];
+}
+
+.bg-light-gradient {
+    @apply bg-gradient-to-b from-[#A256FF] to-[#CCA2FF];
+}
+
+/** BUTTONS **/
+
 .button-default {
     @apply rounded-[8px] p-3 font-medium;
 }
 
+.button-primary {
+    @apply button-default bg-primary text-white hover:bg-primary-light;
+}
+
 .button-neutral-light {
-    @apply button-default bg-neutralLight text-[#272727] hover:bg-slate-300;
+    @apply button-default bg-neutral-light text-[#272727] hover:bg-slate-300;
 }
 
 .button-neutral-dark {
-    @apply button-default bg-neutralDark text-white hover:bg-slate-600;
-}
-
-.button-primary {
-    @apply button-default bg-primary text-white hover:bg-primaryLight;
+    @apply button-default bg-neutral-dark text-white hover:bg-slate-600;
 }
