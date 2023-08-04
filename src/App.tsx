@@ -1,23 +1,20 @@
-import "./App.css";
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
-import InnerNavBar from "./components/Inner/InnerNavBar/InnerNavBar";
-import OuterNavBar from "./components/OuterNavBar/OuterNavBar";
 import GuardRoute from "./components/GuardRoute/GuardRoute";
-import SideMenu from "./components/Inner/SideMenu/SideMenu";
-import { getUserRole } from "./utils/auth.utils";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
-import { useState } from "react";
-import { isMobile } from "./utils/mediaQuery.utils";
 import CreateSamplePage from "./pages/CreateSamplePage/CreateSamplePage";
 import ChooseSampleGroupPage from "./pages/ChooseSampleGroupPage/ChooseSampleGroupPage";
 import SampleReviewPage from "./pages/SampleReviewPage/SampleReviewPage";
+import SideBar from "./components/SideBar/SideBar";
+import LogoutPage from "./pages/LogoutPage/LogoutPage";
+import { getUserRole } from "./utils/auth.utils";
+import MySamplesPage from "./pages/MySamplesPage/MySamplesPage";
+import EditSamplePage from "./pages/EditSamplePage/EditSamplePage";
 
 function OuterLayout() {
     return (
-        <div className="relative h-full overflow-auto bg-slate-950 bg-opacity-50 bg-[url('/background.png')] bg-cover bg-no-repeat bg-blend-multiply">
-            <OuterNavBar />
+        <div className="relative h-full overflow-auto">
             <GuardRoute scope="OUTER">
                 <Outlet />
             </GuardRoute>
@@ -26,18 +23,11 @@ function OuterLayout() {
 }
 
 function InnerLayout() {
-    const [menuOpen, setMenuOpen] = useState(false);
-
+    const userRole = getUserRole();
     return (
-        <div className="flex h-full bg-white">
-            <SideMenu
-                onCollapseMenuClicked={() => setMenuOpen(false)}
-                onExpandMenuClicked={() => setMenuOpen(true)}
-                menuOpen={menuOpen}
-                userRole={getUserRole() || ""}
-            />
+        <div className="flex bg-white text-primary-text">
+            <SideBar userRole={userRole} />
             <div className="w-full">
-                <InnerNavBar isMobile={isMobile()} onExpandMenuClicked={() => setMenuOpen(true)} />
                 <GuardRoute scope="INNER">
                     <Outlet />
                 </GuardRoute>
@@ -47,7 +37,11 @@ function InnerLayout() {
 }
 
 function HomePageTemp() {
-    return <p>Login Page</p>;
+    return (
+        <div>
+            <header className="mt-6 text-2xl font-bold">Dashboard</header>
+        </div>
+    );
 }
 
 const router = createBrowserRouter([
@@ -60,7 +54,7 @@ const router = createBrowserRouter([
         ],
     },
     {
-        path: "/app",
+        path: "app",
         Component: InnerLayout,
         children: [
             {
@@ -68,20 +62,32 @@ const router = createBrowserRouter([
                 Component: HomePageTemp,
             },
             {
-                path: "chooseSampleGroup",
+                path: "choose-sample-group",
                 Component: ChooseSampleGroupPage,
             },
             {
-                path: "createSample",
+                path: "my-samples",
+                Component: MySamplesPage,
+            },
+            {
+                path: "create-sample",
                 Component: CreateSamplePage,
+            },
+            {
+                path: "edit-sample",
+                Component: EditSamplePage,
             },
             {
                 path: "users",
                 Component: UsersPage,
             },
             {
-                path: "requests",
+                path: "review-requests",
                 Component: SampleReviewPage,
+            },
+            {
+                path: "logout",
+                Component: LogoutPage,
             },
         ],
     },
