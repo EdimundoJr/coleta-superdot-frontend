@@ -1,43 +1,36 @@
 import axios from "axios";
 import { setAuthHeaders } from "../utils/tokensHandler";
 import { SampleValues } from "../schemas/sample.schema";
-import { InstituitionType, SampleStatus } from "../utils/consts.utils";
-import { MySamplesFilters } from "../schemas/mySample.Schema";
+import { InstituitionType, SampleStatus, brazilRegionsType } from "../utils/consts.utils";
+import { MySamplesFilters } from "../schemas/mySample.schema";
 import { ISampleReview } from "./sampleReview.api";
-
-export const FILES_TO_UPLOAD = [
-    {
-        key: "researchCep[researchDocument]",
-        label: "Projeto de pesquisa",
-    },
-    {
-        key: "researchCep[tcleDocument]",
-        label: "TCLE",
-    },
-    {
-        key: "researchCep[taleDocument]",
-        label: "TALE",
-    },
-];
 
 export const createSample = async (sampleData: FormData) => {
     setAuthHeaders();
     return axios.post<SampleValues>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/newSample`, sampleData);
 };
 
+export const editSample = async (sampleId: string | undefined, newSampleData: FormData) => {
+    setAuthHeaders();
+    return axios.put<boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/sample/updateSample/${sampleId}`,
+        newSampleData
+    );
+};
+
 export interface SampleSummary {
-    researcher_id: string;
-    sample_id: string;
-    sample_name: string;
-    researcher_name: string;
-    cep_code: string;
-    qtt_participants_requested: number;
-    qtt_participants_authorized?: number;
+    researcherId: string;
+    sampleId: string;
+    sampleName: string;
+    researcherName: string;
+    cepCode: string;
+    qttParticipantsRequested: number;
+    qttParticipantsAuthorized?: number;
     currentStatus: SampleStatus;
     files: {
-        research_document: string;
-        tcle_document: string;
-        tale_document: string;
+        researchDocument: string;
+        tcleDocument: string;
+        taleDocument: string;
     };
 }
 
@@ -56,7 +49,7 @@ export default interface ISample {
         taleDocument?: string;
     };
     status?: SampleStatus;
-    countryRegion: string;
+    countryRegion: brazilRegionsType;
     countryState: string;
     countryCity: string;
     instituition: {
@@ -99,8 +92,8 @@ export const paginateSamples = async (currentPage: number, itemsPerPage: number,
     setAuthHeaders();
     return axios.get<PageSample>(
         `${import.meta.env.VITE_BACKEND_HOST}/api/sample/paginate/${itemsPerPage}/page/${currentPage}?researchTitle=${
-            filters?.researcherTitle
-        }&sampleTitle=${filters?.sampleTitle}`
+            filters?.researcherTitle || ""
+        }&sampleTitle=${filters?.sampleTitle || ""}`
     );
 };
 
