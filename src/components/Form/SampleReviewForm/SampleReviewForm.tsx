@@ -72,7 +72,7 @@ const SampleReviewForm = ({ sampleId, onFinish, currentStatus }: SampleReviewFor
                 {...register("review_message")}
             />
             <Form.Submit asChild>
-                <button className="float-right mr-3 text-white">Salvar</button>
+                <button className="float-right mr-3 button-primary">Salvar</button>
             </Form.Submit>
         </Form.Root>
     );
