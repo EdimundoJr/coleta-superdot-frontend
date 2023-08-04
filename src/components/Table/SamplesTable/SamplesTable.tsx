@@ -1,11 +1,11 @@
 import { ClipboardIcon, MagnifyingGlassIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import Pagination from "../Pagination/Pagination";
 import { PAGE_SIZE } from "../../../api/researchers.api";
-import { Page, SampleSummary } from "../../../api/sample.api";
+import { PageSampleSummary, SampleSummary } from "../../../api/sample.api";
 import { SampleStatus } from "../../../utils/consts.utils";
 
 interface SamplesTableProps {
-    page?: Page;
+    page?: PageSampleSummary;
     currentPage: number;
     currentStatus: SampleStatus | "";
     setCurrentPage: (newPage: number) => void;
@@ -75,25 +75,21 @@ const SamplesTable = ({
                 </thead>
                 <tbody className="bg-white text-primary">
                     {page?.data?.map((sample) => (
-                        <tr key={sample.sample_id} className="odd:bg-gray-200">
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.researcher_name}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.sample_name}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.cep_code}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">
-                                {sample.qtt_participants_requested}
-                            </td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">
-                                {sample.qtt_participants_authorized}
-                            </td>
+                        <tr key={sample.sampleId} className="odd:bg-gray-200">
+                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.researcherName}</td>
+                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.sampleName}</td>
+                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.cepCode}</td>
+                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.qttParticipantsRequested}</td>
+                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.qttParticipantsAuthorized}</td>
                             <td className="border-x-2 border-gray-600 px-6 py-3">{sample.currentStatus}</td>
                             <td className="border-x-2 border-gray-600 px-6 py-3 text-center">
                                 <div className="flex justify-center gap-2">
                                     <Pencil1Icon
-                                        onClick={() => onClickToReviewSample(sample.sample_id)}
+                                        onClick={() => onClickToReviewSample(sample.sampleId)}
                                         className="cursor-pointer"
                                     />
                                     <MagnifyingGlassIcon
-                                        onClick={() => onClickToViewSampleReviews(sample.sample_id)}
+                                        onClick={() => onClickToViewSampleReviews(sample.sampleId)}
                                         className="cursor-pointer"
                                     />
                                     <ClipboardIcon
