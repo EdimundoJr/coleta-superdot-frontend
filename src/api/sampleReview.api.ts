@@ -14,7 +14,7 @@ export const createReview = async (reviewData: ReviewValues) => {
     return axios.post(`${import.meta.env.VITE_BACKEND_HOST}/api/sampleReview/newReview`, reviewData);
 };
 
-interface ISampleReview {
+export interface ISampleReview {
     _id?: string;
     previous_status?: SampleStatus;
     next_status: SampleStatus;

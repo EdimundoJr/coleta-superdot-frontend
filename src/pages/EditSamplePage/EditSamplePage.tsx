@@ -1,55 +1,75 @@
-import { useEffect, useState } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { stateWithGroupSample } from "../../validators/navigationStateValidators";
+import { useEffect, useRef, useState } from "react";
 import * as Form from "@radix-ui/react-form";
 import { InputField } from "../../components/InputField/InputField";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SampleValues, sampleSchema } from "../../schemas/sample.schema";
 import * as Separator from "@radix-ui/react-separator";
-import { createSample } from "../../api/sample.api";
+import ISample, { editSample } from "../../api/sample.api";
 import Notify from "../../components/Notify/Notify";
 import { SelectField } from "../../components/SelectField/SelectField";
 import { FILES_AVAILABLE_TO_CREATE_SAMPLE } from "../../utils/consts.utils";
 import { SampleFile } from "../../interfaces/sample.interface";
 import SampleUploadFile from "../../components/SampleUploaderFile/SampleUploaderFile";
-import { validateFiles } from "../../validators/fileValidator";
+import { useLocation, useNavigate } from "react-router-dom";
+import { stateWithSample } from "../../validators/navigationStateValidators";
 import { CustomFileError } from "../../errors/fileErrors";
+import { validateFiles } from "../../validators/fileValidator";
 
-const CreateSamplePage = () => {
+const EditSamplePage = () => {
     const [sampleFiles, setSampleFiles] = useState<SampleFile[]>(FILES_AVAILABLE_TO_CREATE_SAMPLE);
+    const sampleId = useRef<string>();
+    const fileChangeRef = useRef(false);
 
     /* NOTIFY */
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
 
-    /* GROUP SELECTION ASSERT */
-    const [groupSelected, setGroupSelected] = useState<string>();
-    const location = useLocation();
     const navigate = useNavigate();
+    const location = useLocation();
 
     useEffect(() => {
-        if (stateWithGroupSample(location.state)) {
-            setGroupSelected(location.state.groupSelected);
+        if (stateWithSample(location.state)) {
+            const sample = location.state.sample as ISample;
+            sampleId.current = sample._id;
+            // When the uploadedFile is defined in a object inside the sampleFiles array state, the file is displayed as "uploaded".
+            setSampleFiles(
+                sampleFiles.map((sampleFile) => {
+                    // If the sample sent by the my-samples pages has the jsonFileKey of the correspondent file, I set the uploadedFile field.
+                    if (sample.researchCep[sampleFile.jsonFileKey as keyof ISample["researchCep"]]) {
+                        return {
+                            ...sampleFile,
+                            uploadedFile: new File([], "arquivo.pdf", { type: "application/pdf" }),
+                            backendFileName: sample.researchCep[sampleFile.jsonFileKey as keyof ISample["researchCep"]],
+                        };
+                    } else {
+                        return sampleFile;
+                    }
+                })
+            );
         } else {
-            navigate("/app/choose-sample-group");
+            navigate("/app/my-samples");
         }
-    }, [location.state]);
+    }, [navigate, location]);
 
     /* FORM HANDLER */
     const {
         register,
+        watch,
         handleSubmit,
         formState: { errors },
-    } = useForm({ resolver: yupResolver(sampleSchema) });
+    } = useForm({ resolver: yupResolver(sampleSchema), defaultValues: location.state.sample as ISample });
 
     const onSubmit = handleSubmit(async (data) => {
-        try {
-            validateFiles(sampleFiles);
-        } catch (e: any) {
-            if (e instanceof CustomFileError) {
-                setNotificationTitle("Arquivos inválidos.");
-                setNotificationDescription(e.message);
+        if (fileChangeRef.current) {
+            try {
+                validateFiles(sampleFiles);
+            } catch (e: any) {
+                if (e instanceof CustomFileError) {
+                    setNotificationTitle("Arquivos inválidos.");
+                    setNotificationDescription(e.message);
+                }
+                return;
             }
         }
 
@@ -75,25 +95,21 @@ const CreateSamplePage = () => {
             }
         }
 
-        if (groupSelected) {
-            formData.append("sampleGroup", groupSelected);
-        }
-
         sampleFiles?.forEach((sampleFile) => {
-            if (sampleFile.uploadedFile) {
-                formData.append(sampleFile.key, sampleFile.uploadedFile);
+            // If the file size is 0, then the user not change the file.
+            if (sampleFile.uploadedFile && sampleFile.uploadedFile.size) {
+                formData.set(sampleFile.key, sampleFile.uploadedFile);
             }
         });
 
         try {
-            const response = await createSample(formData);
-            if (response.status === 201) {
-                console.log(response);
+            const response = await editSample(sampleId.current, formData);
+            if (response.status === 200) {
                 navigate("/app/my-samples", {
                     state: {
                         notification: {
                             title: "Operação realizada.",
-                            description: "As amostra foi cadastrada com sucesso!",
+                            description: "As informações da amostra foram atualizadas.",
                         },
                     },
                 });
@@ -113,7 +129,7 @@ const CreateSamplePage = () => {
             description={notificationDescription}
         >
             <header className="p-6 text-4xl font-bold">Definição da Amostra</header>
-            <h3>Grupo selecionado: {groupSelected}</h3>
+            <h3>Grupo selecionado: {watch("sampleGroup")}</h3>
             <Form.Root onSubmit={onSubmit} className="mx-auto mb-6 mt-11 w-11/12">
                 <h3 className="text-left ">Detalhes da amostra</h3>
                 <Separator.Root className="my-6 h-px w-full bg-black" />
@@ -203,14 +219,23 @@ const CreateSamplePage = () => {
                 </div>
 
                 {/* CONTAINER TO UPLOAD FILES */}
-                <SampleUploadFile sampleFiles={sampleFiles} setSampleFiles={setSampleFiles} />
+                <SampleUploadFile
+                    sampleFiles={sampleFiles}
+                    setSampleFiles={setSampleFiles}
+                    notifyFileChange={fileChangeRef}
+                />
 
-                <Form.Submit asChild className="mt-10">
-                    <button className="button-primary">Enviar Solicitação</button>
-                </Form.Submit>
+                <div className="mt-10 flex justify-center gap-2">
+                    <Form.Submit asChild>
+                        <button className="button-neutral-light">Salvar alterações</button>
+                    </Form.Submit>
+                    <button onClick={() => navigate(-1)} type="button" className="button-primary">
+                        Cancelar
+                    </button>
+                </div>
             </Form.Root>
         </Notify>
     );
 };
 
-export default CreateSamplePage;
+export default EditSamplePage;

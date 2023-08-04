@@ -9,6 +9,8 @@ import saly16 from "../../assets/Saly-16.svg";
 import googleLogo from "../../assets/google-logo.svg";
 import * as Separator from "@radix-ui/react-separator";
 import { Link } from "react-router-dom";
+import { useState } from "react";
+import Notify from "../../components/Notify/Notify";
 
 export const LoginPage = () => {
     const {
@@ -18,24 +20,35 @@ export const LoginPage = () => {
     } = useForm({ resolver: yupResolver(loginSchema) });
     const navigate = useNavigate();
 
+    const [showNotification, setShowNotification] = useState(false);
+    const [notificationTitle, setNotificationTitle] = useState("");
+    const [notificationDescription, setNotificationDescription] = useState("");
+
     const onSubmit = handleSubmit(async (data) => {
         try {
             const response = await loginResearcher(data);
-            if (response.data) {
+            if (response.status === 200) {
                 saveTokens(response.data);
                 navigate("/app/home");
             }
-            console.log(response);
         } catch (erroLogin) {
             console.error(erroLogin);
+            setShowNotification(true);
+            setNotificationTitle("Credenciais inválidas.");
+            setNotificationDescription("O email ou a senha estão incorretos.");
         }
     });
 
     return (
-        <>
+        <Notify
+            open={showNotification}
+            onOpenChange={(open: boolean) => setShowNotification(open)}
+            title={notificationTitle}
+            description={notificationDescription}
+        >
             <div className="h-full md:flex">
-                <div className="bg-default-gradient hidden h-full align-middle md:flex md:w-9/12">
-                    <img className="m-auto h-full" src={saly16}></img>
+                <div className="bg-light-gradient hidden h-full align-middle md:flex md:w-9/12">
+                    <img className="m-auto h-full" src={saly16}></img>N
                 </div>
                 <div className="flex h-full w-full overflow-auto bg-slate-100 text-[#4F4F4F]">
                     <div className="mt-24 w-full">
@@ -75,6 +88,6 @@ export const LoginPage = () => {
                     </div>
                 </div>
             </div>
-        </>
+        </Notify>
     );
 };

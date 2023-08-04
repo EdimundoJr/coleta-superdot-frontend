@@ -1,15 +1,15 @@
-import Button from "../../components/Inner/Button/Button";
 import { PAGE_SIZE } from "../../api/researchers.api";
 import { useEffect, useState } from "react";
-import Modal from "../../components/Inner/Modal/Modal";
+import Modal from "../../components/Modal/Modal";
 import * as Toast from "@radix-ui/react-toast";
-import SamplesTable from "../../components/Inner/Table/SamplesTable/SamplesTable";
-import { Page, paginateAllSamples, seeAttachment } from "../../api/sample.api";
-import SampleReviewForm from "../../components/Inner/Form/SampleReviewForm/SampleReviewForm";
+import SamplesTable from "../../components/Table/SamplesTable/SamplesTable";
+import { PageSampleSummary, paginateAllSamples, seeAttachment } from "../../api/sample.api";
+import SampleReviewForm from "../../components/Form/SampleReviewForm/SampleReviewForm";
 import { SampleReviewWithReviewerName, findReviewsBySampleId } from "../../api/sampleReview.api";
 import ReviewCard from "../../components/ReviewCard/ReviewCard";
 import { SampleSummary } from "../../api/sample.api";
 import { SampleStatus } from "../../utils/consts.utils";
+import Notify from "../../components/Notify/Notify";
 
 const SampleReviewPage = () => {
     /* PAGE GLOBAL STATES */
@@ -17,7 +17,7 @@ const SampleReviewPage = () => {
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
 
     /* TABLE STATES */
-    const [tablePageData, setTablePageData] = useState<Page>();
+    const [tablePageData, setTablePageData] = useState<PageSampleSummary>();
     const [currentTablePage, setCurrentTablePage] = useState(1);
     const [filterStatus, setFilterStatus] = useState<SampleStatus | "">("");
     const [refreshTable, setRefreshTable] = useState(false);
@@ -45,7 +45,7 @@ const SampleReviewPage = () => {
 
     /* REVIEW CREATION HANDLERS */
     const handleOnClickToReviewSample = (sampleId: string) => {
-        const status = tablePageData?.data.find((sample) => sample.sample_id === sampleId)?.currentStatus;
+        const status = tablePageData?.data.find((sample) => sample.sampleId === sampleId)?.currentStatus;
         setCurrentSampleStatus(status);
         setSampleSelected(sampleId);
         setModalReviewingOpen(true);
@@ -89,8 +89,13 @@ const SampleReviewPage = () => {
     };
 
     return (
-        <Toast.Provider swipeDirection="left">
-            <header className="mt-6 text-2xl font-bold text-blue-950">Solicitações</header>
+        <Notify
+            onOpenChange={setShowSuccessNotify}
+            open={showSuccessNotify}
+            description="O perfil do usuário foi atualizado com sucesso!"
+            title="Sucesso"
+        >
+            <header className="mt-6 text-2xl font-bold">Solicitações</header>
             <div className="mb-8 overflow-x-scroll">
                 <SamplesTable
                     onClickToReviewSample={handleOnClickToReviewSample}
@@ -131,56 +136,43 @@ const SampleReviewPage = () => {
                 open={modalAttachmentsOpen}
                 setOpen={setModalAttachmentsOpen}
             >
-                <ul className="text-center ">
-                    {attachmentsToDisplay?.research_document && (
+                <ul className="text-center">
+                    {attachmentsToDisplay?.researchDocument && (
                         <li>
                             Projeto de pesquisa:
-                            <Button
-                                onClick={() => handleSeeAttachment(attachmentsToDisplay.research_document || "")}
-                                scope="INNER"
-                                placeholder="Visualizar"
-                                className="m-4 text-white"
-                            ></Button>
+                            <button
+                                onClick={() => handleSeeAttachment(attachmentsToDisplay.researchDocument || "")}
+                                className="button-neutral-light m-4"
+                            >
+                                Visualizar
+                            </button>
                         </li>
                     )}
-                    {attachmentsToDisplay?.tcle_document && (
+                    {attachmentsToDisplay?.tcleDocument && (
                         <li>
                             TCLE:
-                            <Button
-                                onClick={() => handleSeeAttachment(attachmentsToDisplay.tcle_document || "")}
-                                scope="INNER"
-                                placeholder="Visualizar"
-                                className="m-4 text-white"
-                            ></Button>
+                            <button
+                                onClick={() => handleSeeAttachment(attachmentsToDisplay.tcleDocument || "")}
+                                className="button-neutral-light m-4"
+                            >
+                                Visualizar
+                            </button>
                         </li>
                     )}
-                    {attachmentsToDisplay?.tale_document && (
+                    {attachmentsToDisplay?.taleDocument && (
                         <li>
                             TALE:
-                            <Button
-                                onClick={() => handleSeeAttachment(attachmentsToDisplay.tale_document || "")}
-                                scope="INNER"
-                                placeholder="Visualizar"
-                                className="m-4 text-white"
-                            ></Button>
+                            <button
+                                onClick={() => handleSeeAttachment(attachmentsToDisplay.taleDocument || "")}
+                                className="button-neutral-light m-4"
+                            >
+                                Visualizar
+                            </button>
                         </li>
                     )}
                 </ul>
             </Modal>
-            <Toast.Root
-                className="grid grid-cols-[auto_max-content] items-center gap-x-[15px] rounded-md border border-blue-800 bg-white p-[15px] text-black shadow-[hsl(206_22%_7%_/_35%)_0px_10px_38px_-10px,_hsl(206_22%_7%_/_20%)_0px_10px_20px_-15px] [grid-template-areas:_'title_action'_'description_action'] data-[swipe=cancel]:translate-x-0 data-[swipe=move]:translate-x-[var(--radix-toast-swipe-move-x)] data-[state=closed]:animate-hide data-[state=open]:animate-slideIn data-[swipe=end]:animate-swipeOut data-[swipe=cancel]:transition-[transform_200ms_ease-out]"
-                open={showSuccessNotify}
-                onOpenChange={setShowSuccessNotify}
-            >
-                <Toast.Title className="mb-[5px] text-[15px] font-medium text-slate12 [grid-area:_title]">
-                    Sucesso!
-                </Toast.Title>
-                <Toast.Description className="m-0 text-[13px] leading-[1.3] text-slate11 [grid-area:_description]">
-                    <p>O perfil do usuário foi atualizado com sucesso!</p>
-                </Toast.Description>
-            </Toast.Root>
-            <Toast.Viewport className="fixed right-0 top-0 z-[2147483647] m-0 flex w-[390px] max-w-[100vw] list-none flex-col gap-[10px] p-[var(--viewport-padding)] outline-none [--viewport-padding:_25px]" />
-        </Toast.Provider>
+        </Notify>
     );
 };
 

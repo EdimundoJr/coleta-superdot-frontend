@@ -2,12 +2,11 @@ import * as Form from "@radix-ui/react-form";
 import * as yup from "yup";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { SelectField } from "../../../SelectField/SelectField";
-import { TextAreaField } from "../../../TextAreaField/TextAreaField";
-import Button from "../../Button/Button";
-import { createReview } from "../../../../api/sampleReview.api";
-import { InputField } from "../../../InputField/InputField";
-import { SAMPLE_STATUS_ARRAY, SampleStatus } from "../../../../utils/consts.utils";
+import { SelectField } from "../../SelectField/SelectField";
+import { TextAreaField } from "../../TextAreaField/TextAreaField";
+import { createReview } from "../../../api/sampleReview.api";
+import { InputField } from "../../InputField/InputField";
+import { SAMPLE_STATUS_ARRAY, SampleStatus } from "../../../utils/consts.utils";
 
 const sampleReviewFormSchema = yup.object({
     next_status: yup.string().oneOf(SAMPLE_STATUS_ARRAY, "Por favor, selecione um status.").required(),
@@ -52,7 +51,6 @@ const SampleReviewForm = ({ sampleId, onFinish, currentStatus }: SampleReviewFor
                 <SelectField
                     defaultValue={currentStatus}
                     errorMessage={errors?.next_status?.message}
-                    scope="INNER"
                     label="STATUS"
                     {...register("next_status")}
                 >
@@ -63,7 +61,6 @@ const SampleReviewForm = ({ sampleId, onFinish, currentStatus }: SampleReviewFor
                 <InputField
                     errorMessage={errors?.qtt_participants_authorized?.message}
                     disabled={watchStatusChange !== "Autorizado"}
-                    scope="INNER"
                     label="QUANTIDADE DE PARTICIPANTES AUTORIZADOS"
                     type="number"
                     {...register("qtt_participants_authorized")}
@@ -71,12 +68,11 @@ const SampleReviewForm = ({ sampleId, onFinish, currentStatus }: SampleReviewFor
             </div>
             <TextAreaField
                 errorMessage={errors?.review_message?.message}
-                scope="INNER"
                 label="MENSAGEM"
                 {...register("review_message")}
             />
             <Form.Submit asChild>
-                <Button className="float-right mr-3 text-white" placeholder="Salvar" scope="INNER" />
+                <button className="float-right mr-3 button-primary">Salvar</button>
             </Form.Submit>
         </Form.Root>
     );

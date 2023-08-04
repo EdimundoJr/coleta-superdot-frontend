@@ -1,5 +1,6 @@
 import { ArrowLeftIcon, ArrowRightIcon } from "@radix-ui/react-icons";
-import { DOTS, usePagination } from "./usePagination";
+import { usePagination } from "./usePagination";
+import { DOTS } from "../../../utils/consts.utils";
 
 interface PaginationProps {
     currentPage: number;
