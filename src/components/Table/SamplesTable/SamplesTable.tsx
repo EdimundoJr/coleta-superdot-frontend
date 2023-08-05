@@ -10,7 +10,7 @@ interface SamplesTableProps {
     currentStatus: SampleStatus | "";
     setCurrentPage: (newPage: number) => void;
     onClickToReviewSample: (itemId: string) => void;
-    onClickToViewSampleReviews: (itemId: string) => void;
+    onClickToViewSampleReviews: (sample: SampleSummary) => void;
     onClickToViewSampleAttachments: (files: SampleSummary["files"]) => void;
     onChangeFilterStatus: (filter: SampleStatus | "") => void;
 }
@@ -89,7 +89,7 @@ const SamplesTable = ({
                                         className="cursor-pointer"
                                     />
                                     <MagnifyingGlassIcon
-                                        onClick={() => onClickToViewSampleReviews(sample.sampleId)}
+                                        onClick={() => onClickToViewSampleReviews(sample)}
                                         className="cursor-pointer"
                                     />
                                     <ClipboardIcon

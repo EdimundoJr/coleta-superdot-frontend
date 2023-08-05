@@ -7,20 +7,26 @@ import { TextAreaField } from "../../TextAreaField/TextAreaField";
 import { createReview } from "../../../api/sampleReview.api";
 import { InputField } from "../../InputField/InputField";
 import { SAMPLE_STATUS_ARRAY, SampleStatus } from "../../../utils/consts.utils";
-
-const sampleReviewFormSchema = yup.object({
-    nextStatus: yup.string().oneOf(SAMPLE_STATUS_ARRAY, "Por favor, selecione um status.").required(),
-    qttParticipantsAuthorized: yup.number(),
-    reviewMessage: yup.string().required("Por favor, insira uma mensagem de revisão."),
-});
+import { SampleSummary } from "../../../api/sample.api";
 
 interface SampleReviewFormProps {
-    sampleId: string;
+    sample?: SampleSummary;
     currentStatus?: SampleStatus;
     onFinish: () => void;
 }
 
-const SampleReviewForm = ({ sampleId, onFinish, currentStatus }: SampleReviewFormProps) => {
+const SampleReviewForm = ({ sample, onFinish, currentStatus }: SampleReviewFormProps) => {
+    const sampleReviewFormSchema = yup.object({
+        nextStatus: yup.string().oneOf(SAMPLE_STATUS_ARRAY, "Por favor, selecione um status.").required(),
+        qttParticipantsAuthorized: yup
+            .number()
+            .max(
+                sample?.qttParticipantsRequested || 0,
+                "A quantidade de participantes autorizados precisa ser menor ou igual a quantidade de participantes solicitados."
+            ),
+        reviewMessage: yup.string().required("Por favor, insira uma mensagem de revisão."),
+    });
+
     const {
         register,
         handleSubmit,
@@ -33,7 +39,7 @@ const SampleReviewForm = ({ sampleId, onFinish, currentStatus }: SampleReviewFor
         try {
             const response = await createReview({
                 ...data,
-                sampleId: sampleId,
+                sampleId: sample?.sampleId || "",
             });
             if (response.status === 200) {
                 onFinish();
