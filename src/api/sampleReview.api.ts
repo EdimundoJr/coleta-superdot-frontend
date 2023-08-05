@@ -3,10 +3,10 @@ import { setAuthHeaders } from "../utils/tokensHandler";
 import { SampleStatus } from "../utils/consts.utils";
 
 interface ReviewValues {
-    sample_id: string;
-    next_status: SampleStatus;
-    qtt_participants_authorized?: number;
-    review_message: string;
+    sampleId: string;
+    nextStatus: SampleStatus;
+    qttParticipantsAuthorized?: number;
+    reviewMessage: string;
 }
 
 export const createReview = async (reviewData: ReviewValues) => {
@@ -16,18 +16,18 @@ export const createReview = async (reviewData: ReviewValues) => {
 
 export interface ISampleReview {
     _id?: string;
-    previous_status?: SampleStatus;
-    next_status: SampleStatus;
-    qtt_participants_authorized?: number;
-    review_message: string;
-    reviewer_id: string;
-    createdAt?: Date;
-    updatedAt?: Date;
+    previousStatus?: SampleStatus;
+    nextStatus: SampleStatus;
+    qttParticipantsAuthorized?: number;
+    reviewMessage: string;
+    reviewerId: string;
+    createdAt?: string;
+    updatedAt?: string;
 }
 
 export interface SampleReviewWithReviewerName {
-    review_details: ISampleReview;
-    reviewer_full_name: string;
+    reviewDetails: ISampleReview;
+    reviewerFullName: string;
 }
 
 export const findReviewsBySampleId = async (sampleId: string) => {

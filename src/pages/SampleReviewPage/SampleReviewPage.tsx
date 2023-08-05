@@ -127,7 +127,7 @@ const SampleReviewPage = () => {
                 setOpen={setModalListReviewsOpen}
             >
                 {reviewsData?.map((review) => (
-                    <ReviewCard reviewer_full_name={review.reviewer_full_name} review_details={review.review_details} />
+                    <ReviewCard reviewerFullName={review.reviewerFullName} reviewDetails={review.reviewDetails} />
                 ))}
             </Modal>
             <Modal

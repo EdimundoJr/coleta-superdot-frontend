@@ -14,9 +14,9 @@ export const detailsSchema = object({
 
 export const loginInfoSchema = object({
     email: string().email("Insira um e-mail válido.").required("Por favor, insira o email."),
-    confirmEmail: string().email("Insira um e-mail válido.").required("Por favor, insira o email novamente."),
+    emailConfirmation: string().email("Insira um e-mail válido.").required("Por favor, insira o email novamente."),
     password: string().min(8, "A senha precisa ter, no mínimo, 8 caracteres").required("Por favor, insira uma senha."),
-    confirmPassword: string().required("Por favor, insira a senha novamente."),
+    passwordConfirmation: string().required("Por favor, insira a senha novamente."),
 });
 
 export interface RegisterValues {
@@ -28,8 +28,8 @@ export interface RegisterValues {
         countryState: string;
     };
     email: string;
-    confirmEmail: string;
+    emailConfirmation: string;
     password: string;
-    confirmPassword: string;
+    passwordConfirmation: string;
     acceptUseTerm: boolean;
 }

@@ -19,14 +19,12 @@
 }
 
 #root {
-    @apply mx-auto my-0 h-full text-center;
+    @apply mx-auto my-0 h-full w-fit text-center sm:w-full;
 }
 
 body,
 html {
-    height: 100%;
-    margin: 0;
-    overflow: auto;
+    @apply m-0 h-full w-full overflow-x-auto sm:overflow-x-clip;
 }
 
 /** DEFAULT ELEMENTS **/

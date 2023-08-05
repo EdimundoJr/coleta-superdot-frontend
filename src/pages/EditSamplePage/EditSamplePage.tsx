@@ -229,7 +229,7 @@ const EditSamplePage = () => {
                     <Form.Submit asChild>
                         <button className="button-neutral-light">Salvar alterações</button>
                     </Form.Submit>
-                    <button onClick={() => navigate(-1)} type="button" className="button-primary">
+                    <button onClick={() => navigate("/app/my-samples")} type="button" className="button-primary">
                         Cancelar
                     </button>
                 </div>
