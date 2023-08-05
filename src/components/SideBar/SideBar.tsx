@@ -18,7 +18,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
     }
 
     return (
-        <div className="sticky left-0 top-0 h-screen min-w-fit bg-gradient-to-b from-[#5300B8] to-[#7F35E1] font-semibold text-alternative-text ">
+        <div className="sticky left-0 top-0 z-50 h-screen min-w-fit bg-gradient-to-b from-[#5300B8] to-[#7F35E1] font-semibold text-alternative-text ">
             <div className="flex w-full justify-center p-4">
                 <div className="m-auto flex gap-10 text-xl font-bold">
                     {expanded && "GRUPAC"}
