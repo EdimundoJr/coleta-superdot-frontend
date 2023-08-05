@@ -3,6 +3,8 @@ import { useForm } from "react-hook-form";
 import { RegisterValues, detailsSchema } from "../../../../schemas/registerSchema";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { Link } from "react-router-dom";
+import Flatpicker from "react-flatpickr";
+import "flatpickr/dist/themes/airbnb.css";
 
 interface DetailsFormProps {
     handleOnSubmit: () => void;
@@ -16,6 +18,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
         register,
         handleSubmit,
         formState: { errors },
+        setValue,
     } = useForm({ resolver: yupResolver(detailsSchema) });
 
     const onSubmit = handleSubmit((stepData) => {
@@ -58,11 +61,11 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
                     </Form.Field>
 
                     <Form.Field name="personalData.birthDate" className="w-full">
-                        <Form.Control
-                            type="date"
+                        <Flatpicker
                             placeholder="Data de nascimento*"
-                            {...register("personalData.birthDate")}
-                        ></Form.Control>
+                            multiple={false}
+                            onChange={([date]) => setValue("personalData.birthDate", date)}
+                        />
                         {errors?.personalData?.birthDate && (
                             <Form.Message className="error-message">
                                 {errors.personalData.birthDate.message}
