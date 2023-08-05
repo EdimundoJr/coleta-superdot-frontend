@@ -11,6 +11,7 @@ import LogoutPage from "./pages/LogoutPage/LogoutPage";
 import { getUserRole } from "./utils/auth.utils";
 import MySamplesPage from "./pages/MySamplesPage/MySamplesPage";
 import EditSamplePage from "./pages/EditSamplePage/EditSamplePage";
+import DashBoardPage from "./pages/DashboardPage/DashboardPage";
 
 function OuterLayout() {
     return (
@@ -36,14 +37,6 @@ function InnerLayout() {
     );
 }
 
-function HomePageTemp() {
-    return (
-        <div>
-            <header className="mt-6 text-2xl font-bold">Dashboard</header>
-        </div>
-    );
-}
-
 const router = createBrowserRouter([
     {
         path: "/",
@@ -59,7 +52,7 @@ const router = createBrowserRouter([
         children: [
             {
                 path: "home",
-                Component: HomePageTemp,
+                Component: DashBoardPage,
             },
             {
                 path: "choose-sample-group",
