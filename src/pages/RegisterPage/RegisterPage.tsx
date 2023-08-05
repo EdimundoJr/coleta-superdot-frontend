@@ -24,9 +24,9 @@ const INITIAL_VALUES: RegisterValues = {
         countryState: "",
     },
     email: "",
-    confirmEmail: "",
+    emailConfirmation: "",
     password: "",
-    confirmPassword: "",
+    passwordConfirmation: "",
     acceptUseTerm: false,
 };
 
@@ -39,28 +39,28 @@ const RegisterPage = () => {
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
 
-    const handleSubmit = async () => {
+    const handleSubmit = async (data: RegisterValues) => {
         const formData = new FormData();
-        console.log(registerData);
+        console.log(data);
 
-        for (const key in registerData) {
+        for (const key in data) {
             if (key === "personalData") {
-                for (const nestedKey in registerData[key]) {
+                for (const nestedKey in data[key]) {
                     formData.append(
                         `personalData[${nestedKey}]`,
-                        registerData["personalData"][nestedKey as keyof (typeof registerData)["personalData"]] as string
+                        data["personalData"][nestedKey as keyof (typeof data)["personalData"]] as string
                     );
                 }
             } else {
-                formData.append(key, registerData[key as keyof RegisterValues] as string);
+                formData.append(key, data[key as keyof RegisterValues] as string);
             }
         }
 
-        if (registerData.personalData.profilePhoto) {
-            formData.set("personalData[profilePhoto]", registerData.personalData.profilePhoto);
+        if (data.personalData.profilePhoto) {
+            formData.set("personalData[profilePhoto]", data.personalData.profilePhoto);
         }
 
-        formData.set("personalData[birthDate]", registerData.personalData.birthDate.toISOString());
+        formData.set("personalData[birthDate]", data.personalData.birthDate.toISOString());
 
         try {
             const result = await registerResearcher(formData);

@@ -7,7 +7,7 @@ import { RegisterValues, loginInfoSchema } from "../../../../schemas/registerSch
 import { useState } from "react";
 
 interface LoginInfoProps {
-    handleOnSubmit: () => void;
+    handleOnSubmit: (data: RegisterValues) => void;
     handleOnClickPreviousStep: () => void;
     setStepData: (stepData: RegisterValues) => void;
     currentData: RegisterValues;
@@ -35,12 +35,13 @@ const LoginInfoForm = ({
             setErrorUseTerm("É obrigatório aceitar o termo de uso.");
             return;
         }
-        setStepData({
+        const newRegisterData = {
             ...currentData,
             ...stepData,
             acceptUseTerm: useTermChecked,
-        });
-        handleOnSubmit();
+        };
+        setStepData(newRegisterData);
+        handleOnSubmit(newRegisterData);
     });
 
     const handleCheckUseTerm = (checked: boolean | "indeterminate") => {
@@ -58,14 +59,14 @@ const LoginInfoForm = ({
                         {errors?.email && <Form.Message className="error-message">{errors.email.message}</Form.Message>}
                     </Form.Field>
 
-                    <Form.Field name="confirmEmail" className="w-full">
+                    <Form.Field name="emailConfirmation" className="w-full">
                         <Form.Control
                             type="email"
                             placeholder="Confirmar e-mail*"
-                            {...register("confirmEmail")}
+                            {...register("emailConfirmation")}
                         ></Form.Control>
-                        {errors?.confirmEmail && (
-                            <Form.Message className="error-message">{errors.confirmEmail.message}</Form.Message>
+                        {errors?.emailConfirmation && (
+                            <Form.Message className="error-message">{errors.emailConfirmation.message}</Form.Message>
                         )}
                     </Form.Field>
                 </div>
@@ -77,14 +78,14 @@ const LoginInfoForm = ({
                         )}
                     </Form.Field>
 
-                    <Form.Field name="confirmPasssword" className="w-full">
+                    <Form.Field name="passwordConfirmation" className="w-full">
                         <Form.Control
                             type="password"
                             placeholder="Confirmar senha*"
-                            {...register("confirmPassword")}
+                            {...register("passwordConfirmation")}
                         ></Form.Control>
-                        {errors?.confirmPassword && (
-                            <Form.Message className="error-message">{errors.confirmPassword.message}</Form.Message>
+                        {errors?.passwordConfirmation && (
+                            <Form.Message className="error-message">{errors.passwordConfirmation.message}</Form.Message>
                         )}
                     </Form.Field>
                 </div>
