@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import Modal from "../../components/Modal/Modal";
 import * as Toast from "@radix-ui/react-toast";
 import SamplesTable from "../../components/Table/SamplesTable/SamplesTable";
-import { PageSampleSummary, paginateAllSamples, seeAttachment } from "../../api/sample.api";
+import ISample, { PageSampleSummary, paginateAllSamples, seeAttachment } from "../../api/sample.api";
 import SampleReviewForm from "../../components/Form/SampleReviewForm/SampleReviewForm";
 import { SampleReviewWithReviewerName, findReviewsBySampleId } from "../../api/sampleReview.api";
 import ReviewCard from "../../components/ReviewCard/ReviewCard";
@@ -13,7 +13,7 @@ import Notify from "../../components/Notify/Notify";
 
 const SampleReviewPage = () => {
     /* PAGE GLOBAL STATES */
-    const [sampleSelected, setSampleSelected] = useState<string | null>();
+    const [sampleSelected, setSampleSelected] = useState<SampleSummary | undefined>();
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
 
     /* TABLE STATES */
@@ -45,9 +45,8 @@ const SampleReviewPage = () => {
 
     /* REVIEW CREATION HANDLERS */
     const handleOnClickToReviewSample = (sampleId: string) => {
-        const status = tablePageData?.data.find((sample) => sample.sampleId === sampleId)?.currentStatus;
-        setCurrentSampleStatus(status);
-        setSampleSelected(sampleId);
+        const sample = tablePageData?.data.find((sample) => sample.sampleId === sampleId);
+        setSampleSelected(sample);
         setModalReviewingOpen(true);
     };
 
@@ -61,12 +60,12 @@ const SampleReviewPage = () => {
     const [reviewsData, setReviewsData] = useState<SampleReviewWithReviewerName[]>();
 
     /* VIEW SAMPLE REVIEWS HANDLERS */
-    const handleOnClickListSampleReviews = async (sampleId: string) => {
-        const response = await findReviewsBySampleId(sampleId);
+    const handleOnClickListSampleReviews = async (sample: SampleSummary) => {
+        const response = await findReviewsBySampleId(sample.sampleId);
         if (response.status === 200) {
             setReviewsData(response.data);
         }
-        setSampleSelected(sampleId);
+        setSampleSelected(sample);
         setModalListReviewsOpen(true);
     };
 
@@ -116,7 +115,7 @@ const SampleReviewPage = () => {
             >
                 <SampleReviewForm
                     currentStatus={currentSampleStatus}
-                    sampleId={sampleSelected || ""}
+                    sample={sampleSelected}
                     onFinish={handleOnFinishReviewCreation}
                 />
             </Modal>

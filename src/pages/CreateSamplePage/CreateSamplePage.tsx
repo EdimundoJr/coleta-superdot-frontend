@@ -51,6 +51,7 @@ const CreateSamplePage = () => {
                 setNotificationTitle("Arquivos inválidos.");
                 setNotificationDescription(e.message);
             }
+            return;
         }
 
         const formData = new FormData();
