@@ -12,6 +12,7 @@ import Modal from "../../components/Modal/Modal";
 import Notify from "../../components/Notify/Notify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithNotification } from "../../validators/navigationStateValidators";
+import { DateTime } from "luxon";
 
 const MySamplesPage = () => {
     const {
@@ -46,13 +47,17 @@ const MySamplesPage = () => {
         const getPage = async () => {
             const response = await paginateSamples(currentPage, PAGE_SIZE, filters);
             if (response.status === 200) {
-                console.log(response);
                 setPageData(response.data);
             }
         };
 
         getPage();
     }, [currentPage, filters]);
+
+    const handleCleanNotification = () => {
+        setNotificationTitle("");
+        setNotificationDescription("");
+    };
 
     /* HANDLERS TO DELETE SAMPLE REQUEST*/
     const handleOnTrashSampleIconClick = (sampleId: string | undefined) => {
@@ -97,7 +102,7 @@ const MySamplesPage = () => {
     return (
         <Notify
             open={!!notificationTitle}
-            onOpenChange={() => setNotificationTitle("")}
+            onOpenChange={handleCleanNotification}
             title={notificationTitle}
             description={notificationDescription}
         >
@@ -135,7 +140,7 @@ const MySamplesPage = () => {
                 <button className="button-primary">Avaliar Pessoas das Amostras Selecionadas</button>
                 <button className="button-primary">Avaliar Amostras Selecionadas</button>
             </div>
-            <div className="mt-10 grid grid-cols-1 content-center justify-items-center gap-x-3 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
+            <div className="mx-4 mt-10 grid grid-cols-1 content-center justify-items-center gap-x-3 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
                 {pageData?.data?.map((sample, index) => {
                     return (
                         <Card.Root key={index}>
@@ -143,12 +148,14 @@ const MySamplesPage = () => {
                                 <div className="flex gap-x-3">
                                     <Pencil1Icon
                                         onClick={() => handleOnPencilSampleIconClick(sample)}
+                                        className="cursor-pointer"
                                         width={20}
                                         height={20}
                                     />
                                     {sample.sampleGroup}
                                     {sample.status !== "Autorizado" && (
                                         <TrashIcon
+                                            className="cursor-pointer"
                                             onClick={() => handleOnTrashSampleIconClick(sample._id)}
                                             width={20}
                                             height={20}
@@ -165,8 +172,16 @@ const MySamplesPage = () => {
                                     <li>Limite de participantes: {sample.qttParticipantsAuthorized}</li>
                                     <li>Participantes cadastrados: X</li>
                                     <li>Código do Comitê de Ética: {sample.researchCep.cepCode}</li>
-                                    <li>Data da Solicitação da amostra: {sample.createdAt}</li>
-                                    <li>Data da aprovação da solicitação: {sample.approvedAt}</li>
+                                    <li>
+                                        Data da Solicitação da amostra:{" "}
+                                        {sample.createdAt &&
+                                            DateTime.fromISO(sample.createdAt || "").toFormat("dd/LL/yyyy - HH:mm")}
+                                    </li>
+                                    <li>
+                                        Data da aprovação da solicitação:{" "}
+                                        {sample.approvedAt &&
+                                            DateTime.fromISO(sample.approvedAt || "").toFormat("dd/mm/yyyy - HH:m")}
+                                    </li>
                                 </ul>
                             </Card.Content>
                             <Card.Actions>
