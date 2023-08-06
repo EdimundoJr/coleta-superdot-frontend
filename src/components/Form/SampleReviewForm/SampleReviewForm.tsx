@@ -6,16 +6,15 @@ import { SelectField } from "../../SelectField/SelectField";
 import { TextAreaField } from "../../TextAreaField/TextAreaField";
 import { createReview } from "../../../api/sampleReview.api";
 import { InputField } from "../../InputField/InputField";
-import { SAMPLE_STATUS_ARRAY, SampleStatus } from "../../../utils/consts.utils";
+import { SAMPLE_STATUS_ARRAY } from "../../../utils/consts.utils";
 import { SampleSummary } from "../../../api/sample.api";
 
 interface SampleReviewFormProps {
     sample?: SampleSummary;
-    currentStatus?: SampleStatus;
     onFinish: () => void;
 }
 
-const SampleReviewForm = ({ sample, onFinish, currentStatus }: SampleReviewFormProps) => {
+const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
     const sampleReviewFormSchema = yup.object({
         nextStatus: yup.string().oneOf(SAMPLE_STATUS_ARRAY, "Por favor, selecione um status.").required(),
         qttParticipantsAuthorized: yup
@@ -55,7 +54,7 @@ const SampleReviewForm = ({ sample, onFinish, currentStatus }: SampleReviewFormP
         <Form.Root onSubmit={onSubmit}>
             <div className="gap-x-2 lg:flex">
                 <SelectField
-                    defaultValue={currentStatus}
+                    defaultValue={sample?.currentStatus}
                     errorMessage={errors?.nextStatus?.message}
                     label="STATUS"
                     {...register("nextStatus")}

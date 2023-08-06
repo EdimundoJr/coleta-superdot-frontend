@@ -1,9 +1,8 @@
 import { PAGE_SIZE } from "../../api/researchers.api";
 import { useEffect, useState } from "react";
 import Modal from "../../components/Modal/Modal";
-import * as Toast from "@radix-ui/react-toast";
 import SamplesTable from "../../components/Table/SamplesTable/SamplesTable";
-import ISample, { PageSampleSummary, paginateAllSamples, seeAttachment } from "../../api/sample.api";
+import { PageSampleSummary, paginateAllSamples, seeAttachment } from "../../api/sample.api";
 import SampleReviewForm from "../../components/Form/SampleReviewForm/SampleReviewForm";
 import { SampleReviewWithReviewerName, findReviewsBySampleId } from "../../api/sampleReview.api";
 import ReviewCard from "../../components/ReviewCard/ReviewCard";
@@ -41,7 +40,7 @@ const SampleReviewPage = () => {
 
     /* REVIEW CREATION STATES */
     const [modalReviewingOpen, setModalReviewingOpen] = useState(false);
-    const [currentSampleStatus, setCurrentSampleStatus] = useState<SampleStatus>();
+    //const [currentSampleStatus, setCurrentSampleStatus] = useState<SampleStatus>();
 
     /* REVIEW CREATION HANDLERS */
     const handleOnClickToReviewSample = (sampleId: string) => {
@@ -113,11 +112,7 @@ const SampleReviewPage = () => {
                 open={modalReviewingOpen}
                 setOpen={setModalReviewingOpen}
             >
-                <SampleReviewForm
-                    currentStatus={currentSampleStatus}
-                    sample={sampleSelected}
-                    onFinish={handleOnFinishReviewCreation}
-                />
+                <SampleReviewForm sample={sampleSelected} onFinish={handleOnFinishReviewCreation} />
             </Modal>
             <Modal
                 accessibleDescription="Visulizando todas as revisões da respectiva amostra."

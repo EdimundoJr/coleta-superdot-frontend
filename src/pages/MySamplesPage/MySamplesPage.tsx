@@ -24,9 +24,9 @@ const MySamplesPage = () => {
     const location = useLocation();
 
     const [pageData, setPageData] = useState<PageSample>();
-    const [currentPage, setCurrentPage] = useState(1);
+    //const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState<MySamplesFilters>();
-    const [sampleSelecteds, setSampleSelecteds] = useState();
+    //const [sampleSelecteds, setSampleSelecteds] = useState();
 
     /* STATES TO SHOW NOTIFICATION */
     const [notificationTitle, setNotificationTitle] = useState<string>();
@@ -45,14 +45,14 @@ const MySamplesPage = () => {
 
     useEffect(() => {
         const getPage = async () => {
-            const response = await paginateSamples(currentPage, PAGE_SIZE, filters);
+            const response = await paginateSamples(1, PAGE_SIZE, filters);
             if (response.status === 200) {
                 setPageData(response.data);
             }
         };
 
         getPage();
-    }, [currentPage, filters]);
+    }, [filters]);
 
     const handleCleanNotification = () => {
         setNotificationTitle("");
