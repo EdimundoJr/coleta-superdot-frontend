@@ -13,6 +13,9 @@ export default {
                 "neutral-dark": "#737373",
                 "neutral-light": "#C9C9C9",
             },
+            backgroundImage: {
+                "default-bg": "url('/default-bg.png')",
+            },
             keyframes: {
                 overlayShow: {
                     from: { opacity: "0" },
