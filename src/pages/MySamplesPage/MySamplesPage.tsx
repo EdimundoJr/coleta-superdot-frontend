@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { InputField } from "../../components/InputField/InputField";
 import { PAGE_SIZE } from "../../api/researchers.api";
 import { useEffect, useState } from "react";
-import ISample, { PageSample, deleteSample, paginateSamples } from "../../api/sample.api";
+import ISample, { Page, deleteSample, paginateSamples } from "../../api/sample.api";
 import { MySamplesFilters, mySamplesFiltersSchema } from "../../schemas/mySample.schema";
 import { Card } from "../../components/Card/Card";
 import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
@@ -23,7 +23,7 @@ const MySamplesPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [pageData, setPageData] = useState<PageSample>();
+    const [pageData, setPageData] = useState<Page<ISample>>();
     //const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState<MySamplesFilters>();
     //const [sampleSelecteds, setSampleSelecteds] = useState();
@@ -97,6 +97,14 @@ const MySamplesPage = () => {
             setNotificationDescription("Não foi possível apagar a solicitação. Tente novamente mais tarde.");
             console.error(e);
         }
+    };
+
+    const handleRegisterPeople = (sampleData: ISample) => {
+        navigate("/app/participants-registration", {
+            state: {
+                sample: sampleData,
+            },
+        });
     };
 
     return (
@@ -190,6 +198,7 @@ const MySamplesPage = () => {
                                         sample.status !== "Autorizado" ||
                                         sample.qttParticipantsAuthorized === sample.qttParticipantsRegistered
                                     }
+                                    onClick={() => handleRegisterPeople(sample)}
                                 >
                                     Cadastrar Pessoas
                                 </Card.Action>
