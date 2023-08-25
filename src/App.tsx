@@ -12,6 +12,13 @@ import { getUserRole } from "./utils/auth.utils";
 import MySamplesPage from "./pages/MySamplesPage/MySamplesPage";
 import EditSamplePage from "./pages/EditSamplePage/EditSamplePage";
 import DashBoardPage from "./pages/DashboardPage/DashboardPage";
+import ParticipantsRegistration from "./pages/ParticipantsRegistration/ParticipantsRegistration";
+import PersonalInfo from "./pages/AdultForm/PersonalInfo";
+import FamilyInfo from "./pages/AdultForm/FamilyAddressInfo";
+import ReadAndAcceptDoc from "./pages/AdultForm/ReadAndAcceptDoc";
+import IndicateSecondSource from "./pages/AdultForm/IndicateSecondSource";
+import AnsweringAdultForm from "./pages/AdultForm/AnsweringAdultForm";
+import Autobiography from "./pages/AdultForm/Autobiography";
 
 function OuterLayout() {
     return (
@@ -47,6 +54,18 @@ const router = createBrowserRouter([
         ],
     },
     {
+        path: "/:sampleId/adult-form",
+        Component: OuterLayout,
+        children: [
+            { index: true, Component: PersonalInfo },
+            { path: ":participantId/family-address-info", Component: FamilyInfo },
+            { path: ":participantId/read-accept-docs", Component: ReadAndAcceptDoc },
+            { path: ":participantId/indicate-second-source", Component: IndicateSecondSource },
+            { path: ":participantId/responder-formulario", Component: AnsweringAdultForm },
+            { path: ":participantId/autobiografia", Component: Autobiography },
+        ],
+    },
+    {
         path: "app",
         Component: InnerLayout,
         children: [
@@ -69,6 +88,10 @@ const router = createBrowserRouter([
             {
                 path: "edit-sample",
                 Component: EditSamplePage,
+            },
+            {
+                path: "participants-registration",
+                Component: ParticipantsRegistration,
             },
             {
                 path: "users",

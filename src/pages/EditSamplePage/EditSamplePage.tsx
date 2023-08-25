@@ -32,7 +32,7 @@ const EditSamplePage = () => {
         if (stateWithSample(location.state)) {
             const sample = location.state.sample as ISample;
             sampleId.current = sample._id;
-            // When the uploadedFile is defined in a object inside the sampleFiles array state, the file is displayed as "uploaded".
+            // When the uploadedFile is defined in a object inside the sampleFiles state, the file is displayed as "uploaded".
             setSampleFiles(
                 sampleFiles.map((sampleFile) => {
                     // If the sample sent by the my-samples pages has the jsonFileKey of the correspondent file, I set the uploadedFile field.

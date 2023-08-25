@@ -29,11 +29,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                     </Form.Control>
                     {extraItem}
                 </div>
-                {errorMessage && (
-                    <Form.Message className={`h-[35px] w-full rounded-[4px] px-4 text-sm ${className}`}>
-                        {errorMessage}
-                    </Form.Message>
-                )}
+                {errorMessage && <Form.Message className="error-message">{errorMessage}</Form.Message>}
             </Form.Field>
         );
     }
