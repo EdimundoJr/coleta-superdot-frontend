@@ -126,20 +126,18 @@ const DashBoardPage = () => {
                     <h1>Instituições</h1>
                 </div>
             </section>
-            <div className="overflow-auto lg:flex">
-                <ReactEChartsCore
-                    className="w-full"
-                    echarts={echarts}
-                    option={pieGraph(INDICADORES_POR_GRUPO, "Avaliados com indicadores de AH/SD por Grupo")}
-                />
-                <ReactEChartsCore
-                    className="w-full"
-                    echarts={echarts}
-                    option={pieGraph(INDICADORES_POR_GENERO, "Avaliados com indicadores de AH/SD por Gênero")}
-                />
-            </div>
+            <ReactEChartsCore
+                className="w-full"
+                echarts={echarts}
+                option={pieGraph(INDICADORES_POR_GENERO, "Avaliados com indicadores de AH/SD por Gênero")}
+            />
             <ReactEChartsCore echarts={echarts} option={barYearGraph} />
             <ReactEChartsCore echarts={echarts} option={barTotalGraph} />
+            <ReactEChartsCore
+                className="w-full"
+                echarts={echarts}
+                option={pieGraph(INDICADORES_POR_GRUPO, "Avaliados com indicadores de AH/SD por Grupo")}
+            />
         </>
     );
 };

@@ -1,7 +1,7 @@
 import axios from "axios";
 import { setAuthHeaders } from "../utils/tokensHandler";
 import { SampleValues } from "../schemas/sample.schema";
-import { InstituitionType, SampleStatus, brazilRegionsType } from "../utils/consts.utils";
+import { FormFillStatusType, InstituitionType, SampleStatus, brazilRegionsType } from "../utils/consts.utils";
 import { MySamplesFilters } from "../schemas/mySample.schema";
 import { ISampleReview } from "./sampleReview.api";
 
@@ -80,17 +80,17 @@ export const paginateAllSamples = async (currentPage: number, itemsPerPage: numb
     );
 };
 
-export interface PageSample {
+export interface Page<T> {
     pagination?: {
         totalItems: number;
         page: number;
     };
-    data?: ISample[];
+    data?: T[];
 }
 
 export const paginateSamples = async (currentPage: number, itemsPerPage: number, filters?: MySamplesFilters) => {
     setAuthHeaders();
-    return axios.get<PageSample>(
+    return axios.get<Page<ISample>>(
         `${import.meta.env.VITE_BACKEND_HOST}/api/sample/paginate/${itemsPerPage}/page/${currentPage}?researchTitle=${
             filters?.researcherTitle || ""
         }&sampleTitle=${filters?.sampleTitle || ""}`
@@ -107,4 +107,61 @@ export const seeAttachment = async (fileName: string) => {
 export const deleteSample = async (sampleId: string | undefined) => {
     setAuthHeaders();
     return axios.delete(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/deleteSample/${sampleId}`);
+};
+
+export interface ParticipantFormSummary {
+    _id: string;
+    fullName: string;
+    formFillStatus: FormFillStatusType;
+    qttSecondSources: number;
+    formFillStartDate: string;
+    formFillEndDate?: string;
+    giftednessIndicators?: boolean;
+}
+
+export interface AxiosExample {
+    status: number;
+    data: Page<ParticipantFormSummary>;
+}
+
+export const paginateParticipantFormSummary = async (sampleId: string): Promise<AxiosExample> => {
+    setAuthHeaders();
+    return {
+        status: 200,
+        data: {
+            pagination: {
+                totalItems: 3,
+                page: 1,
+            },
+            data: [
+                {
+                    _id: "1",
+                    fullName: "Fulano de Tal",
+                    formFillStatus: "Preenchendo",
+                    qttSecondSources: 0,
+                    formFillStartDate: "2022-12-14",
+                    formFillEndDate: undefined,
+                    giftednessIndicators: undefined,
+                },
+                {
+                    _id: "2",
+                    fullName: "Beltrano de Tal",
+                    formFillStatus: "Aguardando 2ª fonte",
+                    qttSecondSources: 1,
+                    formFillStartDate: "2022-12-16",
+                    formFillEndDate: undefined,
+                    giftednessIndicators: undefined,
+                },
+                {
+                    _id: "3",
+                    fullName: "Cicrano de Tal",
+                    formFillStatus: "Finalizado",
+                    qttSecondSources: 3,
+                    formFillStartDate: "2022-12-10",
+                    formFillEndDate: "2022-12-19",
+                    giftednessIndicators: true,
+                },
+            ],
+        },
+    };
 };
