@@ -3,33 +3,54 @@ import ParticipantsRegistrationTable from "../../components/Table/ParticipantsRe
 import { useEffect, useState } from "react";
 import { stateWithSample } from "../../validators/navigationStateValidators";
 import { useLocation, useNavigate } from "react-router-dom";
-import ISample, { Page, ParticipantFormSummary, paginateParticipantFormSummary } from "../../api/sample.api";
+import { ISample } from "../../interfaces/sample.interface";
+import Modal from "../../components/Modal/Modal";
+import { IParticipant } from "../../interfaces/participant.interface";
+import { EAdultFormSteps } from "../AdultForm/AdultForm";
+import { DateTime } from "luxon";
+import Notify from "../../components/Notify/Notify";
 
 const ParticipantsRegistration = () => {
     const [sample, setSample] = useState<ISample>();
-    const [pageData, setPageData] = useState<Page<ParticipantFormSummary>>();
     const [currentPage, setCurrentPage] = useState(1);
+    const [modalSecondSourcesOpen, setModalSecondSourcesOpen] = useState(false);
+    const [currentParticipant, setCurrentParticipant] = useState<IParticipant>();
+
+    /* STATES TO SHOW NOTIFICATION */
+    const [notificationTitle, setNotificationTitle] = useState<string>();
+    const [notificationDescription, setNotificationDescription] = useState<string>();
+
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
-        const getParticipantData = async (sampleId: string) => {
-            const response = await paginateParticipantFormSummary(sampleId);
-            if (response.status === 200) {
-                setPageData(response.data);
-            }
-        };
-
         if (stateWithSample(location.state)) {
             setSample(location.state.sample);
-            getParticipantData(location.state.sample._id);
         } else {
             navigate("/app/my-samples");
         }
     }, [navigate, location]);
 
+    const handleViewSecondSources = (participant: IParticipant) => {
+        setCurrentParticipant(participant);
+        setModalSecondSourcesOpen(true);
+    };
+
+    const handleSendTextToClipBoard = (text: string) => {
+        navigator.clipboard.writeText(text);
+        setNotificationTitle("Link copiado.");
+        setNotificationDescription("O link foi copiado para a sua área de transferência.");
+    };
+
+    const urlParticipantForm = `${import.meta.env.VITE_FRONTEND_URL}/formulario-adulto/${sample?._id}`;
+
     return (
-        <>
+        <Notify
+            open={!!notificationTitle}
+            onOpenChange={() => setNotificationTitle("")}
+            title={notificationTitle}
+            description={notificationDescription}
+        >
             <header className="my-6">
                 <h1>Cadastrar Pessoas - {sample?.sampleGroup}</h1>
                 <p>
@@ -41,26 +62,77 @@ const ParticipantsRegistration = () => {
             <div className="bg-dark-gradient my-6 p-4 text-white">
                 <h3>URL DO AVALIADO</h3>
                 <div className="my-4 flex items-center justify-center gap-x-5">
-                    <p>superdot-coleta.com.br/{sample?._id}/formulario-adulto</p>
-                    <CopyIcon />
+                    <p>{urlParticipantForm}</p>
+                    <CopyIcon
+                        className="cursor-pointer"
+                        onClick={() => handleSendTextToClipBoard(urlParticipantForm)}
+                    />
                 </div>
                 <p>Compartilhe a URL com os adultos que deseja adicionar à base de dados</p>
                 <p>Máximo de inscrições: {sample?.qttParticipantsAuthorized}</p>
             </div>
 
             <h3>
-                {`Novos participantes: ${sample?.qttParticipantsRegistered} (Aguardando mais ${
-                    (sample?.qttParticipantsAuthorized || 0) - (sample?.qttParticipantsRegistered || 0)
+                {`Novos participantes: ${sample?.participants?.length} (Aguardando mais ${
+                    (sample?.qttParticipantsAuthorized || 0) - (sample?.participants?.length || 0)
                 } participantes)`}
             </h3>
 
             <ParticipantsRegistrationTable
-                page={pageData}
+                sampleId={sample?._id || ""}
+                data={sample?.participants}
                 currentPage={currentPage}
-                setCurrentPage={(newPage: number) => setCurrentPage(newPage)}
-                onClickToViewSecondSources={() => console.log("Second Sources")}
+                setCurrentPage={(newPage) => setCurrentPage(newPage)}
+                onClickToViewSecondSources={handleViewSecondSources}
+                onClickToCopySecondSourceURL={handleSendTextToClipBoard}
             />
-        </>
+
+            {/* MODAL TO SHOW SECOND SOURCES */}
+            <Modal
+                open={modalSecondSourcesOpen}
+                setOpen={setModalSecondSourcesOpen}
+                title="Segundas fontes"
+                accessibleDescription="Abaixo estão listadas as informações das segundas fontes do participante."
+            >
+                <table className="bg-dark-gradient mx-auto w-11/12 border-collapse rounded-md text-alternative-text">
+                    <thead>
+                        <tr>
+                            <th>Nome</th>
+                            <th>Andamento</th>
+                            <th>Relação</th>
+                            <th>Data de início</th>
+                            <th>Data de fim</th>
+                        </tr>
+                    </thead>
+                    <tbody className="bg-white text-primary">
+                        {currentParticipant?.secondSources?.map((secondSource) => (
+                            <tr key={secondSource._id} className="odd:bg-gray-200">
+                                <td>{secondSource.personalData.fullName}</td>
+                                <td>
+                                    {secondSource.adultFormCurrentStep === EAdultFormSteps.FINISHED
+                                        ? "Finalizado"
+                                        : "Preenchendo"}
+                                </td>
+                                <td>{secondSource.personalData.relationship}</td>
+                                <td>
+                                    {secondSource.createdAt &&
+                                        DateTime.fromISO(secondSource.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                </td>
+                                <td>
+                                    {secondSource.endFillFormDate &&
+                                        DateTime.fromISO(secondSource.endFillFormDate).toFormat("dd/LL/yyyy - HH:mm")}
+                                </td>
+                            </tr>
+                        ))}
+                    </tbody>
+                    <tfoot>
+                        <tr className="text-right">
+                            <td colSpan={3}></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </Modal>
+        </Notify>
     );
 };
 
