@@ -73,12 +73,12 @@ const SideBar = ({ userRole }: SideBarProps) => {
             <div className="absolute bottom-0 w-full">
                 <Separator.Root className="h-px w-full bg-white" />
                 <NavigationMenu.Root className="p-2">
-                    <NavigationMenu.Item className={`flex items-center p-2 ${isActive("/app/my-profile")}`}>
+                    {/* <NavigationMenu.Item className={`flex items-center p-2 ${isActive("/app/my-profile")}`}>
                         <Link to="/app/my-profile" className="flex gap-3">
                             <PersonIcon className="m-auto" />
                             {expanded && "Perfil"}
                         </Link>
-                    </NavigationMenu.Item>
+                    </NavigationMenu.Item> */}
                     <NavigationMenu.Item className={`flex items-center p-2 ${isActive("/app/logout")}`}>
                         <Link to="/app/logout" className="flex gap-3">
                             <ExitIcon className="m-auto" />
