@@ -12,7 +12,6 @@ export const stateWithSample = (state: any): boolean => {
     if (!state.sample._id) return false;
     if (!state.sample.researchCep) return false;
     if (!state.sample.sampleGroup) return false;
-    if (!state.sample.qttParticipantsAuthorized) return false;
     return true;
 };
 
