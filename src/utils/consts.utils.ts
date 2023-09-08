@@ -8,10 +8,10 @@ export const BRAZIL_REGIONS_ARRAY = ["Norte", "Nordeste", "Centro-Oeste", "Sudes
 export type brazilRegionsType = (typeof BRAZIL_REGIONS_ARRAY)[number];
 
 export const MARITAL_STATUS_ARRAY = ["Solteiro(a)", "Casado(a)", "Divorciado(a)", "Viúvo(a)"] as const;
-export type maritalStatus = (typeof MARITAL_STATUS_ARRAY)[number];
+export type TMaritalStatus = (typeof MARITAL_STATUS_ARRAY)[number];
 
 export const GENDER_ARRAY = ["Masculino", "Feminino"] as const;
-export type gender = (typeof GENDER_ARRAY)[number];
+export type TGender = (typeof GENDER_ARRAY)[number];
 
 export const EDUCATION_LEVEL_ARRAY = [
     "Nenhum",
@@ -24,7 +24,7 @@ export const EDUCATION_LEVEL_ARRAY = [
     "Doutorado",
 ] as const;
 
-export type educationLevel = (typeof EDUCATION_LEVEL_ARRAY)[number];
+export type TEducationLevel = (typeof EDUCATION_LEVEL_ARRAY)[number];
 
 export const INCOME_LEVELS_ARRAY = [
     "Até 1 salário mínimo",
@@ -36,13 +36,15 @@ export const INCOME_LEVELS_ARRAY = [
     "+15 salários mínimos",
 ] as const;
 
-export type incomeLevels = (typeof INCOME_LEVELS_ARRAY)[number];
+export type TIncomeLevel = (typeof INCOME_LEVELS_ARRAY)[number];
 
 export const DEVICES_ARRAY = ["TV", "TV Cabo", "Computador", "Telefone", "Celular", "Internet"] as const;
 
-export type devices = (typeof DEVICES_ARRAY)[number];
+export type TDevices = (typeof DEVICES_ARRAY)[number];
 
-export type USER_ROLE = "Pesquisador" | "Revisor" | "Administrador";
+export const USER_ROLES_ARRAY = ["Pesquisador", "Revisor", "Administrador"] as const;
+
+export type USER_ROLE = (typeof USER_ROLES_ARRAY)[number];
 
 export const DOTS = "...";
 
@@ -78,3 +80,37 @@ export const RELATIONSHIPS_ARRAY = ["Amigo", "Parente", "Professor"];
 
 export const FORM_FILL_STATUS = ["Preenchendo", "Aguardando 2ª fonte", "Finalizado"] as const;
 export type FormFillStatusType = (typeof FORM_FILL_STATUS)[number];
+
+export enum EQuestionType {
+    LIMITED_OPTIONS = 0, // Limited options to choose ONE
+    FOUR_INPUTS = 1, // Four mandatory inputs
+    MULTIPLE_OPTIONS = 2, // Various options to choose FOUR
+    OTHER_INPUT = 3, // Simple input
+    MULTIPLE_SELECT = 4, // A Select with multiple options attribute
+}
+
+export enum EAdultFormGroup {
+    GENERAL_CHARACTERISTICS = 0,
+    HIGH_ABILITIES = 1,
+    CRIATIVITY = 2,
+    TASK_COMMITMENT = 3,
+    LEADERSHIP = 4,
+    ARTISTIC_ACTIVITIES = 5,
+}
+
+export enum EAdultFormSource {
+    FIRST_SOURCE = 0,
+    SECOND_SOURCE = 1,
+}
+
+export type TParticipantFormProgress = "Preenchendo" | "Aguardando 2ª fonte" | "Finalizado";
+
+export const RELATIONSHIP_TIME_ARRAY = [
+    "De 0 à 2 anos",
+    "Entre 2 e 3 anos",
+    "Entre 3 e 4 anos",
+    "Entre 4 e 5 anos",
+    "Mais de 5 anos",
+] as const;
+
+export type TRelationshipTime = (typeof RELATIONSHIP_TIME_ARRAY)[number];
