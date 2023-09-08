@@ -77,14 +77,14 @@ export const LoginPage = () => {
                                 Não tenho uma conta...
                             </Link>
                         </Form.Root>
-                        <div className="my-14  flex h-6 w-full">
+                        {/* <div className="my-14  flex h-6 w-full">
                             <Separator.Root className="m-auto h-px w-full bg-black" />
                             <div className="w-full font-bold">Ou acesse com</div>
                             <Separator.Root className="m-auto h-px w-full bg-black" />
                         </div>
                         <button className="m-auto flex items-center rounded-md border border-[#C2C2C2] p-2 font-medium hover:bg-slate-200">
                             <img src={googleLogo} className="pr-2"></img>Google
-                        </button>
+                        </button> */}
                     </div>
                 </div>
             </div>
