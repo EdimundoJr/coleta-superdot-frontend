@@ -2,7 +2,7 @@ import axios from "axios";
 import { setAuthHeaders } from "../utils/tokensHandler";
 
 export interface ResearchersPaginated {
-    researchers: [{ _id: string; personalData: { fullName: string }; email: string }];
+    researchers: { _id: string; fullname: string; role: string; email: string }[];
     totalResearchers: number;
 }
 

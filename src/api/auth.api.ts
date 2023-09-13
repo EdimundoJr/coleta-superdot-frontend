@@ -1,6 +1,7 @@
 import axios from "axios";
 import { Tokens, clearTokens, setAuthHeaders } from "../utils/tokensHandler";
 import { LoginValues } from "../schemas/loginSchema";
+import { USER_ROLE } from "../utils/consts.utils";
 
 export const registerResearcher = async (data: FormData) => {
     return axios.post<Tokens>(`${import.meta.env.VITE_BACKEND_HOST}/api/auth/register`, data, {
@@ -16,7 +17,7 @@ export const loginResearcher = async (data: LoginValues) => {
 
 export const fetchUserRole = async (userId: string) => {
     setAuthHeaders();
-    return axios.get<string>(`${import.meta.env.VITE_BACKEND_HOST}/api/auth/userRole/${userId}`);
+    return axios.get<USER_ROLE>(`${import.meta.env.VITE_BACKEND_HOST}/api/auth/userRole/${userId}`);
 };
 
 export const setUserRole = async (userId: string, newRole: string, emailMessage: string | undefined) => {

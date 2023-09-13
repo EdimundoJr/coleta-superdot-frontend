@@ -5,35 +5,35 @@ import { useForm } from "react-hook-form";
 import { SelectField } from "../../SelectField/SelectField";
 import { TextAreaField } from "../../TextAreaField/TextAreaField";
 import { setUserRole } from "../../../api/auth.api";
-
-const usersPageSearchFormSchema = yup.object({
-    newRole: yup
-        .string()
-        .oneOf(["Pesquisador", "Revisor", "Administrador"], "Por favor, selecione um perfil.")
-        .required(),
-    emailMessage: yup.string(),
-});
+import { USER_ROLE, USER_ROLES_ARRAY } from "../../../utils/consts.utils";
 
 interface ChangeRoleFormProps {
     userId: string;
-    onFinish: () => void;
-    currentUserRole: string;
+    onFinish: (newUserROle: USER_ROLE) => void;
+    currentUserRole: USER_ROLE;
 }
 
 const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormProps) => {
+    const usersPageSearchFormSchema = yup.object({
+        newRole: yup
+            .string()
+            .oneOf(USER_ROLES_ARRAY, "Por favor, selecione um perfil.")
+            .notOneOf([currentUserRole])
+            .required(),
+        emailMessage: yup.string(),
+    });
+
     const {
         register,
         handleSubmit,
         formState: { errors },
     } = useForm({ resolver: yupResolver(usersPageSearchFormSchema) });
 
-    console.log(currentUserRole);
-
     const onSubmit = handleSubmit(async (data) => {
         try {
             const response = await setUserRole(userId, data.newRole, data.emailMessage);
             if (response.status === 200) {
-                onFinish();
+                onFinish(data.newRole);
                 return;
             }
             console.log(response);
