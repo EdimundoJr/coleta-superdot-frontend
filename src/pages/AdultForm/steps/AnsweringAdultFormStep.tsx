@@ -50,6 +50,8 @@ const AnsweringAdultFormStep = ({
     const handleSubmitQuestions = async () => {
         console.log(currentGroup?.questions);
         const allQuestionsHasAnswer = currentGroup?.questions.every((question, idx) => {
+            if (question.notRequired) return true;
+
             console.log(`questionId: ${idx}`);
             // Then answer field is not defined, then NOT OK.
             if (!question.answer) {
@@ -98,9 +100,10 @@ const AnsweringAdultFormStep = ({
             return true;
         });
 
-        console.log(allQuestionsHasAnswer);
-
         if (!allQuestionsHasAnswer || !currentGroup) return;
+
+        // Removing options
+        currentGroup.questions.forEach((question) => delete question["options"]);
 
         try {
             const response = await patchQuestionsAnswersByGroup(sampleId, currentGroup, participantId);

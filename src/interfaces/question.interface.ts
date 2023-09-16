@@ -6,5 +6,6 @@ export default interface IQuestion {
     statement: string;
     questionType: EQuestionType;
     options?: string[];
+    notRequired?: boolean
     answer?: string | string[]; // Participant answer
 }
