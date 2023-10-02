@@ -65,6 +65,9 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
                             placeholder="Data de nascimento*"
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
+                            options={{
+                                maxDate: "today",
+                            }}
                         />
                         {errors?.personalData?.birthDate && (
                             <Form.Message className="error-message">

@@ -113,6 +113,9 @@ const SecondSourceDataStep = ({
                             placeholder="Informe sua data de nascimento"
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
+                            options={{
+                                maxDate: "today",
+                            }}
                         />
                         {errors.personalData?.birthDate?.message && (
                             <Form.Message className="error-message">
