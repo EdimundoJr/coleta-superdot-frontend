@@ -6,9 +6,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { ISample } from "../../interfaces/sample.interface";
 import Modal from "../../components/Modal/Modal";
 import { IParticipant } from "../../interfaces/participant.interface";
-import { EAdultFormSteps } from "../AdultForm/AdultForm";
 import { DateTime } from "luxon";
 import Notify from "../../components/Notify/Notify";
+import { EAdultFormSteps } from "../../utils/consts.utils";
 
 const ParticipantsRegistration = () => {
     const [sample, setSample] = useState<ISample>();
@@ -115,8 +115,8 @@ const ParticipantsRegistration = () => {
                                 </td>
                                 <td>{secondSource.personalData.relationship}</td>
                                 <td>
-                                    {secondSource.createdAt &&
-                                        DateTime.fromISO(secondSource.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                    {secondSource.startFillFormDate &&
+                                        DateTime.fromISO(secondSource.startFillFormDate).toFormat("dd/LL/yyyy - HH:mm")}
                                 </td>
                                 <td>
                                     {secondSource.endFillFormDate &&

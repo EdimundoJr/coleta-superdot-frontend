@@ -1,5 +1,11 @@
-import { EAdultFormSteps } from "../pages/AdultForm/AdultForm";
-import { TDevices, TEducationLevel, TGender, TIncomeLevel, TMaritalStatus } from "../utils/consts.utils";
+import {
+    EAdultFormSteps,
+    TDevices,
+    TEducationLevel,
+    TGender,
+    TIncomeLevel,
+    TMaritalStatus,
+} from "../utils/consts.utils";
 import IQuestionsGroup from "./questionsGroup.interface";
 import { ISecondSource } from "./secondSource.interface";
 

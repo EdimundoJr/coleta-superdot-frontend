@@ -54,19 +54,19 @@ export const FILES_AVAILABLE_TO_CREATE_SAMPLE = [
     {
         key: "researchCep[researchDocument]",
         jsonFileKey: "researchDocument",
-        label: "Projeto de pesquisa",
+        label: "Projeto de pesquisa*",
         required: true,
     },
     {
         key: "researchCep[tcleDocument]",
         jsonFileKey: "tcleDocument",
-        label: "TCLE",
+        label: "Termo de Compromisso Livre e Esclarecido*",
         required: true,
     },
     {
         key: "researchCep[taleDocument]",
         jsonFileKey: "taleDocument",
-        label: "TALE",
+        label: "Termo de Anuência Livre e Esclarecido",
     },
 ];
 
@@ -114,3 +114,18 @@ export const RELATIONSHIP_TIME_ARRAY = [
 ] as const;
 
 export type TRelationshipTime = (typeof RELATIONSHIP_TIME_ARRAY)[number];
+
+export enum EAdultFormSteps {
+    INTRODUCTION = 0,
+    PARTICIPANT_DATA = 1,
+    READ_AND_ACCEPT_DOCS = 2,
+    INDICATE_SECOND_SOURCE = 3,
+    GENERAL_CHARACTERISTICS = 4,
+    HIGH_ABILITIES = 5,
+    CRIATIVITY = 6,
+    TASK_COMMITMENT = 7,
+    LEADERSHIP = 8,
+    ARTISTIC_ACTIVITIES = 9,
+    AUTOBIOGRAPHY = 10,
+    FINISHED = 11,
+}

@@ -1,8 +1,7 @@
 import { CopyIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { DateTime } from "luxon";
 import { ISample } from "../../../interfaces/sample.interface";
-import { TParticipantFormProgress } from "../../../utils/consts.utils";
-import { EAdultFormSteps } from "../../../pages/AdultForm/AdultForm";
+import { EAdultFormSteps, TParticipantFormProgress } from "../../../utils/consts.utils";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
 import { IParticipant } from "../../../interfaces/participant.interface";
 

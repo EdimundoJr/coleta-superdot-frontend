@@ -1,5 +1,4 @@
-import { EAdultFormSteps } from "../pages/AdultForm/AdultForm";
-import { Relationships, TEducationLevel } from "../utils/consts.utils";
+import { EAdultFormSteps, Relationships, TEducationLevel } from "../utils/consts.utils";
 
 export interface ISecondSource {
     _id?: string;
@@ -17,4 +16,5 @@ export interface ISecondSource {
     adultFormCurrentStep?: EAdultFormSteps;
     createdAt?: string;
     endFillFormDate?: string;
+    startFillFormDate?: string;
 }

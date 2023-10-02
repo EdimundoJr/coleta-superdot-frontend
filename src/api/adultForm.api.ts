@@ -1,8 +1,7 @@
 import IQuestion from "../interfaces/question.interface";
 import IQuestionsGroup from "../interfaces/questionsGroup.interface";
 import { AcceptSampleFile } from "../interfaces/sample.interface";
-import { EAdultFormSteps } from "../pages/AdultForm/AdultForm";
-import { EAdultFormGroup, EAdultFormSource } from "../utils/consts.utils";
+import { EAdultFormGroup, EAdultFormSource, EAdultFormSteps } from "../utils/consts.utils";
 import { setAuthHeaders } from "../utils/tokensHandler";
 import axios from "axios";
 
