@@ -50,20 +50,27 @@ const AutobiographyStep = ({
                 </h3>
             </header>
 
-            <label htmlFor="autobiographyText">ESCREVA SOBRE VOCÊ</label>
-            <textarea
-                onChange={(e) => setAutobiographyText(e.target.value)}
-                rows={10}
-                id="autobiographyText"
-            ></textarea>
-            <label htmlFor="autobiographyVideo">
-                COLE A URL DO SEU VÍDEO DO YOUTUBE NO CAMPO ABAIXO (NÃO DEIXE O VÍDEO PRIVADO)
-            </label>
-            <input onChange={(e) => setAutobiographyVideo(e.target.value)} id="autobiographyVideo"></input>
+            <div className="mx-auto sm:w-3/4 ">
+                <label htmlFor="autobiographyText">ESCREVA SOBRE VOCÊ</label>
+                <textarea
+                    onChange={(e) => setAutobiographyText(e.target.value)}
+                    rows={20}
+                    id="autobiographyText"
+                    className="my-6"
+                ></textarea>
+                <label htmlFor="autobiographyVideo">
+                    COLE A URL DO SEU VÍDEO DO YOUTUBE NO CAMPO ABAIXO (NÃO DEIXE O VÍDEO PRIVADO)
+                </label>
+                <input
+                    onChange={(e) => setAutobiographyVideo(e.target.value)}
+                    id="autobiographyVideo"
+                    className="my-6"
+                ></input>
 
-            <button onClick={handleSubmit} className="button-secondary mx-auto w-1/3">
-                Continuar
-            </button>
+                <button onClick={handleSubmit} className="button-secondary mx-auto w-1/3">
+                    Continuar
+                </button>
+            </div>
         </div>
     );
 };
