@@ -1,9 +1,9 @@
 import { useEffect, useState } from "react";
 import { getAllGroupQuestionsByFormStep, patchQuestionsAnswersByGroup } from "../../../api/adultForm.api";
-import { EAdultFormSteps } from "../AdultForm";
 import IQuestionsGroup from "../../../interfaces/questionsGroup.interface";
-import { EAdultFormSource, EQuestionType } from "../../../utils/consts.utils";
+import { EAdultFormSource, EAdultFormSteps, EQuestionType } from "../../../utils/consts.utils";
 import IQuestion from "../../../interfaces/question.interface";
+import Select from "react-select";
 
 interface AnsweringAdultFormStepProps {
     sourceForm: EAdultFormSource;
@@ -277,22 +277,37 @@ const AnsweringAdultFormStep = ({
 
                         {/* FORTY EXCEPTION (SELECT MULTIPLE) */}
                         {question.questionType === EQuestionType.MULTIPLE_SELECT && (
-                            <select
-                                className="mx-auto mt-4 block h-44 w-fit"
-                                multiple
-                                placeholder="Digite aqui"
-                                value={question.answer}
-                                onChange={(e) =>
+                            <Select
+                                className="mt-3 text-black"
+                                isMulti
+                                options={question.options?.map((option) => {
+                                    return { value: option, label: option };
+                                })}
+                                onChange={(options) =>
                                     answerQuestionWithArray(
                                         question._id,
-                                        [...e.target.selectedOptions].map((option) => option.value)
+                                        [...options].map((option) => option.value)
                                     )
                                 }
-                            >
-                                {question.options?.map((option) => (
-                                    <option>{option}</option>
-                                ))}
-                            </select>
+                                placeholder="Caso se destaque, selecione uma ou várias opções"
+                            />
+
+                            // <select
+                            //     className="mx-auto mt-4 block h-44 w-fit"
+                            //     multiple
+                            //     placeholder="Digite aqui"
+                            //     value={question.answer}
+                            //     onChange={(e) =>
+                            //         answerQuestionWithArray(
+                            //             question._id,
+                            //             [...e.target.selectedOptions].map((option) => option.value)
+                            //         )
+                            //     }
+                            // >
+                            //     {question.options?.map((option) => (
+                            //         <option>{option}</option>
+                            //     ))}
+                            // </select>
                         )}
                     </div>
                 );

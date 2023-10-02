@@ -15,6 +15,7 @@ import { deserializeJWTParticipantToken, saveParticipantToken } from "../../../u
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { postParticipantData } from "../../../api/participant.api";
+import Select from "react-select";
 
 interface ParticipantDataStepProps {
     nextStep: () => void;
@@ -186,33 +187,39 @@ const ParticipantDataStep = ({
                         <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
                             Aparelhos na casa
                         </Form.Label>
-                        <Form.Control asChild>
-                            <select
-                                {...register("familyData.houseDevices")}
-                                multiple
-                                className="h-fit w-full rounded-[4px] px-4 text-sm"
-                            >
-                                {DEVICES_ARRAY.map((device) => (
-                                    <option key={device}>{device}</option>
-                                ))}
-                            </select>
-                        </Form.Control>
+                        <Select
+                            onChange={(options) =>
+                                setValue(
+                                    "familyData.outsideHouseDevices",
+                                    [...options].map((option) => option.value)
+                                )
+                            }
+                            isMulti
+                            options={DEVICES_ARRAY.map((device) => {
+                                return { value: device, label: device };
+                            })}
+                            className="text-black"
+                            placeholder="Selecione uma ou várias opções"
+                        />
                     </Form.Field>
                     <Form.Field name="personalData.outsideHouseDevices" className="mb-6 w-full px-3">
                         <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
                             Fora de casa, você tem acesso a
                         </Form.Label>
-                        <Form.Control asChild>
-                            <select
-                                {...register("familyData.outsideHouseDevices")}
-                                multiple
-                                className="h-fit w-full rounded-[4px] px-4 text-sm"
-                            >
-                                {DEVICES_ARRAY.map((device) => (
-                                    <option key={device}>{device}</option>
-                                ))}
-                            </select>
-                        </Form.Control>
+                        <Select
+                            onChange={(options) =>
+                                setValue(
+                                    "familyData.houseDevices",
+                                    [...options].map((option) => option.value)
+                                )
+                            }
+                            options={DEVICES_ARRAY.map((device) => {
+                                return { value: device, label: device };
+                            })}
+                            isMulti
+                            className="text-black"
+                            placeholder="Selecione uma ou várias opções"
+                        />
                     </Form.Field>
                     <InputField
                         {...register("addressData.city")}
