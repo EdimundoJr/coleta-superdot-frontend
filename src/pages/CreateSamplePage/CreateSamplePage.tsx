@@ -18,6 +18,7 @@ import { CustomFileError } from "../../errors/fileErrors";
 
 const CreateSamplePage = () => {
     const [sampleFiles, setSampleFiles] = useState<SampleFile[]>(FILES_AVAILABLE_TO_CREATE_SAMPLE);
+    const [sampleFileError, setSampleFileError] = useState("");
 
     /* NOTIFY */
     const [notificationTitle, setNotificationTitle] = useState("");
@@ -50,6 +51,7 @@ const CreateSamplePage = () => {
             if (e instanceof CustomFileError) {
                 setNotificationTitle("Arquivos inválidos.");
                 setNotificationDescription(e.message);
+                setSampleFileError(e.message);
             }
             return;
         }
@@ -204,7 +206,11 @@ const CreateSamplePage = () => {
                 </div>
 
                 {/* CONTAINER TO UPLOAD FILES */}
-                <SampleUploadFile sampleFiles={sampleFiles} setSampleFiles={setSampleFiles} />
+                <SampleUploadFile
+                    messageError={sampleFileError}
+                    sampleFiles={sampleFiles}
+                    setSampleFiles={setSampleFiles}
+                />
 
                 <Form.Submit asChild className="mt-10">
                     <button className="button-primary">Enviar Solicitação</button>
