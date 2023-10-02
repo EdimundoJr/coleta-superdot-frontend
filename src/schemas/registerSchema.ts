@@ -2,21 +2,19 @@ import { date, object, string } from "yup";
 
 export const detailsSchema = object({
     personalData: object({
-        fullName: string().required("Por favor, insira o nome completo.").trim().uppercase(),
-        phone: string().max(11).required("Por favor, insira o número de telefone.").trim(),
-        birthDate: date()
-            .typeError("Por favor, insira uma data válida!")
-            .required("Por favor, insira a data de nascimento."),
-        countryState: string().required("Por favor, insira o estado de atuação."),
+        fullName: string().required("Nome completo é um campo obrigatório.").trim().uppercase(),
+        phone: string().max(11).required("Número de telefone é um campo obrigatório.").trim(),
+        birthDate: date().typeError("Data inválida!").required("Data de nascimento é um campo obrigatória."),
+        countryState: string().required("Estado de atuação é um campo obrigatório."),
     }),
-    instituition: string().required("Por favor, insira a instituição."),
+    instituition: string().required("Instituição é um campo."),
 });
 
 export const loginInfoSchema = object({
-    email: string().email("Insira um e-mail válido.").required("Por favor, insira o email."),
-    emailConfirmation: string().email("Insira um e-mail válido.").required("Por favor, insira o email novamente."),
-    password: string().min(8, "A senha precisa ter, no mínimo, 8 caracteres").required("Por favor, insira uma senha."),
-    passwordConfirmation: string().required("Por favor, insira a senha novamente."),
+    email: string().email("Insira um e-mail válido.").required("Email é um campo obrigatório."),
+    emailConfirmation: string().email("Insira um e-mail válido.").required("Digite o e-mail novamente."),
+    password: string().min(8, "A senha precisa ter, no mínimo, 8 caracteres").required("Senha é um campo obrigatório."),
+    passwordConfirmation: string().required("Digite a senha novamente."),
 });
 
 export interface RegisterValues {
