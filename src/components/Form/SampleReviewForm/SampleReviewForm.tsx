@@ -80,7 +80,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             </div>
             <TextAreaField
                 errorMessage={errors?.reviewMessage?.message}
-                label="MENSAGEM"
+                label="MENSAGEM (essa mensagem será enviada para o e-mail do pesquisador)"
                 {...register("reviewMessage")}
             />
             <Form.Submit asChild>
