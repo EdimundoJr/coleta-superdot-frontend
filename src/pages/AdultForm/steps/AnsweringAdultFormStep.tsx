@@ -257,7 +257,8 @@ const AnsweringAdultFormStep = ({
                             <div className="mx-auto mt-4 grid grid-cols-1 justify-center gap-5 sm:w-1/3">
                                 {/* CREATE AN ITERATOR FROM 0 TO 3 */}
                                 {[...Array(4).keys()].map((sequence) => (
-                                    <div className="flex gap-5" key={question._id + sequence}>
+                                    <div className="flex items-center gap-5" key={question._id + sequence}>
+                                        <label>{sequence + 1}º</label>
                                         <select
                                             placeholder="Digite aqui"
                                             value={getCurrentInputValue(question, sequence)}
@@ -277,37 +278,26 @@ const AnsweringAdultFormStep = ({
 
                         {/* FORTY EXCEPTION (SELECT MULTIPLE) */}
                         {question.questionType === EQuestionType.MULTIPLE_SELECT && (
-                            <Select
-                                className="mt-3 text-black"
-                                isMulti
-                                options={question.options?.map((option) => {
-                                    return { value: option, label: option };
-                                })}
-                                onChange={(options) =>
-                                    answerQuestionWithArray(
-                                        question._id,
-                                        [...options].map((option) => option.value)
-                                    )
-                                }
-                                placeholder="Caso se destaque, selecione uma ou várias opções"
-                            />
-
-                            // <select
-                            //     className="mx-auto mt-4 block h-44 w-fit"
-                            //     multiple
-                            //     placeholder="Digite aqui"
-                            //     value={question.answer}
-                            //     onChange={(e) =>
-                            //         answerQuestionWithArray(
-                            //             question._id,
-                            //             [...e.target.selectedOptions].map((option) => option.value)
-                            //         )
-                            //     }
-                            // >
-                            //     {question.options?.map((option) => (
-                            //         <option>{option}</option>
-                            //     ))}
-                            // </select>
+                            <div className="mx-auto sm:w-1/3">
+                                <Select
+                                    className="mt-3 text-black"
+                                    isMulti
+                                    options={question.options?.map((option) => {
+                                        return { value: option, label: option };
+                                    })}
+                                    onChange={(options) =>
+                                        answerQuestionWithArray(
+                                            question._id,
+                                            [...options].map((option) => option.value)
+                                        )
+                                    }
+                                    placeholder="Caso se destaque, selecione uma ou várias opções"
+                                />
+                                <span className="error-message">
+                                    {(question.answer?.length || 0) > 0 &&
+                                        "Você pode selecionar mais do que uma opção."}
+                                </span>
+                            </div>
                         )}
                     </div>
                 );

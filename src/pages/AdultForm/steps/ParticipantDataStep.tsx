@@ -34,6 +34,7 @@ const ParticipantDataStep = ({
         register,
         handleSubmit,
         formState: { errors },
+        watch,
         setValue,
     } = useForm({ resolver: yupResolver(participantDataSchema) });
 
@@ -140,6 +141,9 @@ const ParticipantDataStep = ({
                             placeholder="Informe sua data de nascimento"
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
+                            options={{
+                                maxDate: "today",
+                            }}
                         />
                         {errors.personalData?.birthDate?.message && (
                             <Form.Message className="error-message">
@@ -201,6 +205,10 @@ const ParticipantDataStep = ({
                             className="text-black"
                             placeholder="Selecione uma ou várias opções"
                         />
+                        <span className="error-message">
+                            {(watch("familyData.outsideHouseDevices")?.length || 0) > 0 &&
+                                "Você pode selecionar mais do que uma opção."}
+                        </span>
                     </Form.Field>
                     <Form.Field name="personalData.outsideHouseDevices" className="mb-6 w-full px-3">
                         <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
@@ -220,6 +228,10 @@ const ParticipantDataStep = ({
                             className="text-black"
                             placeholder="Selecione uma ou várias opções"
                         />
+                        <span className="error-message">
+                            {(watch("familyData.houseDevices")?.length || 0) > 0 &&
+                                "Você pode selecionar mais do que uma opção."}
+                        </span>
                     </Form.Field>
                     <InputField
                         {...register("addressData.city")}
