@@ -7,7 +7,6 @@
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
     background-color: #242424;
 
@@ -49,7 +48,7 @@ h4 {
 input,
 select,
 textarea {
-    @apply w-full rounded-[10px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium text-[#999999];
+    @apply w-full rounded-[10px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium  text-[#999999];
 }
 
 th {
