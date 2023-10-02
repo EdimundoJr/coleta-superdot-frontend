@@ -2,33 +2,15 @@ import { useState } from "react";
 import { Stepper } from "../../components/Stepper/Stepper";
 import { StepStateType } from "../../components/Stepper/StepperStep";
 import Notify from "../../components/Notify/Notify";
-import ParticipantData from "../AdultForm/steps/ParticipantDataStep";
 import { useParams } from "react-router-dom";
-import ChoosePathStep from "../AdultForm/steps/ChoosePathStep";
 import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
-import IndicateSecondSourceStep from "../AdultForm/steps/IndicateSecondSourceStep";
 import AnsweringAdultFormStep from "../AdultForm/steps/AnsweringAdultFormStep";
-import AutobiographyStep from "../AdultForm/steps/Autobiography";
-import { EAdultFormSource } from "../../utils/consts.utils";
+import { EAdultFormSource, EAdultFormSteps } from "../../utils/consts.utils";
 import SecondSourceDataStep from "./steps/SecondSourceDataStep";
-
-export enum EAdultFormSteps {
-    CHOOSE_PATH = 0,
-    PARTICIPANT_DATA = 1,
-    READ_AND_ACCEPT_DOCS = 2,
-    INDICATE_SECOND_SOURCE = 3,
-    GENERAL_CHARACTERISTICS = 4,
-    HIGH_ABILITIES = 5,
-    CRIATIVITY = 6,
-    TASK_COMMITMENT = 7,
-    LEADERSHIP = 8,
-    ARTISTIC_ACTIVITIES = 9,
-    AUTOBIOGRAPHY = 10,
-    FINISHED = 11,
-}
+import IntroductionStep from "../AdultForm/steps/IntroductionStep";
 
 const AdultFormSecondSourcePage = () => {
-    const [currentStep, setCurrentStep] = useState(EAdultFormSteps.CHOOSE_PATH);
+    const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
 
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
@@ -46,7 +28,7 @@ const AdultFormSecondSourcePage = () => {
         if (currentStep === EAdultFormSteps.ARTISTIC_ACTIVITIES) {
             setNotificationTitle("Questionário finalizado!");
             setNotificationDescription("Agradecemos pelas respostas. Em breve o pesquisador entrará em contato.");
-            setCurrentStep(EAdultFormSteps.CHOOSE_PATH);
+            setCurrentStep(EAdultFormSteps.INTRODUCTION);
             return;
         }
 
@@ -60,7 +42,7 @@ const AdultFormSecondSourcePage = () => {
     };
 
     const handlePreviousStep = () => {
-        if (currentStep === EAdultFormSteps.CHOOSE_PATH) {
+        if (currentStep === EAdultFormSteps.INTRODUCTION) {
             return;
         }
         setCurrentStep(currentStep - 1);
@@ -83,28 +65,29 @@ const AdultFormSecondSourcePage = () => {
                 </div>
 
                 {/* STEPPER */}
-                {currentStep > EAdultFormSteps.CHOOSE_PATH && currentStep < EAdultFormSteps.GENERAL_CHARACTERISTICS && (
-                    <Stepper.Root>
-                        <Stepper.Step
-                            stepState={getStepState(EAdultFormSteps.PARTICIPANT_DATA)}
-                            stepNumber="01"
-                            stepTitle="Pessoais"
-                            stepDescription="Informações pessoais"
-                        ></Stepper.Step>
-                        <Stepper.Step
-                            stepState={getStepState(EAdultFormSteps.READ_AND_ACCEPT_DOCS)}
-                            stepNumber="02"
-                            stepTitle="Termos"
-                            stepDescription="Leia e aceite os termos"
-                        ></Stepper.Step>
-                        <Stepper.Step
-                            stepState="DISABLED"
-                            stepNumber="03"
-                            stepTitle="Questionário"
-                            stepDescription="Responda o questionário"
-                        ></Stepper.Step>
-                    </Stepper.Root>
-                )}
+                {currentStep > EAdultFormSteps.INTRODUCTION &&
+                    currentStep < EAdultFormSteps.GENERAL_CHARACTERISTICS && (
+                        <Stepper.Root>
+                            <Stepper.Step
+                                stepState={getStepState(EAdultFormSteps.PARTICIPANT_DATA)}
+                                stepNumber="01"
+                                stepTitle="Pessoais"
+                                stepDescription="Informações pessoais"
+                            ></Stepper.Step>
+                            <Stepper.Step
+                                stepState={getStepState(EAdultFormSteps.READ_AND_ACCEPT_DOCS)}
+                                stepNumber="02"
+                                stepTitle="Termos"
+                                stepDescription="Leia e aceite os termos"
+                            ></Stepper.Step>
+                            <Stepper.Step
+                                stepState="DISABLED"
+                                stepNumber="03"
+                                stepTitle="Questionário"
+                                stepDescription="Responda o questionário"
+                            ></Stepper.Step>
+                        </Stepper.Root>
+                    )}
                 {currentStep >= EAdultFormSteps.GENERAL_CHARACTERISTICS && (
                     <div>
                         <Stepper.Root>
@@ -150,8 +133,8 @@ const AdultFormSecondSourcePage = () => {
                     </div>
                 )}
 
-                {currentStep === EAdultFormSteps.CHOOSE_PATH && (
-                    <ChoosePathStep
+                {currentStep === EAdultFormSteps.INTRODUCTION && (
+                    <IntroductionStep
                         sourceForm={EAdultFormSource.SECOND_SOURCE}
                         participantId={participantId}
                         setCurrentStep={setCurrentStep}

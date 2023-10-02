@@ -2,8 +2,7 @@ import { useRef, useState } from "react";
 import Modal from "../../../components/Modal/Modal";
 import { AxiosError, AxiosResponse } from "axios";
 import { saveParticipantToken } from "../../../utils/tokensHandler";
-import { EAdultFormSteps } from "../AdultForm";
-import { EAdultFormSource } from "../../../utils/consts.utils";
+import { EAdultFormSource, EAdultFormSteps } from "../../../utils/consts.utils";
 import * as ParticipantApi from "../../../api/participant.api";
 import * as SecondSourceApi from "../../../api/secondSource.api";
 
@@ -21,7 +20,7 @@ interface ChoosePathStepProps {
     setNotificationDescription: (description: string) => void;
 }
 
-const ChoosePathStep = ({
+const IntroductionStep = ({
     sourceForm,
     participantId,
     setCurrentStep,
@@ -29,18 +28,11 @@ const ChoosePathStep = ({
     setNotificationTitle,
     setNotificationDescription,
 }: ChoosePathStepProps) => {
-    const [emailModalOpen, setEmailModalOpen] = useState(false);
+    const [modalConfirmationCodeOpen, setModalConfirmationCodeOpen] = useState(false);
     const [participantEmail, setParticipantEmail] = useState<string>();
-    const [showInputVerificationCode, setShowInputVerificationCode] = useState(false);
     const [verificationCode, setVerificationCode] = useState<number>();
-
-    const optionChoosedRef = useRef<Options>();
-
-    const handleChooseOption = (option: Options) => {
-        setShowInputVerificationCode(false);
-        optionChoosedRef.current = option;
-        setEmailModalOpen(true);
-    };
+    const [researcherName, setResearcherName] = useState("Rafael Dutra Pereira");
+    const [participantName, setParticipantName] = useState("Felipe Dutra Pereira");
 
     const handleOnRequestVerificationCode = async () => {
         if (!participantEmail || !participantEmail.length) {
@@ -55,18 +47,16 @@ const ChoosePathStep = ({
                     secondSourceEmail: participantEmail,
                     participantId,
                     sampleId,
-                    startFilling: optionChoosedRef.current === Options.START_FILL,
                 });
             } else {
                 response = await ParticipantApi.requestVerificationCode({
                     participantEmail,
                     sampleId,
-                    startFilling: optionChoosedRef.current === Options.START_FILL,
                 });
             }
 
             if (response.status === 200) {
-                setShowInputVerificationCode(true);
+                setModalConfirmationCodeOpen(true);
                 setNotificationTitle("Verifique seu e-mail.");
                 setNotificationDescription("Enviamos um código de verificação para o seu e-mail.");
             }
@@ -123,7 +113,6 @@ const ChoosePathStep = ({
                     participantEmail,
                     verificationCode,
                     sampleId,
-                    startFilling: optionChoosedRef.current === Options.START_FILL,
                 });
             }
 
@@ -136,32 +125,26 @@ const ChoosePathStep = ({
 
             saveParticipantToken(response.data.participantToken);
 
-            console.log(response.data);
+            if (response.data.adultFormStepToReturn === EAdultFormSteps.FINISHED) {
+                setNotificationTitle("Preenchimento finalizado!");
+                setNotificationDescription(
+                    "Você já finalizou o preenchimento do formulário, não é possível preencher novamente."
+                );
+                return;
+            }
 
-            if (optionChoosedRef.current === Options.START_FILL) {
-                if (response.data.adultFormStepToReturn) {
-                    setNotificationTitle("Preenchimento já iniciado!");
-                    setNotificationDescription(
-                        "Você já iniciou o preenchimento do questionário. Te encaminharemos para as etapas que ainda não foram preenchidas."
-                    );
-                    setCurrentStep(response.data.adultFormStepToReturn);
-                    return;
-                }
+            if (response.data.adultFormStepToReturn) {
+                setCurrentStep(response.data.adultFormStepToReturn);
+                setNotificationTitle("Preenchimento já iniciado!");
+                setNotificationDescription(
+                    "Você já iniciou o preenchimento do questionário. Te encaminharemos para as etapas que ainda não foram preenchidas."
+                );
+
+                return;
+            } else {
                 setNotificationTitle("E-mail validado!");
                 setNotificationDescription("O preenchimento do questionário poderá ser iniciado.");
                 setCurrentStep(EAdultFormSteps.PARTICIPANT_DATA);
-            } else if (optionChoosedRef.current === Options.CONTINUE_FILL && response.data.adultFormStepToReturn) {
-                if (response.data.adultFormStepToReturn === EAdultFormSteps.FINISHED) {
-                    setNotificationTitle("Preenchimento finalizado!");
-                    setNotificationDescription(
-                        "Você já finalizou o preenchimento do formulário, não é possível preencher novamente."
-                    );
-                    return;
-                }
-                setNotificationTitle("E-mail validado!");
-                setNotificationDescription("Você pode continuar o preenchimento do questionário.");
-                setCurrentStep(response.data.adultFormStepToReturn);
-                return;
             }
         } catch (error) {
             console.error(error);
@@ -176,61 +159,60 @@ const ChoosePathStep = ({
 
     return (
         <div className="grid gap-y-10">
-            <header>
-                <h1>Escolha uma opção para continuar</h1>
-            </header>
-            <section className="justify-center gap-10 text-black sm:flex ">
-                <div
-                    className="my-10 cursor-pointer rounded-lg bg-green-400 p-10 hover:bg-green-100 sm:m-0 sm:w-72"
-                    onClick={() => handleChooseOption(Options.START_FILL)}
+            <div className="m-auto w-3/4 text-justify">
+                <h3 className="text-center">Olá, sejá bem vindo ao SuperDot.</h3>
+                <br />
+                <p>
+                    Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação que está
+                    sendo realizada pelo(a) pesquisador(a) <b>{researcherName}</b>. Você foi indicado como a segunda
+                    fonte para os dados que foram coletados do particiapante <b>{participantName}</b>.
+                </p>
+                <br />
+                <p>
+                    O SuperDot é um sistema que visa auxiliar essa coleta de dados, facilitiando o preenchimento dos
+                    questionários de superdotação. Ao preencher o questionário a seguir, você estará constribuindo tanto
+                    com a pesquisa do(a) {researcherName}, quanto com toda a comunidade de pesquisadores de AH/SD do
+                    Brasil.
+                </p>
+                <br />
+                <p>
+                    A plataforma ainda se encontra em sua fase inicial, então é normal que alguns problemas apareçam
+                    durante sua utilização. Caso encontre algum problema ou tenha alguma sugestão de melhoria, por favor
+                    entre em contato conosco através do e-mail: <b>grupacdev@gmail.com</b>
+                </p>
+                <br />
+                <br />
+                <br />
+                <h3 className="text-center">
+                    Para iniciar ou continuar o preenchimento, infome seu e-mail no campo abaixo:
+                </h3>
+            </div>
+            <div className="m-auto w-2/4">
+                <input id="participantEmail" type="email" onChange={(e) => setParticipantEmail(e.target.value)}></input>
+                <button type="button" className="button-primary mt-5" onClick={handleOnRequestVerificationCode}>
+                    Enviar código de verificação
+                </button>
+                <Modal
+                    open={modalConfirmationCodeOpen}
+                    setOpen={setModalConfirmationCodeOpen}
+                    title="Código de verificação"
+                    accessibleDescription="Digite o código de confirmação que foi enviado para o seu e-mail."
                 >
-                    <b>Iniciar</b> o preenchimento do Questionário de Altas Habilidades ou Superdotação - Adulto{" "}
-                    {sourceForm === EAdultFormSource.SECOND_SOURCE && "(Segunda fonte)"}
-                </div>
-                <div
-                    className=" cursor-pointer rounded-lg bg-yellow-400 p-10 hover:bg-yellow-100 sm:w-72"
-                    onClick={() => handleChooseOption(Options.CONTINUE_FILL)}
-                >
-                    <b>Continuar</b> o preenchimento do Questionário de Altas Habilidades ou Superdotação - Adulto{" "}
-                    {sourceForm === EAdultFormSource.SECOND_SOURCE && "(Segunda fonte)"}
-                </div>
-            </section>
-            <Modal
-                open={emailModalOpen}
-                setOpen={setEmailModalOpen}
-                title="Validando e-mail"
-                accessibleDescription="Digite o seu email no campo a seguir e clique em continuar."
-            >
-                {showInputVerificationCode ? (
-                    <>
-                        <label htmlFor="verificationCode">
-                            Digite o código de verificação que foi enviado para o seu e-mail
-                        </label>
-                        <input
-                            id="verificationCode"
-                            type="number"
-                            onChange={(e) => setVerificationCode(Number(e.target.value))}
-                        ></input>
-                        <button type="button" className="button-primary mt-5" onClick={handleOnInputVerificationCode}>
-                            Continuar
-                        </button>
-                    </>
-                ) : (
-                    <>
-                        <label htmlFor="participantEmail">Digite seu e-mail</label>
-                        <input
-                            id="participantEmail"
-                            type="email"
-                            onChange={(e) => setParticipantEmail(e.target.value)}
-                        ></input>
-                        <button type="button" className="button-primary mt-5" onClick={handleOnRequestVerificationCode}>
-                            Enviar código de verificação
-                        </button>
-                    </>
-                )}
-            </Modal>
+                    <label htmlFor="verificationCode">
+                        Digite o código de verificação que foi enviado para o seu e-mail
+                    </label>
+                    <input
+                        id="verificationCode"
+                        type="number"
+                        onChange={(e) => setVerificationCode(Number(e.target.value))}
+                    ></input>
+                    <button type="button" className="button-primary mt-5" onClick={handleOnInputVerificationCode}>
+                        Continuar
+                    </button>
+                </Modal>
+            </div>
         </div>
     );
 };
 
-export default ChoosePathStep;
+export default IntroductionStep;

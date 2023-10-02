@@ -4,30 +4,15 @@ import { StepStateType } from "../../components/Stepper/StepperStep";
 import Notify from "../../components/Notify/Notify";
 import ParticipantData from "./steps/ParticipantDataStep";
 import { useParams } from "react-router-dom";
-import ChoosePathStep from "./steps/ChoosePathStep";
+import IntroductionStep from "./steps/IntroductionStep";
 import ReadAndAcceptDocsStep from "./steps/ReadAndAcceptDocsStep";
 import IndicateSecondSourceStep from "./steps/IndicateSecondSourceStep";
 import AnsweringAdultFormStep from "./steps/AnsweringAdultFormStep";
 import AutobiographyStep from "./steps/Autobiography";
-import { EAdultFormSource } from "../../utils/consts.utils";
-
-export enum EAdultFormSteps {
-    CHOOSE_PATH = 0,
-    PARTICIPANT_DATA = 1,
-    READ_AND_ACCEPT_DOCS = 2,
-    INDICATE_SECOND_SOURCE = 3,
-    GENERAL_CHARACTERISTICS = 4,
-    HIGH_ABILITIES = 5,
-    CRIATIVITY = 6,
-    TASK_COMMITMENT = 7,
-    LEADERSHIP = 8,
-    ARTISTIC_ACTIVITIES = 9,
-    AUTOBIOGRAPHY = 10,
-    FINISHED = 11,
-}
+import { EAdultFormSource, EAdultFormSteps } from "../../utils/consts.utils";
 
 const AdultForm = () => {
-    const [currentStep, setCurrentStep] = useState(EAdultFormSteps.CHOOSE_PATH);
+    const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
 
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
@@ -42,14 +27,14 @@ const AdultForm = () => {
 
     const handleNextStep = () => {
         if (currentStep === EAdultFormSteps.AUTOBIOGRAPHY) {
-            setCurrentStep(EAdultFormSteps.CHOOSE_PATH);
+            setCurrentStep(EAdultFormSteps.INTRODUCTION);
             return;
         }
         setCurrentStep(currentStep + 1);
     };
 
     const handlePreviousStep = () => {
-        if (currentStep === EAdultFormSteps.CHOOSE_PATH) {
+        if (currentStep === EAdultFormSteps.INTRODUCTION) {
             return;
         }
         setCurrentStep(currentStep - 1);
@@ -72,34 +57,35 @@ const AdultForm = () => {
                 </div>
 
                 {/* STEPPER */}
-                {currentStep > EAdultFormSteps.CHOOSE_PATH && currentStep < EAdultFormSteps.GENERAL_CHARACTERISTICS && (
-                    <Stepper.Root>
-                        <Stepper.Step
-                            stepState={getStepState(EAdultFormSteps.PARTICIPANT_DATA)}
-                            stepNumber="01"
-                            stepTitle="Pessoais"
-                            stepDescription="Informações pessoais"
-                        ></Stepper.Step>
-                        <Stepper.Step
-                            stepState={getStepState(EAdultFormSteps.READ_AND_ACCEPT_DOCS)}
-                            stepNumber="02"
-                            stepTitle="Termos"
-                            stepDescription="Leia e aceite os termos"
-                        ></Stepper.Step>
-                        <Stepper.Step
-                            stepState={getStepState(EAdultFormSteps.INDICATE_SECOND_SOURCE)}
-                            stepNumber="03"
-                            stepTitle="Segundas fontes"
-                            stepDescription="Indique segundas fontes"
-                        ></Stepper.Step>
-                        <Stepper.Step
-                            stepState="DISABLED"
-                            stepNumber="04"
-                            stepTitle="Questionário"
-                            stepDescription="Responda o questionário"
-                        ></Stepper.Step>
-                    </Stepper.Root>
-                )}
+                {currentStep > EAdultFormSteps.INTRODUCTION &&
+                    currentStep < EAdultFormSteps.GENERAL_CHARACTERISTICS && (
+                        <Stepper.Root>
+                            <Stepper.Step
+                                stepState={getStepState(EAdultFormSteps.PARTICIPANT_DATA)}
+                                stepNumber="01"
+                                stepTitle="Pessoais"
+                                stepDescription="Informações pessoais"
+                            ></Stepper.Step>
+                            <Stepper.Step
+                                stepState={getStepState(EAdultFormSteps.READ_AND_ACCEPT_DOCS)}
+                                stepNumber="02"
+                                stepTitle="Termos"
+                                stepDescription="Leia e aceite os termos"
+                            ></Stepper.Step>
+                            <Stepper.Step
+                                stepState={getStepState(EAdultFormSteps.INDICATE_SECOND_SOURCE)}
+                                stepNumber="03"
+                                stepTitle="Segundas fontes"
+                                stepDescription="Indique segundas fontes"
+                            ></Stepper.Step>
+                            <Stepper.Step
+                                stepState="DISABLED"
+                                stepNumber="04"
+                                stepTitle="Questionário"
+                                stepDescription="Responda o questionário"
+                            ></Stepper.Step>
+                        </Stepper.Root>
+                    )}
                 {currentStep >= EAdultFormSteps.GENERAL_CHARACTERISTICS && (
                     <div>
                         <Stepper.Root>
@@ -142,7 +128,7 @@ const AdultForm = () => {
                                 stepDescription="Atividades Artísticas e Esportivas"
                             ></Stepper.Step>
                             <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.ARTISTIC_ACTIVITIES)}
+                                stepState={getStepState(EAdultFormSteps.AUTOBIOGRAPHY)}
                                 stepNumber="07"
                                 stepTitle="Autobigrafia"
                                 stepDescription="Detalhes sobre você"
@@ -151,8 +137,8 @@ const AdultForm = () => {
                     </div>
                 )}
 
-                {currentStep === EAdultFormSteps.CHOOSE_PATH && (
-                    <ChoosePathStep
+                {currentStep === EAdultFormSteps.INTRODUCTION && (
+                    <IntroductionStep
                         sourceForm={EAdultFormSource.FIRST_SOURCE}
                         setCurrentStep={setCurrentStep}
                         sampleId={sampleId || ""}
@@ -160,6 +146,7 @@ const AdultForm = () => {
                         setNotificationTitle={setNotificationTitle}
                     />
                 )}
+
                 {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
                     <ParticipantData
                         nextStep={handleNextStep}
