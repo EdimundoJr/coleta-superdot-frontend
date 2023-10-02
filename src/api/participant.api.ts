@@ -1,22 +1,17 @@
 import axios from "axios";
-import { EAdultFormSteps } from "../pages/AdultForm/AdultForm";
 import { ParticipantDataValues } from "../schemas/adultForm/participantData.schema";
 import { ISecondSource } from "../interfaces/secondSource.interface";
+import { EAdultFormSteps } from "../utils/consts.utils";
 
 interface requestVerificationCodeParams {
     participantEmail: string;
     sampleId: string;
-    startFilling: boolean;
 }
 
-export const requestVerificationCode = async ({
-    participantEmail,
-    sampleId,
-    startFilling,
-}: requestVerificationCodeParams) => {
+export const requestVerificationCode = async ({ participantEmail, sampleId }: requestVerificationCodeParams) => {
     return axios.post<boolean>(
         `${import.meta.env.VITE_BACKEND_HOST}/api/participant/verifyParticipantEmail/sample/${sampleId}`,
-        { participantEmail: participantEmail, startFilling }
+        { participantEmail: participantEmail }
     );
 };
 
@@ -25,7 +20,6 @@ interface validateVerificationCodeParams {
     participantEmail: string;
     sampleId: string;
     verificationCode: number;
-    startFilling: boolean;
 }
 
 export interface CodeValidated {
@@ -37,14 +31,12 @@ export const validateVerificationCode = async ({
     participantEmail,
     sampleId,
     verificationCode,
-    startFilling,
 }: validateVerificationCodeParams) => {
     return axios.patch<CodeValidated>(
         `${import.meta.env.VITE_BACKEND_HOST}/api/participant/validateVerificationCode/sample/${sampleId}`,
         {
             participantEmail,
             verificationCode,
-            startFilling,
         }
     );
 };

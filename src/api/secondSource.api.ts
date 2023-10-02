@@ -1,25 +1,23 @@
 import axios from "axios";
-import { EAdultFormSteps } from "../pages/AdultForm/AdultForm";
 import { SecondSourceValues } from "../schemas/adultForm/secondSourceData.schema";
+import { EAdultFormSteps } from "../utils/consts.utils";
 
 interface requestVerificationCodeParams {
     secondSourceEmail: string;
     sampleId: string;
     participantId: string;
-    startFilling: boolean;
 }
 
 export const requestVerificationCode = async ({
     secondSourceEmail,
     sampleId,
     participantId,
-    startFilling,
 }: requestVerificationCodeParams) => {
     return axios.post<boolean>(
         `${
             import.meta.env.VITE_BACKEND_HOST
         }/api/secondSource/verifySecondSourceEmail/sample/${sampleId}/participant/${participantId}`,
-        { secondSourceEmail: secondSourceEmail, startFilling }
+        { secondSourceEmail: secondSourceEmail }
     );
 };
 
