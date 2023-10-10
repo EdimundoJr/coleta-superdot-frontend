@@ -81,23 +81,6 @@ export const RELATIONSHIPS_ARRAY = ["Amigo", "Parente", "Professor"];
 export const FORM_FILL_STATUS = ["Preenchendo", "Aguardando 2ª fonte", "Finalizado"] as const;
 export type FormFillStatusType = (typeof FORM_FILL_STATUS)[number];
 
-export enum EQuestionType {
-    LIMITED_OPTIONS = 0, // Limited options to choose ONE
-    FOUR_INPUTS = 1, // Four mandatory inputs
-    MULTIPLE_OPTIONS = 2, // Various options to choose FOUR
-    OTHER_INPUT = 3, // Simple input
-    MULTIPLE_SELECT = 4, // A Select with multiple options attribute
-}
-
-export enum EAdultFormGroup {
-    GENERAL_CHARACTERISTICS = 0,
-    HIGH_ABILITIES = 1,
-    CRIATIVITY = 2,
-    TASK_COMMITMENT = 3,
-    LEADERSHIP = 4,
-    ARTISTIC_ACTIVITIES = 5,
-}
-
 export enum EAdultFormSource {
     FIRST_SOURCE = 0,
     SECOND_SOURCE = 1,
@@ -115,6 +98,14 @@ export const RELATIONSHIP_TIME_ARRAY = [
 
 export type TRelationshipTime = (typeof RELATIONSHIP_TIME_ARRAY)[number];
 
+export enum EQuestionType {
+    ONE_INPUT = 0, // One simple HTML input text
+    FOUR_INPUT = 1, // Four simple HTML input text
+    FIVE_OPTION = 2, // Five HTML Radio boxes (or similary logic with buttons)
+    MULTIPLE_SELECT = 3, // One HTML select with multiple attribute define
+    FOUR_SELECT = 4, // Four HTML selects
+}
+
 export enum EAdultFormSteps {
     INTRODUCTION = 0,
     PARTICIPANT_DATA = 1,
@@ -129,3 +120,16 @@ export enum EAdultFormSteps {
     AUTOBIOGRAPHY = 10,
     FINISHED = 11,
 }
+
+export enum EAdultFormGroup {
+    GENERAL_CHARACTERISTICS = 0,
+    HIGH_ABILITIES = 1,
+    CRIATIVITY = 2,
+    TASK_COMMITMENT = 3,
+    LEADERSHIP = 4,
+    ARTISTIC_ACTIVITIES = 5,
+}
+
+export const getAdultGroupSequenceByFormStep = (groupStep: EAdultFormSteps): EAdultFormGroup => {
+    return groupStep - 4;
+};
