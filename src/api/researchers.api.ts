@@ -28,3 +28,20 @@ export const getResearcherNameBySampleId = (sampleId: string) => {
         `${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher-name-by-sample/${sampleId}`
     );
 };
+
+interface GetResearchDataBySampleIdAndParticipantIdParams {
+    sampleId: string;
+    participantId: string;
+}
+
+export const getResearchDataBySampleIdAndParticipantId = ({
+    sampleId,
+    participantId,
+}: GetResearchDataBySampleIdAndParticipantIdParams) => {
+    setAuthHeaders();
+    return axios.get<{ researcherName: string; participantName: string }>(
+        `${
+            import.meta.env.VITE_BACKEND_HOST
+        }/api/researcher/get-research-data-by/sample/${sampleId}/participant/${participantId}`
+    );
+};
