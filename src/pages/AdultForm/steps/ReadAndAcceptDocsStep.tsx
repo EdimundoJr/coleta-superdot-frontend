@@ -9,23 +9,30 @@ import { EAdultFormSource } from "../../../utils/consts.utils";
 import { AxiosResponse } from "axios";
 import * as ParticipantApi from "../../../api/participant.api";
 import * as SecondSourceApi from "../../../api/secondSource.api";
+import { IParticipant } from "../../../interfaces/participant.interface";
 
 interface ReadAndAcceptDocsStepProps {
     sourceForm: EAdultFormSource;
     participantId?: string; // Only required when the form will be fill out by a second source
     nextStep: () => void;
-    setNotificationTitle: (title: string) => void;
-    setNotificationDescription: (description: string) => void;
+    previousStep: () => void;
+    setNotificationData: (data: { title: string; description: string }) => void;
     sampleId: string;
+    saveAndExit: () => void;
+    formData: IParticipant;
+    setFormData: (data: IParticipant) => void;
 }
 
 const ReadAndAcceptDocsStep = ({
     sourceForm,
     participantId,
     nextStep,
-    setNotificationTitle,
-    setNotificationDescription,
+    previousStep,
+    setNotificationData,
     sampleId,
+    saveAndExit,
+    formData,
+    setFormData,
 }: ReadAndAcceptDocsStepProps) => {
     const docsToAccept = useRef<AcceptSampleFile[]>();
     const [currentDoc, setCurrentDoc] = useState<AcceptSampleFile>();
@@ -35,8 +42,26 @@ const ReadAndAcceptDocsStep = ({
         const returnDocs = async (sampleId: string) => {
             const response = await getAllSampleRequiredDocs(sampleId);
             if (response.data) {
-                docsToAccept.current = response.data;
-                setCurrentDoc(response.data[0]);
+                const docs = response.data.map((doc) => {
+                    if (formData.acceptTaleAt && doc.jsonFileKey === "taleDocument") {
+                        return {
+                            ...doc,
+                            accepted: true,
+                        };
+                    } else if (formData.acceptTcleAt && doc.jsonFileKey === "tcleDocument") {
+                        return {
+                            ...doc,
+                            accepted: true,
+                        };
+                    } else {
+                        return doc;
+                    }
+                });
+                docsToAccept.current = docs;
+                if (docs.length) {
+                    setCurrentDoc(docs[0]);
+                    setAccepted(docs[0].accepted || false);
+                }
             }
         };
 
@@ -65,24 +90,45 @@ const ReadAndAcceptDocsStep = ({
             try {
                 let response: AxiosResponse<boolean>;
 
-                console.log(sourceForm);
-                console.log(participantId);
-
                 if (sourceForm === EAdultFormSource.SECOND_SOURCE && participantId) {
                     response = await SecondSourceApi.patchAcceptAllSampleDocs(sampleId, participantId);
                 } else {
-                    response = await ParticipantApi.patchAcceptAllSampleDocs(sampleId);
+                    response = await ParticipantApi.patchAcceptAllSampleDocs({ sampleId });
                 }
 
                 if (response.status === 200) {
-                    setNotificationTitle("Termos aceitos!");
-                    setNotificationDescription("Todos os documentos foram aceitos com sucesso.");
+                    setNotificationData({
+                        title: "Termos aceitos!",
+                        description: "Todos os documentos foram aceitos com sucesso.",
+                    });
+
+                    const docs: {
+                        acceptTcleAt?: Date;
+                        acceptTaleAt?: Date;
+                    } = { acceptTcleAt: undefined, acceptTaleAt: undefined };
+
+                    docsToAccept.current.forEach((doc) => {
+                        if (doc.jsonFileKey === "tcleDocument") {
+                            docs.acceptTcleAt = new Date();
+                        }
+                        if (doc.jsonFileKey === "taleDocument") {
+                            docs.acceptTaleAt = new Date();
+                        }
+                    });
+
+                    setFormData({
+                        ...formData,
+                        ...docs,
+                    });
+
                     nextStep();
                 }
             } catch (erroLogin) {
                 console.error(erroLogin);
-                setNotificationTitle("Erro no servidor.");
-                setNotificationDescription("Por favor, tente novamente mais tarde.");
+                setNotificationData({
+                    title: "Erro no servidor.",
+                    description: "Por favor, tente novamente mais tarde.",
+                });
             }
             return;
         }
@@ -90,8 +136,25 @@ const ReadAndAcceptDocsStep = ({
         docsToAccept.current = arrayWithNewDocAccepted;
         setCurrentDoc(nextDocToAccept);
         setAccepted(false);
-        setNotificationTitle("Documento aceito com sucesso.");
-        setNotificationDescription("Ainda há um outro documento para ser aceito.");
+        setNotificationData({
+            title: "Documento aceito com sucesso.",
+            description: "Ainda há um outro documento para ser aceito.",
+        });
+    };
+
+    const onClickToPreviouStep = () => {
+        if (docsToAccept.current?.length === 1 || !docsToAccept.current) {
+            previousStep();
+            return;
+        }
+
+        const currentDocIdx = docsToAccept.current?.findIndex((doc) => doc.jsonFileKey === currentDoc?.jsonFileKey);
+        if (currentDocIdx === 0 || currentDocIdx === -1) {
+            previousStep(); // Return to previous step
+        } else {
+            // Return to previous document
+            setCurrentDoc(docsToAccept.current[currentDocIdx - 1]);
+        }
     };
 
     return (
@@ -132,13 +195,25 @@ const ReadAndAcceptDocsStep = ({
             </div>
 
             <div className="mt-5 flex w-full justify-center gap-x-4 px-3 ">
-                <button
-                    disabled={!accepted}
-                    className="button-secondary w-1/2 disabled:bg-slate-600 disabled:hover:bg-slate-600"
-                    onClick={() => handleOnAccepted(currentDoc?.jsonFileKey || "")}
-                >
-                    Continuar
-                </button>
+                <div className="flex justify-center gap-6">
+                    <button
+                        type="button"
+                        onClick={onClickToPreviouStep}
+                        className="button-secondary mt-5 w-3/4 px-3 md:w-56"
+                    >
+                        VOLTAR
+                    </button>
+                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56" onClick={saveAndExit}>
+                        SALVAR E SAIR
+                    </button>
+                    <button
+                        className="button-secondary mt-5 w-3/4 px-3 disabled:bg-neutral-dark md:w-56"
+                        disabled={!accepted}
+                        onClick={() => handleOnAccepted(currentDoc?.jsonFileKey || "")}
+                    >
+                        SALVAR E CONTINUAR
+                    </button>
+                </div>
             </div>
         </div>
     );
