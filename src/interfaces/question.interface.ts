@@ -2,10 +2,16 @@ import { EQuestionType } from "../utils/consts.utils";
 
 export default interface IQuestion {
     _id: string;
-    sequence: number;
     statement: string;
     questionType: EQuestionType;
-    options?: string[];
-    notRequired?: boolean
+    options?: {
+        value: string;
+        points?: number;
+    }[];
+    required?: boolean;
+    parentQuestion?: {
+        parentId: string;
+        isRequiredOnParentValue: string;
+    };
     answer?: string | string[]; // Participant answer
 }
