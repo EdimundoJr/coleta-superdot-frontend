@@ -1,86 +1,108 @@
 import axios from "axios";
-import { ParticipantDataValues } from "../schemas/adultForm/participantData.schema";
+import { ParticipantDataDTO } from "../schemas/adultForm/participantData.schema";
 import { ISecondSource } from "../interfaces/secondSource.interface";
-import { EAdultFormSteps } from "../utils/consts.utils";
+import { IParticipant } from "../interfaces/participant.interface";
+import { setAuthHeaders } from "../utils/tokensHandler";
 
-interface requestVerificationCodeParams {
+interface PostSendVerificationCodeParams {
     participantEmail: string;
     sampleId: string;
 }
 
-export const requestVerificationCode = async ({ participantEmail, sampleId }: requestVerificationCodeParams) => {
+export const postSendVerificationCode = async ({ participantEmail, sampleId }: PostSendVerificationCodeParams) => {
     return axios.post<boolean>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/verifyParticipantEmail/sample/${sampleId}`,
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/send-verification-code/sample/${sampleId}`,
         { participantEmail: participantEmail }
     );
 };
 
-/** VALIDATE VERIFICATION CODE */
-interface validateVerificationCodeParams {
-    participantEmail: string;
+interface ValidateVerificationCodeParams {
+    participantId: string;
     sampleId: string;
-    verificationCode: number;
+    verificationCode: string;
 }
 
-export interface CodeValidated {
-    participantToken: string;
-    adultFormStepToReturn: EAdultFormSteps;
+interface ValidateVerificationCodeReturn {
+    token: string;
+    participant: IParticipant;
+    researcherName: string;
 }
 
-export const validateVerificationCode = async ({
-    participantEmail,
+export const patchValidateVerificationCode = async ({
+    participantId,
     sampleId,
     verificationCode,
-}: validateVerificationCodeParams) => {
-    return axios.patch<CodeValidated>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/validateVerificationCode/sample/${sampleId}`,
-        {
-            participantEmail,
-            verificationCode,
-        }
+}: ValidateVerificationCodeParams) => {
+    return axios.patch<ValidateVerificationCodeReturn>(
+        `${
+            import.meta.env.VITE_BACKEND_HOST
+        }/api/participant/validate-verification-code/sample/${sampleId}/participant/${participantId}/code/${verificationCode}`
     );
 };
 
-/** SAVE PARTICIPANT DATA */
-interface PostParticipantDataParams {
+interface ParticipantDataParams {
     sampleId: string;
-    participantData: ParticipantDataValues;
+    participantData: ParticipantDataDTO;
 }
 
-export const postParticipantData = async ({ sampleId, participantData }: PostParticipantDataParams) => {
-    return axios.post<string>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/submitParticipantData/sample/${sampleId}`,
+export const putSaveParticipantData = async ({ sampleId, participantData }: ParticipantDataParams) => {
+    return axios.put<string>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-participant-data/sample/${sampleId}`,
         participantData
     );
 };
 
-// Updating the backend to save the info that the participant accepted the docs
-export const patchAcceptAllSampleDocs = async (sampleId: string) => {
-    return axios.patch<boolean>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/acceptAllSampleDocs/sample/${sampleId}`
+export const putSubmitParticipantData = async ({ sampleId, participantData }: ParticipantDataParams) => {
+    return axios.put<string>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/submit-participant-data/sample/${sampleId}`,
+        participantData
     );
 };
 
-export const postIndicateSecondSources = async (sampleId: string, secondSources: ISecondSource[]) => {
-    return axios.post<boolean>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/indicateSecondSources/sample/${sampleId}`,
+export const patchAcceptAllSampleDocs = async ({ sampleId }: { sampleId: string }) => {
+    return axios.patch<boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/accept-all-sample-docs/sample/${sampleId}`
+    );
+};
+interface PutSaveSecondSourcesParams {
+    sampleId: string;
+    secondSources: ISecondSource[];
+}
+export const putSaveSecondSources = async ({ sampleId, secondSources }: PutSaveSecondSourcesParams) => {
+    return axios.patch<boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-second-sources/sample/${sampleId}`,
         { secondSources }
     );
 };
 
-interface submitAutobiographyParams {
+interface PatchSaveAutobiographyParams {
     sampleId: string;
     autobiographyText: string;
     autobiographyVideo: string;
+    submitForm?: boolean;
 }
 
-export const submitAutobiography = async ({
+export const patchSaveAutobiography = async ({
     sampleId,
     autobiographyText,
     autobiographyVideo,
-}: submitAutobiographyParams) => {
+    submitForm,
+}: PatchSaveAutobiographyParams) => {
     return axios.patch<boolean>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/submitAutobiography/sample/${sampleId}`,
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-autobiography/sample/${sampleId}?submitForm=${String(
+            submitForm
+        )}`,
         { autobiographyText, autobiographyVideo }
+    );
+};
+
+interface GetParticipantDataParams {
+    sampleId: string;
+}
+
+export const getParticipantData = async ({ sampleId }: GetParticipantDataParams) => {
+    setAuthHeaders();
+    return axios.get<IParticipant>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/get-participant-info/sample/${sampleId}`
     );
 };

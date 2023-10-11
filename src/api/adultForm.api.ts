@@ -1,22 +1,15 @@
-import IQuestion from "../interfaces/question.interface";
 import IQuestionsGroup from "../interfaces/questionsGroup.interface";
 import { AcceptSampleFile } from "../interfaces/sample.interface";
-import { EAdultFormGroup, EAdultFormSource, EAdultFormSteps } from "../utils/consts.utils";
+import { EAdultFormSource, EAdultFormSteps, getAdultGroupSequenceByFormStep } from "../utils/consts.utils";
 import { setAuthHeaders } from "../utils/tokensHandler";
 import axios from "axios";
-
-/** SAMPLE FILES */
-interface IRequiredDoc {
-    jsonFileKey: string;
-    backendFileName: string;
-    label: string;
-    url?: string;
-}
 
 // Get to retrieve all docs from sample that required a participant acceptation
 export const getAllSampleRequiredDocs = async (sampleId: string) => {
     setAuthHeaders();
-    return axios.get<IRequiredDoc[]>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/listRequiredDocs/${sampleId}`);
+    return axios.get<AcceptSampleFile[]>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/sample/listRequiredDocs/${sampleId}`
+    );
 };
 
 export enum QuestionType {
@@ -27,27 +20,18 @@ export enum QuestionType {
 
 /** GET QUESTIONS BY GROUP */
 
-export const getAllGroupQuestionsByFormStep = (formStep: EAdultFormSteps, formSource: EAdultFormSource) => {
-    // Converting the form step to group sequence
-    // Form Step 4 -> Group Sequence 0
-    // Form Step 5 -> Group Sequence 1
-    const groupSequence = formStep - 4;
+export const getQuestionsByFormStep = (formStep: EAdultFormSteps, formSource: EAdultFormSource) => {
+    const groupSequence = getAdultGroupSequenceByFormStep(formStep);
     return axios.get<IQuestionsGroup>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/adultForm/allQuestionsByGroup/${groupSequence}/source/${formSource}`
+        `${import.meta.env.VITE_BACKEND_HOST}/api/adultForm/questions-by-group/${groupSequence}/source/${formSource}`
     );
 };
 
-/** SUBMIT QUESTIONS BY GROUP */
+/** SAVE QUESTIONS BY GROUP */
 
-export const patchQuestionsAnswersByGroup = (
-    sampleId: string,
-    groupQuestionsAndAnswers: IQuestionsGroup,
-    participantId?: string
-) => {
+export const patchSaveQuestionsByGroup = (sampleId: string, groupQuestionsAndAnswers: IQuestionsGroup) => {
     return axios.patch<IQuestionsGroup | boolean>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/adultForm/submitGroupQuestions/sample/${sampleId}${
-            participantId ? "/participant/" + participantId : ""
-        }`,
+        `${import.meta.env.VITE_BACKEND_HOST}/api/adultForm/save-questions-by-group/sample/${sampleId}`,
         groupQuestionsAndAnswers
     );
 };
