@@ -11,7 +11,7 @@ export const participantDataSchema = object({
     personalData: object({
         fullName: string().required("Nome completo é um campo obrigatório.").trim().uppercase(),
         phone: string().max(11).required("Número de telefone é um campo obrigatório.").trim(),
-        email: string(),
+        email: string().required(),
         maritalStatus: string()
             .oneOf(MARITAL_STATUS_ARRAY, "Selecione uma opção válida.")
             .required("Estado civil é um campo obrigatório."),
@@ -36,8 +36,8 @@ export const participantDataSchema = object({
         familyMonthIncome: string()
             .oneOf(INCOME_LEVELS_ARRAY, "Selecione uma opção válida.")
             .required("Renda familiar é um campo obrigatório."),
-        houseDevices: array().of(string().oneOf(DEVICES_ARRAY, "Selecione uma opção válida.")),
-        outsideHouseDevices: array().of(string().oneOf(DEVICES_ARRAY, "Selecione uma opção válida.")),
+        houseDevices: array().of(string().required().oneOf(DEVICES_ARRAY, "Selecione uma opção válida.")),
+        outsideHouseDevices: array().of(string().required().oneOf(DEVICES_ARRAY, "Selecione uma opção válida.")),
     }),
     addressData: object({
         city: string().required("Cidade é um campo obrigatório."),
@@ -47,4 +47,4 @@ export const participantDataSchema = object({
     }),
 });
 
-export type ParticipantDataValues = InferType<typeof participantDataSchema>;
+export type ParticipantDataDTO = InferType<typeof participantDataSchema>;

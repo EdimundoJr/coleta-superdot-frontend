@@ -26,8 +26,6 @@ export const setAuthHeaders = () => {
         request.headers.set("Authorization", `Bearer ${token}`);
         request.headers.set("X-Refresh", localStorage.getItem(import.meta.env.VITE_REFRESH_TOKEN_KEY));
 
-        console.log(request.headers);
-
         return request;
     });
 
