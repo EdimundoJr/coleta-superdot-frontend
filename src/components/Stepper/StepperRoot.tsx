@@ -1,7 +1,7 @@
 import StepperStep from "./StepperStep";
 
 interface StepperRootProps {
-    children: React.ReactElement<typeof StepperStep>[] | React.ReactElement<typeof StepperStep>;
+    children: React.ReactElement<typeof StepperStep>[] | React.ReactElement<typeof StepperStep> | null;
     removeBackground?: boolean;
 }
 
