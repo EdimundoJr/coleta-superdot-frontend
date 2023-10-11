@@ -1,41 +1,37 @@
-import { useRef, useState } from "react";
-import Modal from "../../../components/Modal/Modal";
+import { useState } from "react";
 import { AxiosError, AxiosResponse } from "axios";
-import { saveParticipantToken } from "../../../utils/tokensHandler";
-import { EAdultFormSource, EAdultFormSteps } from "../../../utils/consts.utils";
+import { EAdultFormSource } from "../../../utils/consts.utils";
 import * as ParticipantApi from "../../../api/participant.api";
 import * as SecondSourceApi from "../../../api/secondSource.api";
 
-enum Options {
-    START_FILL = 0,
-    CONTINUE_FILL = 1,
-}
-
-interface ChoosePathStepProps {
+interface IntroductionStepProps {
     sourceForm: EAdultFormSource;
-    participantId?: string; // Only required when the form will be fill out by a second source
-    setCurrentStep: (step: EAdultFormSteps) => void;
+    participantId?: string;
+    researcherName: string;
     sampleId: string;
-    setNotificationTitle: (title: string) => void;
-    setNotificationDescription: (description: string) => void;
+    setNotificationData: (data: { title: string; description: string }) => void;
 }
 
+/* This step will introduce the participant in the researcher and request an email to send a
+ * verification code.
+ */
 const IntroductionStep = ({
     sourceForm,
     participantId,
-    setCurrentStep,
+    researcherName,
     sampleId,
-    setNotificationTitle,
-    setNotificationDescription,
-}: ChoosePathStepProps) => {
-    const [modalConfirmationCodeOpen, setModalConfirmationCodeOpen] = useState(false);
-    const [participantEmail, setParticipantEmail] = useState<string>();
-    const [verificationCode, setVerificationCode] = useState<number>();
-    const [researcherName, setResearcherName] = useState("Rafael Dutra Pereira");
+    setNotificationData,
+}: IntroductionStepProps) => {
+    const [participantEmail, setParticipantEmail] = useState<string>("");
     const [participantName, setParticipantName] = useState("Felipe Dutra Pereira");
 
+    /**
+     * The function `handleOnRequestVerificationCode` sends a verification code to a participant's
+     * email address and handles different error scenarios.
+     * @returns nothing (undefined) if the `participantEmail` is empty.
+     */
     const handleOnRequestVerificationCode = async () => {
-        if (!participantEmail || !participantEmail.length) {
+        if (!participantEmail.length) {
             return;
         }
 
@@ -49,109 +45,53 @@ const IntroductionStep = ({
                     sampleId,
                 });
             } else {
-                response = await ParticipantApi.requestVerificationCode({
+                response = await ParticipantApi.postSendVerificationCode({
                     participantEmail,
                     sampleId,
                 });
             }
 
-            if (response.status === 200) {
-                setModalConfirmationCodeOpen(true);
-                setNotificationTitle("Verifique seu e-mail.");
-                setNotificationDescription("Enviamos um código de verificação para o seu e-mail.");
+            if (response.status === 201) {
+                setNotificationData({
+                    title: "Verifique seu e-mail.",
+                    description: "Enviamos um link de verificação para o seu e-mail.",
+                });
             }
         } catch (error) {
             console.error(error);
             if (error instanceof AxiosError) {
                 switch (error.response?.status) {
                     case 400: // DTO Validation Error
-                        setNotificationTitle("E-mail inválido.");
-                        setNotificationDescription("Verifique o seu e-mail e tente novamente.");
+                        setNotificationData({
+                            title: "E-mail inválido.",
+                            description: "Verifique o seu e-mail e tente novamente.",
+                        });
+                        break;
+                    case 401:
+                        setNotificationData({
+                            title: "Preenchimento finalizado!",
+                            description:
+                                "Você já finalizou o preencimento do formulário, não é possível alterar as informações.",
+                        });
                         break;
                     case 404: // Participant not found
-                        setNotificationTitle("E-mail não encontrado.");
-                        setNotificationDescription(
-                            "Caso ainda não tenha iniciado o preenchimento, selecione a opção 'Iniciar preenchimento' na tela anterior."
-                        );
+                        setNotificationData({
+                            title: "E-mail não encontrado.",
+                            description:
+                                "Caso ainda não tenha iniciado o preenchimento, selecione a opção 'Iniciar preenchimento' na tela anterior.",
+                        });
                         break;
                     case 409: // Email already in use
-                        setNotificationTitle("E-mail em uso.");
-                        setNotificationDescription(
-                            "Esse endereço de e-mail já foi utilizado para preencher o formulário."
-                        );
+                        setNotificationData({
+                            title: "E-mail em uso.",
+                            description: "Esse endereço de e-mail já foi utilizado para preencher o formulário.",
+                        });
                         break;
                     default: // Others
-                        setNotificationTitle("Erro no servidor.");
-                        setNotificationDescription(
-                            "Verifique se você está utilizando a URL fornecida pelo pesquisador."
-                        );
-                }
-            }
-        }
-    };
-
-    const handleOnInputVerificationCode = async () => {
-        if (!participantEmail || !participantEmail.length) {
-            return;
-        }
-
-        if (!verificationCode) {
-            return;
-        }
-
-        try {
-            let response: AxiosResponse<ParticipantApi.CodeValidated>;
-
-            if (sourceForm === EAdultFormSource.SECOND_SOURCE && participantId) {
-                response = await SecondSourceApi.validateVerificationCode({
-                    secondSourceEmail: participantEmail,
-                    participantId,
-                    verificationCode,
-                });
-            } else {
-                response = await ParticipantApi.validateVerificationCode({
-                    participantEmail,
-                    verificationCode,
-                    sampleId,
-                });
-            }
-
-            if (response.status !== 200) {
-                console.error(response.data);
-                setNotificationTitle("Erro no servidor!");
-                setNotificationDescription("Contate os responsáveis pela plataforma.");
-                return;
-            }
-
-            saveParticipantToken(response.data.participantToken);
-
-            if (response.data.adultFormStepToReturn === EAdultFormSteps.FINISHED) {
-                setNotificationTitle("Preenchimento finalizado!");
-                setNotificationDescription(
-                    "Você já finalizou o preenchimento do formulário, não é possível preencher novamente."
-                );
-                return;
-            }
-
-            if (response.data.adultFormStepToReturn) {
-                setCurrentStep(response.data.adultFormStepToReturn);
-                setNotificationTitle("Preenchimento já iniciado!");
-                setNotificationDescription(
-                    "Você já iniciou o preenchimento do questionário. Te encaminharemos para as etapas que ainda não foram preenchidas."
-                );
-
-                return;
-            } else {
-                setNotificationTitle("E-mail validado!");
-                setNotificationDescription("O preenchimento do questionário poderá ser iniciado.");
-                setCurrentStep(EAdultFormSteps.PARTICIPANT_DATA);
-            }
-        } catch (error) {
-            console.error(error);
-            if (error instanceof AxiosError) {
-                if (error.response?.status === 409) {
-                    setNotificationTitle("Erro no servidor.");
-                    setNotificationDescription("Código incorreto!");
+                        setNotificationData({
+                            title: "Erro no servidor.",
+                            description: "Verifique se você está utilizando a URL fornecida pelo pesquisador.",
+                        });
                 }
             }
         }
@@ -164,8 +104,11 @@ const IntroductionStep = ({
                 <br />
                 <p>
                     Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação que está
-                    sendo realizada pelo(a) pesquisador(a) <b>{researcherName}</b>. Você foi indicado como a segunda
-                    fonte para os dados que foram coletados do particiapante <b>{participantName}</b>.
+                    sendo realizada pelo(a) pesquisador(a) <b>{researcherName}</b>.{" "}
+                    {sourceForm === EAdultFormSource.SECOND_SOURCE &&
+                        "Você foi indicado como a segunda fonte para os dados que foram coletados do participante" +
+                            <b>{participantName}</b> +
+                            "."}
                 </p>
                 <br />
                 <p>
@@ -192,24 +135,6 @@ const IntroductionStep = ({
                 <button type="button" className="button-primary mt-5" onClick={handleOnRequestVerificationCode}>
                     Enviar código de verificação
                 </button>
-                <Modal
-                    open={modalConfirmationCodeOpen}
-                    setOpen={setModalConfirmationCodeOpen}
-                    title="Código de verificação"
-                    accessibleDescription="Digite o código de confirmação que foi enviado para o seu e-mail."
-                >
-                    <label htmlFor="verificationCode">
-                        Digite o código de verificação que foi enviado para o seu e-mail
-                    </label>
-                    <input
-                        id="verificationCode"
-                        type="number"
-                        onChange={(e) => setVerificationCode(Number(e.target.value))}
-                    ></input>
-                    <button type="button" className="button-primary mt-5" onClick={handleOnInputVerificationCode}>
-                        Continuar
-                    </button>
-                </Modal>
             </div>
         </div>
     );
