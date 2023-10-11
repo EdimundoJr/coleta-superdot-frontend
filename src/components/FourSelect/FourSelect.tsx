@@ -10,12 +10,12 @@ const FourSelect = ({ options, values, onChange }: FourSelectProps) => {
     };
 
     const changeCurrentSelectValue = (idx: number, newValue: string) => {
-        if (values !== undefined) {
+        if (values) {
             onChange(values.map((value, i) => (i === idx ? newValue : value)));
             return;
         }
 
-        const arrValues = Array(4);
+        const arrValues = Array(4).fill(undefined);
         arrValues[idx] = newValue;
         onChange(arrValues);
     };
