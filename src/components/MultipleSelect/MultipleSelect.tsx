@@ -12,6 +12,10 @@ const MultipleSelect = ({ options, values, onChange, placeholder }: MultipleSele
         return { value: option, label: option };
     });
 
+    const valuesFormatted = values?.map((value) => {
+        return { value, label: value };
+    });
+
     const setCurrentInputValue = (
         valuesSelected: MultiValue<{
             value: string;
@@ -29,6 +33,7 @@ const MultipleSelect = ({ options, values, onChange, placeholder }: MultipleSele
                 options={optionsFormatted}
                 onChange={setCurrentInputValue}
                 placeholder={placeholder}
+                value={valuesFormatted}
             />
             <span className="error-message">
                 {(values?.length || 0) > 0 && "Você pode selecionar mais do que uma opção."}
