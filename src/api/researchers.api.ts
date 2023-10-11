@@ -21,3 +21,10 @@ export const paginateResearcher = async (currentPage: number, itemsPerPage: numb
         }&user_email=${filters?.userEmail || ""}`
     );
 };
+
+export const getResearcherNameBySampleId = (sampleId: string) => {
+    setAuthHeaders();
+    return axios.get<string>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher-name-by-sample/${sampleId}`
+    );
+};
