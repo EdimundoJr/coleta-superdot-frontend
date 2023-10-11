@@ -8,6 +8,7 @@ interface IntroductionStepProps {
     sourceForm: EAdultFormSource;
     participantId?: string;
     researcherName: string;
+    participantName?: string;
     sampleId: string;
     setNotificationData: (data: { title: string; description: string }) => void;
 }
@@ -19,11 +20,11 @@ const IntroductionStep = ({
     sourceForm,
     participantId,
     researcherName,
+    participantName,
     sampleId,
     setNotificationData,
 }: IntroductionStepProps) => {
     const [participantEmail, setParticipantEmail] = useState<string>("");
-    const [participantName, setParticipantName] = useState("Felipe Dutra Pereira");
 
     /**
      * The function `handleOnRequestVerificationCode` sends a verification code to a participant's
@@ -105,10 +106,12 @@ const IntroductionStep = ({
                 <p>
                     Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação que está
                     sendo realizada pelo(a) pesquisador(a) <b>{researcherName}</b>.{" "}
-                    {sourceForm === EAdultFormSource.SECOND_SOURCE &&
-                        "Você foi indicado como a segunda fonte para os dados que foram coletados do participante" +
-                            <b>{participantName}</b> +
-                            "."}
+                    {sourceForm === EAdultFormSource.SECOND_SOURCE && (
+                        <>
+                            Você foi indicado como a segunda fonte para os dados que foram coletados do participante{" "}
+                            <b>{participantName}</b>.
+                        </>
+                    )}
                 </p>
                 <br />
                 <p>
