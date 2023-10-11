@@ -3,7 +3,7 @@ import Flatpicker from "react-flatpickr";
 import "flatpickr/dist/themes/airbnb.css";
 import { InputField } from "../../../components/InputField/InputField";
 import { SelectField } from "../../../components/SelectField/SelectField";
-import { ParticipantDataValues, participantDataSchema } from "../../../schemas/adultForm/participantData.schema";
+import { ParticipantDataDTO, participantDataSchema } from "../../../schemas/adultForm/participantData.schema";
 import {
     DEVICES_ARRAY,
     EDUCATION_LEVEL_ARRAY,
@@ -11,24 +11,29 @@ import {
     INCOME_LEVELS_ARRAY,
     MARITAL_STATUS_ARRAY,
 } from "../../../utils/consts.utils";
-import { deserializeJWTParticipantToken, saveParticipantToken } from "../../../utils/tokensHandler";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { postParticipantData } from "../../../api/participant.api";
+import { putSaveParticipantData, putSubmitParticipantData } from "../../../api/participant.api";
 import Select from "react-select";
+import { IParticipant } from "../../../interfaces/participant.interface";
 
 interface ParticipantDataStepProps {
     nextStep: () => void;
-    setNotificationTitle: (title: string) => void;
-    setNotificationDescription: (description: string) => void;
+    setFormData: (formData: IParticipant) => void;
+    setNotificationData: (data: { title: string; description: string }) => void;
+    formData?: IParticipant;
     sampleId: string;
+    saveAndExit: () => void;
 }
 
+/* This step will collect the personal, family, and address data from participant. */
 const ParticipantDataStep = ({
     nextStep,
-    setNotificationTitle,
-    setNotificationDescription,
+    setFormData,
+    formData,
+    setNotificationData,
     sampleId,
+    saveAndExit,
 }: ParticipantDataStepProps) => {
     const {
         register,
@@ -36,37 +41,46 @@ const ParticipantDataStep = ({
         formState: { errors },
         watch,
         setValue,
-    } = useForm({ resolver: yupResolver(participantDataSchema) });
+    } = useForm({
+        resolver: yupResolver(participantDataSchema),
+        defaultValues: formData,
+    });
 
-    const onSubmit = handleSubmit(async (participantData: ParticipantDataValues) => {
-        if (!sampleId) {
-            setNotificationTitle("Amostra inválida!");
-            setNotificationDescription(
-                "Por favor, verifique se você está utilizando o link fornecido pelo pesquisador."
-            );
-            return;
-        }
-
+    const onSaveAndExit = async () => {
         try {
-            const tokenDeserialized = deserializeJWTParticipantToken();
-            participantData.personalData.email = tokenDeserialized.participantEmail;
-        } catch (e) {
+            const response = await putSaveParticipantData({ sampleId, participantData: watch() }); // watch?
+            if (response.status === 200) {
+                saveAndExit();
+            }
+        } catch (e: any) {
             console.error(e);
-            setNotificationTitle("Sessão expirada!");
-            setNotificationDescription("Por favor, recarregue a página e tente novamente.");
-            return;
+            setNotificationData({
+                title: "Preenchimento inválido!",
+                description: "Preencha todos os campos corretamente.",
+            });
         }
+    };
 
+    const onSubmit = handleSubmit(async (participantData: ParticipantDataDTO) => {
         try {
-            const response = await postParticipantData({ sampleId, participantData });
-            if (response.status === 201) {
-                saveParticipantToken(response.data);
+            const response = await putSubmitParticipantData({ sampleId, participantData });
+            if (response.status === 200) {
+                if (formData) {
+                    setFormData({
+                        ...formData,
+                        ...participantData,
+                    });
+                } else {
+                    setFormData(participantData);
+                }
                 nextStep();
             }
         } catch (e: any) {
             console.error(e);
-            setNotificationTitle("Não foi possível continuar.");
-            setNotificationDescription("");
+            setNotificationData({
+                title: "Preenchimento inválido!",
+                description: "Preencha todos os campos corretamente.",
+            });
         }
     });
 
@@ -258,9 +272,12 @@ const ParticipantDataStep = ({
                         errorMessage={errors.addressData?.houseNumber?.message}
                     />
                 </div>
-                <Form.Submit asChild>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">Continuar</button>
-                </Form.Submit>
+                <div className="flex justify-center gap-6">
+                    <button type="button" onClick={onSaveAndExit} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
+                        SALVAR E SAIR
+                    </button>
+                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">SALVAR E CONTINUAR</button>
+                </div>
             </Form.Root>
         </div>
     );
