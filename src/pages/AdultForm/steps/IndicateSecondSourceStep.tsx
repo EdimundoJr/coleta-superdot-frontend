@@ -1,135 +1,188 @@
-import { CopyIcon, Cross2Icon } from "@radix-ui/react-icons";
+import { Cross2Icon } from "@radix-ui/react-icons";
 import * as Form from "@radix-ui/react-form";
 import { InputField } from "../../../components/InputField/InputField";
 import { FormEvent, useState } from "react";
 import { Relationships } from "../../../utils/consts.utils";
 import isEmail from "validator/lib/isEmail";
-import { postIndicateSecondSources } from "../../../api/participant.api";
 import { AxiosError } from "axios";
-import { ISecondSource } from "../../../interfaces/secondSource.interface";
-import { deserializeJWTParticipantToken } from "../../../utils/tokensHandler";
+import { putSaveSecondSources } from "../../../api/participant.api";
+import { IParticipant } from "../../../interfaces/participant.interface";
 
 interface IndicateSecondSourceStepProps {
+    formData: IParticipant;
+    setFormData: (data: IParticipant) => void;
     nextStep: () => void;
-    setNotificationTitle: (title: string) => void;
-    setNotificationDescription: (description: string) => void;
+    setNotificationData: (data: { title: string; description: string }) => void;
     sampleId: string;
+    saveAndExit: () => void;
+    previousStep: () => void;
 }
 
+/*
+ * In this step, the participant will indicate the second sources to fill out the
+ * Second Source Adult Form.
+ */
 const IndicateSecondSourceStep = ({
+    formData,
+    setFormData,
     nextStep,
-    setNotificationTitle,
-    setNotificationDescription,
     sampleId,
+    saveAndExit,
+    previousStep,
+    setNotificationData,
 }: IndicateSecondSourceStepProps) => {
-    const [peopleIndicateds, setPeopleIndicateds] = useState<ISecondSource[]>([]);
-
     const [relationship, setRelationship] = useState<Relationships>(Relationships.FRIEND);
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [teacherSubject, setTeacherSubject] = useState("");
 
-    let participantId: string | undefined;
-    try {
-        participantId = deserializeJWTParticipantToken().participantId;
-    } catch (e) {
-        setNotificationTitle("Sessão expirada!");
-        setNotificationDescription("Por favor, recarregue a página.");
-    }
-
     const validateFields = () => {
-        if (!fullName || !email) {
-            setNotificationTitle("Campos vazios!");
-            setNotificationDescription("Por favor, preencha todos os campos.");
+        if (!fullName.length || !email.length) {
+            setNotificationData({
+                title: "Campos vazios!",
+                description: "Por favor, preencha todos os campos.",
+            });
             return false;
         }
 
-        if (relationship === Relationships.TEACHER && !teacherSubject) {
-            setNotificationTitle("Indique a matéria!");
-            setNotificationDescription("É necessário indicar a matéria ministrada pelo professor.");
+        if (relationship === Relationships.TEACHER && !teacherSubject.length) {
+            setNotificationData({
+                title: "Indique a matéria!",
+                description: "É necessário indicar a matéria ministrada pelo professor.",
+            });
             return false;
         }
 
         if (!isEmail(email)) {
-            setNotificationTitle("E-mail inválido!");
-            setNotificationDescription("É necessário informar um e-mail válido.");
+            setNotificationData({
+                title: "E-mail inválido!",
+                description: "É necessário informar um e-mail válido.",
+            });
             return false;
         }
 
         return true;
     };
 
+    /**
+     * The function `handleAddPeople` is used to add a person to a list of second sources, with
+     * validation and notification handling.
+     * @param [e] - The parameter `e` is an optional parameter of type `FormEvent<HTMLFormElement>`. It
+     * represents the event object that is triggered when the form is submitted.
+     * @returns The function `handleAddPeople` returns nothing (`void`).
+     */
     const handleAddPeople = (e?: FormEvent<HTMLFormElement>) => {
+        if (!formData) return;
         e?.preventDefault();
         if (!validateFields()) {
             return;
         }
 
-        const peopleAlreadyAdded = peopleIndicateds.find((people) => people.personalData.email === email);
-        if (peopleAlreadyAdded) {
-            setNotificationTitle("Pessoa já indicada!");
-            setNotificationDescription("Você já indicou essa pessoa, não é possível indicar novamente.");
+        const personAlreadyAdded = formData?.secondSources?.find((people) => people.personalData.email === email);
+        if (personAlreadyAdded) {
+            setNotificationData({
+                title: "Pessoa já indicada!",
+                description: "Você já indicou essa pessoa, não é possível indicar novamente.",
+            });
             return;
         }
 
-        setPeopleIndicateds([
-            ...peopleIndicateds,
-            {
-                personalData: {
-                    relationship,
-                    fullName,
-                    email,
-                },
-                teacherSubject,
-            },
-        ]);
+        if (formData?.secondSources?.length) {
+            setFormData({
+                ...formData,
+                secondSources: [
+                    ...formData.secondSources, // Already has members in this array
+                    {
+                        personalData: {
+                            relationship,
+                            fullName,
+                            email,
+                        },
+                        teacherSubject,
+                    },
+                ],
+            });
+        } else {
+            setFormData({
+                ...formData,
+                secondSources: [
+                    // First member of this array
+                    {
+                        personalData: {
+                            relationship,
+                            fullName,
+                            email,
+                        },
+                        teacherSubject,
+                    },
+                ],
+            });
+        }
+
         setRelationship(Relationships.FRIEND);
+        // Reset fields
         setFullName("");
         setEmail("");
         setTeacherSubject("");
-        setNotificationTitle("Pessoa indicada com sucesso!");
-        setNotificationDescription("Ao finalizar essa etapa, a pessoa receberá um e-mail informativo.");
+        setNotificationData({
+            title: "Pessoa indicada com sucesso!",
+            description: "Ao finalizar essa etapa, a pessoa receberá um e-mail informativo.",
+        });
     };
 
+    /**
+     * The function `handleDeleteSourceIndicated` removes a person from a list of second sources and
+     * updates the notification data.
+     * @param {string} sourceEmail - The sourceEmail parameter is a string that represents the email of
+     * the source to be deleted.
+     */
     const handleDeleteSourceIndicated = (sourceEmail: string) => {
-        const sourceCleaned = peopleIndicateds.filter((people) => people.personalData.email !== sourceEmail);
-        setPeopleIndicateds(sourceCleaned);
-        setNotificationTitle("Pessoa removida!");
-        setNotificationDescription("A pessoa foi removida das indicações.");
+        const sourceCleaned = formData.secondSources?.filter((people) => people.personalData.email !== sourceEmail);
+        setFormData({ ...formData, secondSources: sourceCleaned });
+        setNotificationData({
+            title: "Pessoa removida!",
+            description: "A pessoa foi removida das indicações.",
+        });
     };
 
-    const onSubmit = async () => {
+    /**
+     * The `onSubmit` function is an asynchronous function that handles the submission of second
+     * sources data, sends a request to save the data, and handles any errors that may occur.
+     * @returns The function `onSubmit` returns nothing.
+     */
+    const onSubmit = async (exit?: boolean) => {
+        if (!formData.secondSources?.length) return;
+
         try {
-            const response = await postIndicateSecondSources(sampleId, peopleIndicateds);
+            const response = await putSaveSecondSources({ sampleId, secondSources: formData.secondSources });
             if (response.status === 200) {
-                setNotificationTitle("Indicações concluídas.");
-                setNotificationDescription("As indicações foram registradas e os e-mails foram enviados.");
-                nextStep();
+                setNotificationData({
+                    title: "Indicações concluídas.",
+                    description: "As indicações foram registradas e os e-mails foram enviados.",
+                });
+                if (exit) {
+                    saveAndExit();
+                } else {
+                    nextStep();
+                }
             }
         } catch (err: any) {
             console.error(err);
             if (err instanceof AxiosError) {
                 if (err.response?.status === 409) {
-                    setNotificationTitle("E-mail em uso.");
-                    setNotificationDescription("Esse e-mail já está sendo utilizado.");
+                    setNotificationData({
+                        title: "E-mail em uso.",
+                        description: "Esse e-mail já está sendo utilizado.",
+                    });
                 } else {
-                    setNotificationTitle("Erro no servidor.");
-                    setNotificationDescription(
-                        "Ocorreu um erro ao tentar salvar as inforamções, contate o responsável pela pesquisa ou os responsáveis pela plataforma."
-                    );
+                    setNotificationData({
+                        title: "Erro no servidor.",
+                        description:
+                            "Ocorreu um erro ao tentar salvar as inforamções, contate o responsável pela pesquisa ou os responsáveis pela plataforma.",
+                    });
                 }
             }
         }
-    };
-
-    const urlSecondSource = `${
-        import.meta.env.VITE_FRONTEND_URL
-    }/formulario-adulto-segunda-fonte/${sampleId}/${participantId}`;
-
-    const handleSendTextToClipBoard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        setNotificationTitle("Link copiado.");
-        setNotificationDescription("O link foi copiado para a sua área de transferência.");
     };
 
     return (
@@ -151,18 +204,8 @@ const IndicateSecondSourceStep = ({
             </section>
             <section className="my-2 w-full bg-white p-4 text-black">
                 <p>
-                    Para fazer a indicação, você pode compartilhar a URL abaixo com as pessoas que irão preencher o
-                    formulário.
-                </p>
-                <h3 className="flex items-center justify-center gap-x-2">
-                    {urlSecondSource}{" "}
-                    <CopyIcon className="cursor-pointer" onClick={() => handleSendTextToClipBoard(urlSecondSource)} />
-                </h3>
-            </section>
-            <section className="my-2 w-full bg-white p-4 text-black">
-                <p>
-                    Além disso, também precisamos que você informe o nome e o e-mail de pelo menos uma pessoa. Essa
-                    pessoa irá receber uma notificação por e-mail informando que foi indicada por você e que precisa
+                    Para fazer a indicação, informe abaixo o nome e o e-mail de quantos pessoas quiser. Essas pessoas
+                    irão receber uma notificação por e-mail informando que foram indicadas por você e receberão um link
                     responder o formulário de segunda fonte.
                 </p>
             </section>
@@ -214,7 +257,7 @@ const IndicateSecondSourceStep = ({
                         <button className="button-primary">Adicionar</button>
                     </Form.Submit>
                 </Form.Root>
-                {peopleIndicateds.length > 0 && (
+                {(formData.secondSources?.length || 0) > 0 && (
                     <table className="my-4 w-full border-collapse bg-white text-black">
                         <thead>
                             <tr>
@@ -226,7 +269,7 @@ const IndicateSecondSourceStep = ({
                             </tr>
                         </thead>
                         <tbody>
-                            {peopleIndicateds.map((people) => (
+                            {formData.secondSources?.map((people) => (
                                 <tr>
                                     <td>{people.personalData.relationship}</td>
                                     <td>{people.personalData.fullName}</td>
@@ -244,9 +287,24 @@ const IndicateSecondSourceStep = ({
                     </table>
                 )}
             </section>
-            <button onClick={onSubmit} disabled={!peopleIndicateds.length} className="button-primary mx-auto w-1/2">
-                Continuar
-            </button>
+
+            <div className="mt-5 flex w-full justify-center gap-x-4 px-3 ">
+                <div className="flex justify-center gap-6">
+                    <button type="button" onClick={previousStep} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
+                        VOLTAR
+                    </button>
+                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56" onClick={() => onSubmit(true)}>
+                        SALVAR E SAIR
+                    </button>
+                    <button
+                        className="button-secondary mt-5 w-3/4 px-3 disabled:bg-neutral-dark md:w-56"
+                        disabled={!formData.secondSources?.length}
+                        onClick={() => onSubmit()}
+                    >
+                        SALVAR E CONTINUAR
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };
