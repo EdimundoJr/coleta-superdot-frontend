@@ -4,7 +4,7 @@ import { StepStateType } from "../../components/Stepper/StepperStep";
 import Notify from "../../components/Notify/Notify";
 import { useParams } from "react-router-dom";
 import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
-import AnsweringAdultFormStep from "../AdultForm/steps/AnsweringAdultFormStep";
+import AnsweringAdultFormStep from "../AdultForm/steps/FormGroupsStep";
 import { EAdultFormSource, EAdultFormSteps } from "../../utils/consts.utils";
 import SecondSourceDataStep from "./steps/SecondSourceDataStep";
 import IntroductionStep from "../AdultForm/steps/IntroductionStep";
@@ -12,8 +12,10 @@ import IntroductionStep from "../AdultForm/steps/IntroductionStep";
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
 
-    const [notificationTitle, setNotificationTitle] = useState("");
-    const [notificationDescription, setNotificationDescription] = useState("");
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+    });
 
     const { sampleId, participantId } = useParams();
 
@@ -26,8 +28,10 @@ const AdultFormSecondSourcePage = () => {
     const handleNextStep = () => {
         // Last step to second source
         if (currentStep === EAdultFormSteps.ARTISTIC_ACTIVITIES) {
-            setNotificationTitle("Questionário finalizado!");
-            setNotificationDescription("Agradecemos pelas respostas. Em breve o pesquisador entrará em contato.");
+            setNotificationData({
+                title: "Questionário finalizado!",
+                description: "Agradecemos pelas respostas. Em breve o pesquisador entrará em contato.",
+            });
             setCurrentStep(EAdultFormSteps.INTRODUCTION);
             return;
         }
@@ -50,10 +54,10 @@ const AdultFormSecondSourcePage = () => {
 
     return (
         <Notify
-            open={!!notificationTitle}
-            onOpenChange={() => setNotificationTitle("")}
-            title={notificationTitle}
-            description={notificationDescription}
+            open={!!notificationData.title}
+            onOpenChange={() => setNotificationData({ title: "", description: "" })}
+            title={notificationData.title}
+            description={notificationData.description}
         >
             <div
                 id="bg-div"
@@ -137,10 +141,8 @@ const AdultFormSecondSourcePage = () => {
                     <IntroductionStep
                         sourceForm={EAdultFormSource.SECOND_SOURCE}
                         participantId={participantId}
-                        setCurrentStep={setCurrentStep}
                         sampleId={sampleId || ""}
-                        setNotificationDescription={setNotificationDescription}
-                        setNotificationTitle={setNotificationTitle}
+                        setNotificationData={setNotificationData}
                     />
                 )}
                 {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
@@ -148,18 +150,16 @@ const AdultFormSecondSourcePage = () => {
                         participantId={participantId || ""}
                         nextStep={handleNextStep}
                         sampleId={sampleId || ""}
-                        setNotificationDescription={setNotificationDescription}
-                        setNotificationTitle={setNotificationTitle}
+                        setNotificationData={setNotificationData}
                     />
                 )}
                 {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
                     <ReadAndAcceptDocsStep
                         sourceForm={EAdultFormSource.SECOND_SOURCE}
-                        setNotificationTitle={setNotificationTitle}
-                        setNotificationDescription={setNotificationDescription}
                         nextStep={handleNextStep}
                         sampleId={sampleId || ""}
                         participantId={participantId || ""}
+                        setNotificationData={setNotificationData}
                     />
                 )}
                 {currentStep >= EAdultFormSteps.GENERAL_CHARACTERISTICS &&
@@ -169,8 +169,7 @@ const AdultFormSecondSourcePage = () => {
                             sampleId={sampleId || ""}
                             currentStep={currentStep}
                             nextStep={handleNextStep}
-                            setNotificationTitle={setNotificationTitle}
-                            setNotificationDescription={setNotificationDescription}
+                            setNotificationData={setNotificationData}
                             participantId={participantId}
                         />
                     )}

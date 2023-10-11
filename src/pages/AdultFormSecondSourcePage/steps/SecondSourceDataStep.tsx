@@ -3,15 +3,7 @@ import Flatpicker from "react-flatpickr";
 import "flatpickr/dist/themes/airbnb.css";
 import { InputField } from "../../../components/InputField/InputField";
 import { SelectField } from "../../../components/SelectField/SelectField";
-import {
-    DEVICES_ARRAY,
-    EDUCATION_LEVEL_ARRAY,
-    GENDER_ARRAY,
-    INCOME_LEVELS_ARRAY,
-    MARITAL_STATUS_ARRAY,
-    RELATIONSHIPS_ARRAY,
-    RELATIONSHIP_TIME_ARRAY,
-} from "../../../utils/consts.utils";
+import { EDUCATION_LEVEL_ARRAY, RELATIONSHIPS_ARRAY, RELATIONSHIP_TIME_ARRAY } from "../../../utils/consts.utils";
 import { deserializeJWTParticipantToken, saveParticipantToken } from "../../../utils/tokensHandler";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
@@ -20,16 +12,14 @@ import { postSecondSourceData } from "../../../api/secondSource.api";
 
 interface SecondSourceDataStepProps {
     nextStep: () => void;
-    setNotificationTitle: (title: string) => void;
-    setNotificationDescription: (description: string) => void;
+    setNotificationData: (data: { title: string; description: string }) => void;
     sampleId: string;
     participantId: string;
 }
 
 const SecondSourceDataStep = ({
     nextStep,
-    setNotificationTitle,
-    setNotificationDescription,
+    setNotificationData,
     sampleId,
     participantId,
 }: SecondSourceDataStepProps) => {
@@ -42,11 +32,10 @@ const SecondSourceDataStep = ({
 
     const onSubmit = handleSubmit(async (secondSourceData: SecondSourceValues) => {
         if (!sampleId) {
-            setNotificationTitle("Amostra inválida!");
-            setNotificationDescription(
-                "Por favor, verifique se você está utilizando o link fornecido pelo pesquisador."
-            );
-            return;
+            setNotificationData({
+                title: "Amostra inválida!",
+                description: "Por favor, verifique se você está utilizando o link fornecido pelo pesquisador.",
+            });
         }
 
         try {
@@ -54,8 +43,10 @@ const SecondSourceDataStep = ({
             secondSourceData.personalData.email = tokenDeserialized.participantEmail;
         } catch (e) {
             console.error(e);
-            setNotificationTitle("Sessão expirada!");
-            setNotificationDescription("Por favor, recarregue a página e tente novamente.");
+            setNotificationData({
+                title: "Sessão expirada!",
+                description: "Por favor, recarregue a página e tente novamente.",
+            });
             return;
         }
 
@@ -67,8 +58,10 @@ const SecondSourceDataStep = ({
             }
         } catch (e: any) {
             console.error(e);
-            setNotificationTitle("Não foi possível continuar.");
-            setNotificationDescription("");
+            setNotificationData({
+                title: "Não foi possível continuar.",
+                description: "",
+            });
         }
     });
 
