@@ -1,12 +1,12 @@
 import {
-    EAdultFormSteps,
+    EAdultFormGroup,
     TDevices,
     TEducationLevel,
     TGender,
     TIncomeLevel,
     TMaritalStatus,
 } from "../utils/consts.utils";
-import IQuestionsGroup from "./questionsGroup.interface";
+import IQuestion from "./question.interface";
 import { ISecondSource } from "./secondSource.interface";
 
 export interface IParticipant {
@@ -36,17 +36,19 @@ export interface IParticipant {
         street: string;
         houseNumber: string;
     };
-    acceptTcle?: boolean;
-    acceptTale?: boolean;
-    secondSources?: ISecondSource[];
-    adultFormAnswers?: IQuestionsGroup[];
-    adultFormCurrentStep?: EAdultFormSteps;
+    acceptTcleAt?: Date;
+    acceptTaleAt?: Date;
+    giftdnessIndicators?: boolean;
+    adultForm?: {
+        endFillFormAt?: Date;
+        startFillFormAt?: Date;
+        answersByGroup?: { groupName: string; sequence: EAdultFormGroup; questions: IQuestion[] }[];
+    };
     autobiography?: {
         text?: string;
         videoUrl?: string;
     };
-    endFillFormDate?: string;
-    giftdnessIndicators?: boolean;
-    createdAt: string;
-    updatedAt: string;
+    secondSources?: ISecondSource[];
+    createdAt?: string;
+    updatedAt?: string;
 }
