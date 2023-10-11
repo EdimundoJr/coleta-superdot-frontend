@@ -1,16 +1,16 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Stepper } from "../../components/Stepper/Stepper";
 import { StepStateType } from "../../components/Stepper/StepperStep";
 import Notify from "../../components/Notify/Notify";
 import { useParams } from "react-router-dom";
-import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
-import AnsweringAdultFormStep from "../AdultForm/steps/FormGroupsStep";
 import { EAdultFormSource, EAdultFormSteps } from "../../utils/consts.utils";
 import SecondSourceDataStep from "./steps/SecondSourceDataStep";
 import IntroductionStep from "../AdultForm/steps/IntroductionStep";
+import { getResearchDataBySampleIdAndParticipantId } from "../../api/researchers.api";
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
+    const [researchData, setResearchData] = useState({ researcherName: "", participantName: "" });
 
     const [notificationData, setNotificationData] = useState({
         title: "",
@@ -18,6 +18,20 @@ const AdultFormSecondSourcePage = () => {
     });
 
     const { sampleId, participantId } = useParams();
+
+    /* It is used to fetch the researcher name based on a sample ID. */
+    useEffect(() => {
+        const getResearchData = async (sampleId: string, participantId: string) => {
+            const response = await getResearchDataBySampleIdAndParticipantId({ sampleId, participantId });
+            if (response.status === 200) {
+                setResearchData(response.data);
+            }
+        };
+
+        if (sampleId && participantId) {
+            getResearchData(sampleId, participantId);
+        }
+    }, [sampleId, participantId]);
 
     const getStepState = (stepToCompare: EAdultFormSteps): StepStateType => {
         if (currentStep > stepToCompare) return "DONE";
@@ -142,6 +156,8 @@ const AdultFormSecondSourcePage = () => {
                         sourceForm={EAdultFormSource.SECOND_SOURCE}
                         participantId={participantId}
                         sampleId={sampleId || ""}
+                        researcherName={researchData.researcherName}
+                        participantName={researchData.participantName}
                         setNotificationData={setNotificationData}
                     />
                 )}
