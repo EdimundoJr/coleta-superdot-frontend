@@ -40,7 +40,7 @@ const IntroductionStep = ({
             let response: AxiosResponse<boolean>;
 
             if (sourceForm === EAdultFormSource.SECOND_SOURCE && participantId) {
-                response = await SecondSourceApi.requestVerificationCode({
+                response = await SecondSourceApi.postSendVerificationCode({
                     secondSourceEmail: participantEmail,
                     participantId,
                     sampleId,

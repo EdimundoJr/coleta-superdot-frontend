@@ -1,51 +1,43 @@
 import axios from "axios";
 import { SecondSourceValues } from "../schemas/adultForm/secondSourceData.schema";
-import { EAdultFormSteps } from "../utils/consts.utils";
+import { ISecondSource } from "../interfaces/secondSource.interface";
 
-interface requestVerificationCodeParams {
+interface PostSendVerificationCodeParams {
     secondSourceEmail: string;
     sampleId: string;
     participantId: string;
 }
 
-export const requestVerificationCode = async ({
+export const postSendVerificationCode = async ({
     secondSourceEmail,
     sampleId,
     participantId,
-}: requestVerificationCodeParams) => {
+}: PostSendVerificationCodeParams) => {
     return axios.post<boolean>(
         `${
             import.meta.env.VITE_BACKEND_HOST
-        }/api/secondSource/verifySecondSourceEmail/sample/${sampleId}/participant/${participantId}`,
+        }/api/second-source/send-verification-code/sample/${sampleId}/participant/${participantId}`,
         { secondSourceEmail: secondSourceEmail }
     );
 };
 
-/** VALIDATE VERIFICATION CODE */
-interface validateVerificationCodeParams {
-    secondSourceEmail: string;
+interface PatchValidateVerificationCodeParams {
+    secondSourceId: string;
     participantId: string;
-    verificationCode: number;
+    sampleId: string;
+    verificationCode: string;
 }
 
-interface CodeValidated {
-    participantToken: string;
-    adultFormStepToReturn: EAdultFormSteps;
-}
-
-export const validateVerificationCode = async ({
-    secondSourceEmail,
+export const patchValidateVerificationCode = async ({
+    secondSourceId,
     participantId,
+    sampleId,
     verificationCode,
-}: validateVerificationCodeParams) => {
-    return axios.patch<CodeValidated>(
+}: PatchValidateVerificationCodeParams) => {
+    return axios.patch<{ token: string; secondSource: ISecondSource }>(
         `${
             import.meta.env.VITE_BACKEND_HOST
-        }/api/secondSource/validateSecondSourceVerificationCode/participant/${participantId}`,
-        {
-            secondSourceEmail,
-            verificationCode,
-        }
+        }/api/second-source/validate-verification-code/sample/${sampleId}/participant/${participantId}/second-source/${secondSourceId}/code/${verificationCode}`
     );
 };
 
