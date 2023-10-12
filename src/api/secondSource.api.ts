@@ -63,11 +63,8 @@ export const putSubmitSecondSourceData = async ({ sampleId, secondSourceData }: 
     );
 };
 
-// Updating the backend to save the info that the participant accepted the docs
-export const patchAcceptAllSampleDocs = async (sampleId: string, participantId: string) => {
+export const patchAcceptAllSampleDocs = async ({ sampleId }: { sampleId: string }) => {
     return axios.patch<boolean>(
-        `${
-            import.meta.env.VITE_BACKEND_HOST
-        }/api/secondSource/acceptAllSampleDocs/sample/${sampleId}/participant/${participantId}`
+        `${import.meta.env.VITE_BACKEND_HOST}/api/second-source/accept-all-sample-docs/sample/${sampleId}`
     );
 };
