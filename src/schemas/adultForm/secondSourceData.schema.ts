@@ -3,14 +3,13 @@ import { EDUCATION_LEVEL_ARRAY, RELATIONSHIPS_ARRAY, RELATIONSHIP_TIME_ARRAY } f
 
 export const secondSourceDataSchema = object({
     personalData: object({
+        email: string().required(),
         fullName: string().required("Nome completo é um campo obrigatório."),
-        email: string(),
         birthDate: date().typeError("Insira uma data válida!").required("Data de nascimento é um campo obrigatório."),
         relationship: string()
             .oneOf(RELATIONSHIPS_ARRAY, "Selecione uma opção válida.")
             .required("Tipo de relação é um campo obrigatório."),
         relationshipTime: string()
-            .oneOf(RELATIONSHIP_TIME_ARRAY)
             .oneOf(RELATIONSHIP_TIME_ARRAY, "Selecione uma opção válida.")
             .required("Tempo da relação é um campo obrigatório."),
         job: string().required("Profissão é um campo obrigatório."),
@@ -25,4 +24,4 @@ export const secondSourceDataSchema = object({
     }),
 });
 
-export type SecondSourceValues = InferType<typeof secondSourceDataSchema>;
+export type SecondSourceDTO = InferType<typeof secondSourceDataSchema>;
