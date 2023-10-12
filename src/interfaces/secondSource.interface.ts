@@ -1,20 +1,33 @@
-import { EAdultFormSteps, Relationships, TEducationLevel } from "../utils/consts.utils";
+import { EAdultFormGroup, Relationships, TEducationLevel, TRelationshipTime } from "../utils/consts.utils";
+import IQuestion from "./question.interface";
 
 export interface ISecondSource {
     _id?: string;
     personalData: {
-        fullName: string;
         email: string;
-        birthDate?: Date;
+        fullName: string;
+        birthDate: Date;
         relationship: Relationships;
-        job?: string;
-        occupation?: string;
-        phone?: string;
-        educationLevel?: TEducationLevel;
+        relationshipTime: TRelationshipTime;
+        job: string;
+        occupation: string;
+        street: string;
+        district: string;
+        countryCity: string;
+        phone: string;
+        educationLevel: TEducationLevel;
+    };
+    verification?: {
+        code: string;
+        generatedAt: Date;
+    };
+    acceptTcleAt?: Date;
+    acceptTaleAt?: Date;
+    adultForm?: {
+        endFillFormAt?: Date;
+        startFillFormAt?: Date;
+        answersByGroup?: { groupName: string; sequence: EAdultFormGroup; questions: IQuestion[] }[];
     };
     teacherSubject?: string;
-    adultFormCurrentStep?: EAdultFormSteps;
     createdAt?: string;
-    endFillFormDate?: string;
-    startFillFormDate?: string;
 }
