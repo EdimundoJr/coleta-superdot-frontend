@@ -4,63 +4,71 @@ import "flatpickr/dist/themes/airbnb.css";
 import { InputField } from "../../../components/InputField/InputField";
 import { SelectField } from "../../../components/SelectField/SelectField";
 import { EDUCATION_LEVEL_ARRAY, RELATIONSHIPS_ARRAY, RELATIONSHIP_TIME_ARRAY } from "../../../utils/consts.utils";
-import { deserializeJWTParticipantToken, saveParticipantToken } from "../../../utils/tokensHandler";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { SecondSourceValues, secondSourceDataSchema } from "../../../schemas/adultForm/secondSourceData.schema";
-import { postSecondSourceData } from "../../../api/secondSource.api";
+import { SecondSourceDTO, secondSourceDataSchema } from "../../../schemas/adultForm/secondSourceData.schema";
+import { putSaveSecondSourceData, putSubmitSecondSourceData } from "../../../api/secondSource.api";
+import { ISecondSource } from "../../../interfaces/secondSource.interface";
 
 interface SecondSourceDataStepProps {
+    formData?: ISecondSource;
+    setFormData: (formData: ISecondSource) => void;
     nextStep: () => void;
     setNotificationData: (data: { title: string; description: string }) => void;
     sampleId: string;
-    participantId: string;
+    saveAndExit: () => void;
 }
 
 const SecondSourceDataStep = ({
+    formData,
+    setFormData,
     nextStep,
     setNotificationData,
     sampleId,
-    participantId,
+    saveAndExit,
 }: SecondSourceDataStepProps) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
         setValue,
-    } = useForm({ resolver: yupResolver(secondSourceDataSchema) });
+        watch,
+    } = useForm({ resolver: yupResolver(secondSourceDataSchema), defaultValues: formData });
 
-    const onSubmit = handleSubmit(async (secondSourceData: SecondSourceValues) => {
-        if (!sampleId) {
-            setNotificationData({
-                title: "Amostra inválida!",
-                description: "Por favor, verifique se você está utilizando o link fornecido pelo pesquisador.",
-            });
-        }
-
+    const onSaveAndExit = async () => {
         try {
-            const tokenDeserialized = deserializeJWTParticipantToken();
-            secondSourceData.personalData.email = tokenDeserialized.participantEmail;
-        } catch (e) {
+            const response = await putSaveSecondSourceData({ sampleId, secondSourceData: watch() });
+            if (response.status === 200) {
+                saveAndExit();
+            }
+        } catch (e: any) {
             console.error(e);
             setNotificationData({
-                title: "Sessão expirada!",
-                description: "Por favor, recarregue a página e tente novamente.",
+                title: "Preenchimento inválido!",
+                description: "Preencha todos os campos corretamente.",
             });
-            return;
         }
+};
 
+    const onSubmit = handleSubmit(async (secondSourceData: SecondSourceDTO) => {
         try {
-            const response = await postSecondSourceData({ sampleId, secondSourceData, participantId });
-            if (response.status === 201) {
-                saveParticipantToken(response.data);
+            const response = await putSubmitSecondSourceData({ sampleId, secondSourceData });
+            if (response.status === 200) {
+                if (formData) {
+                    setFormData({
+                        ...formData,
+                        ...secondSourceData,
+                    });
+                } else {
+                    setFormData(secondSourceData);
+                }
                 nextStep();
             }
         } catch (e: any) {
             console.error(e);
             setNotificationData({
-                title: "Não foi possível continuar.",
-                description: "",
+                title: "Preenchimento inválido!",
+                description: "Preencha todos os campos corretamente.",
             });
         }
     });
@@ -165,9 +173,14 @@ const SecondSourceDataStep = ({
                         errorMessage={errors.personalData?.street?.message}
                     />
                 </div>
-                <Form.Submit asChild>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">Continuar</button>
-                </Form.Submit>
+                <div className="flex justify-center gap-6">
+                    <button type="button" onClick={onSaveAndExit} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
+                        SALVAR E SAIR
+                    </button>
+                    <Form.Submit asChild>
+                        <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">SALVAR E CONTINUAR</button>
+                    </Form.Submit>
+                </div>
             </Form.Root>
         </div>
     );

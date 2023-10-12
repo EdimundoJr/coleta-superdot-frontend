@@ -1,4 +1,4 @@
-import { EAdultFormGroup, Relationships, TEducationLevel, TRelationshipTime } from "../utils/consts.utils";
+import { EAdultFormGroup, TEducationLevel, TRelationship, TRelationshipTime } from "../utils/consts.utils";
 import IQuestion from "./question.interface";
 
 export interface ISecondSource {
@@ -7,7 +7,7 @@ export interface ISecondSource {
         email: string;
         fullName: string;
         birthDate: Date;
-        relationship: Relationships;
+        relationship: TRelationship;
         relationshipTime: TRelationshipTime;
         job: string;
         occupation: string;

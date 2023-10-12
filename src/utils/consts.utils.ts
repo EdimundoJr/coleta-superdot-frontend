@@ -69,14 +69,13 @@ export const FILES_AVAILABLE_TO_CREATE_SAMPLE = [
         label: "Termo de Anuência Livre e Esclarecido",
     },
 ];
-
 export enum Relationships {
     FRIEND = "Amigo",
     KIN = "Parente",
     TEACHER = "Professor",
 }
-
-export const RELATIONSHIPS_ARRAY = ["Amigo", "Parente", "Professor"];
+export const RELATIONSHIPS_ARRAY = ["Amigo", "Parente", "Professor"] as const;
+export type TRelationship = (typeof RELATIONSHIPS_ARRAY)[number];
 
 export const FORM_FILL_STATUS = ["Preenchendo", "Aguardando 2ª fonte", "Finalizado"] as const;
 export type FormFillStatusType = (typeof FORM_FILL_STATUS)[number];

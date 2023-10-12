@@ -9,7 +9,7 @@ import IntroductionStep from "../AdultForm/steps/IntroductionStep";
 import { getResearchDataBySampleIdAndParticipantId } from "../../api/researchers.api";
 import { patchValidateVerificationCode } from "../../api/secondSource.api";
 import { ISecondSource } from "../../interfaces/secondSource.interface";
-import { saveParticipantToken } from "../../utils/tokensHandler";
+import { clearTokens, saveParticipantToken } from "../../utils/tokensHandler";
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
@@ -22,7 +22,7 @@ const AdultFormSecondSourcePage = () => {
         description: "",
     });
 
-    const { sampleId, participantId, secondSourceId, verificationCode } = useParams();
+    const { sampleId = "", participantId = "", secondSourceId = "", verificationCode = "" } = useParams();
 
     /* It is used to fetch the research data based on a sample and participant ID. */
     useEffect(() => {
@@ -108,6 +108,11 @@ const AdultFormSecondSourcePage = () => {
             return;
         }
         setCurrentStep(currentStep - 1);
+    };
+
+    const saveAndExit = () => {
+        clearTokens();
+        setCurrentStep(EAdultFormSteps.INTRODUCTION);
     };
 
     return (
@@ -199,7 +204,7 @@ const AdultFormSecondSourcePage = () => {
                     <IntroductionStep
                         sourceForm={EAdultFormSource.SECOND_SOURCE}
                         participantId={participantId}
-                        sampleId={sampleId || ""}
+                        sampleId={sampleId}
                         researcherName={researchData.researcherName}
                         participantName={researchData.participantName}
                         setNotificationData={setNotificationData}
@@ -207,9 +212,11 @@ const AdultFormSecondSourcePage = () => {
                 )}
                 {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
                     <SecondSourceDataStep
-                        participantId={participantId || ""}
+                        formData={formData}
+                        saveAndExit={saveAndExit}
+                        setFormData={setFormData}
                         nextStep={handleNextStep}
-                        sampleId={sampleId || ""}
+                        sampleId={sampleId}
                         setNotificationData={setNotificationData}
                     />
                 )}
@@ -217,8 +224,8 @@ const AdultFormSecondSourcePage = () => {
                     <ReadAndAcceptDocsStep
                         sourceForm={EAdultFormSource.SECOND_SOURCE}
                         nextStep={handleNextStep}
-                        sampleId={sampleId || ""}
-                        participantId={participantId || ""}
+                        sampleId={sampleId}
+                        participantId={participantId}
                         setNotificationData={setNotificationData}
                     />
                 )}
@@ -226,7 +233,7 @@ const AdultFormSecondSourcePage = () => {
                     currentStep <= EAdultFormSteps.ARTISTIC_ACTIVITIES && (
                         <AnsweringAdultFormStep
                             sourceForm={EAdultFormSource.SECOND_SOURCE}
-                            sampleId={sampleId || ""}
+                            sampleId={sampleId}
                             currentStep={currentStep}
                             nextStep={handleNextStep}
                             setNotificationData={setNotificationData}
