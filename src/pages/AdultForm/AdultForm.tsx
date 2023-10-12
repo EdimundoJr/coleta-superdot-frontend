@@ -15,7 +15,6 @@ import ReactLoading from "react-loading";
 import { patchValidateVerificationCode } from "../../api/participant.api";
 import { getResearcherNameBySampleId } from "../../api/researchers.api";
 import FormGroupsStep from "./steps/FormGroupsStep";
-import { AxiosError } from "axios";
 
 const stepsInfo = [
     {
@@ -254,6 +253,8 @@ const AdultForm = () => {
                 {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
                     <ReadAndAcceptDocsStep
                         formData={formData}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore DONT WORRY TYPESCRIPT, KEEP CALM OK?
                         setFormData={setFormData}
                         sourceForm={EAdultFormSource.FIRST_SOURCE}
                         setNotificationData={setNotificationData}

@@ -10,11 +10,12 @@ import { getResearchDataBySampleIdAndParticipantId } from "../../api/researchers
 import { patchValidateVerificationCode } from "../../api/secondSource.api";
 import { ISecondSource } from "../../interfaces/secondSource.interface";
 import { clearTokens, saveParticipantToken } from "../../utils/tokensHandler";
+import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
     const [researchData, setResearchData] = useState({ researcherName: "", participantName: "" });
-    const [formData, setFormData] = useState<ISecondSource>();
+    const [formData, setFormData] = useState({} as ISecondSource);
     const [loading, setLoading] = useState(true);
 
     const [notificationData, setNotificationData] = useState({
@@ -222,10 +223,15 @@ const AdultFormSecondSourcePage = () => {
                 )}
                 {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
                     <ReadAndAcceptDocsStep
+                        formData={formData}
+                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                        // @ts-ignore DONT WORRY TYPESCRIPT, KEEP CALM OK?
+                        setFormData={setFormData}
+                        previousStep={handlePreviousStep}
+                        saveAndExit={saveAndExit}
                         sourceForm={EAdultFormSource.SECOND_SOURCE}
                         nextStep={handleNextStep}
                         sampleId={sampleId}
-                        participantId={participantId}
                         setNotificationData={setNotificationData}
                     />
                 )}

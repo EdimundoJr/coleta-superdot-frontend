@@ -10,22 +10,21 @@ import { AxiosResponse } from "axios";
 import * as ParticipantApi from "../../../api/participant.api";
 import * as SecondSourceApi from "../../../api/secondSource.api";
 import { IParticipant } from "../../../interfaces/participant.interface";
+import { ISecondSource } from "../../../interfaces/secondSource.interface";
 
 interface ReadAndAcceptDocsStepProps {
     sourceForm: EAdultFormSource;
-    participantId?: string; // Only required when the form will be fill out by a second source
     nextStep: () => void;
     previousStep: () => void;
     setNotificationData: (data: { title: string; description: string }) => void;
     sampleId: string;
     saveAndExit: () => void;
-    formData: IParticipant;
-    setFormData: (data: IParticipant) => void;
+    formData: IParticipant | ISecondSource;
+    setFormData: (data: IParticipant | ISecondSource) => void;
 }
 
 const ReadAndAcceptDocsStep = ({
     sourceForm,
-    participantId,
     nextStep,
     previousStep,
     setNotificationData,
@@ -90,10 +89,10 @@ const ReadAndAcceptDocsStep = ({
             try {
                 let response: AxiosResponse<boolean>;
 
-                if (sourceForm === EAdultFormSource.SECOND_SOURCE && participantId) {
-                    response = await SecondSourceApi.patchAcceptAllSampleDocs(sampleId, participantId);
-                } else {
+                if (sourceForm === EAdultFormSource.FIRST_SOURCE) {
                     response = await ParticipantApi.patchAcceptAllSampleDocs({ sampleId });
+                } else {
+                    response = await SecondSourceApi.patchAcceptAllSampleDocs({ sampleId });
                 }
 
                 if (response.status === 200) {
