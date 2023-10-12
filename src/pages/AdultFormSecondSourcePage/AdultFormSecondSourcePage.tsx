@@ -7,19 +7,24 @@ import { EAdultFormSource, EAdultFormSteps } from "../../utils/consts.utils";
 import SecondSourceDataStep from "./steps/SecondSourceDataStep";
 import IntroductionStep from "../AdultForm/steps/IntroductionStep";
 import { getResearchDataBySampleIdAndParticipantId } from "../../api/researchers.api";
+import { patchValidateVerificationCode } from "../../api/secondSource.api";
+import { ISecondSource } from "../../interfaces/secondSource.interface";
+import { saveParticipantToken } from "../../utils/tokensHandler";
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
     const [researchData, setResearchData] = useState({ researcherName: "", participantName: "" });
+    const [formData, setFormData] = useState<ISecondSource>();
+    const [loading, setLoading] = useState(true);
 
     const [notificationData, setNotificationData] = useState({
         title: "",
         description: "",
     });
 
-    const { sampleId, participantId } = useParams();
+    const { sampleId, participantId, secondSourceId, verificationCode } = useParams();
 
-    /* It is used to fetch the researcher name based on a sample ID. */
+    /* It is used to fetch the research data based on a sample and participant ID. */
     useEffect(() => {
         const getResearchData = async (sampleId: string, participantId: string) => {
             const response = await getResearchDataBySampleIdAndParticipantId({ sampleId, participantId });
@@ -32,6 +37,45 @@ const AdultFormSecondSourcePage = () => {
             getResearchData(sampleId, participantId);
         }
     }, [sampleId, participantId]);
+
+    /* It is used to validate the URL received in the second source email. */
+    useEffect(() => {
+        const validateURL = async (
+            secondSourceId: string,
+            participantId: string,
+            sampleId: string,
+            verificationCode: string
+        ) => {
+            patchValidateVerificationCode({ secondSourceId, participantId, sampleId, verificationCode })
+                .then((res) => {
+                    if (res.status === 200) {
+                        setFormData(res.data.secondSource);
+                        saveParticipantToken(res.data.token);
+                        setCurrentStep(EAdultFormSteps.PARTICIPANT_DATA);
+                    }
+                })
+                .catch((err) => {
+                    console.error(err);
+                    setNotificationData({
+                        title: "Link inválido!",
+                        description: "Verifique se está utilizando o código que foi enviado para o seu e-mail.",
+                    });
+                })
+                .finally(() => {
+                    setLoading(false);
+                });
+        };
+
+        // If the link haven't a verification code, ignore and continue
+        if (!verificationCode) {
+            setLoading(false);
+            return;
+        }
+
+        if (sampleId && verificationCode && participantId && secondSourceId) {
+            validateURL(secondSourceId, participantId, sampleId, verificationCode);
+        }
+    }, [verificationCode, participantId, sampleId, secondSourceId]);
 
     const getStepState = (stepToCompare: EAdultFormSteps): StepStateType => {
         if (currentStep > stepToCompare) return "DONE";
