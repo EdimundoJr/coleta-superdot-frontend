@@ -7,6 +7,8 @@ interface ImportMetaEnv {
     readonly VITE_USER_ROLE_KEY: string;
     readonly VITE_ROLE_REVIEWER: string;
     readonly VITE_ROLE_ADM: string;
+    readonly VITE_PARTICIPANT_TOKEN_KEY: string;
+    readonly VITE_FRONTEND_URL: string;
 }
 
 interface ImportMeta {

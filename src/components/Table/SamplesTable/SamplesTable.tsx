@@ -66,7 +66,9 @@ const SamplesTable = ({
                     <tr>
                         <th className="px-6 py-3">Nome do Pesquisador</th>
                         <th className="px-6 py-3">Nome da amostra</th>
-                        <th className="px-6 py-3">CAAE</th>
+                        <th className="px-6 py-3">
+                            <span title="Certificado de Apresentação de Apreciação Ética">CAAE</span>
+                        </th>
                         <th className="px-6 py-3">Participantes solicitados</th>
                         <th className="px-6 py-3">Participantes autorizados</th>
                         <th className="px-6 py-3">Status</th>
@@ -84,18 +86,24 @@ const SamplesTable = ({
                             <td className="border-x-2 border-gray-600 px-6 py-3">{sample.currentStatus}</td>
                             <td className="border-x-2 border-gray-600 px-6 py-3 text-center">
                                 <div className="flex justify-center gap-2">
-                                    <Pencil1Icon
-                                        onClick={() => onClickToReviewSample(sample.sampleId)}
-                                        className="cursor-pointer"
-                                    />
-                                    <MagnifyingGlassIcon
-                                        onClick={() => onClickToViewSampleReviews(sample)}
-                                        className="cursor-pointer"
-                                    />
-                                    <ClipboardIcon
-                                        onClick={() => onClickToViewSampleAttachments(sample.files)}
-                                        className="cursor-pointer"
-                                    />
+                                    <span title="Alterar status.">
+                                        <Pencil1Icon
+                                            onClick={() => onClickToReviewSample(sample.sampleId)}
+                                            className="cursor-pointer"
+                                        />
+                                    </span>
+                                    <span title="Visualizar histórico de reivisões.">
+                                        <MagnifyingGlassIcon
+                                            onClick={() => onClickToViewSampleReviews(sample)}
+                                            className="cursor-pointer"
+                                        />
+                                    </span>
+                                    <span title="Visualizar documentos anexados.">
+                                        <ClipboardIcon
+                                            onClick={() => onClickToViewSampleAttachments(sample.files)}
+                                            className="cursor-pointer"
+                                        />
+                                    </span>
                                 </div>
                             </td>
                         </tr>

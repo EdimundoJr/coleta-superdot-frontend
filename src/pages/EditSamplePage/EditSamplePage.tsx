@@ -5,11 +5,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { SampleValues, sampleSchema } from "../../schemas/sample.schema";
 import * as Separator from "@radix-ui/react-separator";
-import ISample, { editSample } from "../../api/sample.api";
+import { editSample } from "../../api/sample.api";
 import Notify from "../../components/Notify/Notify";
 import { SelectField } from "../../components/SelectField/SelectField";
 import { FILES_AVAILABLE_TO_CREATE_SAMPLE } from "../../utils/consts.utils";
-import { SampleFile } from "../../interfaces/sample.interface";
+import { ISample, SampleFile } from "../../interfaces/sample.interface";
 import SampleUploadFile from "../../components/SampleUploaderFile/SampleUploaderFile";
 import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithSample } from "../../validators/navigationStateValidators";
@@ -18,6 +18,7 @@ import { validateFiles } from "../../validators/fileValidator";
 
 const EditSamplePage = () => {
     const [sampleFiles, setSampleFiles] = useState<SampleFile[]>(FILES_AVAILABLE_TO_CREATE_SAMPLE);
+    const [sample, setSample] = useState<SampleValues>();
     const sampleId = useRef<string>();
     const fileChangeRef = useRef(false);
 
@@ -30,9 +31,10 @@ const EditSamplePage = () => {
 
     useEffect(() => {
         if (stateWithSample(location.state)) {
-            const sample = location.state.sample as ISample;
+            const sample = location.state.sample;
             sampleId.current = sample._id;
-            // When the uploadedFile is defined in a object inside the sampleFiles array state, the file is displayed as "uploaded".
+            setSample(sample);
+            // When the uploadedFile is defined in a object inside the sampleFiles state, the file is displayed as "uploaded".
             setSampleFiles(
                 sampleFiles.map((sampleFile) => {
                     // If the sample sent by the my-samples pages has the jsonFileKey of the correspondent file, I set the uploadedFile field.
@@ -61,6 +63,7 @@ const EditSamplePage = () => {
     } = useForm({ resolver: yupResolver(sampleSchema), defaultValues: location.state.sample as ISample });
 
     const onSubmit = handleSubmit(async (data) => {
+        if (!sampleId.current) return;
         if (fileChangeRef.current) {
             try {
                 validateFiles(sampleFiles);
@@ -76,22 +79,41 @@ const EditSamplePage = () => {
         const formData = new FormData();
 
         for (const key in data) {
-            if (key === "researchCep") {
-                for (const nestedKey in data[key]) {
-                    formData.append(
-                        `researchCep[${nestedKey}]`,
-                        data["researchCep"][nestedKey as keyof (typeof data)["researchCep"]] as string
-                    );
+            const validKeys: SampleValues = {
+                researchTitle: "",
+                sampleTitle: "",
+                sampleGroup: undefined,
+                qttParticipantsRequested: 0,
+                researchCep: {
+                    cepCode: "",
+                    researchDocument: "",
+                },
+                countryRegion: "Nordeste",
+                countryState: "",
+                countryCity: "",
+                instituition: {
+                    name: "",
+                    instType: "Particular",
+                },
+            };
+            if (key in validKeys) {
+                if (key === "researchCep") {
+                    for (const nestedKey in data[key]) {
+                        formData.append(
+                            `researchCep[${nestedKey}]`,
+                            data["researchCep"][nestedKey as keyof (typeof data)["researchCep"]] as string
+                        );
+                    }
+                } else if (key === "instituition") {
+                    for (const nestedKey in data[key]) {
+                        formData.append(
+                            `instituition[${nestedKey}]`,
+                            data["instituition"][nestedKey as keyof (typeof data)["instituition"]] as string
+                        );
+                    }
+                } else {
+                    formData.append(key, data[key as keyof SampleValues] as string);
                 }
-            } else if (key === "instituition") {
-                for (const nestedKey in data[key]) {
-                    formData.append(
-                        `instituition[${nestedKey}]`,
-                        data["instituition"][nestedKey as keyof (typeof data)["instituition"]] as string
-                    );
-                }
-            } else {
-                formData.append(key, data[key as keyof SampleValues] as string);
             }
         }
 

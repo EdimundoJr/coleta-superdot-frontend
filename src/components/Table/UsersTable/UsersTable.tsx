@@ -16,14 +16,16 @@ const UsersTable = ({ data, currentPage, setCurrentPage, onClickPencil }: UsersT
                 <tr>
                     <th className=" px-6 py-3">Nome do usuário</th>
                     <th className=" px-6 py-3">E-mail do usuário</th>
+                    <th className=" px-6 py-3">Perfil do usuário</th>
                     <th className=" px-6 py-3">Ações</th>
                 </tr>
             </thead>
             <tbody className="bg-white text-primary">
                 {data?.researchers?.map((user) => (
                     <tr key={user._id} className="odd:bg-gray-200">
-                        <td className="border-x-2 border-primary px-6 py-3">{user.personalData.fullName}</td>
+                        <td className="border-x-2 border-primary px-6 py-3">{user.fullname}</td>
                         <td className="border-x-2 border-primary px-6 py-3">{user.email}</td>
+                        <td className="border-x-2 border-primary px-6 py-3">{user.role}</td>
                         <td className="border-x-2 border-primary px-6 py-3 text-center">
                             <div className="flex justify-center">
                                 <Pencil1Icon className="cursor-pointer" onClick={() => onClickPencil(user._id)} />

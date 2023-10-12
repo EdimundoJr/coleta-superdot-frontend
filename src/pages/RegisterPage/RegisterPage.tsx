@@ -8,6 +8,8 @@ import { registerResearcher } from "../../api/auth.api";
 import { saveTokens } from "../../utils/tokensHandler";
 import LoginInfoForm from "./components/LoginInfoForm/LoginInfoForm";
 import Notify from "../../components/Notify/Notify";
+import { Stepper } from "../../components/Stepper/Stepper";
+import { StepStateType } from "../../components/Stepper/StepperStep";
 
 enum Steps {
     DETAILS = 0,
@@ -85,6 +87,12 @@ const RegisterPage = () => {
         setCurrentStep(currentStep - 1);
     };
 
+    const getStepState = (stepToCompare: Steps): StepStateType => {
+        if (currentStep > stepToCompare) return "DONE";
+        else if (currentStep === stepToCompare) return "HOLD";
+        else return "DISABLED";
+    };
+
     return (
         <Notify
             open={showNotification}
@@ -96,7 +104,30 @@ const RegisterPage = () => {
                 <div className="bg-light-gradient hidden h-full align-middle md:flex md:w-9/12">
                     <img className="m-auto h-full" src={saly12}></img>
                 </div>
-                <div className="flex h-full w-full justify-center overflow-auto bg-slate-100 text-[#4F4F4F]">
+                <div className="h-full w-full justify-center overflow-auto bg-slate-100 text-[#4F4F4F]">
+                    <Stepper.Root removeBackground>
+                        <Stepper.Step
+                            stepState={getStepState(Steps.DETAILS)}
+                            stepNumber="01"
+                            stepTitle="Detalhes"
+                            stepDescription="Informações pessoais"
+                            whiteContrast
+                        ></Stepper.Step>
+                        <Stepper.Step
+                            stepState={getStepState(Steps.PROFILE_PHOTO)}
+                            stepNumber="02"
+                            stepTitle="Foto (opcional)"
+                            stepDescription="Carregue uma foto"
+                            whiteContrast
+                        ></Stepper.Step>
+                        <Stepper.Step
+                            stepState={getStepState(Steps.LOGIN_DATA)}
+                            stepNumber="03"
+                            stepTitle="Login"
+                            stepDescription="Informações de login"
+                            whiteContrast
+                        ></Stepper.Step>
+                    </Stepper.Root>
                     <DetailsForm
                         handleOnSubmit={handleNextStep}
                         setStepData={setCurrentData}

@@ -1,4 +1,4 @@
-import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter, useNavigate } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import GuardRoute from "./components/GuardRoute/GuardRoute";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
@@ -12,6 +12,10 @@ import { getUserRole } from "./utils/auth.utils";
 import MySamplesPage from "./pages/MySamplesPage/MySamplesPage";
 import EditSamplePage from "./pages/EditSamplePage/EditSamplePage";
 import DashBoardPage from "./pages/DashboardPage/DashboardPage";
+import ParticipantsRegistration from "./pages/ParticipantsRegistration/ParticipantsRegistration";
+import AdultForm from "./pages/AdultForm/AdultForm";
+import AdultFormSecondSourcePage from "./pages/AdultFormSecondSourcePage/AdultFormSecondSourcePage";
+import { clearTokens, hasActiveSession } from "./utils/tokensHandler";
 
 function OuterLayout() {
     return (
@@ -25,6 +29,11 @@ function OuterLayout() {
 
 function InnerLayout() {
     const userRole = getUserRole();
+    const navigate = useNavigate();
+    if (!hasActiveSession()) {
+        clearTokens();
+        navigate("/");
+    }
     return (
         <div className="flex bg-white text-primary-text">
             <SideBar userRole={userRole} />
@@ -45,6 +54,26 @@ const router = createBrowserRouter([
             { index: true, Component: LoginPage },
             { path: "register", Component: RegisterPage },
         ],
+    },
+    {
+        path: "/formulario-adulto/:sampleId",
+        Component: OuterLayout,
+        children: [{ index: true, Component: AdultForm }],
+    },
+    {
+        path: "/formulario-adulto/:sampleId/:participantId/:verificationCode",
+        Component: OuterLayout,
+        children: [{ index: true, Component: AdultForm }],
+    },
+    {
+        path: "/formulario-adulto-segunda-fonte/:sampleId/:participantId",
+        Component: OuterLayout,
+        children: [{ index: true, Component: AdultFormSecondSourcePage }],
+    },
+    {
+        path: "/formulario-adulto-segunda-fonte/:sampleId/:participantId/:secondSourceId/:verificationCode",
+        Component: OuterLayout,
+        children: [{ index: true, Component: AdultFormSecondSourcePage }],
     },
     {
         path: "app",
@@ -69,6 +98,10 @@ const router = createBrowserRouter([
             {
                 path: "edit-sample",
                 Component: EditSamplePage,
+            },
+            {
+                path: "participants-registration",
+                Component: ParticipantsRegistration,
             },
             {
                 path: "users",

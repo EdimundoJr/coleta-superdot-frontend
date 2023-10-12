@@ -10,6 +10,7 @@ import ChangeRoleForm from "../../components/Form/ChangeRoleForm/ChangeRoleForm"
 import { fetchUserRole } from "../../api/auth.api";
 import Notify from "../../components/Notify/Notify";
 import { usersPageSearchFormSchema } from "../../schemas/usersPage.schema";
+import { USER_ROLE } from "../../utils/consts.utils";
 
 const UsersPage = () => {
     const {
@@ -22,7 +23,7 @@ const UsersPage = () => {
     const [currentTablePage, setCurrentTablePage] = useState(1);
     const [userSelected, setUserSelected] = useState<string | null>();
     const [filters, setFilters] = useState<Filters>();
-    const [currentUserRole, setCurrentUserRole] = useState("");
+    const [currentUserRole, setCurrentUserRole] = useState<USER_ROLE>("Pesquisador");
 
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
 
@@ -41,14 +42,29 @@ const UsersPage = () => {
 
     const onUserSelected = async (userId: string) => {
         const role = await fetchUserRole(userId);
-        setCurrentUserRole(role.data || "");
+        setCurrentUserRole(role.data);
         setUserSelected(userId);
         setModalOpen(true);
     };
 
-    const onUpdateUserRole = () => {
+    const onUpdateUserRole = (newRole: USER_ROLE) => {
         setModalOpen(false);
         setShowSuccessNotify(true);
+        const researchers = tablePageData?.researchers.map((data) => {
+            if (data._id === userSelected) {
+                return {
+                    ...data,
+                    role: newRole,
+                };
+            } else return data;
+        });
+
+        if (!researchers || !tablePageData) return;
+
+        setTablePageData({
+            totalResearchers: tablePageData?.totalResearchers,
+            researchers,
+        });
     };
 
     return (

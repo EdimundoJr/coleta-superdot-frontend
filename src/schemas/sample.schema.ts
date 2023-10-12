@@ -2,28 +2,28 @@ import { InferType, number, object, string } from "yup";
 import { BRAZIL_REGIONS_ARRAY, INSTITUITION_TYPE_ARRAY } from "../utils/consts.utils";
 
 export const sampleSchema = object({
-    researchTitle: string().required("Por favor, insira o título da pesquisa."),
-    sampleTitle: string().required("Por favor, insira título da amostra."),
+    researchTitle: string().required("Título da pesquisa é um campo obrigatório."),
+    sampleTitle: string().required("Título da amostra é um campo obrigatório."),
     sampleGroup: string(),
     qttParticipantsRequested: number()
-        .typeError("Por favor, insira um número válido.")
-        .required("Por favor, informe o número de participantes da amostra."),
+        .typeError("Número inválido.")
+        .required("Número de participantes da amostra é um campo obrigatório."),
     researchCep: object({
-        cepCode: string().required("Por favor, informe o código fornecido pelo Comitê de Ética em Pesquisa"),
+        cepCode: string().required("Código fornecido pelo Comitê de Ética em Pesquisa é um campo obrigatório."),
         researchDocument: string(),
         tcleDocument: string(),
         taleDocument: string(),
     }),
     countryRegion: string()
-        .oneOf(BRAZIL_REGIONS_ARRAY, "Por favor, selecione uma região válida.")
-        .required("Por favor, informe a região dos participantes da amostra."),
-    countryState: string().required("Por favor, informe o estado dos participantes da amostra."),
-    countryCity: string().required("Por favor, informe a cidade dos participantes da amostra."),
+        .oneOf(BRAZIL_REGIONS_ARRAY, "Região inválida.")
+        .required("A região dos participantes da amostra é um campo obrigatório."),
+    countryState: string().required("O estado dos participantes da amostra é um campo obrigatório."),
+    countryCity: string().required("A cidade dos participantes da amostra é um campo obrigatório."),
     instituition: object({
-        name: string().required("Por favor, informe o nome da instituição dos participantes."),
+        name: string().required("Nome da instituição dos participantes é um campo obrigatório."),
         instType: string()
-            .oneOf(INSTITUITION_TYPE_ARRAY, "Por favor, selecione um tipo válido.")
-            .required("Por favor, informe o tipo de instituição."),
+            .oneOf(INSTITUITION_TYPE_ARRAY, "Tipo inválido.")
+            .required("Tipo de instituição é um campo obrigatório."),
     }),
 });
 

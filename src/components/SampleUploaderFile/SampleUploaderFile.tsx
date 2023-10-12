@@ -9,9 +9,10 @@ interface SampleUploadFileProps {
     sampleFiles: SampleFile[];
     setSampleFiles: (files: SampleFile[]) => void;
     notifyFileChange?: React.MutableRefObject<boolean>;
+    messageError?: string;
 }
 
-const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange }: SampleUploadFileProps) => {
+const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messageError }: SampleUploadFileProps) => {
     const [currentFileKeyToUpload, setCurrentFileKeyToUpload] = useState<string | undefined>(undefined);
 
     const handleChangeFileToUpload = (e: ChangeEvent<HTMLSelectElement>) => {
@@ -107,6 +108,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange }: Sam
                                     );
                             })}
                         </select>
+
                         <label
                             htmlFor="chooseFile"
                             className="bg-neutralLight block max-h-[35px] min-w-[150px] rounded-[8px] p-1"
@@ -121,6 +123,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange }: Sam
                             type="file"
                         ></input>
                     </div>
+                    <span className="error-message">{messageError}</span>
                 </Form.Field>
             </div>
             {sampleFiles && (

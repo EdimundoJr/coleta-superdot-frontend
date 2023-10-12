@@ -11,6 +11,7 @@ export const stateWithSample = (state: any): boolean => {
     if (typeof state.sample !== "object") return false;
     if (!state.sample._id) return false;
     if (!state.sample.researchCep) return false;
+    if (!state.sample.sampleGroup) return false;
     return true;
 };
 

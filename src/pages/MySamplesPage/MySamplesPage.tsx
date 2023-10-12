@@ -4,7 +4,7 @@ import { useForm } from "react-hook-form";
 import { InputField } from "../../components/InputField/InputField";
 import { PAGE_SIZE } from "../../api/researchers.api";
 import { useEffect, useState } from "react";
-import ISample, { PageSample, deleteSample, paginateSamples } from "../../api/sample.api";
+import { Page, deleteSample, paginateSamples } from "../../api/sample.api";
 import { MySamplesFilters, mySamplesFiltersSchema } from "../../schemas/mySample.schema";
 import { Card } from "../../components/Card/Card";
 import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
@@ -13,6 +13,7 @@ import Notify from "../../components/Notify/Notify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithNotification } from "../../validators/navigationStateValidators";
 import { DateTime } from "luxon";
+import { ISample } from "../../interfaces/sample.interface";
 
 const MySamplesPage = () => {
     const {
@@ -23,7 +24,7 @@ const MySamplesPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
 
-    const [pageData, setPageData] = useState<PageSample>();
+    const [pageData, setPageData] = useState<Page<ISample>>();
     //const [currentPage, setCurrentPage] = useState(1);
     const [filters, setFilters] = useState<MySamplesFilters>();
     //const [sampleSelecteds, setSampleSelecteds] = useState();
@@ -60,14 +61,14 @@ const MySamplesPage = () => {
     };
 
     /* HANDLERS TO DELETE SAMPLE REQUEST*/
-    const handleOnTrashSampleIconClick = (sampleId: string | undefined) => {
+    const handleNavigateToDeleteSample = (sampleId?: string) => {
         if (sampleId) {
             setSampleIdToDelete(sampleId);
         }
         setOpenModalDelete(true);
     };
 
-    const handleOnPencilSampleIconClick = (sample: ISample | undefined) => {
+    const handleNavigateToEditSample = (sample?: ISample) => {
         if (sample) {
             navigate("/app/edit-sample", {
                 state: {
@@ -97,6 +98,14 @@ const MySamplesPage = () => {
             setNotificationDescription("Não foi possível apagar a solicitação. Tente novamente mais tarde.");
             console.error(e);
         }
+    };
+
+    const handleRegisterPeople = (sampleData: ISample) => {
+        navigate("/app/participants-registration", {
+            state: {
+                sample: sampleData,
+            },
+        });
     };
 
     return (
@@ -146,17 +155,19 @@ const MySamplesPage = () => {
                         <Card.Root key={index}>
                             <Card.Header>
                                 <div className="flex gap-x-3">
-                                    <Pencil1Icon
-                                        onClick={() => handleOnPencilSampleIconClick(sample)}
-                                        className="cursor-pointer"
-                                        width={20}
-                                        height={20}
-                                    />
+                                    {sample.status !== "Autorizado" && (
+                                        <Pencil1Icon
+                                            onClick={() => handleNavigateToEditSample(sample)}
+                                            className="cursor-pointer"
+                                            width={20}
+                                            height={20}
+                                        />
+                                    )}
                                     {sample.sampleGroup}
                                     {sample.status !== "Autorizado" && (
                                         <TrashIcon
                                             className="cursor-pointer"
-                                            onClick={() => handleOnTrashSampleIconClick(sample._id)}
+                                            onClick={() => handleNavigateToDeleteSample(sample._id)}
                                             width={20}
                                             height={20}
                                         />
@@ -169,32 +180,38 @@ const MySamplesPage = () => {
                                 <ul>
                                     <li>Amostra: {sample.sampleTitle}</li>
                                     <li>Pesquisa: {sample.researchTitle}</li>
-                                    <li>Limite de participantes: {sample.qttParticipantsAuthorized}</li>
-                                    <li>Participantes cadastrados: X</li>
+                                    {sample.qttParticipantsAuthorized && (
+                                        <li>Limite de participantes: {sample.qttParticipantsAuthorized}</li>
+                                    )}
+                                    {sample.participants && (
+                                        <li>Participantes cadastrados: {sample.participants.length}</li>
+                                    )}
                                     <li>Código do Comitê de Ética: {sample.researchCep.cepCode}</li>
                                     <li>
                                         Data da Solicitação da amostra:{" "}
                                         {sample.createdAt &&
-                                            DateTime.fromISO(sample.createdAt || "").toFormat("dd/LL/yyyy - HH:mm")}
+                                            DateTime.fromISO(sample.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
                                     </li>
                                     <li>
-                                        Data da aprovação da solicitação:{" "}
-                                        {sample.approvedAt &&
-                                            DateTime.fromISO(sample.approvedAt || "").toFormat("dd/mm/yyyy - HH:m")}
+                                        Data da última atualização:{" "}
+                                        {sample.updatedAt &&
+                                            DateTime.fromISO(sample.updatedAt).toFormat("dd/LL/yyyy - HH:mm")}
                                     </li>
+                                    <li>Status da amostra: {sample.status}</li>
                                 </ul>
                             </Card.Content>
                             <Card.Actions>
                                 <Card.Action
                                     disabled={
                                         sample.status !== "Autorizado" ||
-                                        sample.qttParticipantsAuthorized === sample.qttParticipantsRegistered
+                                        sample.qttParticipantsAuthorized === sample.participants?.length
                                     }
+                                    onClick={() => handleRegisterPeople(sample)}
                                 >
                                     Cadastrar Pessoas
                                 </Card.Action>
                                 <Card.Action
-                                    disabled={sample.status !== "Autorizado" || sample.qttParticipantsRegistered > 0}
+                                    disabled={sample.status !== "Autorizado" || sample.participants?.length === 0}
                                 >
                                     Avaliar Pessoas
                                 </Card.Action>

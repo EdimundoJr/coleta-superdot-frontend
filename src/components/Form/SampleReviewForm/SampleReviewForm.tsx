@@ -15,8 +15,14 @@ interface SampleReviewFormProps {
 }
 
 const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
+    if (!sample) return null;
+
     const sampleReviewFormSchema = yup.object({
-        nextStatus: yup.string().oneOf(SAMPLE_STATUS_ARRAY, "Por favor, selecione um status.").required(),
+        nextStatus: yup
+            .string()
+            .oneOf(SAMPLE_STATUS_ARRAY, "Por favor, selecione um status.")
+            .notOneOf([sample?.currentStatus], "Por favor, modifique o status da amostra.")
+            .required(),
         qttParticipantsAuthorized: yup
             .number()
             .max(
@@ -31,6 +37,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
         handleSubmit,
         watch,
         formState: { errors },
+        // eslint-disable-next-line react-hooks/rules-of-hooks
     } = useForm({ resolver: yupResolver(sampleReviewFormSchema) });
     const watchStatusChange = watch("nextStatus");
 
@@ -73,7 +80,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             </div>
             <TextAreaField
                 errorMessage={errors?.reviewMessage?.message}
-                label="MENSAGEM"
+                label="MENSAGEM (essa mensagem será enviada para o e-mail do pesquisador)"
                 {...register("reviewMessage")}
             />
             <Form.Submit asChild>

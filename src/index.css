@@ -7,7 +7,6 @@
     line-height: 1.5;
     font-weight: 400;
 
-    color-scheme: light dark;
     color: rgba(255, 255, 255, 0.87);
     background-color: #242424;
 
@@ -42,10 +41,22 @@ h3 {
     @apply text-xl;
 }
 
+h4 {
+    @apply text-4xl font-semibold leading-10 text-opacity-[0.87];
+}
+
 input,
 select,
 textarea {
-    @apply w-full rounded-[10px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium text-[#999999];
+    @apply w-full rounded-[10px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium  text-[#999999];
+}
+
+th {
+    @apply px-6 py-3;
+}
+
+td {
+    @apply border-2 border-primary px-6 py-3;
 }
 
 /** CUSTOM ELEMENTS **/
@@ -74,10 +85,24 @@ span.error-message {
     @apply button-default bg-primary text-white hover:bg-primary-light;
 }
 
+.button-secondary {
+    @apply button-default bg-secondary text-white hover:bg-primary-light;
+}
+
 .button-neutral-light {
     @apply button-default bg-neutral-light text-[#272727] hover:bg-slate-300;
 }
 
 .button-neutral-dark {
     @apply button-default bg-neutral-dark text-white hover:bg-slate-600;
+}
+
+/** TYPOGRAPHY */
+
+.subtitle-2 {
+    @apply text-sm font-medium leading-4 text-opacity-[0.87];
+}
+
+.caption {
+    @apply text-xs font-normal leading-3 text-opacity-60;
 }
