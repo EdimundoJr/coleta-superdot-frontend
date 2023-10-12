@@ -71,6 +71,11 @@ const router = createBrowserRouter([
         children: [{ index: true, Component: AdultFormSecondSourcePage }],
     },
     {
+        path: "/formulario-adulto-segunda-fonte/:sampleId/:participantId/:secondSourceId/:verificationCode",
+        Component: OuterLayout,
+        children: [{ index: true, Component: AdultFormSecondSourcePage }],
+    },
+    {
         path: "app",
         Component: InnerLayout,
         children: [
