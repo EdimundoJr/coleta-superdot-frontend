@@ -1,6 +1,7 @@
 import axios from "axios";
-import { SecondSourceValues } from "../schemas/adultForm/secondSourceData.schema";
+import { SecondSourceDTO } from "../schemas/adultForm/secondSourceData.schema";
 import { ISecondSource } from "../interfaces/secondSource.interface";
+import { setAuthHeaders } from "../utils/tokensHandler";
 
 interface PostSendVerificationCodeParams {
     secondSourceEmail: string;
@@ -41,22 +42,23 @@ export const patchValidateVerificationCode = async ({
     );
 };
 
-/** SAVE PARTICIPANT DATA */
-interface PostSecondSourceDataParams {
+interface SecondSourceDataParams {
     sampleId: string;
-    participantId: string;
-    secondSourceData: SecondSourceValues;
+    secondSourceData: SecondSourceDTO;
 }
 
-export const postSecondSourceData = async ({
-    sampleId,
-    participantId,
-    secondSourceData,
-}: PostSecondSourceDataParams) => {
-    return axios.post<string>(
-        `${
-            import.meta.env.VITE_BACKEND_HOST
-        }/api/secondSource/submitSecondSourceData/sample/${sampleId}/participant/${participantId}`,
+export const putSaveSecondSourceData = async ({ sampleId, secondSourceData }: SecondSourceDataParams) => {
+    setAuthHeaders(); // Setting JWT with participant and second source ID
+    return axios.put<boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/second-source/save-second-source-data/sample/${sampleId}`,
+        secondSourceData
+    );
+};
+
+export const putSubmitSecondSourceData = async ({ sampleId, secondSourceData }: SecondSourceDataParams) => {
+    setAuthHeaders(); // Setting JWT with participant and second source ID
+    return axios.put<boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/second-source/submit-second-source-data/sample/${sampleId}`,
         secondSourceData
     );
 };
