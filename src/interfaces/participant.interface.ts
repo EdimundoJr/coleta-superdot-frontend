@@ -1,3 +1,4 @@
+import { DeepPartial } from "react-hook-form";
 import {
     EAdultFormGroup,
     TDevices,
@@ -48,7 +49,7 @@ export interface IParticipant {
         text?: string;
         videoUrl?: string;
     };
-    secondSources?: ISecondSource[];
+    secondSources?: DeepPartial<ISecondSource>[];
     createdAt?: string;
     updatedAt?: string;
 }

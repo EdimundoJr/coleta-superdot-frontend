@@ -3,6 +3,7 @@ import { ParticipantDataDTO } from "../schemas/adultForm/participantData.schema"
 import { ISecondSource } from "../interfaces/secondSource.interface";
 import { IParticipant } from "../interfaces/participant.interface";
 import { setAuthHeaders } from "../utils/tokensHandler";
+import { DeepPartial } from "react-hook-form";
 
 interface PostSendVerificationCodeParams {
     participantEmail: string;
@@ -66,7 +67,7 @@ export const patchAcceptAllSampleDocs = async ({ sampleId }: { sampleId: string 
 };
 interface PutSaveSecondSourcesParams {
     sampleId: string;
-    secondSources: ISecondSource[];
+    secondSources: DeepPartial<ISecondSource>[];
 }
 export const putSaveSecondSources = async ({ sampleId, secondSources }: PutSaveSecondSourcesParams) => {
     return axios.patch<boolean>(

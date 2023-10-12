@@ -78,7 +78,7 @@ const IndicateSecondSourceStep = ({
             return;
         }
 
-        const personAlreadyAdded = formData?.secondSources?.find((people) => people.personalData.email === email);
+        const personAlreadyAdded = formData?.secondSources?.find((people) => people.personalData?.email === email);
         if (personAlreadyAdded) {
             setNotificationData({
                 title: "Pessoa já indicada!",
@@ -87,11 +87,12 @@ const IndicateSecondSourceStep = ({
             return;
         }
 
+        // Already has members in this array
         if (formData?.secondSources?.length) {
             setFormData({
                 ...formData,
                 secondSources: [
-                    ...formData.secondSources, // Already has members in this array
+                    ...formData.secondSources,
                     {
                         personalData: {
                             relationship,
@@ -103,10 +104,10 @@ const IndicateSecondSourceStep = ({
                 ],
             });
         } else {
+            // First member of this array
             setFormData({
                 ...formData,
                 secondSources: [
-                    // First member of this array
                     {
                         personalData: {
                             relationship,
@@ -137,7 +138,7 @@ const IndicateSecondSourceStep = ({
      * the source to be deleted.
      */
     const handleDeleteSourceIndicated = (sourceEmail: string) => {
-        const sourceCleaned = formData.secondSources?.filter((people) => people.personalData.email !== sourceEmail);
+        const sourceCleaned = formData.secondSources?.filter((people) => people.personalData?.email !== sourceEmail);
         setFormData({ ...formData, secondSources: sourceCleaned });
         setNotificationData({
             title: "Pessoa removida!",
@@ -271,14 +272,16 @@ const IndicateSecondSourceStep = ({
                         <tbody>
                             {formData.secondSources?.map((people) => (
                                 <tr>
-                                    <td>{people.personalData.relationship}</td>
-                                    <td>{people.personalData.fullName}</td>
-                                    <td>{people.personalData.email}</td>
+                                    <td>{people.personalData?.relationship}</td>
+                                    <td>{people.personalData?.fullName}</td>
+                                    <td>{people.personalData?.email}</td>
                                     <td>{people.teacherSubject}</td>
                                     <td>
                                         <Cross2Icon
                                             className="mx-auto cursor-pointer"
-                                            onClick={() => handleDeleteSourceIndicated(people.personalData.email)}
+                                            onClick={() =>
+                                                handleDeleteSourceIndicated(people.personalData?.email as string)
+                                            }
                                         />
                                     </td>
                                 </tr>
