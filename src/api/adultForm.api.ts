@@ -12,26 +12,35 @@ export const getAllSampleRequiredDocs = async (sampleId: string) => {
     );
 };
 
-export enum QuestionType {
-    FIVE_OPTIONS = 0,
-    FOUR_INPUTS = 1,
-    MULTIPLE_OPTIONS = 2,
-}
-
-/** GET QUESTIONS BY GROUP */
-
 export const getQuestionsByFormStep = (formStep: EAdultFormSteps, formSource: EAdultFormSource) => {
     const groupSequence = getAdultGroupSequenceByFormStep(formStep);
     return axios.get<IQuestionsGroup>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/adultForm/questions-by-group/${groupSequence}/source/${formSource}`
+        `${
+            import.meta.env.VITE_BACKEND_HOST
+        }/api/adult-form/questions-by-group/group-sequence/${groupSequence}/source/${formSource}`
     );
 };
 
-/** SAVE QUESTIONS BY GROUP */
-
 export const patchSaveQuestionsByGroup = (sampleId: string, groupQuestionsAndAnswers: IQuestionsGroup) => {
+    setAuthHeaders();
     return axios.patch<IQuestionsGroup | boolean>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/adultForm/save-questions-by-group/sample/${sampleId}`,
+        `${import.meta.env.VITE_BACKEND_HOST}/api/adult-form/save-questions-by-group/sample/${sampleId}`,
         groupQuestionsAndAnswers
+    );
+};
+
+interface PatchSaveSecondSourceQuestionsByGroupParams {
+    sampleId: string;
+    groupQuestionsWithAnswers: IQuestionsGroup;
+}
+
+export const patchSaveSecondSourceQuestionsByGroup = ({
+    sampleId,
+    groupQuestionsWithAnswers,
+}: PatchSaveSecondSourceQuestionsByGroupParams) => {
+    setAuthHeaders();
+    return axios.patch<IQuestionsGroup | boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/adult-form/save-second-source-questions-by-group/sample/${sampleId}`,
+        groupQuestionsWithAnswers
     );
 };
