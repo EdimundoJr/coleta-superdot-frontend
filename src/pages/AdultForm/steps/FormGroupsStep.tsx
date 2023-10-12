@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react";
-import { getQuestionsByFormStep, patchSaveQuestionsByGroup } from "../../../api/adultForm.api";
+import {
+    getQuestionsByFormStep,
+    patchSaveQuestionsByGroup,
+    patchSaveSecondSourceQuestionsByGroup,
+} from "../../../api/adultForm.api";
 import IQuestionsGroup from "../../../interfaces/questionsGroup.interface";
 import {
     EAdultFormSource,
@@ -10,16 +14,17 @@ import {
 import IQuestion from "../../../interfaces/question.interface";
 import RenderQuestions from "../../../components/RenderQuestions/RenderQuestions";
 import { IParticipant } from "../../../interfaces/participant.interface";
+import { AxiosError, AxiosResponse } from "axios";
+import { ISecondSource } from "../../../interfaces/secondSource.interface";
 
 interface FormGroupsStepProps {
-    formData: IParticipant;
-    setFormData: (data: IParticipant) => void;
+    formData: IParticipant | ISecondSource;
+    setFormData: (data: IParticipant | ISecondSource) => void;
     sourceForm: EAdultFormSource;
     currentStep: EAdultFormSteps;
     nextStep: () => void;
     setNotificationData: (data: { title: string; description: string }) => void;
     sampleId: string;
-    participantId?: string;
     saveAndExit: () => void;
     previousStep: () => void;
 }
@@ -38,7 +43,6 @@ const FormGroupsStep = ({
     nextStep,
     setNotificationData,
     sampleId,
-    participantId,
     saveAndExit,
     previousStep,
 }: FormGroupsStepProps) => {
@@ -92,8 +96,9 @@ const FormGroupsStep = ({
                 case EQuestionType.FIVE_OPTION:
                     if (typeof question.answer !== "string") return false;
                     break;
-                case EQuestionType.FOUR_INPUT:
+                case EQuestionType.FOUR_INPUT || EQuestionType.FOUR_SELECT:
                     if (question.answer.length !== 4) return false;
+                    if ((question.answer as string[]).some((answer) => !answer.length)) return false;
                     break;
                 case EQuestionType.MULTIPLE_SELECT:
                     if (!Array.isArray(question.answer)) return false;
@@ -103,63 +108,134 @@ const FormGroupsStep = ({
         });
     };
 
-    const handleSaveAnswersAndExit = async () => {
-        try {
-            const response = await patchSaveQuestionsByGroup(sampleId, currentGroup);
-            if (response.status === 200) {
-                saveAndExit();
-            }
-        } catch (e) {
-            console.error(e);
+    /**
+     * The function `sendQuestionsToBackend` is an asynchronous function that sends questions to the
+     * backend and returns a response.
+     * @param {IQuestionsGroup} currentGroup - The currentGroup parameter is an object of type
+     * IQuestionsGroup.
+     * @returns The function `sendQuestionsToBackend` is returning a `AxiosResponse` object, which can
+     * contain either a boolean value or an `IQuestionsGroup` object.
+     */
+    const sendQuestionsToBackend = async (currentGroup: IQuestionsGroup) => {
+        let response: AxiosResponse<boolean | IQuestionsGroup> | any;
+        if (sourceForm === EAdultFormSource.FIRST_SOURCE) {
+            response = await patchSaveQuestionsByGroup(sampleId, currentGroup);
+        } else {
+            response = await patchSaveSecondSourceQuestionsByGroup({
+                sampleId,
+                groupQuestionsWithAnswers: currentGroup,
+            });
+        }
+
+        return response;
+    };
+
+    /**
+     * The function handles the response from a server request and displays a notification based on the
+     * response data.
+     * @param [response] - The `response` parameter is an optional parameter of type
+     * `AxiosResponse<boolean | IQuestionsGroup>`. It represents the response received from a server
+     * request made using Axios.
+     * @returns The function `handleRequestResponse` returns nothing.
+     */
+    const handleSuccesfulRequestResponse = (response: AxiosResponse<boolean | IQuestionsGroup>) => {
+        if (response.status !== 200) {
+            setNotificationData({
+                title: "Erro no servidor!",
+                description: "Não foi possível efetuar a comunicação com o servidor. Tente novamente.",
+            });
+            return;
+        }
+
+        if (typeof response.data === "boolean") {
+            setNotificationData({
+                title: "Questionário finalizado!",
+                description: "Todos os grupos foram respondidos, parabéns!",
+            });
+            nextStep();
+        } else {
+            setNotificationData({
+                title: "Grupo finalizado!",
+                description: "Parabéns, você finalizou um grupo de perguntas. Continue!",
+            });
+            setCurrentGroup(response.data);
+            nextStep();
+            // Scroll screen to top
+            document.getElementById("bg-div")?.scroll(0, 0);
         }
     };
 
-    const handleSubmitQuestions = async () => {
-        if (!allQuestionsHaveAnswers(currentGroup.questions)) return;
-        console.log(currentGroup.questions);
+    /**
+     * The function saves questions in a form data cache to continue to next step, updating the current group
+     * if it exists or adding it if it doesn't.
+     * @param {IQuestionsGroup} currentGroup - The currentGroup parameter is an object of type
+     * IQuestionsGroup.
+     */
+    const saveQuestionsInFormDataCacheToContinue = (currentGroup: IQuestionsGroup) => {
+        let groupExistsInFormData = 0;
+
+        const newAnswersByGroup = formData.adultForm?.answersByGroup?.map((group) => {
+            if (group.sequence === currentGroup.sequence) {
+                groupExistsInFormData++;
+                return currentGroup; // Update the group with the current answers
+            } else return group;
+        });
+
+        if (!groupExistsInFormData) {
+            newAnswersByGroup?.push(currentGroup);
+        }
+
+        setFormData({
+            ...formData,
+            adultForm: {
+                ...formData.adultForm,
+                answersByGroup: newAnswersByGroup,
+            },
+        });
+    };
+
+    /**
+     * The function `handlerSaveAndContinue` checks if all questions in the current group have answers,
+     * sends the questions to the backend, handles the response, and saves the questions in a cache to
+     * continue.
+     * @returns If not all questions have answers, the function will return without executing the rest
+     * of the code.
+     */
+    const handlerSaveAndContinue = async () => {
+        if (!allQuestionsHaveAnswers(currentGroup.questions)) {
+            return;
+        }
 
         try {
-            const response = await patchSaveQuestionsByGroup(sampleId, currentGroup);
-            if (response.status === 200) {
-                if (typeof response.data === "boolean") {
-                    setNotificationData({
-                        title: "Questionário finalizado!",
-                        description: "Todos os grupos foram respondidos, parabéns!",
-                    });
-                    nextStep();
-                } else {
-                    setNotificationData({
-                        title: "Grupo finalizado!",
-                        description: "Parabéns, você finalizou um grupo de perguntas. Continue!",
-                    });
-                    setCurrentGroup(response.data);
-                    nextStep();
-                    document.getElementById("bg-div")?.scroll(0, 0);
-                }
-            }
-
-            let found = 0;
-
-            const newAnswersByGroup = formData.adultForm?.answersByGroup?.map((group) => {
-                if (group.sequence === currentGroup.sequence) {
-                    found++;
-                    return currentGroup;
-                } else return group;
-            });
-
-            if (!found) {
-                newAnswersByGroup?.push(currentGroup);
-            }
-
-            setFormData({
-                ...formData,
-                adultForm: {
-                    ...formData.adultForm,
-                    answersByGroup: newAnswersByGroup,
-                },
-            });
+            const response = await sendQuestionsToBackend(currentGroup);
+            handleSuccesfulRequestResponse(response);
         } catch (e) {
             console.error(e);
+            setNotificationData({
+                title: "Erro no servidor!",
+                description: "Não foi possível efetuar a comunicação com o servidor. Tente novamente.",
+            });
+            return;
+        }
+
+        saveQuestionsInFormDataCacheToContinue(currentGroup);
+    };
+
+    /**
+     * The function `handlerSaveAndExit` sends questions to the backend, saves and exits if
+     * successful, otherwise it displays an error notification.
+     */
+    const handlerSaveAndExit = async () => {
+        try {
+            await sendQuestionsToBackend(currentGroup);
+            saveAndExit();
+        } catch (e) {
+            console.error(e);
+            setNotificationData({
+                title: "Erro no servidor!",
+                description: "Não foi possível efetuar a comunicação com o servidor. Tente novamente.",
+            });
+            return;
         }
     };
 
@@ -184,12 +260,12 @@ const FormGroupsStep = ({
                     <button type="button" onClick={previousStep} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
                         VOLTAR
                     </button>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56" onClick={handleSaveAnswersAndExit}>
+                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56" onClick={handlerSaveAndExit}>
                         SALVAR E SAIR
                     </button>
                     <button
                         className="button-secondary mt-5 w-3/4 px-3 disabled:bg-neutral-dark md:w-56"
-                        onClick={handleSubmitQuestions}
+                        onClick={handlerSaveAndContinue}
                     >
                         SALVAR E CONTINUAR
                     </button>

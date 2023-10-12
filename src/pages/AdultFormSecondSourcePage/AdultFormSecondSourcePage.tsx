@@ -11,6 +11,8 @@ import { patchValidateVerificationCode } from "../../api/secondSource.api";
 import { ISecondSource } from "../../interfaces/secondSource.interface";
 import { clearTokens, saveParticipantToken } from "../../utils/tokensHandler";
 import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
+import FormGroupsStep from "../AdultForm/steps/FormGroupsStep";
+import { IParticipant } from "../../interfaces/participant.interface";
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
@@ -237,13 +239,16 @@ const AdultFormSecondSourcePage = () => {
                 )}
                 {currentStep >= EAdultFormSteps.GENERAL_CHARACTERISTICS &&
                     currentStep <= EAdultFormSteps.ARTISTIC_ACTIVITIES && (
-                        <AnsweringAdultFormStep
+                        <FormGroupsStep
+                            formData={formData}
+                            setFormData={setFormData as (data: ISecondSource | IParticipant) => void}
+                            previousStep={handlePreviousStep}
+                            saveAndExit={saveAndExit}
                             sourceForm={EAdultFormSource.SECOND_SOURCE}
                             sampleId={sampleId}
                             currentStep={currentStep}
                             nextStep={handleNextStep}
                             setNotificationData={setNotificationData}
-                            participantId={participantId}
                         />
                     )}
             </div>
