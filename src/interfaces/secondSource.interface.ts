@@ -24,8 +24,8 @@ export interface ISecondSource {
     acceptTcleAt?: Date;
     acceptTaleAt?: Date;
     adultForm?: {
-        endFillFormAt?: Date;
-        startFillFormAt?: Date;
+        endFillFormAt?: string;
+        startFillFormAt?: string;
         answersByGroup?: { groupName: string; sequence: EAdultFormGroup; questions: IQuestion[] }[];
     };
     teacherSubject?: string;
