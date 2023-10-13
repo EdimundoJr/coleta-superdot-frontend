@@ -1,10 +1,10 @@
-import { TParticipantFormProgress } from "../utils/consts.utils";
+import { TFormFillStatus } from "../utils/consts.utils";
 
 export interface ISampleParticipantSummay {
     sampleId: string;
     participantId: string;
     fullName: string;
-    progress: TParticipantFormProgress;
+    progress: TFormFillStatus;
     qttSecondSources: number;
     startDate: string;
     endDate?: string;
