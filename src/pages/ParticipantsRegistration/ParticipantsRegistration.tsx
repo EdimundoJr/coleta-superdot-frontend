@@ -11,16 +11,20 @@ import Notify from "../../components/Notify/Notify";
 import { TFormFillStatus } from "../../utils/consts.utils";
 import { ISecondSource } from "../../interfaces/secondSource.interface";
 import { DeepPartial } from "react-hook-form";
+import ParticipantsIndicationForm from "../../components/ParticipantsIndicationForm/ParticipantsIndicationForm";
 
 const ParticipantsRegistration = () => {
     const [sample, setSample] = useState<ISample>();
     const [currentPage, setCurrentPage] = useState(1);
     const [modalSecondSourcesOpen, setModalSecondSourcesOpen] = useState(false);
     const [currentParticipant, setCurrentParticipant] = useState<IParticipant>();
+    const [modalIndicateParticipantsOpen, setModalIndicateParticipantsOpen] = useState(false);
 
     /* STATES TO SHOW NOTIFICATION */
-    const [notificationTitle, setNotificationTitle] = useState<string>();
-    const [notificationDescription, setNotificationDescription] = useState<string>();
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+    });
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -40,8 +44,10 @@ const ParticipantsRegistration = () => {
 
     const handleSendTextToClipBoard = (text: string) => {
         navigator.clipboard.writeText(text);
-        setNotificationTitle("Link copiado.");
-        setNotificationDescription("O link foi copiado para a sua área de transferência.");
+        setNotificationData({
+            title: "Link copiado.",
+            description: "O link foi copiado para a sua área de transferência.",
+        });
     };
 
     const getFormFillStatus = (secondSource: DeepPartial<ISecondSource>): TFormFillStatus => {
@@ -60,10 +66,10 @@ const ParticipantsRegistration = () => {
 
     return (
         <Notify
-            open={!!notificationTitle}
-            onOpenChange={() => setNotificationTitle("")}
-            title={notificationTitle}
-            description={notificationDescription}
+            open={!!notificationData.title}
+            onOpenChange={() => setNotificationData({ title: "", description: "" })}
+            title={notificationData.title}
+            description={notificationData.description}
         >
             <header className="my-6">
                 <h1>Cadastrar Pessoas - {sample?.sampleGroup}</h1>
@@ -86,6 +92,10 @@ const ParticipantsRegistration = () => {
                 <p>Máximo de inscrições: {sample?.qttParticipantsAuthorized}</p>
             </div>
 
+            <button className="button-secondary mb-5" onClick={() => setModalIndicateParticipantsOpen(true)}>
+                CLIQUE AQUI PARA INDICAR PARTICIPANTES
+            </button>
+
             <h3>
                 {`Novos participantes: ${sample?.participants?.length} (Aguardando mais ${
                     (sample?.qttParticipantsAuthorized || 0) - (sample?.participants?.length || 0)
@@ -100,6 +110,19 @@ const ParticipantsRegistration = () => {
                 onClickToViewSecondSources={handleViewSecondSources}
                 onClickToCopySecondSourceURL={handleSendTextToClipBoard}
             />
+
+            <Modal
+                open={modalIndicateParticipantsOpen}
+                setOpen={setModalIndicateParticipantsOpen}
+                title="Indicar participantes"
+                accessibleDescription="Digite o nome e o e-amil dos participantes nos campos abaixo."
+            >
+                <ParticipantsIndicationForm
+                    setNotificationData={setNotificationData}
+                    sampleId={sample?._id as string}
+                    onFinish={() => setModalIndicateParticipantsOpen(false)}
+                />
+            </Modal>
 
             {/* MODAL TO SHOW SECOND SOURCES */}
             <Modal
