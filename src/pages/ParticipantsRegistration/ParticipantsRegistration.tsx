@@ -8,7 +8,9 @@ import Modal from "../../components/Modal/Modal";
 import { IParticipant } from "../../interfaces/participant.interface";
 import { DateTime } from "luxon";
 import Notify from "../../components/Notify/Notify";
-import { EAdultFormSteps } from "../../utils/consts.utils";
+import { TFormFillStatus } from "../../utils/consts.utils";
+import { ISecondSource } from "../../interfaces/secondSource.interface";
+import { DeepPartial } from "react-hook-form";
 
 const ParticipantsRegistration = () => {
     const [sample, setSample] = useState<ISample>();
@@ -40,6 +42,18 @@ const ParticipantsRegistration = () => {
         navigator.clipboard.writeText(text);
         setNotificationTitle("Link copiado.");
         setNotificationDescription("O link foi copiado para a sua área de transferência.");
+    };
+
+    const getFormFillStatus = (secondSource: DeepPartial<ISecondSource>): TFormFillStatus => {
+        if (!secondSource.adultForm?.startFillFormAt) {
+            return "Não iniciado";
+        }
+
+        if (!secondSource.adultForm.endFillFormAt) {
+            return "Preenchendo";
+        }
+
+        return "Finalizado";
     };
 
     const urlParticipantForm = `${import.meta.env.VITE_FRONTEND_URL}/formulario-adulto/${sample?._id}`;
@@ -107,20 +121,20 @@ const ParticipantsRegistration = () => {
                     <tbody className="bg-white text-primary">
                         {currentParticipant?.secondSources?.map((secondSource) => (
                             <tr key={secondSource._id} className="odd:bg-gray-200">
-                                <td>{secondSource.personalData.fullName}</td>
+                                <td>{secondSource.personalData?.fullName}</td>
+                                <td>{getFormFillStatus(secondSource)}</td>
+                                <td>{secondSource.personalData?.relationship}</td>
                                 <td>
-                                    {secondSource.adultFormCurrentStep === EAdultFormSteps.FINISHED
-                                        ? "Finalizado"
-                                        : "Preenchendo"}
-                                </td>
-                                <td>{secondSource.personalData.relationship}</td>
-                                <td>
-                                    {secondSource.startFillFormDate &&
-                                        DateTime.fromISO(secondSource.startFillFormDate).toFormat("dd/LL/yyyy - HH:mm")}
+                                    {secondSource.adultForm?.startFillFormAt &&
+                                        DateTime.fromISO(secondSource.adultForm.startFillFormAt).toFormat(
+                                            "dd/LL/yyyy - HH:mm"
+                                        )}
                                 </td>
                                 <td>
-                                    {secondSource.endFillFormDate &&
-                                        DateTime.fromISO(secondSource.endFillFormDate).toFormat("dd/LL/yyyy - HH:mm")}
+                                    {secondSource.adultForm?.endFillFormAt &&
+                                        DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat(
+                                            "dd/LL/yyyy - HH:mm"
+                                        )}
                                 </td>
                             </tr>
                         ))}
