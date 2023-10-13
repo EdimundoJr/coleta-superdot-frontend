@@ -5,6 +5,8 @@ import { SampleStatus } from "../utils/consts.utils";
 import { MySamplesFilters } from "../schemas/mySample.schema";
 import { ISampleParticipantSummay } from "../interfaces/sampleParticipantSummary";
 import { ISample } from "../interfaces/sample.interface";
+import { IParticipant } from "../interfaces/participant.interface";
+import { DeepPartial } from "react-hook-form";
 
 export const createSample = async (sampleData: FormData) => {
     setAuthHeaders();
@@ -86,4 +88,16 @@ export const getSampleParticipantRegistrationProgress = async (sampleId: string)
     return axios.get<ISampleParticipantSummay[]>(
         `${import.meta.env.VITE_BACKEND_HOST}/api/sample/participantRegistrationProgress/${sampleId}`
     );
+};
+
+interface PostAddParticipantsParams {
+    sampleId: string;
+    participants: DeepPartial<IParticipant>[];
+}
+
+export const postAddParticipants = async ({ sampleId, participants }: PostAddParticipantsParams) => {
+    setAuthHeaders();
+    return axios.post<boolean>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/add-participants/sample/${sampleId}`, {
+        participants,
+    });
 };
