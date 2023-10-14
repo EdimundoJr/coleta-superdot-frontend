@@ -93,3 +93,8 @@ export const postAddParticipants = async ({ sampleId, participants }: PostAddPar
         participants,
     });
 };
+
+export const getSampleById = async ({ sampleId }: { sampleId: string }) => {
+    setAuthHeaders();
+    return axios.get<ISample>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/get-sample-by-id/${sampleId}`);
+};
