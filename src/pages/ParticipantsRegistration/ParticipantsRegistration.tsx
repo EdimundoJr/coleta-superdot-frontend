@@ -1,7 +1,6 @@
 import { CopyIcon } from "@radix-ui/react-icons";
 import ParticipantsRegistrationTable from "../../components/Table/ParticipantsRegistrationTable/ParticipantsRegistrationTable";
 import { useEffect, useState } from "react";
-import { stateWithSample } from "../../validators/navigationStateValidators";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ISample } from "../../interfaces/sample.interface";
 import Modal from "../../components/Modal/Modal";
@@ -12,15 +11,15 @@ import { TFormFillStatus } from "../../utils/consts.utils";
 import { ISecondSource } from "../../interfaces/secondSource.interface";
 import { DeepPartial } from "react-hook-form";
 import ParticipantsIndicationForm from "../../components/ParticipantsIndicationForm/ParticipantsIndicationForm";
+import { getSampleById } from "../../api/sample.api";
 
 const ParticipantsRegistration = () => {
-    const [sample, setSample] = useState<ISample>();
+    const [sample, setSample] = useState<ISample>({} as ISample);
     const [currentPage, setCurrentPage] = useState(1);
     const [modalSecondSourcesOpen, setModalSecondSourcesOpen] = useState(false);
     const [currentParticipant, setCurrentParticipant] = useState<IParticipant>();
     const [modalIndicateParticipantsOpen, setModalIndicateParticipantsOpen] = useState(false);
 
-    /* STATES TO SHOW NOTIFICATION */
     const [notificationData, setNotificationData] = useState({
         title: "",
         description: "",
@@ -30,10 +29,25 @@ const ParticipantsRegistration = () => {
     const location = useLocation();
 
     useEffect(() => {
-        if (stateWithSample(location.state)) {
-            setSample(location.state.sample);
+        const getSampleInfo = async (sampleId: string) => {
+            try {
+                const response = await getSampleById({ sampleId });
+                if (response.status === 200) {
+                    setSample(response.data);
+                }
+            } catch (e) {
+                console.error(e);
+                setNotificationData({
+                    title: "Erro no servidor",
+                    description: "Não foi possível buscar as informações da amostra.",
+                });
+            }
+        };
+
+        if (location.state.sampleId) {
+            getSampleInfo(location.state.sampleId);
         } else {
-            navigate("/app/my-samples");
+            navigate(-1);
         }
     }, [navigate, location]);
 
@@ -60,6 +74,18 @@ const ParticipantsRegistration = () => {
         }
 
         return "Finalizado";
+    };
+
+    const handleFinishParticipantIndication = (participantsAdded: IParticipant[]) => {
+        setModalIndicateParticipantsOpen(false);
+
+        const newParticipantsArr = sample?.participants ?? [];
+        newParticipantsArr.push(...participantsAdded);
+
+        setSample({
+            ...sample,
+            participants: newParticipantsArr,
+        });
     };
 
     const urlParticipantForm = `${import.meta.env.VITE_FRONTEND_URL}/formulario-adulto/${sample?._id}`;
@@ -120,7 +146,7 @@ const ParticipantsRegistration = () => {
                 <ParticipantsIndicationForm
                     setNotificationData={setNotificationData}
                     sampleId={sample?._id as string}
-                    onFinish={() => setModalIndicateParticipantsOpen(false)}
+                    onFinish={handleFinishParticipantIndication}
                 />
             </Modal>
 
