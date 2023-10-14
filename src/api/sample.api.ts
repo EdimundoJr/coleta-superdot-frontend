@@ -3,7 +3,6 @@ import { setAuthHeaders } from "../utils/tokensHandler";
 import { SampleValues } from "../schemas/sample.schema";
 import { SampleStatus } from "../utils/consts.utils";
 import { MySamplesFilters } from "../schemas/mySample.schema";
-import { ISampleParticipantSummay } from "../interfaces/sampleParticipantSummary";
 import { ISample } from "../interfaces/sample.interface";
 import { IParticipant } from "../interfaces/participant.interface";
 import { DeepPartial } from "react-hook-form";
@@ -81,13 +80,6 @@ export const seeAttachment = async (fileName: string) => {
 export const deleteSample = async (sampleId: string | undefined) => {
     setAuthHeaders();
     return axios.delete(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/deleteSample/${sampleId}`);
-};
-
-export const getSampleParticipantRegistrationProgress = async (sampleId: string) => {
-    setAuthHeaders();
-    return axios.get<ISampleParticipantSummay[]>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/sample/participantRegistrationProgress/${sampleId}`
-    );
 };
 
 interface PostAddParticipantsParams {
