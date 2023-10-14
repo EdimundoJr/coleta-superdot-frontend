@@ -8,6 +8,7 @@ export interface Tokens {
 }
 
 export const saveTokens = ({ accessToken, refreshToken }: Tokens) => {
+    localStorage.removeItem(import.meta.env.VITE_PARTICIPANT_TOKEN_KEY);
     localStorage.setItem(import.meta.env.VITE_ACCESS_TOKEN_KEY, accessToken);
     localStorage.setItem(import.meta.env.VITE_REFRESH_TOKEN_KEY, refreshToken);
     setAuthHeaders();
