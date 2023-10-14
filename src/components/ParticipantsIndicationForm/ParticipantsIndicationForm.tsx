@@ -9,7 +9,7 @@ import { postAddParticipants } from "../../api/sample.api";
 
 interface ParticipantsIndicationFormProps {
     setNotificationData: (data: { title: string; description: string }) => void;
-    onFinish: () => void;
+    onFinish: (participants: IParticipant[]) => void;
     sampleId: string;
 }
 
@@ -85,7 +85,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                     title: "Indicações concluídas.",
                     description: "As indicações foram registradas e os e-mails foram enviados.",
                 });
-                onFinish();
+                onFinish(participants as IParticipant[]);
             }
         } catch (err: any) {
             console.error(err);
