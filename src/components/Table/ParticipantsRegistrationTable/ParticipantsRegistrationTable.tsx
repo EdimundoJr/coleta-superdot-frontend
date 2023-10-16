@@ -77,7 +77,7 @@ const ParticipantsRegistrationTable = ({
                                 getParticipantProgress(participant) === "Finalizado" &&
                                 DateTime.fromISO(participant.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")}
                         </td>
-                        <td>{participant.giftdnessIndicators ? "Sim" : "Não"}</td>
+                        <td>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</td>
                         <td>
                             <div className="flex justify-center">
                                 <CopyIcon
