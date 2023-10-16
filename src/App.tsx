@@ -16,6 +16,7 @@ import ParticipantsRegistration from "./pages/ParticipantsRegistration/Participa
 import AdultForm from "./pages/AdultForm/AdultForm";
 import AdultFormSecondSourcePage from "./pages/AdultFormSecondSourcePage/AdultFormSecondSourcePage";
 import { clearTokens, hasActiveSession } from "./utils/tokensHandler";
+import AnalysisPage from "./pages/AnalysisPage/AnalysisPage";
 
 function OuterLayout() {
     return (
@@ -102,6 +103,10 @@ const router = createBrowserRouter([
             {
                 path: "participants-registration",
                 Component: ParticipantsRegistration,
+            },
+            {
+                path: "analisar-amostra",
+                Component: AnalysisPage,
             },
             {
                 path: "users",
