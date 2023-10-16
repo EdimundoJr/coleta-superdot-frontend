@@ -136,7 +136,7 @@ const IntroductionStep = ({
             <div className="m-auto w-2/4">
                 <input id="participantEmail" type="email" onChange={(e) => setParticipantEmail(e.target.value)}></input>
                 <button type="button" className="button-primary mt-5" onClick={handleOnRequestVerificationCode}>
-                    Enviar código de verificação
+                    CONTINUAR
                 </button>
             </div>
         </div>
