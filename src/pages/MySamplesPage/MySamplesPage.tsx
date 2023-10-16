@@ -108,6 +108,14 @@ const MySamplesPage = () => {
         });
     };
 
+    const handleClickToAnalyzeSampleParticipantes = (sample: ISample) => {
+        navigate("/app/analisar-amostra", {
+            state: {
+                sample,
+            },
+        });
+    };
+
     return (
         <Notify
             open={!!notificationTitle}
@@ -211,7 +219,8 @@ const MySamplesPage = () => {
                                     Cadastrar Pessoas
                                 </Card.Action>
                                 <Card.Action
-                                    disabled // disabled={sample.status !== "Autorizado" || sample.participants?.length === 0}
+                                    disabled={sample.status !== "Autorizado" || sample.participants?.length === 0}
+                                    onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
                                 >
                                     Avaliar Pessoas
                                 </Card.Action>
