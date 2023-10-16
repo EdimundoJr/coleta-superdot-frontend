@@ -139,6 +139,7 @@ const ReadAndAcceptDocsStep = ({
             title: "Documento aceito com sucesso.",
             description: "Ainda há um outro documento para ser aceito.",
         });
+        document.getElementById("pageAcceptDocs")?.scrollIntoView();
     };
 
     const onClickToPreviouStep = () => {
@@ -157,7 +158,7 @@ const ReadAndAcceptDocsStep = ({
     };
 
     return (
-        <div className="grid gap-y-10">
+        <div id="pageAcceptDocs" className="grid gap-y-10">
             <header>
                 <h1>{currentDoc?.label}</h1>
                 <h3>Leia o documento e confirme que está de acordo.</h3>
