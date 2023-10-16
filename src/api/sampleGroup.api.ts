@@ -12,5 +12,5 @@ export interface SampleGroup {
 
 export const findAllSampleGroups = async () => {
     setAuthHeaders();
-    return axios.get<SampleGroup[]>(`${import.meta.env.VITE_BACKEND_HOST}/api/sampleGroup/findAll`);
+    return axios.get<SampleGroup[]>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample-group/findAll`);
 };

@@ -11,7 +11,7 @@ interface ReviewValues {
 
 export const createReview = async (reviewData: ReviewValues) => {
     setAuthHeaders();
-    return axios.post(`${import.meta.env.VITE_BACKEND_HOST}/api/sampleReview/newReview`, reviewData);
+    return axios.post(`${import.meta.env.VITE_BACKEND_HOST}/api/sample-review/newReview`, reviewData);
 };
 
 export interface ISampleReview {
@@ -33,6 +33,6 @@ export interface SampleReviewWithReviewerName {
 export const findReviewsBySampleId = async (sampleId: string) => {
     setAuthHeaders();
     return axios.get<SampleReviewWithReviewerName[]>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/sampleReview/findReviews/${sampleId}`
+        `${import.meta.env.VITE_BACKEND_HOST}/api/sample-review/findReviews/${sampleId}`
     );
 };
