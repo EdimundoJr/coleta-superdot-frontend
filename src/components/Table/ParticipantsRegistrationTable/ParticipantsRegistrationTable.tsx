@@ -7,8 +7,8 @@ import { IParticipant } from "../../../interfaces/participant.interface";
 interface ParticipantsRegistrationTableProps {
     sampleId: string;
     data?: ISample["participants"];
-    currentPage: number;
-    setCurrentPage: (newPage: number) => void;
+    // currentPage: number;
+    // setCurrentPage: (newPage: number) => void;
     onClickToViewSecondSources: (participant: IParticipant) => void;
     onClickToCopySecondSourceURL: (text: string) => void;
 }
@@ -16,8 +16,8 @@ interface ParticipantsRegistrationTableProps {
 const ParticipantsRegistrationTable = ({
     sampleId,
     data,
-    currentPage,
-    setCurrentPage,
+    // currentPage,
+    // setCurrentPage,
     onClickToViewSecondSources,
     onClickToCopySecondSourceURL,
 }: ParticipantsRegistrationTableProps) => {
