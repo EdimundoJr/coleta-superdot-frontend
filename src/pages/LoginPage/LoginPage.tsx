@@ -6,8 +6,6 @@ import { loginResearcher } from "../../api/auth.api";
 import { saveTokens } from "../../utils/tokensHandler";
 import { useNavigate } from "react-router-dom";
 import saly16 from "../../assets/Saly-16.svg";
-import googleLogo from "../../assets/google-logo.svg";
-import * as Separator from "@radix-ui/react-separator";
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import Notify from "../../components/Notify/Notify";

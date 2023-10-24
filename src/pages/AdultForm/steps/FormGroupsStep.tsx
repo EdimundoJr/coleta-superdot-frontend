@@ -14,7 +14,7 @@ import {
 import IQuestion from "../../../interfaces/question.interface";
 import RenderQuestions from "../../../components/RenderQuestions/RenderQuestions";
 import { IParticipant } from "../../../interfaces/participant.interface";
-import { AxiosError, AxiosResponse } from "axios";
+import { AxiosResponse } from "axios";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
 
 interface FormGroupsStepProps {
