@@ -15,7 +15,7 @@ import { getSampleById } from "../../api/sample.api";
 
 const ParticipantsRegistration = () => {
     const [sample, setSample] = useState<ISample>({} as ISample);
-    const [currentPage, setCurrentPage] = useState(1);
+    // const [currentPage, setCurrentPage] = useState(1);
     const [modalSecondSourcesOpen, setModalSecondSourcesOpen] = useState(false);
     const [currentParticipant, setCurrentParticipant] = useState<IParticipant>();
     const [modalIndicateParticipantsOpen, setModalIndicateParticipantsOpen] = useState(false);
@@ -131,8 +131,8 @@ const ParticipantsRegistration = () => {
             <ParticipantsRegistrationTable
                 sampleId={sample?._id || ""}
                 data={sample?.participants}
-                currentPage={currentPage}
-                setCurrentPage={(newPage) => setCurrentPage(newPage)}
+                // currentPage={currentPage}
+                // setCurrentPage={(newPage) => setCurrentPage(newPage)}
                 onClickToViewSecondSources={handleViewSecondSources}
                 onClickToCopySecondSourceURL={handleSendTextToClipBoard}
             />
