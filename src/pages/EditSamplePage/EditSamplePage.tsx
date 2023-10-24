@@ -18,7 +18,7 @@ import { validateFiles } from "../../validators/fileValidator";
 
 const EditSamplePage = () => {
     const [sampleFiles, setSampleFiles] = useState<SampleFile[]>(FILES_AVAILABLE_TO_CREATE_SAMPLE);
-    const [sample, setSample] = useState<SampleValues>();
+    const [sample, setSample] = useState({} as ISample);
     const sampleId = useRef<string>();
     const fileChangeRef = useRef(false);
 
@@ -60,7 +60,7 @@ const EditSamplePage = () => {
         watch,
         handleSubmit,
         formState: { errors },
-    } = useForm({ resolver: yupResolver(sampleSchema), defaultValues: location.state.sample as ISample });
+    } = useForm({ resolver: yupResolver(sampleSchema), defaultValues: sample });
 
     const onSubmit = handleSubmit(async (data) => {
         if (!sampleId.current) return;
