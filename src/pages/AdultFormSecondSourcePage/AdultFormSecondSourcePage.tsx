@@ -13,6 +13,7 @@ import { clearTokens, saveParticipantToken } from "../../utils/tokensHandler";
 import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
 import FormGroupsStep from "../AdultForm/steps/FormGroupsStep";
 import { IParticipant } from "../../interfaces/participant.interface";
+import ReactLoading from "react-loading";
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
@@ -125,6 +126,11 @@ const AdultFormSecondSourcePage = () => {
             title={notificationData.title}
             description={notificationData.description}
         >
+        {loading && (
+            <div className="absolute flex h-full w-full bg-black opacity-60">
+                <ReactLoading className="m-auto" type="spinningBubbles"></ReactLoading>
+            </div>
+        )}
             <div
                 id="bg-div"
                 className="h-full overflow-y-scroll bg-slate-950 bg-opacity-50 bg-default-bg bg-cover bg-no-repeat bg-blend-multiply"

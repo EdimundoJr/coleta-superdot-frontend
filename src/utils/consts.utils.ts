@@ -77,15 +77,13 @@ export enum Relationships {
 export const RELATIONSHIPS_ARRAY = ["Amigo", "Parente", "Professor"] as const;
 export type TRelationship = (typeof RELATIONSHIPS_ARRAY)[number];
 
-export const FORM_FILL_STATUS = ["Preenchendo", "Aguardando 2ª fonte", "Finalizado"] as const;
-export type FormFillStatusType = (typeof FORM_FILL_STATUS)[number];
+export const FORM_FILL_STATUS = ["Não iniciado", "Preenchendo", "Aguardando 2ª fonte", "Finalizado"] as const;
+export type TFormFillStatus = (typeof FORM_FILL_STATUS)[number];
 
 export enum EAdultFormSource {
     FIRST_SOURCE = 0,
     SECOND_SOURCE = 1,
 }
-
-export type TParticipantFormProgress = "Preenchendo" | "Aguardando 2ª fonte" | "Finalizado";
 
 export const RELATIONSHIP_TIME_ARRAY = [
     "De 0 à 2 anos",

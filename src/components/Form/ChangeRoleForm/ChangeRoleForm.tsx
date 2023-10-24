@@ -56,7 +56,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
             </SelectField>
             <TextAreaField
                 errorMessage={errors?.emailMessage?.message}
-                label="Mensagem"
+                label="Mensagem (será enviada ao e-mail do usuário)"
                 {...register("emailMessage")}
             />
             <Form.Submit asChild>

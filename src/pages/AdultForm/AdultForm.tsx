@@ -15,6 +15,7 @@ import ReactLoading from "react-loading";
 import { patchValidateVerificationCode } from "../../api/participant.api";
 import { getResearcherNameBySampleId } from "../../api/researchers.api";
 import FormGroupsStep from "./steps/FormGroupsStep";
+import { ISecondSource } from "../../interfaces/secondSource.interface";
 
 const stepsInfo = [
     {
@@ -281,7 +282,7 @@ const AdultForm = () => {
                             formData={formData}
                             previousStep={handlePreviousStep}
                             saveAndExit={saveAndExit}
-                            setFormData={setFormData}
+                            setFormData={setFormData as (data: ISecondSource | IParticipant) => void}
                             sourceForm={EAdultFormSource.FIRST_SOURCE}
                             sampleId={sampleId}
                             currentStep={currentStep}

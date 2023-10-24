@@ -1,33 +1,53 @@
 import { CopyIcon } from "@radix-ui/react-icons";
 import ParticipantsRegistrationTable from "../../components/Table/ParticipantsRegistrationTable/ParticipantsRegistrationTable";
 import { useEffect, useState } from "react";
-import { stateWithSample } from "../../validators/navigationStateValidators";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ISample } from "../../interfaces/sample.interface";
 import Modal from "../../components/Modal/Modal";
 import { IParticipant } from "../../interfaces/participant.interface";
 import { DateTime } from "luxon";
 import Notify from "../../components/Notify/Notify";
-import { EAdultFormSteps } from "../../utils/consts.utils";
+import { TFormFillStatus } from "../../utils/consts.utils";
+import { ISecondSource } from "../../interfaces/secondSource.interface";
+import { DeepPartial } from "react-hook-form";
+import ParticipantsIndicationForm from "../../components/ParticipantsIndicationForm/ParticipantsIndicationForm";
+import { getSampleById } from "../../api/sample.api";
 
 const ParticipantsRegistration = () => {
-    const [sample, setSample] = useState<ISample>();
-    const [currentPage, setCurrentPage] = useState(1);
+    const [sample, setSample] = useState<ISample>({} as ISample);
+    // const [currentPage, setCurrentPage] = useState(1);
     const [modalSecondSourcesOpen, setModalSecondSourcesOpen] = useState(false);
     const [currentParticipant, setCurrentParticipant] = useState<IParticipant>();
+    const [modalIndicateParticipantsOpen, setModalIndicateParticipantsOpen] = useState(false);
 
-    /* STATES TO SHOW NOTIFICATION */
-    const [notificationTitle, setNotificationTitle] = useState<string>();
-    const [notificationDescription, setNotificationDescription] = useState<string>();
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+    });
 
     const navigate = useNavigate();
     const location = useLocation();
 
     useEffect(() => {
-        if (stateWithSample(location.state)) {
-            setSample(location.state.sample);
+        const getSampleInfo = async (sampleId: string) => {
+            try {
+                const response = await getSampleById({ sampleId });
+                if (response.status === 200) {
+                    setSample(response.data);
+                }
+            } catch (e) {
+                console.error(e);
+                setNotificationData({
+                    title: "Erro no servidor",
+                    description: "Não foi possível buscar as informações da amostra.",
+                });
+            }
+        };
+
+        if (location.state.sampleId) {
+            getSampleInfo(location.state.sampleId);
         } else {
-            navigate("/app/my-samples");
+            navigate(-1);
         }
     }, [navigate, location]);
 
@@ -38,18 +58,44 @@ const ParticipantsRegistration = () => {
 
     const handleSendTextToClipBoard = (text: string) => {
         navigator.clipboard.writeText(text);
-        setNotificationTitle("Link copiado.");
-        setNotificationDescription("O link foi copiado para a sua área de transferência.");
+        setNotificationData({
+            title: "Link copiado.",
+            description: "O link foi copiado para a sua área de transferência.",
+        });
+    };
+
+    const getFormFillStatus = (secondSource: DeepPartial<ISecondSource>): TFormFillStatus => {
+        if (!secondSource.adultForm?.startFillFormAt) {
+            return "Não iniciado";
+        }
+
+        if (!secondSource.adultForm.endFillFormAt) {
+            return "Preenchendo";
+        }
+
+        return "Finalizado";
+    };
+
+    const handleFinishParticipantIndication = (participantsAdded: IParticipant[]) => {
+        setModalIndicateParticipantsOpen(false);
+
+        const newParticipantsArr = sample?.participants ?? [];
+        newParticipantsArr.push(...participantsAdded);
+
+        setSample({
+            ...sample,
+            participants: newParticipantsArr,
+        });
     };
 
     const urlParticipantForm = `${import.meta.env.VITE_FRONTEND_URL}/formulario-adulto/${sample?._id}`;
 
     return (
         <Notify
-            open={!!notificationTitle}
-            onOpenChange={() => setNotificationTitle("")}
-            title={notificationTitle}
-            description={notificationDescription}
+            open={!!notificationData.title}
+            onOpenChange={() => setNotificationData({ title: "", description: "" })}
+            title={notificationData.title}
+            description={notificationData.description}
         >
             <header className="my-6">
                 <h1>Cadastrar Pessoas - {sample?.sampleGroup}</h1>
@@ -72,6 +118,10 @@ const ParticipantsRegistration = () => {
                 <p>Máximo de inscrições: {sample?.qttParticipantsAuthorized}</p>
             </div>
 
+            <button className="button-secondary mb-5" onClick={() => setModalIndicateParticipantsOpen(true)}>
+                CLIQUE AQUI PARA INDICAR PARTICIPANTES
+            </button>
+
             <h3>
                 {`Novos participantes: ${sample?.participants?.length} (Aguardando mais ${
                     (sample?.qttParticipantsAuthorized || 0) - (sample?.participants?.length || 0)
@@ -81,11 +131,24 @@ const ParticipantsRegistration = () => {
             <ParticipantsRegistrationTable
                 sampleId={sample?._id || ""}
                 data={sample?.participants}
-                currentPage={currentPage}
-                setCurrentPage={(newPage) => setCurrentPage(newPage)}
+                // currentPage={currentPage}
+                // setCurrentPage={(newPage) => setCurrentPage(newPage)}
                 onClickToViewSecondSources={handleViewSecondSources}
                 onClickToCopySecondSourceURL={handleSendTextToClipBoard}
             />
+
+            <Modal
+                open={modalIndicateParticipantsOpen}
+                setOpen={setModalIndicateParticipantsOpen}
+                title="Indicar participantes"
+                accessibleDescription="Digite o nome e o e-amil dos participantes nos campos abaixo."
+            >
+                <ParticipantsIndicationForm
+                    setNotificationData={setNotificationData}
+                    sampleId={sample?._id as string}
+                    onFinish={handleFinishParticipantIndication}
+                />
+            </Modal>
 
             {/* MODAL TO SHOW SECOND SOURCES */}
             <Modal
@@ -107,20 +170,20 @@ const ParticipantsRegistration = () => {
                     <tbody className="bg-white text-primary">
                         {currentParticipant?.secondSources?.map((secondSource) => (
                             <tr key={secondSource._id} className="odd:bg-gray-200">
-                                <td>{secondSource.personalData.fullName}</td>
+                                <td>{secondSource.personalData?.fullName}</td>
+                                <td>{getFormFillStatus(secondSource)}</td>
+                                <td>{secondSource.personalData?.relationship}</td>
                                 <td>
-                                    {secondSource.adultFormCurrentStep === EAdultFormSteps.FINISHED
-                                        ? "Finalizado"
-                                        : "Preenchendo"}
-                                </td>
-                                <td>{secondSource.personalData.relationship}</td>
-                                <td>
-                                    {secondSource.startFillFormDate &&
-                                        DateTime.fromISO(secondSource.startFillFormDate).toFormat("dd/LL/yyyy - HH:mm")}
+                                    {secondSource.adultForm?.startFillFormAt &&
+                                        DateTime.fromISO(secondSource.adultForm.startFillFormAt).toFormat(
+                                            "dd/LL/yyyy - HH:mm"
+                                        )}
                                 </td>
                                 <td>
-                                    {secondSource.endFillFormDate &&
-                                        DateTime.fromISO(secondSource.endFillFormDate).toFormat("dd/LL/yyyy - HH:mm")}
+                                    {secondSource.adultForm?.endFillFormAt &&
+                                        DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat(
+                                            "dd/LL/yyyy - HH:mm"
+                                        )}
                                 </td>
                             </tr>
                         ))}

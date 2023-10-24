@@ -259,7 +259,7 @@ const IndicateSecondSourceStep = ({
                     </Form.Submit>
                 </Form.Root>
                 {(formData.secondSources?.length || 0) > 0 && (
-                    <table className="my-4 w-full border-collapse bg-white text-black">
+                    <table className="my-4 w-full ">
                         <thead>
                             <tr>
                                 <th>Tipo de relação</th>

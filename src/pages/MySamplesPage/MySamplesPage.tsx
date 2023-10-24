@@ -100,10 +100,18 @@ const MySamplesPage = () => {
         }
     };
 
-    const handleRegisterPeople = (sampleData: ISample) => {
+    const handleRegisterPeople = (sampleId: string) => {
         navigate("/app/participants-registration", {
             state: {
-                sample: sampleData,
+                sampleId,
+            },
+        });
+    };
+
+    const handleClickToAnalyzeSampleParticipantes = (sample: ISample) => {
+        navigate("/app/analisar-amostra", {
+            state: {
+                sample,
             },
         });
     };
@@ -206,12 +214,13 @@ const MySamplesPage = () => {
                                         sample.status !== "Autorizado" ||
                                         sample.qttParticipantsAuthorized === sample.participants?.length
                                     }
-                                    onClick={() => handleRegisterPeople(sample)}
+                                    onClick={() => handleRegisterPeople(sample._id as string)}
                                 >
                                     Cadastrar Pessoas
                                 </Card.Action>
                                 <Card.Action
                                     disabled={sample.status !== "Autorizado" || sample.participants?.length === 0}
+                                    onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
                                 >
                                     Avaliar Pessoas
                                 </Card.Action>

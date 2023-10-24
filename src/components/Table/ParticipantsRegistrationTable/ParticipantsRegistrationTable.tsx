@@ -1,15 +1,14 @@
 import { CopyIcon, MagnifyingGlassIcon } from "@radix-ui/react-icons";
 import { DateTime } from "luxon";
 import { ISample } from "../../../interfaces/sample.interface";
-import { EAdultFormSteps, TParticipantFormProgress } from "../../../utils/consts.utils";
-import { ISecondSource } from "../../../interfaces/secondSource.interface";
+import { TFormFillStatus } from "../../../utils/consts.utils";
 import { IParticipant } from "../../../interfaces/participant.interface";
 
 interface ParticipantsRegistrationTableProps {
     sampleId: string;
     data?: ISample["participants"];
-    currentPage: number;
-    setCurrentPage: (newPage: number) => void;
+    // currentPage: number;
+    // setCurrentPage: (newPage: number) => void;
     onClickToViewSecondSources: (participant: IParticipant) => void;
     onClickToCopySecondSourceURL: (text: string) => void;
 }
@@ -17,25 +16,29 @@ interface ParticipantsRegistrationTableProps {
 const ParticipantsRegistrationTable = ({
     sampleId,
     data,
-    currentPage,
-    setCurrentPage,
+    // currentPage,
+    // setCurrentPage,
     onClickToViewSecondSources,
     onClickToCopySecondSourceURL,
 }: ParticipantsRegistrationTableProps) => {
-    const getParticipantProgress = (
-        currentStep: EAdultFormSteps | undefined,
-        secondSources: ISecondSource[] | undefined
-    ): TParticipantFormProgress => {
-        if (currentStep === EAdultFormSteps.FINISHED) {
-            if (secondSources?.length) {
-                const allSecondSourcesFillingForm = secondSources?.every(
-                    (secSource) => secSource.adultFormCurrentStep !== EAdultFormSteps.FINISHED
-                );
-                if (allSecondSourcesFillingForm) return "Aguardando 2ª fonte";
-                else return "Finalizado";
-            }
+    const getParticipantProgress = (participant: IParticipant): TFormFillStatus => {
+        if (!participant.adultForm?.startFillFormAt) {
+            return "Não iniciado";
         }
-        return "Preenchendo";
+
+        if (!participant.adultForm?.endFillFormAt) {
+            return "Preenchendo";
+        }
+
+        const oneSecSourceFinishTheForm = participant.secondSources?.some(
+            (secSource) => secSource.adultForm?.endFillFormAt
+        );
+
+        if (!oneSecSourceFinishTheForm) {
+            return "Aguardando 2ª fonte";
+        }
+
+        return "Finalizado";
     };
 
     return (
@@ -55,7 +58,7 @@ const ParticipantsRegistrationTable = ({
                 {data?.map((participant) => (
                     <tr key={participant._id} className="odd:bg-gray-200">
                         <td>{participant.personalData.fullName}</td>
-                        <td>{getParticipantProgress(participant.adultFormCurrentStep, participant.secondSources)}</td>
+                        <td>{getParticipantProgress(participant)}</td>
                         <td>
                             <div className="flex items-center justify-center">
                                 {participant.secondSources?.length}
@@ -65,12 +68,16 @@ const ParticipantsRegistrationTable = ({
                                 />
                             </div>
                         </td>
-                        <td>{DateTime.fromISO(participant.createdAt).toFormat("dd/LL/yyyy - HH:mm")}</td>
                         <td>
-                            {participant.endFillFormDate &&
-                                DateTime.fromISO(participant.endFillFormDate).toFormat("dd/LL/yyyy - HH:mm")}
+                            {participant.adultForm?.startFillFormAt &&
+                                DateTime.fromISO(participant.adultForm.startFillFormAt).toFormat("dd/LL/yyyy - HH:mm")}
                         </td>
-                        <td>{participant.giftdnessIndicators ? "Sim" : "Não"}</td>
+                        <td>
+                            {participant.adultForm?.endFillFormAt &&
+                                getParticipantProgress(participant) === "Finalizado" &&
+                                DateTime.fromISO(participant.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")}
+                        </td>
+                        <td>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</td>
                         <td>
                             <div className="flex justify-center">
                                 <CopyIcon

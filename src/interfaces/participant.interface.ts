@@ -39,11 +39,13 @@ export interface IParticipant {
     };
     acceptTcleAt?: Date;
     acceptTaleAt?: Date;
-    giftdnessIndicators?: boolean;
     adultForm?: {
-        endFillFormAt?: Date;
-        startFillFormAt?: Date;
+        endFillFormAt?: string;
+        startFillFormAt?: string;
         answersByGroup?: { groupName: string; sequence: EAdultFormGroup; questions: IQuestion[] }[];
+        totalPunctuation?: number;
+        giftednessIndicators?: boolean;
+        knowledgeAreas?: string[];
     };
     autobiography?: {
         text?: string;

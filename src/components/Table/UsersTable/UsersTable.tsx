@@ -28,7 +28,9 @@ const UsersTable = ({ data, currentPage, setCurrentPage, onClickPencil }: UsersT
                         <td className="border-x-2 border-primary px-6 py-3">{user.role}</td>
                         <td className="border-x-2 border-primary px-6 py-3 text-center">
                             <div className="flex justify-center">
-                                <Pencil1Icon className="cursor-pointer" onClick={() => onClickPencil(user._id)} />
+                                <span title="Alterar perfil do usuário.">
+                                    <Pencil1Icon className="cursor-pointer" onClick={() => onClickPencil(user._id)} />
+                                </span>
                             </div>
                         </td>
                     </tr>
