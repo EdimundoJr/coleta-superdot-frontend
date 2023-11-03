@@ -55,7 +55,7 @@ const AdultFormSecondSourcePage = () => {
                     if (res.status === 200) {
                         setFormData(res.data.secondSource);
                         saveParticipantToken(res.data.token);
-                        setCurrentStep(EAdultFormSteps.PARTICIPANT_DATA);
+                        setCurrentStep(EAdultFormSteps.READ_AND_ACCEPT_DOCS);
                     }
                 })
                 .catch((err) => {
@@ -145,16 +145,16 @@ const AdultFormSecondSourcePage = () => {
                     currentStep < EAdultFormSteps.GENERAL_CHARACTERISTICS && (
                         <Stepper.Root>
                             <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.PARTICIPANT_DATA)}
-                                stepNumber="01"
-                                stepTitle="Pessoais"
-                                stepDescription="Informações pessoais"
-                            ></Stepper.Step>
-                            <Stepper.Step
                                 stepState={getStepState(EAdultFormSteps.READ_AND_ACCEPT_DOCS)}
-                                stepNumber="02"
+                                stepNumber="01"
                                 stepTitle="Termos"
                                 stepDescription="Leia e aceite os termos"
+                            ></Stepper.Step>
+                            <Stepper.Step
+                                stepState={getStepState(EAdultFormSteps.PARTICIPANT_DATA)}
+                                stepNumber="02"
+                                stepTitle="Pessoais"
+                                stepDescription="Informações pessoais"
                             ></Stepper.Step>
                             <Stepper.Step
                                 stepState="DISABLED"

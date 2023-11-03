@@ -109,8 +109,8 @@ export enum EQuestionType {
 
 export enum EAdultFormSteps {
     INTRODUCTION = 0,
-    PARTICIPANT_DATA = 1,
-    READ_AND_ACCEPT_DOCS = 2,
+    READ_AND_ACCEPT_DOCS = 1,
+    PARTICIPANT_DATA = 2,
     INDICATE_SECOND_SOURCE = 3,
     GENERAL_CHARACTERISTICS = 4,
     HIGH_ABILITIES = 5,
