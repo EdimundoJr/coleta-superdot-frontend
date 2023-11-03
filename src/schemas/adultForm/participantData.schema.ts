@@ -16,7 +16,6 @@ export const participantDataSchema = object({
             .oneOf(MARITAL_STATUS_ARRAY, "Selecione uma opção válida.")
             .required("Estado civil é um campo obrigatório."),
         job: string().required("Profissão é um campo obrigatório."),
-        occupation: string().required("Ocupação é um campo obrigatório."),
         educationLevel: string()
             .oneOf(EDUCATION_LEVEL_ARRAY, "Selecione uma opção válida.")
             .required("Grau de escolaridade é um campo obrigatório."),

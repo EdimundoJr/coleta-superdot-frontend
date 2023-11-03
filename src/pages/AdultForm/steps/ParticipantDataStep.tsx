@@ -120,12 +120,6 @@ const ParticipantDataStep = ({
                         placeholder="Qual a sua profissão?"
                         errorMessage={errors.personalData?.job?.message}
                     />
-                    <InputField
-                        {...register("personalData.occupation")}
-                        label="Ocupação*"
-                        placeholder="Qual a sua ocupação no momento?"
-                        errorMessage={errors.personalData?.occupation?.message}
-                    />
                     <SelectField
                         {...register("personalData.educationLevel")}
                         label="Grau de instrução*"
