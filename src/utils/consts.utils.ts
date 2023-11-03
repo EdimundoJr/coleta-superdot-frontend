@@ -60,7 +60,7 @@ export const FILES_AVAILABLE_TO_CREATE_SAMPLE = [
     {
         key: "researchCep[tcleDocument]",
         jsonFileKey: "tcleDocument",
-        label: "Termo de Compromisso Livre e Esclarecido*",
+        label: "Termo de Consentimento Livre e Esclarecido*",
         required: true,
     },
     {
