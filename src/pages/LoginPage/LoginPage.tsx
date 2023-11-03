@@ -46,7 +46,7 @@ export const LoginPage = () => {
         >
             <div className="h-full md:flex">
                 <div className="bg-light-gradient hidden h-full align-middle md:flex md:w-9/12">
-                    <img className="m-auto h-full" src={saly16}></img>N
+                    <img className="m-auto h-full" src={saly16}></img>
                 </div>
                 <div className="flex h-full w-full overflow-auto bg-slate-100 text-[#4F4F4F]">
                     <div className="mt-24 w-full">
