@@ -70,11 +70,15 @@ export const FILES_AVAILABLE_TO_CREATE_SAMPLE = [
     },
 ];
 export enum Relationships {
-    FRIEND = "Amigo",
+    FRIEND = "Amigo(a)",
     KIN = "Parente",
-    TEACHER = "Professor",
+    TEACHER = "Professor(a)",
+    PARTNER = "Namorado(a)",
+    COWORKER = "Colega de trabalho",
+    OTHER = "Outro",
 }
-export const RELATIONSHIPS_ARRAY = ["Amigo", "Parente", "Professor"] as const;
+
+export const RELATIONSHIPS_ARRAY = ["Amigo(a)", "Parente", "Professor(a)", "Namorado(a)", "Colega de trabalho", "Outro"] as const;
 export type TRelationship = (typeof RELATIONSHIPS_ARRAY)[number];
 
 export const FORM_FILL_STATUS = ["Não iniciado", "Preenchendo", "Aguardando 2ª fonte", "Finalizado"] as const;
