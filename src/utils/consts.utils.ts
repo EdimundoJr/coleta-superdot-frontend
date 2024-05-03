@@ -60,7 +60,7 @@ export const FILES_AVAILABLE_TO_CREATE_SAMPLE = [
     {
         key: "researchCep[tcleDocument]",
         jsonFileKey: "tcleDocument",
-        label: "Termo de Compromisso Livre e Esclarecido*",
+        label: "Termo de Consentimento Livre e Esclarecido*",
         required: true,
     },
     {
@@ -70,11 +70,15 @@ export const FILES_AVAILABLE_TO_CREATE_SAMPLE = [
     },
 ];
 export enum Relationships {
-    FRIEND = "Amigo",
+    FRIEND = "Amigo(a)",
     KIN = "Parente",
-    TEACHER = "Professor",
+    TEACHER = "Professor(a)",
+    PARTNER = "Namorado(a)",
+    COWORKER = "Colega de trabalho",
+    OTHER = "Outro",
 }
-export const RELATIONSHIPS_ARRAY = ["Amigo", "Parente", "Professor"] as const;
+
+export const RELATIONSHIPS_ARRAY = ["Amigo(a)", "Parente", "Professor(a)", "Namorado(a)", "Colega de trabalho", "Outro"] as const;
 export type TRelationship = (typeof RELATIONSHIPS_ARRAY)[number];
 
 export const FORM_FILL_STATUS = ["Não iniciado", "Preenchendo", "Aguardando 2ª fonte", "Finalizado"] as const;
@@ -105,8 +109,8 @@ export enum EQuestionType {
 
 export enum EAdultFormSteps {
     INTRODUCTION = 0,
-    PARTICIPANT_DATA = 1,
-    READ_AND_ACCEPT_DOCS = 2,
+    READ_AND_ACCEPT_DOCS = 1,
+    PARTICIPANT_DATA = 2,
     INDICATE_SECOND_SOURCE = 3,
     GENERAL_CHARACTERISTICS = 4,
     HIGH_ABILITIES = 5,

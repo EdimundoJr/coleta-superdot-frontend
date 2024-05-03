@@ -11,13 +11,21 @@ export interface Filters {
     userEmail?: string;
 }
 
+export interface Users {
+    fullName: string,
+    phone: string,
+    profilePhoto: string,
+    birthDate: Date,
+    countryState: string,
+}
+
+
 export const PAGE_SIZE = 10;
 
 export const paginateResearcher = async (currentPage: number, itemsPerPage: number, filters?: Filters) => {
     setAuthHeaders();
     return axios.get<ResearchersPaginated>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/researcher/paginate/${itemsPerPage}/page/${currentPage}?user_name=${
-            filters?.userName || ""
+        `${import.meta.env.VITE_BACKEND_HOST}/api/researcher/paginate/${itemsPerPage}/page/${currentPage}?user_name=${filters?.userName || ""
         }&user_email=${filters?.userEmail || ""}`
     );
 };
@@ -40,8 +48,20 @@ export const getResearchDataBySampleIdAndParticipantId = ({
 }: GetResearchDataBySampleIdAndParticipantIdParams) => {
     setAuthHeaders();
     return axios.get<{ researcherName: string; participantName: string }>(
-        `${
-            import.meta.env.VITE_BACKEND_HOST
+        `${import.meta.env.VITE_BACKEND_HOST
         }/api/researcher/get-research-data-by/sample/${sampleId}/participant/${participantId}`
     );
+};
+
+export const getUser = async () => {
+    try {
+        setAuthHeaders();
+        const response = await axios.get(`${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher`);
+
+        console.log("Resposta da requisição para obter dados do pesquisador:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao fazer requisição para obter dados do pesquisador:", error);
+        throw error;
+    }
 };

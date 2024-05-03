@@ -99,12 +99,6 @@ const SecondSourceDataStep = ({
                         placeholder="Qual a sua profissão?"
                         errorMessage={errors.personalData?.job?.message}
                     />
-                    <InputField
-                        {...register("personalData.occupation")}
-                        label="Ocupação*"
-                        placeholder="Qual a sua ocupação no momento?"
-                        errorMessage={errors.personalData?.occupation?.message}
-                    />
                     <Form.Field name="birthDate" className="mb-6 w-full px-3">
                         <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
                             Data de nascimento*

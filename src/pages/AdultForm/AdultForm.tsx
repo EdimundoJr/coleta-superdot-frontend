@@ -19,16 +19,16 @@ import { ISecondSource } from "../../interfaces/secondSource.interface";
 
 const stepsInfo = [
     {
-        step: EAdultFormSteps.PARTICIPANT_DATA,
-        stepNumber: "01",
-        title: "Pessoais",
-        stepDescription: "Informações pessoais",
-    },
-    {
         step: EAdultFormSteps.READ_AND_ACCEPT_DOCS,
-        stepNumber: "02",
+        stepNumber: "01",
         title: "Termos",
         stepDescription: "Leia e aceite os termos",
+    },
+    {
+        step: EAdultFormSteps.PARTICIPANT_DATA,
+        stepNumber: "02",
+        title: "Pessoais",
+        stepDescription: "Informações pessoais",
     },
     {
         step: EAdultFormSteps.INDICATE_SECOND_SOURCE,
@@ -115,7 +115,7 @@ const AdultForm = () => {
                     if (res.status === 200) {
                         setFormData(res.data.participant);
                         saveParticipantToken(res.data.token);
-                        setCurrentStep(EAdultFormSteps.PARTICIPANT_DATA);
+                        setCurrentStep(EAdultFormSteps.READ_AND_ACCEPT_DOCS);
                         setResearcherName(res.data.researcherName);
                     }
                 })

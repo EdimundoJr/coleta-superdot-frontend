@@ -1,12 +1,12 @@
-import { Outlet, RouterProvider, createBrowserRouter, useNavigate } from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
-import GuardRoute from "./components/GuardRoute/GuardRoute";
+import GuardRoute from "./Components/GuardRoute/GuardRoute";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import CreateSamplePage from "./pages/CreateSamplePage/CreateSamplePage";
 import ChooseSampleGroupPage from "./pages/ChooseSampleGroupPage/ChooseSampleGroupPage";
 import SampleReviewPage from "./pages/SampleReviewPage/SampleReviewPage";
-import SideBar from "./components/SideBar/SideBar";
+import SideBar from "./Components/SideBar/SideBar";
 import LogoutPage from "./pages/LogoutPage/LogoutPage";
 import { getUserRole } from "./utils/auth.utils";
 import MySamplesPage from "./pages/MySamplesPage/MySamplesPage";
@@ -15,35 +15,34 @@ import DashBoardPage from "./pages/DashboardPage/DashboardPage";
 import ParticipantsRegistration from "./pages/ParticipantsRegistration/ParticipantsRegistration";
 import AdultForm from "./pages/AdultForm/AdultForm";
 import AdultFormSecondSourcePage from "./pages/AdultFormSecondSourcePage/AdultFormSecondSourcePage";
-import { clearTokens, hasActiveSession } from "./utils/tokensHandler";
 import AnalysisPage from "./pages/AnalysisPage/AnalysisPage";
+import SecondsSourceCompare from "./pages/SecondsSourceCompare/SecondsSourceCompare";
+import CompareParticipantsSelected from "./pages/CompareParticipantsSelected/CompareParticipantsSelected";
+import EvaluateAutobiography from "./pages/EvaluateAutobiography/EvaluateAutobiography";
+import { Flex } from "@radix-ui/themes";
 
 function OuterLayout() {
     return (
-        <div className="relative h-full overflow-auto">
+        <Flex className="overflow-hidden h-[100vh]">
             <GuardRoute scope="OUTER">
                 <Outlet />
             </GuardRoute>
-        </div>
+        </Flex>
     );
 }
 
 function InnerLayout() {
     const userRole = getUserRole();
-    const navigate = useNavigate();
-    if (!hasActiveSession()) {
-        clearTokens();
-        navigate("/");
-    }
+
+
     return (
-        <div className="flex bg-white text-primary-text">
+        <Flex>
             <SideBar userRole={userRole} />
-            <div className="w-full">
-                <GuardRoute scope="INNER">
-                    <Outlet />
-                </GuardRoute>
-            </div>
-        </div>
+            <GuardRoute scope="INNER">
+                <Outlet />
+            </GuardRoute>
+        </Flex>
+
     );
 }
 
@@ -105,7 +104,7 @@ const router = createBrowserRouter([
                 Component: ParticipantsRegistration,
             },
             {
-                path: "analisar-amostra",
+                path: "analyze-sample",
                 Component: AnalysisPage,
             },
             {
@@ -119,6 +118,18 @@ const router = createBrowserRouter([
             {
                 path: "logout",
                 Component: LogoutPage,
+            },
+            {
+                path: "seconds-source-compare",
+                Component: SecondsSourceCompare,
+            },
+            {
+                path: "compare-participants-selected",
+                Component: CompareParticipantsSelected,
+            },
+            {
+                path: "evaluate-autobiography",
+                Component: EvaluateAutobiography,
             },
         ],
     },

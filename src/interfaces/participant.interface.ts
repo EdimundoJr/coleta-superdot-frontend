@@ -18,7 +18,6 @@ export interface IParticipant {
         email: string;
         maritalStatus: TMaritalStatus;
         job: string;
-        occupation: string;
         educationLevel: TEducationLevel;
         gender: TGender;
         birthDate: Date;

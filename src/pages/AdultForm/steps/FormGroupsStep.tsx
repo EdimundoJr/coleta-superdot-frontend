@@ -249,7 +249,7 @@ const FormGroupsStep = ({
     return (
         <div className="grid gap-y-10">
             <header>
-                <h1>Formulário - Adulto</h1>
+                <h1>Formulário - Adulto {sourceForm === EAdultFormSource.SECOND_SOURCE && "(Segunda Fonte)"}</h1>
                 <h3>{currentGroup?.groupName}</h3>
             </header>
 
