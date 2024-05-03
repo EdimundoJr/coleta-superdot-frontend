@@ -47,8 +47,7 @@ export interface PageSampleSummary {
 export const paginateAllSamples = async (currentPage: number, itemsPerPage: number, filterStatus = "") => {
     setAuthHeaders();
     return axios.get<PageSampleSummary>(
-        `${
-            import.meta.env.VITE_BACKEND_HOST
+        `${import.meta.env.VITE_BACKEND_HOST
         }/api/sample/paginateAll/${itemsPerPage}/page/${currentPage}?status=${filterStatus}`
     );
 };
@@ -64,17 +63,37 @@ export interface Page<T> {
 export const paginateSamples = async (currentPage: number, itemsPerPage: number, filters?: MySamplesFilters) => {
     setAuthHeaders();
     return axios.get<Page<ISample>>(
-        `${import.meta.env.VITE_BACKEND_HOST}/api/sample/paginate/${itemsPerPage}/page/${currentPage}?researchTitle=${
-            filters?.researcherTitle || ""
+        `${import.meta.env.VITE_BACKEND_HOST}/api/sample/paginate/${itemsPerPage}/page/${currentPage}?researchTitle=${filters?.researcherTitle || ""
         }&sampleTitle=${filters?.sampleTitle || ""}`
     );
 };
+
 
 export const seeAttachment = async (fileName: string) => {
     setAuthHeaders();
     return axios.get<Blob>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/attachment/${fileName}`, {
         responseType: "blob",
     });
+};
+
+export const seeAttachmentImage = async (fileName: string) => {
+    setAuthHeaders();
+    try {
+        const response = await axios.get<Blob>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/attachment/${fileName}`, {
+            responseType: "blob",
+        });
+
+        if (response.status === 200) {
+            const blob = new Blob([response.data], { type: response.headers["content-type"] });
+            const imageUrl = URL.createObjectURL(blob);
+            return imageUrl;
+        } else {
+            throw new Error("Erro ao recuperar o anexo");
+        }
+    } catch (error) {
+        console.error("Erro ao recuperar o anexo:", error);
+        throw error;
+    }
 };
 
 export const deleteSample = async (sampleId: string | undefined) => {
@@ -97,4 +116,26 @@ export const postAddParticipants = async ({ sampleId, participants }: PostAddPar
 export const getSampleById = async ({ sampleId }: { sampleId: string }) => {
     setAuthHeaders();
     return axios.get<ISample>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/get-sample-by-id/${sampleId}`);
+};
+
+export interface DashboardInfo {
+    result: {
+        count_female: number,
+        count_male: number,
+        total_unique_instituition: number,
+        total_samples: number,
+        total_participants: number
+    }
+}
+export const getinfoDashboard = async () => {
+    try {
+        setAuthHeaders();
+        const response = await axios.get<DashboardInfo>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/load-Information-deashboard`);
+
+        console.log("Resposta da requisição para obter dados do pesquisador:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao fazer requisição para obter dados: ", error);
+        throw error;
+    }
 };
