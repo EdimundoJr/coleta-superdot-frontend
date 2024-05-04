@@ -1,144 +1,113 @@
-import ReactEChartsCore from "echarts-for-react/lib/core";
-import * as echarts from "echarts/core";
-import { PieChart, BarChart } from "echarts/charts";
-import { GridComponent, TooltipComponent, TitleComponent } from "echarts/components";
-import { SVGRenderer } from "echarts/renderers";
-import { Link } from "react-router-dom";
+import * as Icon from "@phosphor-icons/react";
+import { Box,  Flex, Skeleton } from "@radix-ui/themes";
+import { Header } from "../../Components/Header/Header";
+import { useEffect, useState } from "react";
+import { DashboardInfo, getinfoDashboard } from "../../api/sample.api";
+import Dcard from "../../Components/DashboardCard/DCard";
+import ApexChart from 'react-apexcharts';
+import { ApexOptions } from 'apexcharts';
+import { GridComponent } from "../../Components/Grid/Grid";
+import Notify from "../../components/Notify/Notify";
 
-echarts.use([TitleComponent, TooltipComponent, GridComponent, PieChart, BarChart, SVGRenderer]);
+function DashBoardPage() {
+    const [dados, setDados] = useState<null | DashboardInfo>(null);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [notificationTitle, setNotificationTitle] = useState("");
+    const [notificationDescription, setNotificationDescription] = useState("");
 
-const colors = ["#31327E", "#594DA3", "#826ACA", "#AD88F1"];
+    useEffect(() => {
+        const fetchDados = async () => {
+            try {
+                const response = await getinfoDashboard()// Rota do backend para buscar os dados
+                setDados(response);
+                console.log(dados)
+                setLoading(false);
+            } catch (error: any) {
+                setError(error.message);
+                setNotificationTitle("Erro no servidor.");
+                setNotificationDescription("Não foi possível carregar os dados do Dashboard.");
+            }
+        };
 
-const INDICADORES_POR_GRUPO = [
-    {
-        name: "Educação Infantil",
-        value: 13,
-    },
-    {
-        name: "Adulto",
-        value: 30,
-    },
-    {
-        name: "Fundamental",
-        value: 28,
-    },
-    {
-        name: "Ensino Médio",
-        value: 28,
-    },
-];
+        fetchDados();
+    }, []);
 
-const INDICADORES_POR_GENERO = [
-    {
-        name: "Masculino",
-        value: 37,
-    },
-    {
-        name: "Feminino",
-        value: 63,
-    },
-];
-
-interface pieGraphData {
-    name: string;
-    value: number;
-}
-
-const pieGraph = (data: pieGraphData[], title: string) => {
-    return {
-        title: {
-            text: title,
-            left: "center",
+    const series = [dados?.result.count_female || 0, dados?.result.count_male || 0];
+    const options: ApexOptions = {
+        chart: {
+            type: 'donut',
         },
-        color: colors,
-        series: [
-            {
-                name: "Avaliados com indicadores de AH/SD por Grupo",
-                type: "pie",
-                label: {
-                    show: true,
-                    formatter: "{b}: {d}%",
-                },
-                data,
-            },
-        ],
+        labels: ['Feminino', 'Masculino'],
+        colors: ['#0090ff', '#30a46c']
     };
-};
 
-const barYearGraph = {
-    title: {
-        text: "Quantidade de Avaliados com indicadores de AH/SD por Ano",
-        left: "center",
-    },
-    color: colors,
-    xAxis: {
-        data: [2010, 2011, 2012, 2013, 2014, 2015, 2016],
-    },
-    yAxis: {},
-    series: [
-        {
-            type: "bar",
-            label: {
-                show: true,
-            },
-            data: [100, 130, 110, 115, 90, 120, 125],
-        },
-    ],
-};
-
-const barTotalGraph = {
-    title: {
-        text: "Quantidade de Avaliados que possuem indicadores de AH/SD",
-        left: "center",
-    },
-    color: colors,
-    xAxis: {
-        data: ["Possuem indicadores", "Não possuem indicadores"],
-    },
-    yAxis: {},
-    series: [
-        {
-            type: "bar",
-            label: {
-                show: true,
-            },
-            data: [100, 240],
-        },
-    ],
-};
-
-const DashBoardPage = () => {
     return (
-        <>
-            <header className="mt-6 text-2xl font-bold">Dashboard</header>
-            <section className="my-9 grid justify-center gap-y-20 text-white lg:flex lg:gap-x-20">
-                <div className="bg-dark-gradient m-auto grid w-80 gap-y-4 rounded-md px-6 py-3">
-                    <h1>12</h1>
-                    <h1>Minhas Amostras</h1>
-                    <Link to="/app/my-samples">Ver mais {"->"}</Link>
-                </div>
-                <div className="bg-dark-gradient m-auto grid w-80 gap-y-4 rounded-md px-6 py-3">
-                    <h1>87</h1>
-                    <h1>Participantes</h1>
-                </div>
-                <div className="bg-dark-gradient m-auto grid w-80 gap-y-4 rounded-md px-6 py-3">
-                    <h1>6</h1>
-                    <h1>Instituições</h1>
-                </div>
-            </section>
-            <ReactEChartsCore
-                className="w-full"
-                echarts={echarts}
-                option={pieGraph(INDICADORES_POR_GENERO, "Avaliados com indicadores de AH/SD por Gênero")}
-            />
-            <ReactEChartsCore echarts={echarts} option={barYearGraph} />
-            <ReactEChartsCore echarts={echarts} option={barTotalGraph} />
-            <ReactEChartsCore
-                className="w-full"
-                echarts={echarts}
-                option={pieGraph(INDICADORES_POR_GRUPO, "Avaliados com indicadores de AH/SD por Grupo")}
-            />
-        </>
+        <Flex direction="column" className={`relative  ml-2 border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5`}>
+            <Notify
+                open={!!notificationTitle}
+                onOpenChange={() => setNotificationTitle("")}
+                title={notificationTitle}
+                description={notificationDescription}
+                icon={<Icon.XCircle size={20} color="red" />}
+                className="border-red-400"
+            ></Notify>
+            <Skeleton loading={loading}>
+                <Header title="Dashboard" icon={<Icon.SquaresFour size={20} />} />
+            </Skeleton>
+
+            <GridComponent
+                clasName="gap-5"
+                children={
+                    <>
+                        <Skeleton loading={loading}>
+                            <Box>
+                                <Dcard title={"Total de Amostra"} description={dados?.result.total_samples.toString()} iconBase={<Icon.Swatches size={60} />} seeButton={true} linkTo="/app/my-samples" colorBadge="tomato" style="border-[#e54d2e]" styleButton="hover:bg-[#e54d2e]"></Dcard>
+                            </Box>
+                        </Skeleton>
+                        <Skeleton loading={loading}>
+                            <Box>
+                                <Dcard title={"Participantes"} description={dados?.result.total_participants.toString()} iconBase={<Icon.UsersThree size={60} />} seeButton={false} colorBadge="blue" style="border-[#0090ff]" ></Dcard>
+                            </Box>
+                        </Skeleton>
+                        <Skeleton loading={loading}>
+                            <Box>
+                                <Dcard title={"Intituições"} description={dados?.result.total_unique_instituition.toString()} iconBase={<Icon.GraduationCap size={60} />} seeButton={false} colorBadge="green" style="border-[#30a46c]"></Dcard>
+                            </Box>
+                        </Skeleton>
+                    </>
+                }
+                columns={3}>
+            </GridComponent>
+            <GridComponent
+                clasName="gap-5"
+                children={
+                    <>
+                        <Skeleton loading={loading} >
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
+                                <ApexChart options={options} series={series} type="donut" height={350} />
+                            </Box>
+                        </Skeleton>
+                        <Skeleton loading={loading} >
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
+                                <ApexChart options={options} series={series} type="donut" height={350} />
+                            </Box>
+                        </Skeleton>
+                        <Skeleton loading={loading}>
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
+                                <ApexChart options={options} series={series} type="donut" height={350} />
+                            </Box>
+                        </Skeleton>
+                        <Skeleton loading={loading}>
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
+                                <ApexChart options={options} series={series} type="donut" height={350} />
+                            </Box>
+                        </Skeleton>
+                    </>}
+                columns={2}>
+            </GridComponent>
+        </Flex >
+
     );
 };
 
