@@ -6,7 +6,7 @@ interface DcardProps {
   title: string;
   description?: string;
   iconBase?: Icon.IconProps;
-  seeButton: boolean;
+  seeButton: string;
   style?: string;
   styleButton?: string;
   linkTo?: string;
@@ -38,22 +38,17 @@ export default function Dcard({ title, description, iconBase, style, seeButton, 
         </Flex>
       </Flex>
 
-      {seeButton == false ? <></> :
-        <>
-          <Box className="text-sm flex justify-end mt-3">
-            <Box className="group/edit invisible group-hover/item:visible ">
-              <button
-                className={`${styleButton} py-0.5 px-4 rounded-t   transition-all ease-in-out flex  items-center  hover:text-white hover:translate-x-1`}
-                onClick={() => link()}
-              >
-                Veja mais
-                <Icon.CaretRight className="group/edit invisible group-hover/item:visible "/>          
-              </button>
-            </Box>
 
-          </Box>
-        </>
-      }
+      <Flex justify="end" className={`group/edit invisible group-hover/item:${seeButton} `}>
+        <button
+          className={`${styleButton} py-0.5 px-4 rounded-t  transition-all ease-in-out flex  items-center hover:text-white hover:translate-x-1`}
+          onClick={() => link()}
+        >
+          <Text as="label" className="hover:cursor-pointer">Veja mais</Text>
+          <Icon.CaretRight className={`group/edit invisible group-hover/item:${seeButton}`} />
+        </button>
+      </Flex>
+
     </Grid>
   );
 }

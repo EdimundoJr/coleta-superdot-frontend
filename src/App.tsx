@@ -36,7 +36,7 @@ function InnerLayout() {
 
 
     return (
-        <Flex>
+        <Flex className="bg-primary">
             <SideBar userRole={userRole} />
             <GuardRoute scope="INNER">
                 <Outlet />

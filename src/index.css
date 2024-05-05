@@ -3,8 +3,8 @@
 @tailwind utilities;
 
 :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif;
-    line-height: 1.5;
+    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif, roboto;
+    line-height: 0;
     font-weight: 400;
 
     color: rgba(255, 255, 255, 0.87);
@@ -18,19 +18,17 @@
 }
 
 #root {
-    @apply mx-auto my-0 h-full w-fit text-center sm:w-full;
+    @apply mx-auto my-0 h-full min-w-fit text-center sm:w-full;
 }
 
 body,
 html {
-    @apply m-0 h-full w-full overflow-x-auto sm:overflow-x-clip;
+    @apply m-0 h-full min-w-fit overflow-x-auto sm:overflow-x-clip;
 }
 
-/** DEFAULT ELEMENTS **/
-
-h1,
+* DEFAULT ELEMENTS * h1,
 h3 {
-    @apply font-bold;
+    @apply font-roboto font-bold;
 }
 
 h1 {
@@ -48,11 +46,11 @@ h4 {
 input,
 select,
 textarea {
-    @apply w-full rounded-[10px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium  text-[#999999];
+    @apply w-full rounded-[50px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium  text-[#999999];
 }
 
 table {
-    @apply bg-dark-gradient mx-auto  border-collapse rounded-md text-alternative-text;
+    @apply mx-auto border-collapse text-alternative-text;
 }
 
 tbody {
@@ -64,7 +62,7 @@ th {
 }
 
 td {
-    @apply border-2 border-primary px-6 py-3;
+    @apply border px-6 py-3;
 }
 
 thead.multi-rows th {
