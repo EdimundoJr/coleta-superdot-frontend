@@ -21,8 +21,8 @@ export interface IParticipant {
         occupation: string;
         educationLevel: TEducationLevel;
         gender: TGender;
-        birthDate: Date;      
-     };
+        birthDate: Date;
+    };
     familyData: {
         qttChildrens: number;
         qttSiblings: number;
@@ -32,6 +32,7 @@ export interface IParticipant {
         outsideHouseDevices?: TDevices[];
     };
     addressData: {
+        state: string;
         city: string;
         district: string;
         street: string;
@@ -39,6 +40,8 @@ export interface IParticipant {
     };
     acceptTcleAt?: Date;
     acceptTaleAt?: Date;
+    giftdnessIndicatorsByResearcher?: boolean;
+    knowledgeAreasIndicatedByResearcher?: string[];
     adultForm?: {
         endFillFormAt?: string;
         startFillFormAt?: string;
@@ -46,10 +49,13 @@ export interface IParticipant {
         totalPunctuation?: number;
         giftednessIndicators?: boolean;
         knowledgeAreas?: string[];
-    };
+    };    
     autobiography?: {
         text?: string;
         videoUrl?: string;
+    };
+    evaluateAutobiography?: {
+        text?: string;
     };
     secondSources?: DeepPartial<ISecondSource>[];
     createdAt?: string;
