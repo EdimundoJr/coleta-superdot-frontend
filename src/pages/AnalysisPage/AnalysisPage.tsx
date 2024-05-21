@@ -8,11 +8,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithSample } from "../../validators/navigationStateValidators";
 import { AlertDialog, Box, Button, Checkbox, Dialog, Flex, IconButton, Select, Table, Text, TextField, Tooltip, HoverCard, Skeleton } from "@radix-ui/themes";
 import { IParticipant } from "../../interfaces/participant.interface";
-import { Header } from "../../Components/Header/Header";
+import { Header } from "../../components/Header/Header";
 import ApexChart from "react-apexcharts";
 import { ApexOptions } from 'apexcharts';
-import { GridComponent } from "../../Components/Grid/Grid";
+import { GridComponent } from "../../components/Grid/Grid";
 import { answerByGender, AnswerByGender } from "../../api/sample.api";
+import { ScrollToTop } from "../../components/ScrollToTop/ScrollToTop";
 
 
 
@@ -43,15 +44,14 @@ const AnalysisPage = () => {
         const pages = [];
         for (let i = 1; i <= totalPages; i++) {
             pages.push(
-
                 <Button
                     key={i}
                     variant={currentPage === i ? "solid" : "soft"}
                     onClick={() => handlePageChange(i)}
                     className="w-10 hover:cursor-pointer"
-                >{i}
+                >
+                    {i}
                 </Button>
-
             );
         }
         return pages;
@@ -62,6 +62,7 @@ const AnalysisPage = () => {
             try {
                 const response = await answerByGender()
                 setDados(response);
+                console.log(response)
                 //setLoading(false);
             } catch (error: any) {
                 setError(error.message);
@@ -146,6 +147,10 @@ const AnalysisPage = () => {
         });
     };
 
+    const handleShowPunctuation = () => {
+        return;
+    }
+
     const getFormattedBirthDate = (birthDate: Date | string | undefined) => {
         if (!birthDate) return '';
         const dateObj = typeof birthDate === 'string' ? new Date(birthDate) : birthDate;
@@ -171,6 +176,77 @@ const AnalysisPage = () => {
         }, 0);
         // Calcula a porcentagem de superdotados
         return Math.round((superdotados / participants.length) * 100 * 100) / 100;
+    }
+
+    function calcularFrequencia(participants: IParticipant[] | undefined): number[][] {
+        if (!participants || participants.length === 0) {
+            return [[0, 0, 0, 0, 0]];
+        }
+
+        let frequentementeMasculino = 0;
+        let sempreMasculino = 0;
+        let asvezesMasculino = 0;
+        let raramenteMasculino = 0;
+        let nuncaMasculino = 0;
+
+        let frequentementeFeminino = 0;
+        let sempreFeminino = 0;
+        let asvezesFeminino = 0;
+        let raramenteFeminino = 0;
+        let nuncaFeminino = 0;
+
+        for (const participant of participants) {
+            if (participant.adultForm && participant.adultForm.answersByGroup) {
+                for (const group of participant.adultForm.answersByGroup) {
+                    for (const question of group.questions) {
+                        switch (question.answer) {
+                            case 'Frequentemente':
+                                if (participant.personalData.gender === "Masculino") {
+                                    frequentementeMasculino++;
+                                } else if (participant.personalData.gender === "Feminino") {
+                                    frequentementeFeminino++;
+                                }
+                                break;
+                            case 'Sempre':
+                                if (participant.personalData.gender === "Masculino") {
+                                    sempreMasculino++;
+                                } else if (participant.personalData.gender === "Feminino") {
+                                    sempreFeminino++;
+                                }
+                                break;
+                            case 'Ás vezes':
+                                if (participant.personalData.gender === "Masculino") {
+                                    asvezesMasculino++;
+                                } else if (participant.personalData.gender === "Feminino") {
+                                    asvezesFeminino++;
+                                }
+                                break;
+                            case 'Raramente':
+                                if (participant.personalData.gender === "Masculino") {
+                                    raramenteMasculino++;
+                                } else if (participant.personalData.gender === "Feminino") {
+                                    raramenteFeminino++;
+                                }
+                                break;
+                            case 'Nunca':
+                                if (participant.personalData.gender === "Masculino") {
+                                    nuncaMasculino++;
+                                } else if (participant.personalData.gender === "Feminino") {
+                                    nuncaFeminino++;
+                                }
+                                break;
+                            default:
+                                break;
+                        }
+                    }
+                }
+            }
+        }
+
+        return [
+            [frequentementeMasculino, sempreMasculino, asvezesMasculino, raramenteMasculino, nuncaMasculino],
+            [frequentementeFeminino, sempreFeminino, asvezesFeminino, raramenteFeminino, nuncaFeminino]
+        ];
     }
 
 
@@ -227,16 +303,13 @@ const AnalysisPage = () => {
 
     };
 
-    const masculinoData = dados ? [dados.result.masculino.frequentemente, dados.result.masculino.sempre, dados.result.masculino.asVezes, dados.result.masculino.raramente, dados.result.masculino.nunca].filter(value => value !== undefined) : [];
-    const femininoData = dados ? [dados.result.feminino.frequentemente, dados.result.feminino.sempre, dados.result.feminino.asVezes, dados.result.feminino.raramente, dados.result.feminino.nunca].filter(value => value !== undefined) : [];
-
     const options2: ApexOptions = {
         series: [{
             name: 'Masculino',
-            data: masculinoData
+            data: calcularFrequencia(sample.participants)[0]
         }, {
             name: 'Feminino',
-            data: femininoData
+            data: calcularFrequencia(sample.participants)[1]
         }],
         colors: ["#7A47E4", "#b57cffd2"],
         chart: {
@@ -278,9 +351,7 @@ const AnalysisPage = () => {
             },
         },
         xaxis: {
-            categories: ['Frequentemente', 'Sempre', 'Às vezes', 'Raramente',
-                'Nunca'
-            ],
+            categories: ['Frequentemente', 'Sempre', 'Ás vezes', 'Raramente', 'Nunca'],
         },
         legend: {
             position: 'right',
@@ -298,13 +369,16 @@ const AnalysisPage = () => {
         },
     };
 
+
+
     return (
 
-        <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5`}>
-
-            <Header title="Analisar Amostra" icon={<Icon.Books size={24} className="items-center" />} children={`${sample.sampleGroup} - Total de ${sample.participants?.length} Avaliado(s).`} />
+        <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5 font-roboto`}>
+            <ScrollToTop/>
+            <Header title="Analisar Amostra" icon={<Icon.Books size={24} className="items-center" />} />
 
             <Box className="mb-[32px] w-full">
+                <Text size="4" as="label" className="font-bold">{sample.sampleGroup} - Total de {sample.participants?.length} Avaliado(s).</Text>
                 <Box className="w-full mb-[32px]">
                     <Form.Root className="flex flex-row items-center justify-between truncate">
                         <Form.Submit asChild>
@@ -342,10 +416,8 @@ const AnalysisPage = () => {
                         </Flex>
                     </Form.Root>
                 </Box>
-
-                <Flex direction="row" justify="between" className=" mb-[32px] sm:flex-row items-center justify-between ">
-
-                    <AlertDialog.Root>
+                <Flex direction="row" justify="center" gap="6" className=" mb-[32px] sm:flex-row items-center justify-between">
+                    <AlertDialog.Root >
                         <AlertDialog.Trigger>
                             <Button className="hover:cursor-pointer" onClick={() => handleCompareSelected()}>Comparar selecionados</Button>
                         </AlertDialog.Trigger>
@@ -365,10 +437,9 @@ const AnalysisPage = () => {
                             </Flex>
                         </AlertDialog.Content>
                     </AlertDialog.Root>
-
                     <AlertDialog.Root>
                         <AlertDialog.Trigger>
-                            <Button className="hover:cursor-pointer">Gerar nuvem de palavras dos avaliados selecionados</Button>
+                            <Button className="hover:cursor-pointer">Pontuação do questionário</Button>
                         </AlertDialog.Trigger>
                         <AlertDialog.Content>
                             <AlertDialog.Title>Selecione as fontes de palavras:</AlertDialog.Title>
@@ -414,295 +485,354 @@ const AnalysisPage = () => {
                             </Flex>
                         </AlertDialog.Content>
                     </AlertDialog.Root>
+                    <AlertDialog.Root>
+                        <AlertDialog.Trigger>
+                            <Button className="hover:cursor-pointer">Gerar nuvem de palavras</Button>
+                        </AlertDialog.Trigger>
+                        <AlertDialog.Content>
 
+                            <AlertDialog.Title>Gerar nuvem de palavras dos avaliados selecionados</AlertDialog.Title>
+                            <AlertDialog.Description>
+                                Selecione as fontes de palavras:
+                            </AlertDialog.Description>
+                            <AlertDialog.Description size="4">
+                                <Flex justify="between" gap="8" className="pt-4 pb-4">
+                                    <Text as="label" size="3">
+                                        <Flex gap="2">
+                                            <Checkbox />
+                                            Respostas subjetivas
+                                        </Flex>
+                                    </Text>
+                                    <Text as="label" size="3">
+                                        <Flex gap="2">
+                                            <Checkbox />
+                                            Autobiografia
+                                        </Flex>
+                                    </Text>
+                                    <Text as="label" size="3">
+                                        <Flex gap="2">
+                                            <Checkbox />
+                                            Áreas do saber
+                                        </Flex>
+                                    </Text>
+                                </Flex>
+                            </AlertDialog.Description>
+
+                            <Flex gap="3" mt="4" justify="end">
+                                <AlertDialog.Action>
+
+                                    <Button variant="soft" color="grass" className="hover:cursor-pointer">
+                                        Confirmar
+                                    </Button>
+
+                                </AlertDialog.Action>
+                                <AlertDialog.Cancel>
+                                    <Button variant="soft" color="red" className="hover:cursor-pointer">
+                                        Voltar
+                                    </Button>
+
+
+                                </AlertDialog.Cancel>
+
+                            </Flex>
+                        </AlertDialog.Content>
+                    </AlertDialog.Root>
                 </Flex>
+                <Box>
+                    <Table.Root variant="surface" className="w-full truncate" >
+                        <Table.Header className="text-[20px]">
+                            <Table.Row className="bg-red" >
+                                <Table.ColumnHeaderCell colSpan={4} className="border-l border-none" align="center">Informações do participante</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell colSpan={2} className="border-l" align="center">Indicadores de AH/SD</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell colSpan={3} className="border-l" align="center">Áreas do saber</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l"></Table.ColumnHeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Header className="text-[18px]">
+                            <Table.Row>
+                                <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r" >
+                                    {isCheckedAll ? "Desmarcar Todos" : "Selecionar Todos "}
 
+                                </Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell colSpan={3} className="border-r" ></Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell colSpan={2} className="border-r text-center" >De acordo com o :</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell colSpan={1} className="border-r text-center" >Indicadas pelo avaliado</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell colSpan={2} className="text-center  border-r ">Indicadas pelo pesquisador</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell colSpan={1} ></Table.ColumnHeaderCell>
+                            </Table.Row>
 
-                <Table.Root variant="surface" className="w-full truncate" >
-                    <Table.Header >
-                        <Table.Row className="bg-red" align="center">
-                            <Table.ColumnHeaderCell colSpan={1} className="border-l border-none"></Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell colSpan={5} className="border-l" align="center">Indicadores de AH/SD</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell colSpan={3} className="border-l" align="center">Áreas do saber</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l"></Table.ColumnHeaderCell>
-                        </Table.Row>
-                    </Table.Header>
-                    <Table.Header>
-                        <Table.Row align="center">
-                            <Table.ColumnHeaderCell colSpan={1} className="border-r" >
-                                {isCheckedAll ? "Desmarcar Todos" : "Selecionar Todos "}
+                        </Table.Header>
+                        <Table.Header className="text-[16px]">
+                            <Table.Row align="center" className="text-center">
+                                <Table.ColumnHeaderCell colSpan={1}  >
+                                    <Flex align="center">
+                                        <button className="flex flex-col m-auto align-center" onClick={handleCheckAll}>
+                                            <Checkbox className="m-2 " color="violet" />
+                                        </button>
 
-                            </Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell colSpan={3} className="border-r" ></Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell colSpan={2} className="border-r text-center" >De acordo com o :</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell colSpan={1} className="border-r" ></Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell colSpan={2} className="text-center  border-r ">Indicadas pelo pesquisador</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell colSpan={1} ></Table.ColumnHeaderCell>
-                        </Table.Row>
-
-                    </Table.Header>
-                    <Table.Header className="font-semibold w-fit text-[15px] justify-center">
-                        <Table.Row align="center" className="hover:bg-violet-300 text-center">
-                            <Table.ColumnHeaderCell colSpan={1}  >
-                                <Flex align="center">
-
-                                    <button className="flex flex-col m-auto align-center" onClick={handleCheckAll}>
-                                        <Checkbox className="m-2 " color="violet" />
-
-                                    </button>
-
-                                </Flex>
-                            </Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l whitespace-nowrap"> Nome do Avaliado </Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l whitespace-nowrap">Pontuação</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l whitespace-nowrap">Quant. 2ªs fontes</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell>Pesquisador</Table.ColumnHeaderCell>
-
-                            <Table.ColumnHeaderCell className="border-l">Indicadas pelo avaliado</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l">Áreas gerais</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l">Áreas específicas</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l">
-                                <Flex gap="3" align="center" justify="center">
-                                    <Text>Ações</Text>
-                                    <AlertDialog.Root>
-                                        <AlertDialog.Trigger>
-                                            <IconButton variant="soft" radius="full" className="hover:cursor-pointer">
-                                                <Icon.Question size={20} />
-                                            </IconButton>
-                                        </AlertDialog.Trigger>
-                                        <AlertDialog.Content>
-                                            <AlertDialog.Title>Tipos de Ação:</AlertDialog.Title>
-                                            <AlertDialog.Description>
-                                                <IconButton radius="full" variant="solid" >
-                                                    <Icon.IdentificationCard size={20} />
-                                                </IconButton>
-                                            </AlertDialog.Description>
-                                            <AlertDialog.Description>
-                                                <IconButton radius="full" variant="solid">
-                                                    <Icon.ClipboardText size={20} />
-                                                </IconButton>
-                                                <Text>
-                                                    teste
-                                                </Text>
-                                            </AlertDialog.Description>
-                                            <AlertDialog.Description>
-                                                <IconButton radius="full" variant="solid">
-                                                    <Icon.ClipboardText size={20} />
-                                                </IconButton>
-                                            </AlertDialog.Description>
-                                            <AlertDialog.Action>
-                                                <Flex gap="3" mt="4" justify="end">
-                                                    <AlertDialog.Cancel>
-                                                        <Button variant="soft" color="red" className="hover:cursor-pointer">
-                                                            Voltar
-                                                        </Button>
-                                                    </AlertDialog.Cancel>
-                                                </Flex>
-                                            </AlertDialog.Action>
-                                        </AlertDialog.Content>
-                                    </AlertDialog.Root>
-                                </Flex>
-                            </Table.ColumnHeaderCell>
-
-                        </Table.Row>
-                    </Table.Header>
-
-                    <Table.Body align="center">
-                        {sample.participants?.slice(startIndex, endIndex).map((participant, index) => (
-                            <Table.Row align="center" className={isChecked[index + startIndex] ? 'bg-violet-200' : ''} key={index}>
-                                <Table.Cell>
-                                    <Checkbox checked={isChecked[index]} onCheckedChange={() => handleChange(index)} color="violet"></Checkbox>
-                                </Table.Cell>
-                                <Table.RowHeaderCell > {getFirstAndLastName(participant.personalData.fullName)}</Table.RowHeaderCell>
-                                <Table.Cell >{participant.adultForm?.totalPunctuation}</Table.Cell>
-                                <Table.Cell>{participant.secondSources?.length}</Table.Cell>
-                                <Table.Cell>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
-                                <Table.Cell >
-                                    <Select.Root defaultValue="definir">
-                                        <Select.Trigger variant="ghost" />
-                                        <Select.Content >
-                                            <Select.Item value="definir" >Definir</Select.Item>
-                                            <Select.Item value="true">Sim</Select.Item>
-                                            <Select.Item value="false">Não</Select.Item>
-                                        </Select.Content>
-                                    </Select.Root>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Flex align="center" direction="row" justify="center" >
-                                        <Text as="label" className="pr-3">
-                                            {participant.adultForm?.knowledgeAreas?.[0]}{'...'}{''}
-                                        </Text>
-
-                                        <HoverCard.Root>
-                                            <HoverCard.Trigger >
-                                                <Icon.Eye size={16} className="hover:cursor-pointer" />
-                                            </HoverCard.Trigger>
-                                            <HoverCard.Content size="3" >
-                                                <Text as="div" size="3" trim="both">
-                                                    {participant.adultForm?.knowledgeAreas?.map((area, index) => (
-                                                        <span key={index}>
-                                                            {area}
-                                                            {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ", "}
-                                                        </span>
-                                                    ))}
-                                                </Text>
-                                            </HoverCard.Content>
-                                        </HoverCard.Root>
                                     </Flex>
+                                </Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l "> Nome do Avaliado </Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l ">Pontuação</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l ">Quant. 2ªs fontes</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l">Pesquisador</Table.ColumnHeaderCell>
 
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Select.Root defaultValue="definir">
-                                        <Select.Trigger variant="ghost" />
-                                        <Select.Content >
-                                            <Select.Item value="definir">Definir</Select.Item>
-                                            <Select.Item value="teste">teste</Select.Item>
-                                        </Select.Content>
-                                    </Select.Root>
-                                </Table.Cell>
-                                <Table.Cell>
-                                    <Select.Root defaultValue="definir">
-                                        <Select.Trigger variant="ghost" />
-                                        <Select.Content >
-                                            <Select.Item value="definir">Definir</Select.Item>
-                                            <Select.Item value="teste">teste</Select.Item>
-                                        </Select.Content>
-                                    </Select.Root></Table.Cell>
-                                <Table.Cell>
-                                    <div className=" flex justify-between content-center m-auto">
-                                        <Dialog.Root >
-                                            <Dialog.Trigger>
-                                                <Box>
-                                                    <Tooltip content="Viaualizar Informações do Participante">
-                                                        <IconButton radius="full" variant="solid" className="hover:cursor-pointer text-[10px]  hover:translate-y-[3px] transition-all ease-in-out">
-                                                            <Icon.IdentificationCard size={20} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Box>
-                                            </Dialog.Trigger>
-                                            <Dialog.Content style={{ maxWidth: 450 }}>
-                                                <Dialog.Title align="center" mb="5" >Informações Gerais do Participante</Dialog.Title>
-                                                <Flex direction="column" gap="3">
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        Nome Completo
-                                                        <TextField.Root
-                                                            defaultValue={participant.personalData.fullName}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        Data de Nascimento
-                                                        <TextField.Root
-                                                            defaultValue={getFormattedBirthDate(participant.personalData.birthDate)}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        Gênero
-                                                        <TextField.Root
-                                                            defaultValue={participant.personalData.gender}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        Telefone
-                                                        <TextField.Root
-                                                            defaultValue={participant.personalData.phone}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        E-mail
-                                                        <TextField.Root
-                                                            defaultValue={participant.personalData.email}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        Estado Civil
-                                                        <TextField.Root
-                                                            defaultValue={participant.personalData.maritalStatus}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        Trabalho
-                                                        <TextField.Root
-                                                            defaultValue={participant.personalData.job}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                    <Text as="label" size="2" mb="1" weight="bold">
-                                                        Ocupação
-                                                        <TextField.Root
-                                                            defaultValue={participant.personalData.occupation}
-                                                            disabled
-                                                        />
-                                                    </Text>
-                                                </Flex>
+                                <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l">Áreas gerais</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l">Áreas específicas</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l">
+                                    <Flex gap="3" align="center" justify="center">
+                                        <Text>Ações</Text>
 
-                                                <Flex gap="3" mt="4" justify="end">
-                                                    <Dialog.Close>
-                                                        <Button variant="soft" color="red" className="hover:cursor-pointer">
-                                                            Fechar
-                                                        </Button>
-                                                    </Dialog.Close>
-                                                </Flex>
-                                            </Dialog.Content>
-                                        </Dialog.Root>
                                         <AlertDialog.Root>
                                             <AlertDialog.Trigger>
-                                                <Box className="flex gap-3" onClick={() => handleCompareSource(participant)}>
-                                                    <Tooltip content="Comparar as respostas do avaliado com as respostas das 2ª fontes">
-                                                        <IconButton radius="full" variant="solid" className="hover:cursor-pointer text-[10px]  hover:translate-y-[3px] transition-all ease-in-out">
-                                                            <Icon.ClipboardText onClick={() => handleCompareSelected()} size={20} />
+                                                <Box>
+                                                    <Tooltip content={"Visualizar Ações"}>
+                                                        <IconButton size="1" variant="surface" radius="full" className="hover:cursor-pointer">
+                                                            <Icon.QuestionMark size={15} />
                                                         </IconButton>
                                                     </Tooltip>
                                                 </Box>
                                             </AlertDialog.Trigger>
-                                            <AlertDialog.Content >
-                                                <AlertDialog.Title> Nenhuma pessoa foi identificada como segunda fonte desse avaliado. </AlertDialog.Title>
-                                                <AlertDialog.Description size="2">
-                                                    Para contrastar as respostas do avaliado com as da(s) segunda(s) fonte(s), é necessário que um participante tenha recebido as respostas do questionário de uma pessoa adicional, atuando como a segunda fonte.
+                                            <AlertDialog.Content>
+                                                <AlertDialog.Title>Tipos de Ação:</AlertDialog.Title>
+                                                <AlertDialog.Description>
+                                                    <IconButton radius="full" variant="solid" >
+                                                        <Icon.IdentificationCard size={20} />
+                                                    </IconButton>
                                                 </AlertDialog.Description>
-
-                                                <Flex gap="3" mt="4" justify="end">
-                                                    <AlertDialog.Cancel>
-                                                        <Button variant="soft" color="red" className="hover:cursor-pointer">
-                                                            Voltar
-                                                        </Button>
-                                                    </AlertDialog.Cancel>
-
-                                                </Flex>
+                                                <AlertDialog.Description>
+                                                    <IconButton radius="full" variant="solid">
+                                                        <Icon.ClipboardText size={20} />
+                                                    </IconButton>
+                                                    <Text>
+                                                        teste
+                                                    </Text>
+                                                </AlertDialog.Description>
+                                                <AlertDialog.Description>
+                                                    <IconButton radius="full" variant="solid">
+                                                        <Icon.ClipboardText size={20} />
+                                                    </IconButton>
+                                                </AlertDialog.Description>
+                                                <AlertDialog.Action>
+                                                    <Flex gap="3" mt="4" justify="end">
+                                                        <AlertDialog.Cancel>
+                                                            <Button variant="soft" color="red" className="hover:cursor-pointer">
+                                                                Voltar
+                                                            </Button>
+                                                        </AlertDialog.Cancel>
+                                                    </Flex>
+                                                </AlertDialog.Action>
                                             </AlertDialog.Content>
                                         </AlertDialog.Root>
+                                    </Flex>
+                                </Table.ColumnHeaderCell>
 
-
-                                        <Box className="flex gap-3" onClick={() => handleEvaluateAutobiography(participant)}>
-                                            <Tooltip content="Visualizar Autobiaografia do participante">
-                                                <IconButton radius="full" variant="solid" className="hover:cursor-pointer text-[10px]  hover:translate-y-[3px] transition-all ease-in-out">
-                                                    <Icon.IdentificationBadge size={20} />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Box>
-                                    </div>
-                                </Table.Cell>
                             </Table.Row>
-                        ))}
-                    </Table.Body>
+                        </Table.Header>
+                        <Table.Body>
+                            {sample.participants?.slice(startIndex, endIndex).map((participant, idx) => (
+                                <Table.Row
+                                    align="center"
 
-                </Table.Root>
+                                    className={isChecked[startIndex + idx] ? 'bg-violet-200' : ''}
+                                    key={startIndex + idx}>
+                                    <Table.Cell justify="center">
+                                        <Checkbox
+                                            checked={isChecked[startIndex + idx] ?? false}
+                                            onCheckedChange={() => handleChange(startIndex + idx)}
+                                            color="violet" />
+                                    </Table.Cell>
+                                    <Table.Cell justify="center"> {getFirstAndLastName(participant.personalData.fullName)}</Table.Cell>
+                                    <Table.Cell justify="center" >{participant.adultForm?.totalPunctuation}</Table.Cell>
+                                    <Table.Cell justify="center">{participant.secondSources?.length}</Table.Cell>
+                                    <Table.Cell justify="center">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
+                                    <Table.Cell justify="center">
+                                        <Select.Root defaultValue="definir">
+                                            <Select.Trigger variant="ghost" />
+                                            <Select.Content >
+                                                <Select.Item value="definir" >Definir</Select.Item>
+                                                <Select.Item value="true">Sim</Select.Item>
+                                                <Select.Item value="false">Não</Select.Item>
+                                            </Select.Content>
+                                        </Select.Root>
+                                    </Table.Cell>
+                                    <Table.Cell justify="center">
+                                        <Flex align="center" direction="row" justify="center" >
+                                            <Text as="label" className="pr-3">
+                                                {participant.adultForm?.knowledgeAreas?.[0]}{'...'}{''}
+                                            </Text>
 
+                                            <HoverCard.Root>
+                                                <HoverCard.Trigger >
+                                                    <IconButton size="1" variant="surface" radius="full">
+                                                        <Icon.Eye size={15} className="hover:cursor-pointer" />
+                                                    </IconButton>
+                                                </HoverCard.Trigger>
+                                                <HoverCard.Content size="3" >
+                                                    <Text as="div" size="3" trim="both">
+                                                        {participant.adultForm?.knowledgeAreas?.map((area, index) => (
+                                                            <span key={index}>
+                                                                {area}
+                                                                {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ", "}
+                                                            </span>
+                                                        ))}
+                                                    </Text>
+                                                </HoverCard.Content>
+                                            </HoverCard.Root>
+                                        </Flex>
+
+                                    </Table.Cell>
+                                    <Table.Cell justify="center">
+                                        <Select.Root defaultValue="definir">
+                                            <Select.Trigger variant="ghost" />
+                                            <Select.Content >
+                                                <Select.Item value="definir">Definir</Select.Item>
+                                                <Select.Item value="teste">teste</Select.Item>
+                                            </Select.Content>
+                                        </Select.Root>
+                                    </Table.Cell>
+                                    <Table.Cell justify="center">
+                                        <Select.Root defaultValue="definir">
+                                            <Select.Trigger variant="ghost" />
+                                            <Select.Content >
+                                                <Select.Item value="definir">Definir</Select.Item>
+                                                <Select.Item value="teste">teste</Select.Item>
+                                            </Select.Content>
+                                        </Select.Root>
+                                    </Table.Cell>
+                                    <Table.Cell justify="center">
+                                        <Flex justify="center" align="center" className="gap-4">
+                                            <Dialog.Root >
+                                                <Dialog.Trigger>
+                                                    <Box>
+                                                        <Tooltip content="Visualizar Informações completas do Participante">
+                                                            <IconButton size="2" color="lime" radius="full" variant="outline" className="hover:cursor-pointer hover:translate-y-[3px] transition-all ease-in-out">
+                                                                <Icon.IdentificationCard size={20} />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </Box>
+                                                </Dialog.Trigger>
+                                                <Dialog.Content style={{ maxWidth: 450 }}>
+                                                    <Dialog.Title align="center" mb="5" >Informações Gerais do Participante</Dialog.Title>
+                                                    <Flex direction="column" gap="3">
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            Nome Completo
+                                                            <TextField.Root
+                                                                defaultValue={participant.personalData.fullName}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            Data de Nascimento
+                                                            <TextField.Root
+                                                                defaultValue={getFormattedBirthDate(participant.personalData.birthDate)}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            Gênero
+                                                            <TextField.Root
+                                                                defaultValue={participant.personalData.gender}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            Telefone
+                                                            <TextField.Root
+                                                                defaultValue={participant.personalData.phone}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            E-mail
+                                                            <TextField.Root
+                                                                defaultValue={participant.personalData.email}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            Estado Civil
+                                                            <TextField.Root
+                                                                defaultValue={participant.personalData.maritalStatus}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            Trabalho
+                                                            <TextField.Root
+                                                                defaultValue={participant.personalData.job}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                        <Text as="label" size="2" mb="1" weight="bold">
+                                                            Ocupação
+                                                            <TextField.Root
+                                                                defaultValue={participant.personalData.occupation}
+                                                                disabled
+                                                            />
+                                                        </Text>
+                                                    </Flex>
+
+                                                    <Flex gap="3" mt="4" justify="end">
+                                                        <Dialog.Close>
+                                                            <Button variant="soft" color="red" className="hover:cursor-pointer">
+                                                                Fechar
+                                                            </Button>
+                                                        </Dialog.Close>
+                                                    </Flex>
+                                                </Dialog.Content>
+                                            </Dialog.Root>
+                                            <AlertDialog.Root>
+                                                <AlertDialog.Trigger>
+                                                    <Box className="flex gap-3" onClick={() => handleCompareSource(participant)}>
+                                                        <Tooltip content="Comparar as respostas do avaliado com as respostas das 2ª fontes">
+                                                            <IconButton color="cyan" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
+                                                                <Icon.ClipboardText onClick={() => handleCompareSelected()} size={20} />
+                                                            </IconButton>
+                                                        </Tooltip>
+                                                    </Box>
+                                                </AlertDialog.Trigger>
+                                                <AlertDialog.Content >
+                                                    <AlertDialog.Title> Nenhuma pessoa foi identificada como segunda fonte desse avaliado. </AlertDialog.Title>
+                                                    <AlertDialog.Description size="2">
+                                                        Para contrastar as respostas do avaliado com as da(s) segunda(s) fonte(s), é necessário que um participante tenha recebido as respostas do questionário de uma pessoa adicional, atuando como a segunda fonte.
+                                                    </AlertDialog.Description>
+
+                                                    <Flex gap="3" mt="4" justify="end">
+                                                        <AlertDialog.Cancel>
+                                                            <Button variant="soft" color="red" className="hover:cursor-pointer">
+                                                                Voltar
+                                                            </Button>
+                                                        </AlertDialog.Cancel>
+
+                                                    </Flex>
+                                                </AlertDialog.Content>
+                                            </AlertDialog.Root>
+
+
+                                            <Box className="flex gap-3" onClick={() => handleEvaluateAutobiography(participant)}>
+                                                <Tooltip content="Visualizar Autobiaografia do participante">
+                                                    <IconButton color="bronze" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
+                                                        <Icon.IdentificationBadge size={20} />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Box>
+                                        </Flex>
+                                    </Table.Cell>
+                                </Table.Row>
+                            ))}
+                        </Table.Body>
+                    </Table.Root>
+                </Box>
                 <Flex gap="2" mt="4" justify="center" align="center">
                     <Button className="hover:cursor-pointer" variant="surface" onClick={() => handlePageChange(currentPage - 1)}>{`<`}</Button>
                     {renderPagination()}
                     <Button className="hover:cursor-pointer" variant="surface" onClick={() => handlePageChange(currentPage + 1)}>{`>`}</Button>
-
-
                 </Flex>
                 <GridComponent
-                    clasName="gap-5 mt-5 m-auto w-[80%] "
+                    className="gap-5 mt-5 m-auto w-[80%] "
                     children={
                         <>
                             <Skeleton loading={false} >
@@ -721,8 +851,6 @@ const AnalysisPage = () => {
 
                 </GridComponent>
             </Box>
-
-
         </Flex >
 
     );

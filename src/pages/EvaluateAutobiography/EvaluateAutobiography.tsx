@@ -3,9 +3,10 @@ import { Header } from '../../components/Header/Header';
 import * as Icon from '@phosphor-icons/react';
 import { IParticipant } from '../../interfaces/participant.interface';
 import { useLocation } from "react-router-dom";
-import { Box, Button, Flex, Popover, TextArea, Text, HoverCard } from '@radix-ui/themes';
+import { Box, Button, Flex, Popover, TextArea, Text, HoverCard, Section } from '@radix-ui/themes';
 import { GridComponent } from '../../components/Grid/Grid';
 import Notify from '../../components/Notify/Notify';
+import { ScrollToTop } from '../../components/ScrollToTop/ScrollToTop';
 
 interface MarkedText {
     id: number;
@@ -31,7 +32,7 @@ const EvaluateAutobiography: React.FC = () => {
 
     const location = useLocation();
     const { participant } = location.state as LocationState;
-    
+
     const handleTextSelection = () => {
         const textElement = document.getElementById("autobiography");
         if (textElement) {
@@ -39,7 +40,7 @@ const EvaluateAutobiography: React.FC = () => {
             if (selection) {
                 if (!selection.isCollapsed) {
                     const range = selection.getRangeAt(0);
-                    const selectedText = range.toString();                    
+                    const selectedText = range.toString();
 
                     if (selectedText.length < 250) {
                         const preSelectionRange = range.cloneRange();
@@ -47,13 +48,13 @@ const EvaluateAutobiography: React.FC = () => {
                         preSelectionRange.setEnd(range.startContainer, range.startOffset);
                         const start = preSelectionRange.toString().length;
                         const end = start + selectedText.length;
-                      
+
                         setSelectedText(selectedText);
                         setSelectionRange({ start, end });
                         selection.removeAllRanges();
                         setLimit(false);
                     } else {
-                        setNotificationTitle("Limite de caracteres exercido");
+                        setNotificationTitle("Limite de caracteres atingido.");
                         setNotificationDescription("Selecione menos caracteres para a marcação!");
                         setLimit(true);
                     }
@@ -114,25 +115,25 @@ const EvaluateAutobiography: React.FC = () => {
                 parts.push(
                     <HoverCard.Root key={markedText.id}>
                         <HoverCard.Trigger>
-                            <span className={
-                                markedText.mark === 'Criatividade' ? "bg-yellow-300" :
+                            <span className={`rounded-sm font-semibold px-1
+                            ${markedText.mark === 'Criatividade' ? "bg-yellow-200" :
                                     markedText.mark === 'Liderança' ? "bg-gray-300" :
-                                        markedText.mark === 'Características Gerais' ? "bg-amber-500" :
-                                            markedText.mark === 'Habilidades acima da média' ? "bg-green-500" :
-                                                markedText.mark === 'Comprometimento com a tarefa' ? "bg-blue-300" :
-                                                    markedText.mark === 'Atividades artísticas e esportivas' ? "bg-pink-400" :
+                                        markedText.mark === 'Características Gerais' ? "bg-amber-400 opacity-10" :
+                                            markedText.mark === 'Habilidades acima da média' ? "bg-green-200" :
+                                                markedText.mark === 'Comprometimento com a tarefa' ? "bg-blue-200" :
+                                                    markedText.mark === 'Atividades artísticas e esportivas' ? "bg-pink-200" :
                                                         ""
-                            }>
+                                }`}>
                                 {marked}
                             </span>
                         </HoverCard.Trigger>
-                        <HoverCard.Content>
+                        <HoverCard.Content size="3">
                             <Flex gap="4">
                                 <Box>
                                     <Text as="div" size="3" color="gray" mb="2" className='font-bold'>
                                         Comentário
                                     </Text>
-                                    <Text as="p" size="2" className='text-wrap mt-4'>
+                                    <Text size="2" as="p" className='text-justufy'>
                                         {markedText.comment}
                                     </Text>
                                 </Box>
@@ -159,61 +160,61 @@ const EvaluateAutobiography: React.FC = () => {
                 icon={<Icon.XCircle size={30} color="white" />}
                 className="bg-red-400"
             />
+            <ScrollToTop />
             <Header title="Avaliar Autobiografia" icon={<Icon.Books size={24} />} />
             <h1>Avaliar Autobiografia, Marcar Texto e Adicionar Comentários</h1>
             <h3>{participant.personalData.fullName}</h3>
-
-            <Flex direction="column" align="center" className="bg-violet-300 h-50 mt-3 pb-4">
-                <Flex direction="row" className="p-4">
-                    <Text as="label" size="6" className="m-auto">
-                        Marcadores
-                    </Text>
-                </Flex>
-                <GridComponent
-                    columns={3}
-                    className="w-fit"
-                >
-                    {Marks.map((mark, index) => (
-                        <Flex key={index} justify="center" className="w-full m-2">
-                            <Popover.Root>
-                                <Popover.Trigger>
-                                    <Button color={mark.color} variant="outline" size="4" onClick={handleTextSelection}
-                                        className="m-auto p-2">
-                                        <Flex align="center" className="gap-3">
-                                            <Box className={`w-5 h-5 ${mark.bg}`} />
-                                            {mark.title}
-                                        </Flex>
-                                    </Button>
-                                </Popover.Trigger>
-
-                                <Popover.Content className={limit ? "hidden" : ""} width="360px">
-                                    <Flex gap="3">
-                                        <Box flexGrow="1">
-                                            <TextArea
-                                                placeholder="Escreva um comentário..."
-                                                style={{ height: 80 }}
-                                                ref={commentInputRef}
-                                            />
-                                            <Flex gap="3" mt="3" justify="between">
-                                                <Popover.Close>
-                                                    <Button onClick={() => handleAddComment(mark.title)} color="green" size="1">
-                                                        Salvar
-                                                    </Button>
-                                                </Popover.Close>
+            <Section size="1" className='bg-violet-300  mt-3 px-[100px]'>
+                <Flex align="center" direction="column" className="">
+                    <Flex align="start" className="p-4">
+                        <Text as="label" size="6" className="font-bold">
+                            Marcadores
+                        </Text>
+                    </Flex>
+                    <GridComponent
+                        columns={3}
+                    >
+                        {Marks.map((mark, index) => (
+                            <Flex key={index} justify="center" className="w-full m-2">
+                                <Popover.Root>
+                                    <Popover.Trigger>
+                                        <Button color={mark.color} variant="outline" size="4" onClick={handleTextSelection}
+                                            className="m-auto p-2">
+                                            <Flex align="center" className="gap-3">
+                                                <Box className={`w-5 h-5 rounded-full ${mark.bg} `} />
+                                                {mark.title}
                                             </Flex>
-                                        </Box>
-                                    </Flex>
-                                </Popover.Content>
-                            </Popover.Root>
-                        </Flex>
-                    ))}
-                </GridComponent>
-            </Flex>
+                                        </Button>
+                                    </Popover.Trigger>
 
-            <p id="autobiography" className="mb-4 p-3">
+                                    <Popover.Content className={limit ? "hidden" : ""} width="360px">
+                                        <Flex gap="3">
+                                            <Box flexGrow="1">
+                                                <TextArea
+                                                    placeholder="Escreva um comentário..."
+                                                    style={{ height: 80 }}
+                                                    ref={commentInputRef}
+                                                />
+                                                <Flex gap="3" mt="3" justify="between">
+                                                    <Popover.Close>
+                                                        <Button onClick={() => handleAddComment(mark.title)} color="green" size="1">
+                                                            Salvar
+                                                        </Button>
+                                                    </Popover.Close>
+                                                </Flex>
+                                            </Box>
+                                        </Flex>
+                                    </Popover.Content>
+                                </Popover.Root>
+                            </Flex>
+                        ))}
+                    </GridComponent>
+                </Flex>
+            </Section>
+            <p id="autobiography" className="mb-4 p-3 text-justify">
                 {renderMarkedText(participant?.autobiography?.text || "")}
             </p>
-        </Box>
+        </Box >
     );
 };
 

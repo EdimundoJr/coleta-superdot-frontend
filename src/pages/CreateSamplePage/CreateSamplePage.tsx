@@ -15,6 +15,9 @@ import { SampleFile } from "../../interfaces/sample.interface";
 import SampleUploadFile from "../../components/SampleUploaderFile/SampleUploaderFile";
 import { validateFiles } from "../../validators/fileValidator";
 import { CustomFileError } from "../../errors/fileErrors";
+import * as Icon from "@phosphor-icons/react";
+import { Button, Flex } from "@radix-ui/themes";
+import { Header } from "../../components/Header/Header";
 
 const CreateSamplePage = () => {
     const [sampleFiles, setSampleFiles] = useState<SampleFile[]>(FILES_AVAILABLE_TO_CREATE_SAMPLE);
@@ -23,6 +26,9 @@ const CreateSamplePage = () => {
     /* NOTIFY */
     const [notificationTitle, setNotificationTitle] = useState("");
     const [notificationDescription, setNotificationDescription] = useState("");
+    const [notificationIcon, setNotificationIcon] = useState<React.ReactNode>();
+    const [notificationClass, setNotificationClass] = useState("");
+
 
     /* GROUP SELECTION ASSERT */
     const [groupSelected, setGroupSelected] = useState<string>();
@@ -52,6 +58,8 @@ const CreateSamplePage = () => {
                 setNotificationTitle("Arquivos inválidos.");
                 setNotificationDescription(e.message);
                 setSampleFileError(e.message);
+                setNotificationIcon(<Icon.XCircle size={30} color="white" />);
+                setNotificationClass("bg-red-500");
             }
             return;
         }
@@ -96,7 +104,8 @@ const CreateSamplePage = () => {
                     state: {
                         notification: {
                             title: "Operação realizada.",
-                            description: "As amostra foi cadastrada com sucesso!",
+                            description: "A amostra foi cadastrada com sucesso!",
+                            class: "bg-green-500"
                         },
                     },
                 });
@@ -105,94 +114,102 @@ const CreateSamplePage = () => {
             console.error(error);
             setNotificationTitle("Erro no servidor.");
             setNotificationDescription("Não foi possível cadastrar a amostra com as informações fornecidas.");
+            setNotificationIcon(<Icon.XCircle size={30} color="white" />);
+            setNotificationClass("bg-red-500");
+
         }
     });
 
     return (
-        <Notify
-            open={!!notificationTitle}
-            onOpenChange={() => setNotificationTitle("")}
-            title={notificationTitle}
-            description={notificationDescription}
-        >
-            <header className="p-6 text-4xl font-bold">Definição da Amostra</header>
-            <h3>Grupo selecionado: {groupSelected}</h3>
-            <Form.Root onSubmit={onSubmit} className="mx-auto mb-6 mt-11 w-11/12">
-                <h3 className="text-left ">Detalhes da amostra</h3>
-                <Separator.Root className="my-6 h-px w-full bg-black" />
+        <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5`}>
 
-                {/* CONTAINER TO INPUT SAMPLE DETAILS */}
-                <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    <div className="col-span-3">
-                        <InputField
-                            label="TÍTULO DA PESQUISA*"
-                            placeholder="Digite o título da pesquisa"
-                            errorMessage={errors.researchTitle?.message}
-                            {...register("researchTitle")}
-                        ></InputField>
-                    </div>
-
-                    <div className="col-span-3">
-                        <InputField
-                            label="TÍTULO DA AMOSTRA*"
-                            placeholder="Digite o título da amostra"
-                            errorMessage={errors.sampleTitle?.message}
-                            {...register("sampleTitle")}
-                        ></InputField>
-                    </div>
-
-                    <div className="col-span-3 md:flex">
-                        <InputField
-                            label="Código do Comitê de Ética*"
-                            placeholder="Digite o código fornecido pelo Comitê de Ética em Pesquisa"
-                            errorMessage={errors.researchCep?.cepCode?.message}
-                            {...register("researchCep.cepCode")}
-                        ></InputField>
-                        <InputField
-                            label="QUANTIDADE TOTAL DE PARTICIPANTES*"
-                            placeholder="Digite a quantidade total de participantes da pesquisa"
-                            errorMessage={errors.qttParticipantsRequested?.message}
-                            type="number"
-                            {...register("qttParticipantsRequested")}
-                        ></InputField>
-                    </div>
-
-                    <div className="md:col-span-2 md:flex lg:col-span-3">
-                        <InputField
-                            label="REGIÃO DA AMOSTRA*"
-                            placeholder="Digite a região dos participantes da amostra"
-                            errorMessage={errors.countryRegion?.message}
-                            {...register("countryRegion")}
-                        ></InputField>
-
-                        <InputField
-                            label="ESTADO DA AMOSTRA*"
-                            placeholder="Digite o estado dos participantes da amostra"
-                            errorMessage={errors.countryState?.message}
-                            {...register("countryState")}
-                        ></InputField>
-
-                        <InputField
-                            label="CIDADE DA AMOSTRA*"
-                            placeholder="Digite a cidade dos participantes da amostra"
-                            errorMessage={errors.countryCity?.message}
-                            {...register("countryCity")}
-                        ></InputField>
-                    </div>
-                </div>
-
-                {/* CONTAINER TO INPUT INSTITUITION DATA */}
-                <div className="col-span-3">
-                    <h3 className="text-left text-blue-900">Instituição da Amostra</h3>
+            <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />}  />
+            <Notify
+                open={!!notificationTitle}
+                onOpenChange={() => setNotificationTitle("")}
+                title={notificationTitle}
+                description={notificationDescription}
+                icon={notificationIcon}
+                className={notificationClass}
+            >
+                <h3>Grupo selecioando: {groupSelected}</h3>
+                <Form.Root onSubmit={onSubmit} className="mx-auto mb-6 mt-11 w-11/12">
+                    <h3 className="text-left text-primary">Detalhes da amostra</h3>
                     <Separator.Root className="my-6 h-px w-full bg-black" />
-                    <div className="md:flex">
-                        <InputField
-                            label="NOME*"
-                            errorMessage={errors.instituition?.name?.message}
-                            {...register("instituition.name")}
-                        ></InputField>
 
-                        <div className="md:w-3/12">
+                    {/* CONTAINER TO INPUT SAMPLE DETAILS */}
+                    <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                        <div className="col-span-3 mb-2">
+                            <InputField
+                                label="TÍTULO DA PESQUISA*"
+                                placeholder="Digite o título da pesquisa"
+                                errorMessage={errors.researchTitle?.message}
+                                {...register("researchTitle")}
+
+                            ></InputField>
+                        </div>
+
+                        <div className="col-span-3 mb-2">
+                            <InputField
+                                label="TÍTULO DA AMOSTRA*"
+                                placeholder="Digite o título da amostra"
+                                errorMessage={errors.sampleTitle?.message}
+                                {...register("sampleTitle")}
+                            ></InputField>
+                        </div>
+
+                        <div className="col-span-3 md:flex mb-2 gap-2">
+                            <InputField
+                                label="Código do Comitê de Ética*"
+                                placeholder="Digite o código fornecido pelo Comitê de Ética em Pesquisa"
+                                errorMessage={errors.researchCep?.cepCode?.message}
+                                {...register("researchCep.cepCode")}
+                            ></InputField>
+                            <InputField
+                                label="QUANTIDADE TOTAL DE PARTICIPANTES*"
+                                placeholder="Digite a quantidade total de participantes da pesquisa"
+                                errorMessage={errors.qttParticipantsRequested?.message}
+                                type="number"
+                                {...register("qttParticipantsRequested")}
+                            ></InputField>
+                        </div>
+
+                        <div className="md:col-span-2 md:flex lg:col-span-3 mb-12 gap-2">
+                            <InputField
+                                label="REGIÃO DA AMOSTRA*"
+                                placeholder="Digite a região dos participantes da amostra"
+                                errorMessage={errors.countryRegion?.message}
+                                {...register("countryRegion")}
+                            ></InputField>
+
+                            <InputField
+                                label="ESTADO DA AMOSTRA*"
+                                placeholder="Digite o estado dos participantes da amostra"
+                                errorMessage={errors.countryState?.message}
+                                {...register("countryState")}
+                            ></InputField>
+
+                            <InputField
+                                label="CIDADE DA AMOSTRA*"
+                                placeholder="Digite a cidade dos participantes da amostra"
+                                errorMessage={errors.countryCity?.message}
+                                {...register("countryCity")}
+                            ></InputField>
+                        </div>
+                    </div>
+
+                    {/* CONTAINER TO INPUT INSTITUITION DATA */}
+                    <div className="col-span-3 gap-2">
+                        <h3 className="text-left text-primary">Instituição da Amostra</h3>
+                        <Separator.Root className="my-6 h-px w-full bg-black" />
+                        <div className="flex justify-center">
+                            <InputField
+                                label="NOME*"
+                                errorMessage={errors.instituition?.name?.message}
+                                {...register("instituition.name")}
+                            ></InputField>
+
+
                             <SelectField
                                 label="TIPO*"
                                 errorMessage={errors.instituition?.instType?.message}
@@ -203,20 +220,21 @@ const CreateSamplePage = () => {
                             </SelectField>
                         </div>
                     </div>
-                </div>
 
-                {/* CONTAINER TO UPLOAD FILES */}
-                <SampleUploadFile
-                    messageError={sampleFileError}
-                    sampleFiles={sampleFiles}
-                    setSampleFiles={setSampleFiles}
-                />
 
-                <Form.Submit asChild className="mt-10">
-                    <button className="button-primary">Enviar Solicitação</button>
-                </Form.Submit>
-            </Form.Root>
-        </Notify>
+                    {/* CONTAINER TO UPLOAD FILES */}
+                    <SampleUploadFile
+                        messageError={sampleFileError}
+                        sampleFiles={sampleFiles}
+                        setSampleFiles={setSampleFiles}
+                    />
+
+                    <Form.Submit asChild className="mt-10">
+                        <Button color="grass" className="hover:cursor-pointer">Enviar Solicitação</Button>
+                    </Form.Submit>
+                </Form.Root>
+            </Notify>
+        </Flex>
     );
 };
 

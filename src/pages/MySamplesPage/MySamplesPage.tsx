@@ -7,13 +7,16 @@ import { useEffect, useState } from "react";
 import { Page, deleteSample, paginateSamples } from "../../api/sample.api";
 import { MySamplesFilters, mySamplesFiltersSchema } from "../../schemas/mySample.schema";
 import { Card } from "../../components/Card/Card";
-import { Pencil1Icon, TrashIcon } from "@radix-ui/react-icons";
 import Modal from "../../components/Modal/Modal";
 import Notify from "../../components/Notify/Notify";
 import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithNotification } from "../../validators/navigationStateValidators";
 import { DateTime } from "luxon";
 import { ISample } from "../../interfaces/sample.interface";
+import { Badge, Box, Button, Container, Flex, IconButton, Skeleton, Text, Tooltip } from "@radix-ui/themes";
+import { Header } from "../../components/Header/Header";
+import * as Icon from "@phosphor-icons/react";
+import { GridComponent } from "../../components/Grid/Grid";
 
 const MySamplesPage = () => {
     const {
@@ -23,6 +26,7 @@ const MySamplesPage = () => {
     } = useForm({ resolver: yupResolver(mySamplesFiltersSchema) });
     const navigate = useNavigate();
     const location = useLocation();
+    const [loading, setLoading] = useState(true);
 
     const [pageData, setPageData] = useState<Page<ISample>>();
     //const [currentPage, setCurrentPage] = useState(1);
@@ -32,6 +36,8 @@ const MySamplesPage = () => {
     /* STATES TO SHOW NOTIFICATION */
     const [notificationTitle, setNotificationTitle] = useState<string>();
     const [notificationDescription, setNotificationDescription] = useState<string>();
+    const [notificationIcon, setNotificationIcon] = useState<React.ReactNode>();
+    const [notificationClass, setNotificationClass] = useState("");
 
     /* STATES TO DELETE SAMPLE REQUEST*/
     const [openModalDelete, setOpenModalDelete] = useState(false);
@@ -41,10 +47,16 @@ const MySamplesPage = () => {
         if (stateWithNotification(location.state)) {
             setNotificationTitle(location.state.notification.title);
             setNotificationDescription(location.state.notification.description);
+            setNotificationIcon(<Icon.CheckCircle size={30} color="white" />);
+            setNotificationClass(location.state.notification.class);
         }
     }, [location.state]);
 
     useEffect(() => {
+        const timeoutId = setTimeout(() => {
+            setLoading(false);
+        }, 2000);
+
         const getPage = async () => {
             const response = await paginateSamples(1, PAGE_SIZE, filters);
             if (response.status === 200) {
@@ -53,6 +65,7 @@ const MySamplesPage = () => {
         };
 
         getPage();
+        return () => clearTimeout(timeoutId);
     }, [filters]);
 
     const handleCleanNotification = () => {
@@ -109,7 +122,7 @@ const MySamplesPage = () => {
     };
 
     const handleClickToAnalyzeSampleParticipantes = (sample: ISample) => {
-        navigate("/app/analisar-amostra", {
+        navigate("/app/analyze-sample", {
             state: {
                 sample,
             },
@@ -117,135 +130,171 @@ const MySamplesPage = () => {
     };
 
     return (
-        <Notify
-            open={!!notificationTitle}
-            onOpenChange={handleCleanNotification}
-            title={notificationTitle}
-            description={notificationDescription}
-        >
-            <header className="p-6 text-4xl font-bold">Minhas Amostras</header>
-            <Form.Root
-                onSubmit={handleSubmit((data) => {
-                    setFilters({
-                        ...data,
-                    });
-                })}
-                className="mx-auto my-8 inline-block w-11/12"
+        <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5`}>
+            <Notify
+                open={!!notificationTitle}
+                onOpenChange={handleCleanNotification}
+                title={notificationTitle}
+                description={notificationDescription}
+                icon={notificationIcon}
+                className={notificationClass}
             >
-                <div className="sm:flex">
-                    <InputField
-                        label="Pesquisar pelo título da pesquisa"
-                        placeholder="Digite o título da pesquisa"
-                        errorMessage={errors.researcherTitle?.message}
-                        {...register("researcherTitle")}
-                    />
-                    <InputField
-                        label="Pesquisar pelo título da amostra"
-                        placeholder="Digite o título da amostra"
-                        errorMessage={errors.sampleTitle?.message}
-                        {...register("sampleTitle")}
-                    />
-                </div>
-                <button onClick={() => setFilters({})} type="reset" className="button-neutral-light float-right mr-3">
-                    Limpar Campos
-                </button>
-                <Form.Submit asChild>
-                    <button className="button-primary float-right mr-3">Pesquisar</button>
-                </Form.Submit>
-            </Form.Root>
-            <div className="flex justify-center gap-3">
-                <button className="button-primary">Avaliar Pessoas das Amostras Selecionadas</button>
-                <button className="button-primary">Avaliar Amostras Selecionadas</button>
-            </div>
-            <div className="mx-4 mt-10 grid grid-cols-1 content-center justify-items-center gap-x-3 gap-y-8 md:grid-cols-2 xl:grid-cols-3">
-                {pageData?.data?.map((sample, index) => {
-                    return (
-                        <Card.Root key={index}>
-                            <Card.Header>
-                                <div className="flex gap-x-3">
-                                    {sample.status !== "Autorizado" && (
-                                        <Pencil1Icon
-                                            onClick={() => handleNavigateToEditSample(sample)}
-                                            className="cursor-pointer"
-                                            width={20}
-                                            height={20}
-                                        />
-                                    )}
-                                    {sample.sampleGroup}
-                                    {sample.status !== "Autorizado" && (
-                                        <TrashIcon
-                                            className="cursor-pointer"
-                                            onClick={() => handleNavigateToDeleteSample(sample._id)}
-                                            width={20}
-                                            height={20}
-                                        />
-                                    )}
-                                </div>
-                            </Card.Header>
-                            <Card.Content>
-                                <h3></h3>
-                                <h3></h3>
-                                <ul>
-                                    <li>Amostra: {sample.sampleTitle}</li>
-                                    <li>Pesquisa: {sample.researchTitle}</li>
-                                    {sample.qttParticipantsAuthorized && (
-                                        <li>Limite de participantes: {sample.qttParticipantsAuthorized}</li>
-                                    )}
-                                    {sample.participants && (
-                                        <li>Participantes cadastrados: {sample.participants.length}</li>
-                                    )}
-                                    <li>Código do Comitê de Ética: {sample.researchCep.cepCode}</li>
-                                    <li>
-                                        Data da Solicitação da amostra:{" "}
-                                        {sample.createdAt &&
-                                            DateTime.fromISO(sample.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
-                                    </li>
-                                    <li>
-                                        Data da última atualização:{" "}
-                                        {sample.updatedAt &&
-                                            DateTime.fromISO(sample.updatedAt).toFormat("dd/LL/yyyy - HH:mm")}
-                                    </li>
-                                    <li>Status da amostra: {sample.status}</li>
-                                </ul>
-                            </Card.Content>
-                            <Card.Actions>
-                                <Card.Action
-                                    disabled={
-                                        sample.status !== "Autorizado" ||
-                                        sample.qttParticipantsAuthorized === sample.participants?.length
-                                    }
-                                    onClick={() => handleRegisterPeople(sample._id as string)}
-                                >
-                                    Cadastrar Pessoas
-                                </Card.Action>
-                                <Card.Action
-                                    disabled={sample.status !== "Autorizado" || sample.participants?.length === 0}
-                                    onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
-                                >
-                                    Avaliar Pessoas
-                                </Card.Action>
-                            </Card.Actions>
-                        </Card.Root>
-                    );
-                })}
-            </div>
-            <Modal
-                open={openModalDelete}
-                setOpen={setOpenModalDelete}
-                title="Apagando solicitação de amostra"
-                accessibleDescription="A solicitação de amostra selecionada será apagada."
-            >
-                <h3>Tem certeza que deseja apagar a solicitação de amostra selecionada?</h3>
-                <div className="mt-6 flex justify-center gap-3">
-                    <button onClick={handleDeleteSample} className="button-neutral-dark">
-                        Sim
-                    </button>
-                    <button onClick={() => setOpenModalDelete(false)} className="button-primary">
-                        Cancelar
-                    </button>
-                </div>
-            </Modal>
-        </Notify>
+                <Header title="Minhas Amostra" icon={<Icon.Books size={24} className="items-center" />} />
+
+                <Box className="w-full pt-10 pb-10">
+                    <Form.Root
+                        onSubmit={handleSubmit((data) => {
+                            setFilters({
+                                ...data,
+                            });
+                        })}
+                        className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-1 ">
+                        <Form.Submit asChild>
+                            <Button size="3" mr="3" className="items-center">
+                                <Icon.FunnelSimple size={24} />
+                                Filtrar
+                            </Button>
+                        </Form.Submit>
+                        <InputField
+                            label=""
+                            icon={<Icon.MagnifyingGlass />}
+                            placeholder="Digite o título da pesquisa"
+                            errorMessage={errors.researcherTitle?.message}
+                            {...register("researcherTitle")}
+                        />
+                        <InputField
+                            label=""
+                            icon={<Icon.MagnifyingGlass />}
+                            placeholder="Digite o título da amostra"
+                            errorMessage={errors.sampleTitle?.message}
+                            {...register("sampleTitle")}
+                            className="ml-1 m"
+                        />
+                        <Button onClick={() => setFilters({})} type="reset" size="3" ml="3" className="items-center">
+                            limpar Filtro
+                        </Button>
+                        <Flex >
+                        </Flex>
+                    </Form.Root>
+                </Box>
+                <Container className="mb-4">
+                    {pageData?.data?.length === 0 ? <h3>Você não possui nenhuma amostra.</h3> :
+
+                        <GridComponent children={
+                            <>
+                                {pageData?.data?.map((sample, index) => {
+                                    return (
+                                        <Skeleton loading={loading}>
+                                            <Box>
+                                                <Card.Root key={index}>
+                                                    <Card.Header>
+                                                        <Flex justify="between">
+                                                            {sample.status == "Autorizado" && (
+                                                                <Tooltip content={"Editar Amostra"}>
+                                                                    <IconButton color="amber" radius="full" variant="outline">
+                                                                        <Icon.Pencil
+                                                                            onClick={() => handleNavigateToEditSample(sample)}
+                                                                            className="cursor-pointer"
+                                                                            size={20}
+                                                                        />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            )}
+                                                            <Text as="label">{sample.sampleGroup}</Text>
+                                                            {sample.status == "Autorizado" && (
+                                                                <Tooltip content={"Excluir Amostra"}>
+                                                                    <IconButton color="red" radius="full" variant="outline">
+                                                                        <Icon.Trash
+                                                                            className="cursor-pointer"
+                                                                            onClick={() => handleNavigateToDeleteSample(sample._id)}
+                                                                            size={20}
+                                                                        />
+                                                                    </IconButton>
+                                                                </Tooltip>
+                                                            )}
+                                                        </Flex>
+                                                    </Card.Header>
+                                                    <Card.Content>
+                                                        <ul>
+                                                            <li ><b>Amostra:</b> {sample.sampleTitle}</li>
+                                                            <li ><b>Pesquisa:</b> {sample.researchTitle}</li>
+                                                            {sample.qttParticipantsAuthorized && (
+                                                                <li ><b>Limite de participantes:</b> {sample.qttParticipantsAuthorized}</li>
+                                                            )}
+                                                            {sample.participants && (
+                                                                <li ><b>Participantes cadastrados:</b> {sample.participants.length}</li>
+                                                            )}
+                                                            <li ><b>Código do Comitê de Ética:</b> {sample.researchCep.cepCode}</li>
+                                                            <li >
+                                                                <b>Data da Solicitação da amostra:</b>{" "}
+                                                                {sample.createdAt &&
+                                                                    DateTime.fromISO(sample.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                                            </li>
+                                                            <li >
+                                                                <b>Data da última atualização:</b>{" "}
+                                                                {sample.updatedAt &&
+                                                                    DateTime.fromISO(sample.updatedAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                                            </li>
+                                                            <li > <b>Status da amostra:</b> {sample.status == "Autorizado" ? (
+                                                                <Badge color="green" className="radios-full">{sample.status}</Badge>
+                                                            ) : (
+
+                                                                <Badge color="red">{sample.status}</Badge>
+
+
+                                                            )}</li>
+                                                        </ul>
+                                                    </Card.Content>
+                                                    <Card.Actions className="justify-around">
+                                                        <Card.Action
+                                                            disabled={
+                                                                sample.status !== "Autorizado"
+                                                                // ||
+                                                                // sample.qttParticipantsAuthorized === sample.participants?.length
+                                                            }
+                                                            onClick={() => handleRegisterPeople(sample._id as string)}
+                                                        >
+                                                            Cadastrar Pessoas
+                                                        </Card.Action>
+                                                        <Card.Action
+                                                            disabled={sample.status !== "Autorizado" || sample.participants?.length === 0}
+                                                            onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
+                                                        >
+                                                            Avaliar Pessoas
+                                                        </Card.Action>
+                                                    </Card.Actions>
+                                                </Card.Root>
+                                            </Box>
+                                        </Skeleton>
+                                    );
+                                })}
+
+
+                            </>
+                        } columns={2} className="gap-5">
+                        </GridComponent>
+                    }
+                </Container>
+                <Modal
+                    open={openModalDelete}
+                    setOpen={setOpenModalDelete}
+                    title="Apagando solicitação de amostra"
+                    accessibleDescription="A solicitação de amostra selecionada será apagada."
+                    accessibleDescription2="Tem certeza que deseja apagar a solicitação de amostra selecionada?"
+                >
+
+                    <Flex gap="3" mt="4" justify="end">
+                        <Button onClick={handleDeleteSample} variant="soft" color="gray">
+                            Ecluir
+                        </Button>
+
+                        <Button onClick={() => setOpenModalDelete(false)} variant="solid" color="red">
+                            Cancelar
+                        </Button>
+                    </Flex>
+                </Modal>
+            </Notify>
+        </Flex >
     );
 };
 
