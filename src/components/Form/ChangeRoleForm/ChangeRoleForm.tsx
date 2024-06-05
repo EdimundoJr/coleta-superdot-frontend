@@ -6,6 +6,8 @@ import { SelectField } from "../../SelectField/SelectField";
 import { TextAreaField } from "../../TextAreaField/TextAreaField";
 import { setUserRole } from "../../../api/auth.api";
 import { USER_ROLE, USER_ROLES_ARRAY } from "../../../utils/consts.utils";
+import { Button } from "../../Button/Button";
+
 
 interface ChangeRoleFormProps {
     userId: string;
@@ -50,6 +52,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
                 label="Perfil"
                 {...register("newRole")}
             >
+                
                 <option>Pesquisador</option>
                 <option>Revisor</option>
                 <option>Administrador</option>
@@ -60,7 +63,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
                 {...register("emailMessage")}
             />
             <Form.Submit asChild>
-                <button className="button-primary float-right mr-3">Salvar</button>
+                <Button  title={"Salvar"} color={"green"} />
             </Form.Submit>
         </Form.Root>
     );

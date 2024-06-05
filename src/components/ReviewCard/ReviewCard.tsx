@@ -3,7 +3,7 @@ import { SampleReviewWithReviewerName } from "../../api/sampleReview.api";
 
 const ReviewCard = ({ reviewerFullName, reviewDetails }: SampleReviewWithReviewerName) => {
     return (
-        <div className="my-4 bg-blue-950 p-4 text-white">
+        <div className="my-4 p-4 border-2 border-[#baa7ff] bg-[#f9f6ffcc]  text-black  font-roboto rounded-xl">
             <ul>
                 <li>Revisor: {reviewerFullName}</li>
                 <li>

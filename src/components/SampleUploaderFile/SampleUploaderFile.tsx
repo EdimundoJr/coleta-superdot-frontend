@@ -85,7 +85,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
 
     return (
         <div className="col-span-3">
-            <h3 className="text-left">Anexos</h3>
+            <h3 className="text-left text-primary">Anexos</h3>
             <Separator.Root className="my-6 h-px w-full bg-black" />
             <div className="sm:flex">
                 <Form.Field name="sampleFiles" className="mb-6 w-full px-3">
@@ -96,7 +96,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
                         <select
                             onChange={handleChangeFileToUpload}
                             value={currentFileKeyToUpload}
-                            className="h-[35px] w-full rounded-[4px] border-2 border-gray-500 bg-white px-4 text-sm text-black"
+                            className="h-[40px] w-full rounded-[4px] px-4  border-2 border-gray-500 bg-white text-sm text-black"
                         >
                             <option value="">Selecione um tipo de arquivo para fazer o carregamento</option>
                             {sampleFiles.map((sampleFile, index) => {
@@ -128,7 +128,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
             </div>
             {sampleFiles && (
                 <div>
-                    <h3 className="text-left text-blue-900">Anexos carregados</h3>
+                    <h3 className="text-left text-primary">Anexos carregados</h3>
                     {sampleFiles.map((sampleFile, index) => {
                         if (sampleFile.uploadedFile)
                             return (

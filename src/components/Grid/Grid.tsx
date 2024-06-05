@@ -4,14 +4,14 @@ import { ReactNode } from 'react';
 
 interface GridProps {
   children: ReactNode;
-  clasName?: string;
+  className?: string;
   columns: number,
 }
 
-export function GridComponent({ children, clasName, columns }: GridProps) {
+export function GridComponent({ children, className, columns }: GridProps) {
   return (
 
-    <Grid columns={`${columns}`} className={`${clasName} items-center px-5 w-full font-roboto mb-5`}>
+    <Grid columns={`${columns}`} className={`${className} font-roboto mb-5`}>
       {children}
     </Grid>
   );

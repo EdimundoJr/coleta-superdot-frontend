@@ -1,6 +1,8 @@
-import { Pencil1Icon } from "@radix-ui/react-icons";
 import Pagination from "../Pagination/Pagination";
 import { PAGE_SIZE, ResearchersPaginated } from "../../../api/researchers.api";
+import { IconButton, Table, Tooltip } from "@radix-ui/themes";
+import * as Icon from '@phosphor-icons/react'
+
 
 interface UsersTableProps {
     data?: ResearchersPaginated;
@@ -11,44 +13,59 @@ interface UsersTableProps {
 
 const UsersTable = ({ data, currentPage, setCurrentPage, onClickPencil }: UsersTableProps) => {
     return (
-        <table className="bg-dark-gradient mx-auto w-11/12 border-collapse rounded-md text-alternative-text">
-            <thead>
-                <tr>
-                    <th className=" px-6 py-3">Nome do usuário</th>
-                    <th className=" px-6 py-3">E-mail do usuário</th>
-                    <th className=" px-6 py-3">Perfil do usuário</th>
-                    <th className=" px-6 py-3">Ações</th>
-                </tr>
-            </thead>
-            <tbody className="bg-white text-primary">
+        <Table.Root variant="surface" className="w-full truncate m-auto" >
+
+            <Table.Header className="text-[18px]">
+                <Table.Row>
+                    <Table.ColumnHeaderCell align="center" colSpan={4} className="border-r" > Dados do usuário</Table.ColumnHeaderCell>
+
+                </Table.Row>
+
+            </Table.Header>
+            <Table.Header className="text-[15px]">
+                <Table.Row>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r"> Nome</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r"> E-mail</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r"> Perfil</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r"> Ações</Table.ColumnHeaderCell>
+
+                </Table.Row>
+
+            </Table.Header>
+
+            <Table.Body>
                 {data?.researchers?.map((user) => (
-                    <tr key={user._id} className="odd:bg-gray-200">
-                        <td className="border-x-2 border-primary px-6 py-3">{user.fullname}</td>
-                        <td className="border-x-2 border-primary px-6 py-3">{user.email}</td>
-                        <td className="border-x-2 border-primary px-6 py-3">{user.role}</td>
-                        <td className="border-x-2 border-primary px-6 py-3 text-center">
+                    <Table.Row
+                        align="center"
+                        key={user._id}>
+
+                        <Table.Cell justify="center">{user.fullname} </Table.Cell>
+                        <Table.Cell justify="center" >{user.email}</Table.Cell>
+                        <Table.Cell justify="center">{user.role}</Table.Cell>
+                        <Table.Cell justify="center">
                             <div className="flex justify-center">
-                                <span title="Alterar perfil do usuário.">
-                                    <Pencil1Icon className="cursor-pointer" onClick={() => onClickPencil(user._id)} />
-                                </span>
+                                <Tooltip content="Alterar perfil do usuário.">
+                                    <IconButton variant="surface" radius="full" onClick={() => onClickPencil(user._id)} className="hover:cursor-pointer">
+                                        <Icon.Pencil />
+                                    </IconButton>
+                                </Tooltip>
                             </div>
-                        </td>
-                    </tr>
+                        </Table.Cell>
+
+
+                    </Table.Row>
                 ))}
-            </tbody>
-            <tfoot>
-                <tr className="text-right">
-                    <td className="px-6 py-3" colSpan={3}>
-                        <Pagination
-                            currentPage={currentPage}
-                            pageSize={PAGE_SIZE}
-                            totalCount={data?.totalResearchers || 1}
-                            onPageChange={(page: number) => setCurrentPage(page)}
-                        />
-                    </td>
-                </tr>
-            </tfoot>
-        </table>
+                <Table.Row>
+                    <Pagination
+                        currentPage={currentPage}
+                        pageSize={PAGE_SIZE}
+                        totalCount={data?.totalResearchers || 1}
+                        onPageChange={(page: number) => setCurrentPage(page)}
+                    />
+
+                </Table.Row>
+            </Table.Body>
+        </Table.Root>
     );
 };
 

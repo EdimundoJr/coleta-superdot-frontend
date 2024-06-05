@@ -2,13 +2,16 @@ import * as Form from "@radix-ui/react-form";
 import { FormEvent, useState } from "react";
 import { InputField } from "../InputField/InputField";
 import isEmail from "validator/lib/isEmail";
-import { Cross2Icon } from "@radix-ui/react-icons";
 import { DeepPartial } from "react-hook-form";
 import { IParticipant } from "../../interfaces/participant.interface";
 import { postAddParticipants } from "../../api/sample.api";
+import { IconButton, Table } from "@radix-ui/themes";
+import * as  Icon from "@phosphor-icons/react";
+import { Button } from "../Button/Button";
+
 
 interface ParticipantsIndicationFormProps {
-    setNotificationData: (data: { title: string; description: string }) => void;
+    setNotificationData: (data: { title: string; description: string; type: String }) => void;
     onFinish: (participants: IParticipant[]) => void;
     sampleId: string;
 }
@@ -23,6 +26,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
             setNotificationData({
                 title: "Campos vazios!",
                 description: "Por favor, preencha todos os campos.",
+                type: "erro"
             });
             return false;
         }
@@ -31,6 +35,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
             setNotificationData({
                 title: "E-mail inválido!",
                 description: "É necessário informar um e-mail válido.",
+                type: "erro"
             });
             return false;
         }
@@ -49,6 +54,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
             setNotificationData({
                 title: "Pessoa já indicada!",
                 description: "Você já indicou essa pessoa, não é possível indicar novamente.",
+                type: "erro"
             });
             return;
         }
@@ -57,7 +63,24 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
             personalData: {
                 fullName,
                 email,
+
             },
+            addressData: {
+                state: "bahia",
+            },
+            giftdnessIndicatorsByResearcher: false,
+            knowledgeAreasIndicatedByResearcher: [
+                "teste",
+                "teste2",
+            ],
+            evaluateAutobiography: {
+                id: 1,
+                text: "teste",
+                comment: "string",
+                mark: "string",
+                start: 0,
+                end: 1,
+            }
         });
 
         setFullName("");
@@ -65,6 +88,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
         setNotificationData({
             title: "Pessoa indicada com sucesso!",
             description: "Ao clicar no botão FINALIZAR, a pessoa receberá um e-mail informativo.",
+            type: "ok"
         });
     };
 
@@ -74,6 +98,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
         setNotificationData({
             title: "Pessoa removida!",
             description: "A pessoa foi removida das indicações.",
+            type: "ok"
         });
     };
 
@@ -84,6 +109,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                 setNotificationData({
                     title: "Indicações concluídas.",
                     description: "As indicações foram registradas e os e-mails foram enviados.",
+                    type: "ok"
                 });
                 onFinish(participants as IParticipant[]);
             }
@@ -92,16 +118,14 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
             setNotificationData({
                 title: "Participante já registrado!",
                 description: "Todos os participantes que você indicou já estão cadastrados na amostra.",
+                type: "erro"
             });
         }
     };
 
     return (
         <>
-            <p className="mb-10">
-                Digite o nome e o e-mail de cada participante que deseja indicar e clique no botão ADICIONAR. Em
-                seguida, clique em FINALIZAR para enviar um e-mail a todos os participantes indicados.
-            </p>
+
             <Form.Root onSubmit={handleAddPeople}>
                 <div className="md:flex">
                     <InputField
@@ -121,43 +145,52 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                     />
                 </div>
                 {(participants?.length || 0) > 0 && (
-                    <table className="bg-dark-gradient my-4 w-full border-collapse rounded-md text-white">
-                        <thead>
-                            <tr>
-                                <th>Nome</th>
-                                <th>E-mail</th>
-                                <th>Remover indicação</th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-white text-primary">
+                    <Table.Root variant="surface" className="w-full mt-3">
+                        <Table.Header className="text-[16px]">
+                            <Table.Row align="center" className="text-center">
+                                <Table.ColumnHeaderCell className="border-l">Nome</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l">E-mail</Table.ColumnHeaderCell>
+                                <Table.ColumnHeaderCell className="border-l">Remover indicação</Table.ColumnHeaderCell>
+                            </Table.Row>
+                        </Table.Header>
+                        <Table.Body>
                             {participants?.map((people) => (
-                                <tr>
-                                    <td>{people?.personalData?.fullName}</td>
-                                    <td>{people?.personalData?.email}</td>
-                                    <td>
-                                        <Cross2Icon
-                                            className="mx-auto cursor-pointer"
-                                            onClick={() =>
-                                                handleDeleteParticipantIndicated(people?.personalData?.email as string)
-                                            }
-                                        />
-                                    </td>
-                                </tr>
+                                <Table.Row align="center">
+                                    <Table.Cell justify="center">{people?.personalData?.fullName}</Table.Cell>
+                                    <Table.Cell justify="center">{people?.personalData?.email}</Table.Cell>
+                                    <Table.Cell justify="center">
+                                        <IconButton
+                                            onClick={() => handleDeleteParticipantIndicated(people?.personalData?.email as string)}
+                                            color="red"
+                                            size="2"
+                                            className="hover:cursor-pointer"
+                                            variant="soft"
+                                            radius="full">
+                                            <Icon.Trash
+                                                size={20}
+                                                weight="bold"
+                                            />
+
+                                        </IconButton>
+
+                                    </Table.Cell>
+                                </Table.Row>
+
                             ))}
-                        </tbody>
-                    </table>
+                        </Table.Body>
+                    </Table.Root>
                 )}
-                <div className="flex justify-between">
+                <div className="flex justify-between mt-5 ">
                     <Form.Submit asChild>
-                        <button className="button-secondary">ADICIONAR</button>
+                        <Button className="hover:cursor-pointer" title={`Adicionar`} color={"gray"}></Button>
                     </Form.Submit>
-                    <button
-                        disabled={!participants.length}
-                        className="button-primary disabled:bg-opacity-30 disabled:hover:bg-none"
-                        onClick={onSubmit}
-                    >
-                        FINALIZAR
-                    </button>
+                    <Button
+                        color={participants.length ? "green" : undefined}
+                        disabled={!participants.length}                        
+                        onClick={onSubmit} 
+                        title={"Finalizar"}                    >
+
+                    </Button>
                 </div>
             </Form.Root>
         </>

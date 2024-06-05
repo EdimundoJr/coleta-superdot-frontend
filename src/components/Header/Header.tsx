@@ -1,6 +1,6 @@
-import { Avatar, Box, Text, Separator, Flex, Section, Card, Skeleton, DropdownMenu, Button, AlertDialog, } from '@radix-ui/themes';
+import { Avatar, Box, Text, Separator, Flex, Section, Card, Skeleton, DropdownMenu } from '@radix-ui/themes';
 import NoImg from "../../assets/no-image.jpg"
-import {  useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { seeAttachmentImage } from '../../api/sample.api';
 import { SampleFile } from '../../interfaces/sample.interface';
 import { getUser, Users } from '../../api/researchers.api';
@@ -8,10 +8,12 @@ import { getUser, Users } from '../../api/researchers.api';
 import * as Icon from "@phosphor-icons/react"
 import { clearTokens } from '../../utils/tokensHandler';
 import { useNavigate } from 'react-router-dom';
+import { Alert } from '../Alert/Alert';
+import { Button } from '../Button/Button';
 
 interface HeaderProps {
     title: String;
-    icon?: React.ReactNode;    
+    icon?: React.ReactNode;
     sampleFile?: SampleFile;
 }
 
@@ -35,7 +37,6 @@ export function Header({ title, icon, sampleFile }: HeaderProps) {
             }
         };
 
-        // Verifica se os dados do usuário já foram carregados antes de fazer outra chamada
         if (!userData && loading) {
             fetchData();
         }
@@ -114,35 +115,20 @@ export function Header({ title, icon, sampleFile }: HeaderProps) {
                                     <DropdownMenu.Content variant="soft" className='w-full mt-1'>
                                         <DropdownMenu.Item className='hover:cursor-pointer' >Editar Perfil</DropdownMenu.Item>
                                         <DropdownMenu.Separator />
-                                        <AlertDialog.Root>
-                                            <AlertDialog.Trigger className='hover:cursor-pointer'>
-                                                <Button color='red' className='hover:bg-red-500 '>
-                                                    <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer'>Sair</DropdownMenu.Item>
-                                                </Button>
-                                            </AlertDialog.Trigger>
-                                            <AlertDialog.Content>
-                                                <AlertDialog.Title>Tem certeza que deseja sair da plataforma?</AlertDialog.Title>
-                                                <Flex gap="3" mt="4" justify="end">
-                                                    <AlertDialog.Cancel>
-                                                        <Button variant="soft" color="gray" className='hover:cursor-pointer'>
-                                                            Cancelar
-                                                        </Button>
-                                                    </AlertDialog.Cancel>
-                                                    <AlertDialog.Action>
-                                                        <Button onClick={logout} variant="solid" color="red" className='hover:cursor-pointer'>
-                                                            Sim, desejo sair.
-                                                        </Button>
-                                                    </AlertDialog.Action>
-                                                </Flex>
-                                            </AlertDialog.Content>
-                                        </AlertDialog.Root>
+                                        <Alert
+                                            trigger={<Button color='red' title={''}>
+                                                <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer hover:bg-red-500 active:bg-red-600'>Sair</DropdownMenu.Item>
+                                            </Button>}
+                                            title={'Tem certeza que deseja sair da plataforma?'} description={''}
+                                            buttoncancel={<Button color="gray" title={'Cancelar'} />} buttonAction={<Button onClick={logout} color="red" title={' Sim, desejo sair.'} />} />
+
                                     </DropdownMenu.Content>
                                 </DropdownMenu.Root>
                             </Skeleton>
                         </Box>
                     </Flex>
                 </Flex>
-            </Flex>           
+            </Flex>
             <Separator my="3" size="4" />
         </Section>
     );

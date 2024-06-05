@@ -11,9 +11,9 @@ interface SelectFieldProps extends React.PropsWithRef<React.JSX.IntrinsicElement
 export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
     ({ label, name, errorMessage, className, children, extraItem, ...rest }, ref) => {
         return (
-            <Form.Field className="mb-6 w-full px-3" name={name}>
+            <Form.Field className="mb-5 w-full px-3" name={name}>
                 <div className="flex items-baseline justify-between">
-                    <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Label className="mb-1 block text-left text-xs font-bold uppercase tracking-wide">
                         {label}
                     </Form.Label>
                 </div>
@@ -22,7 +22,7 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
                         <select
                             ref={ref}
                             {...rest}
-                            className={`h-[35px] w-full rounded-[4px] px-4 text-sm ${className}}`}
+                            className={`h-[35px] w-full rounded-[4px] p-2 text-sm hover:cursor-pointer ${className}}`}
                         >
                             {children}
                         </select>

@@ -28,7 +28,7 @@ const Notify = ({ open, onOpenChange, title, description, children, icon, classN
                         <Toast.Title className="[grid-area:_title] mb-[5px] font-medium text-slate12 text-[15px]">
                             {title}
                         </Toast.Title>
-                        <Toast.Description asChild className="[grid-area:_description] m-0 text-slate11 text-[13px] leading-[1.3] truncate">
+                        <Toast.Description asChild className="[grid-area:_description] m-0 text-slate11 text-[13px] leading-[1.3] text-justify">
                             <p className="">{description}</p>
                         </Toast.Description>
                     </Flex>
