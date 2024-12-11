@@ -4,6 +4,7 @@ import * as Form from "@radix-ui/react-form";
 import { ChangeEvent, useState } from "react";
 import { SampleFile } from "../../interfaces/sample.interface";
 import { seeAttachment } from "../../api/sample.api";
+import { Flex } from "@radix-ui/themes";
 
 interface SampleUploadFileProps {
     sampleFiles: SampleFile[];
@@ -108,13 +109,14 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
                                     );
                             })}
                         </select>
-
-                        <label
-                            htmlFor="chooseFile"
-                            className="bg-neutralLight block max-h-[35px] min-w-[150px] rounded-[8px] p-1"
-                        >
-                            Anexar arquivo
-                        </label>
+                        <Flex justify={"center"} align={"center"}>
+                            <label
+                                htmlFor="chooseFile"
+                                className="bg-primary border-2 rounded-lg p-1  text-white block min-w-[150px] hover:cursor-pointer hover:bg-secondary active:bg-primary active:brightness-90"
+                            >
+                                Anexar arquivo
+                            </label>
+                        </Flex>
                         <input
                             disabled={!currentFileKeyToUpload}
                             id="chooseFile"
@@ -128,7 +130,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
             </div>
             {sampleFiles && (
                 <div>
-                    <h3 className="text-left text-primary">Anexos carregados</h3>
+                    <h3 className="text-left text-primary">Anexos carregados:</h3>
                     {sampleFiles.map((sampleFile, index) => {
                         if (sampleFile.uploadedFile)
                             return (

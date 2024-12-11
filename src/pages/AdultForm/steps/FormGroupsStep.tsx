@@ -16,6 +16,7 @@ import RenderQuestions from "../../../components/RenderQuestions/RenderQuestions
 import { IParticipant } from "../../../interfaces/participant.interface";
 import { AxiosResponse } from "axios";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
+import { Button } from "../../../components/Button/Button";
 
 interface FormGroupsStepProps {
     formData: IParticipant | ISecondSource;
@@ -23,7 +24,7 @@ interface FormGroupsStepProps {
     sourceForm: EAdultFormSource;
     currentStep: EAdultFormSteps;
     nextStep: () => void;
-    setNotificationData: (data: { title: string; description: string }) => void;
+    setNotificationData: (data: { title: string; description: string; type: String }) => void;
     sampleId: string;
     saveAndExit: () => void;
     previousStep: () => void;
@@ -143,6 +144,7 @@ const FormGroupsStep = ({
             setNotificationData({
                 title: "Erro no servidor!",
                 description: "Não foi possível efetuar a comunicação com o servidor. Tente novamente.",
+                type: "erro"
             });
             return;
         }
@@ -151,12 +153,14 @@ const FormGroupsStep = ({
             setNotificationData({
                 title: "Questionário finalizado!",
                 description: "Todos os grupos foram respondidos, parabéns!",
+                type: "ok"
             });
             nextStep();
         } else {
             setNotificationData({
                 title: "Grupo finalizado!",
                 description: "Parabéns, você finalizou um grupo de perguntas. Continue!",
+                type: "ok"
             });
             setCurrentGroup(response.data);
             nextStep();
@@ -203,6 +207,11 @@ const FormGroupsStep = ({
      */
     const handlerSaveAndContinue = async () => {
         if (!allQuestionsHaveAnswers(currentGroup.questions)) {
+            setNotificationData({
+                title: "Perguntas em aberto.    ",
+                description: "Para proseguir, respoda todas as perguntas",
+                type: "erro"
+            })
             return;
         }
 
@@ -214,6 +223,7 @@ const FormGroupsStep = ({
             setNotificationData({
                 title: "Erro no servidor!",
                 description: "Não foi possível efetuar a comunicação com o servidor. Tente novamente.",
+                type: "erro"
             });
             return;
         }
@@ -234,6 +244,7 @@ const FormGroupsStep = ({
             setNotificationData({
                 title: "Erro no servidor!",
                 description: "Não foi possível efetuar a comunicação com o servidor. Tente novamente.",
+                type: "erro"
             });
             return;
         }
@@ -255,21 +266,28 @@ const FormGroupsStep = ({
 
             <RenderQuestions questions={currentGroup?.questions} setQuestions={handleOnChangeQuestions} />
 
-            <div className="mt-5 flex w-full justify-center gap-x-4 px-3 ">
-                <div className="flex justify-center gap-6">
-                    <button type="button" onClick={previousStep} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
-                        VOLTAR
-                    </button>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56" onClick={handlerSaveAndExit}>
-                        SALVAR E SAIR
-                    </button>
-                    <button
-                        className="button-secondary mt-5 w-3/4 px-3 disabled:bg-neutral-dark md:w-56"
-                        onClick={handlerSaveAndContinue}
-                    >
-                        SALVAR E CONTINUAR
-                    </button>
-                </div>
+
+            <div className="flex justify-center gap-6">
+                <Button onClick={previousStep}
+                    size="Medium"
+                    title={"Voltar"}
+                    color={"primary"}>
+
+                </Button>
+                <Button
+                size="Medium"
+                onClick={handlerSaveAndExit}
+                    title={"Salvar e Sair"}
+                    color={"primary"}>
+
+                </Button>
+                <Button
+                 size="Medium"
+                    onClick={handlerSaveAndContinue}
+                    title={"Salvar e Continuar"}
+                    color={"primary"}                    >
+
+                </Button>
             </div>
         </div>
     );

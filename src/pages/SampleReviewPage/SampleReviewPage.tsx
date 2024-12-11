@@ -9,11 +9,16 @@ import ReviewCard from "../../components/ReviewCard/ReviewCard";
 import { SampleSummary } from "../../api/sample.api";
 import { SampleStatus } from "../../utils/consts.utils";
 import Notify from "../../components/Notify/Notify";
+import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
+import { Header } from "../../components/Header/Header";
+import { Button } from "../../components/Button/Button";
+import * as Icon from "@phosphor-icons/react"
 
 const SampleReviewPage = () => {
     /* PAGE GLOBAL STATES */
     const [sampleSelected, setSampleSelected] = useState<SampleSummary | undefined>();
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
+    const [loading, setLoading] = useState(true);
 
     /* TABLE STATES */
     const [tablePageData, setTablePageData] = useState<PageSampleSummary>();
@@ -31,6 +36,7 @@ const SampleReviewPage = () => {
         };
 
         getPage();
+        setLoading(false)
     }, [currentTablePage, filterStatus, refreshTable]);
 
     /* TABLE HANDLERS */
@@ -87,86 +93,93 @@ const SampleReviewPage = () => {
     };
 
     return (
-        <Notify
-            onOpenChange={setShowSuccessNotify}
-            open={showSuccessNotify}
-            description="O perfil do usuário foi atualizado com sucesso!"
-            title="Sucesso"
-        >
-            <header className="mt-6 text-2xl font-bold">Solicitações</header>
-            <div className="mb-8 overflow-x-scroll">
-                <SamplesTable
-                    onClickToReviewSample={handleOnClickToReviewSample}
-                    onClickToViewSampleReviews={handleOnClickListSampleReviews}
-                    onClickToViewSampleAttachments={handleOnClickToViewSampleAttachments}
-                    currentStatus={filterStatus}
-                    onChangeFilterStatus={handleChangeFilterStatus}
-                    currentPage={currentTablePage}
-                    setCurrentPage={setCurrentTablePage}
-                    page={tablePageData}
-                />
-            </div>
-            <Modal
-                accessibleDescription="Revisando uma solicitação de amostra."
-                title="Revisando solicitação"
-                open={modalReviewingOpen}
-                setOpen={setModalReviewingOpen}
+        <>
+            <Notify
+                onOpenChange={setShowSuccessNotify}
+                open={showSuccessNotify}
+                description="O perfil do usuário foi atualizado com sucesso!"
+                title="Sucesso"
             >
-                <SampleReviewForm sample={sampleSelected} onFinish={handleOnFinishReviewCreation} />
-            </Modal>
-            <Modal
-                accessibleDescription="Visulizando todas as revisões da respectiva amostra."
-                title="Revisões"
-                open={modalListReviewsOpen}
-                setOpen={setModalListReviewsOpen}
-            >
-                {reviewsData?.map((review) => (
-                    <ReviewCard reviewerFullName={review.reviewerFullName} reviewDetails={review.reviewDetails} />
-                ))}
-            </Modal>
-            <Modal
-                accessibleDescription="Visulizando os anexos da amostra."
-                title="Anexos"
-                open={modalAttachmentsOpen}
-                setOpen={setModalAttachmentsOpen}
-            >
-                <ul className="text-center">
-                    {attachmentsToDisplay?.researchDocument && (
-                        <li>
-                            Projeto de pesquisa:
-                            <button
-                                onClick={() => handleSeeAttachment(attachmentsToDisplay.researchDocument || "")}
-                                className="button-neutral-light m-4"
-                            >
-                                Visualizar
-                            </button>
-                        </li>
-                    )}
-                    {attachmentsToDisplay?.tcleDocument && (
-                        <li>
-                            TCLE:
-                            <button
-                                onClick={() => handleSeeAttachment(attachmentsToDisplay.tcleDocument || "")}
-                                className="button-neutral-light m-4"
-                            >
-                                Visualizar
-                            </button>
-                        </li>
-                    )}
-                    {attachmentsToDisplay?.taleDocument && (
-                        <li>
-                            TALE:
-                            <button
-                                onClick={() => handleSeeAttachment(attachmentsToDisplay.taleDocument || "")}
-                                className="button-neutral-light m-4"
-                            >
-                                Visualizar
-                            </button>
-                        </li>
-                    )}
-                </ul>
-            </Modal>
-        </Notify>
+                <Header title="Solicitações" icon={<Icon.Check size={24} />}></Header>
+                <Skeleton loading={loading}>
+                    <Container className="mb-8">
+
+                        <SamplesTable
+                            onClickToReviewSample={handleOnClickToReviewSample}
+                            onClickToViewSampleReviews={handleOnClickListSampleReviews}
+                            onClickToViewSampleAttachments={handleOnClickToViewSampleAttachments}
+                            currentStatus={filterStatus}
+                            onChangeFilterStatus={handleChangeFilterStatus}
+                            currentPage={currentTablePage}
+                            setCurrentPage={setCurrentTablePage}
+                            page={tablePageData}
+                        />
+                    </Container>
+
+                    <Modal
+                        accessibleDescription="Revisando uma solicitação de amostra."
+                        title="Revisando solicitação"
+                        open={modalReviewingOpen}
+                        setOpen={setModalReviewingOpen}
+                    >
+                        <SampleReviewForm sample={sampleSelected} onFinish={handleOnFinishReviewCreation} />
+                    </Modal>
+
+                    <Modal
+                        accessibleDescription="Visulizando todas as revisões da respectiva amostra."
+                        title="Revisões"
+                        open={modalListReviewsOpen}
+                        setOpen={setModalListReviewsOpen}
+                    >
+                        {reviewsData?.map((review) => (
+                            <ReviewCard reviewerFullName={review.reviewerFullName} reviewDetails={review.reviewDetails} />
+                        ))}
+                    </Modal>
+                    <Modal
+                        accessibleDescription="Visulizar os anexos da amostra."
+                        title="Anexos"
+                        open={modalAttachmentsOpen}
+                        setOpen={setModalAttachmentsOpen}
+                    >
+                        <Flex align="center" direction="column" >
+                            {attachmentsToDisplay?.researchDocument && (
+
+
+                                <Button
+                                    onClick={() => handleSeeAttachment(attachmentsToDisplay.researchDocument || "")} title={"Projeto de pesquisa"}
+                                    className="w-[200px]"
+                                    children={<Icon.Files size={20} />} color={"primary"}                            >
+
+                                </Button>
+
+                            )}
+                            {attachmentsToDisplay?.tcleDocument && (
+
+                                <Button
+                                    onClick={() => handleSeeAttachment(attachmentsToDisplay.tcleDocument || "")}
+                                    title={"TCLE"}
+                                    className="w-[200px]"
+                                    children={<Icon.Files size={20} />} color={"primary"}                            >
+
+                                </Button>
+                            )}
+                            {attachmentsToDisplay?.taleDocument && (
+
+
+                                <Button
+                                    onClick={() => handleSeeAttachment(attachmentsToDisplay.taleDocument || "")}
+                                    className="w-[200px]"
+                                    title={"TALE"}
+                                    children={<Icon.Files size={20} />} color={"primary"}                            >
+
+                                </Button>
+
+                            )}
+                        </Flex>
+                    </Modal>
+                </Skeleton>
+            </Notify>
+        </>
     );
 };
 

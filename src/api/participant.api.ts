@@ -35,8 +35,7 @@ export const patchValidateVerificationCode = async ({
     verificationCode,
 }: ValidateVerificationCodeParams) => {
     return axios.patch<ValidateVerificationCodeReturn>(
-        `${
-            import.meta.env.VITE_BACKEND_HOST
+        `${import.meta.env.VITE_BACKEND_HOST
         }/api/participant/validate-verification-code/sample/${sampleId}/participant/${participantId}/code/${verificationCode}`
     );
 };
@@ -97,13 +96,89 @@ export const patchSaveAutobiography = async ({
     );
 };
 
+
+
+
+interface PatchSaveEvalueAutobiographyParams {
+    sampleId?: string;
+    participantId?: string;
+    idEvalueAutobiography?: number;
+    textEvalueAutobiography?: string;
+    commentEvalueAutobiography?: string;
+    markEvalueAutobiography?: string;
+    startEvalueAutobiography?: number;
+    endEvalueAutobiography?: number;
+    backgroundEvalueAutobiography?: string;
+    submitForm?: boolean;
+}
+
+export const patchSaveEvalueAutobiography = async ({
+    sampleId,
+    participantId,
+    idEvalueAutobiography,
+    textEvalueAutobiography,
+    commentEvalueAutobiography,
+    markEvalueAutobiography,
+    startEvalueAutobiography,
+    endEvalueAutobiography,
+    backgroundEvalueAutobiography,
+    submitForm,
+}: PatchSaveEvalueAutobiographyParams): Promise<boolean> => {
+    try {
+        console.log("Sending data:", {
+            sampleId,
+            participantId,
+            idEvalueAutobiography,
+            textEvalueAutobiography,
+            commentEvalueAutobiography,
+            markEvalueAutobiography,
+            startEvalueAutobiography,
+            endEvalueAutobiography,
+            backgroundEvalueAutobiography,
+            submitForm
+        });
+
+        const response = await axios.patch<boolean>(
+            `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-evalueAutobiography/sample/${sampleId}/participant/${participantId}?submitForm=${String(submitForm)}`,
+            {
+                idEvalueAutobiography,
+                textEvalueAutobiography,
+                commentEvalueAutobiography,
+                markEvalueAutobiography,
+                startEvalueAutobiography,
+                endEvalueAutobiography,
+                backgroundEvalueAutobiography
+            }
+        );
+
+        console.log("Response data:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Error saving evalue autobiography:", error);
+        throw error;
+    }
+};
+
+
 interface GetParticipantDataParams {
     sampleId: string;
 }
-
 export const getParticipantData = async ({ sampleId }: GetParticipantDataParams) => {
     setAuthHeaders();
     return axios.get<IParticipant>(
         `${import.meta.env.VITE_BACKEND_HOST}/api/participant/get-participant-info/sample/${sampleId}`
+    );
+};
+
+
+interface GetParticipantDataBioParams {
+    sampleId?: string;
+    participantId?: string;
+}
+
+export const getParticipantDataBio = async ({ sampleId, participantId }: GetParticipantDataBioParams) => {
+    setAuthHeaders();
+    return axios.get<IParticipant>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/get-participant-info-bio/sample/${sampleId}/participant/${participantId}`
     );
 };

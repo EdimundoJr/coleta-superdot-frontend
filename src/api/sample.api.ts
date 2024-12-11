@@ -132,7 +132,38 @@ export const getinfoDashboard = async () => {
         setAuthHeaders();
         const response = await axios.get<DashboardInfo>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/load-Information-deashboard`);
 
-        console.log("Resposta da requisição para obter dados do pesquisador:", response.data);
+        // console.log("Resposta da requisição para obter dados do pesquisador:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao fazer requisição para obter dados: ", error);
+        throw error;
+    }
+};
+export interface AnswerByGender {
+    result: {
+        feminino: {            
+            frequentemente: number,
+            sempre: number,
+            asVezes: number,
+            raramente: number,
+            nunca: number
+          },
+          masculino: {            
+            frequentemente: number,
+            sempre: number,
+            asVezes: number,
+            raramente: number,
+            nunca: number
+          }
+        }       
+    }
+
+export const answerByGender = async () => {
+    try {
+        setAuthHeaders();
+        const response = await axios.get<AnswerByGender>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/answer-by-gender`);
+
+         console.log("Resposta da requisição para obter dados dos Answer By Gender:", response.data);
         return response.data;
     } catch (error) {
         console.error("Erro ao fazer requisição para obter dados: ", error);

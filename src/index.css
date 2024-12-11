@@ -18,7 +18,7 @@
 }
 
 #root {
-    @apply mx-auto my-0 h-full min-w-fit text-center sm:w-full;
+    @apply mx-auto my-0 h-full min-w-fit text-center font-roboto sm:w-full;
 }
 
 body,
@@ -42,27 +42,9 @@ h3 {
 h4 {
     @apply text-4xl font-semibold leading-10 text-opacity-[0.87];
 }
-
 input,
-select,
-textarea {
-    @apply w-full rounded-[50px] border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium  text-[#999999];
-}
-
-table {
-    @apply mx-auto border-collapse text-alternative-text;
-}
-
-tbody {
-    @apply bg-white text-primary;
-}
-
-th {
-    @apply px-6 py-3;
-}
-
-td {
-    @apply border px-6 py-3;
+select {
+    @apply w-full rounded-md border border-[#C2C2C2] bg-white px-[15px] py-[8px] text-sm font-medium text-black;
 }
 
 thead.multi-rows th {

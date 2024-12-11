@@ -1,4 +1,5 @@
 import * as Form from "@radix-ui/react-form";
+import { Flex } from "@radix-ui/themes";
 import { ReactNode, forwardRef } from "react";
 
 interface SelectFieldProps extends React.PropsWithRef<React.JSX.IntrinsicElements["select"]> {
@@ -12,23 +13,23 @@ export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
     ({ label, name, errorMessage, className, children, extraItem, ...rest }, ref) => {
         return (
             <Form.Field className="mb-5 w-full px-3" name={name}>
-                <div className="flex items-baseline justify-between">
-                    <Form.Label className="mb-1 block text-left text-xs font-bold uppercase tracking-wide">
+                <Flex justify={"between"} align={"baseline"}>
+                    <Form.Label className="text-left text-xs font-bold uppercase tracking-wide">
                         {label}
                     </Form.Label>
-                </div>
-                <div className="flex gap-4">
+                </Flex>
+                <Flex gap="4">
                     <Form.Control asChild>
                         <select
                             ref={ref}
                             {...rest}
-                            className={`h-[35px] w-full rounded-[4px] p-2 text-sm hover:cursor-pointer ${className}}`}
+                            className={`h-10 w-full hover:cursor-pointer ${className}}`}
                         >
                             {children}
                         </select>
                     </Form.Control>
                     {extraItem}
-                </div>
+                </Flex>
                 {errorMessage && <Form.Message className="error-message">{errorMessage}</Form.Message>}
             </Form.Field>
         );

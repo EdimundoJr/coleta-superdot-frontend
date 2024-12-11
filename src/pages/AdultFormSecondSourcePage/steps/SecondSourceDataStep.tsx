@@ -9,12 +9,14 @@ import { useForm } from "react-hook-form";
 import { SecondSourceDTO, secondSourceDataSchema } from "../../../schemas/adultForm/secondSourceData.schema";
 import { putSaveSecondSourceData, putSubmitSecondSourceData } from "../../../api/secondSource.api";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
+import { Flex } from "@radix-ui/themes";
+import { Button } from "../../../components/Button/Button";
 
 interface SecondSourceDataStepProps {
     formData?: ISecondSource;
     setFormData: (formData: ISecondSource) => void;
     nextStep: () => void;
-    setNotificationData: (data: { title: string; description: string }) => void;
+    setNotificationData: (data: { title: string; description: string, type: String }) => void;
     sampleId: string;
     saveAndExit: () => void;
 }
@@ -46,6 +48,7 @@ const SecondSourceDataStep = ({
             setNotificationData({
                 title: "Preenchimento inválido!",
                 description: "Preencha todos os campos corretamente.",
+                type: "erro"
             });
         }
 };
@@ -69,6 +72,7 @@ const SecondSourceDataStep = ({
             setNotificationData({
                 title: "Preenchimento inválido!",
                 description: "Preencha todos os campos corretamente.",
+                type: "erro"
             });
         }
     });
@@ -167,14 +171,15 @@ const SecondSourceDataStep = ({
                         errorMessage={errors.personalData?.street?.message}
                     />
                 </div>
-                <div className="flex justify-center gap-6">
-                    <button type="button" onClick={onSaveAndExit} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
-                        SALVAR E SAIR
-                    </button>
+                <Flex align={"center"} justify={"center"} className="gap-6 mt-5">
+                    <Button size="Medium" type="button" onClick={onSaveAndExit} className="" title={"Salvar e sair"} color={"primary"}>
+                        
+                    </Button>
                     <Form.Submit asChild>
-                        <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">SALVAR E CONTINUAR</button>
+                        <Button size="Medium"
+                        className="" title={"Salvar e Continuar"} color={"primary"}></Button>
                     </Form.Submit>
-                </div>
+                </Flex>
             </Form.Root>
         </div>
     );

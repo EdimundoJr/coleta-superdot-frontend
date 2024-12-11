@@ -16,8 +16,9 @@ import SampleUploadFile from "../../components/SampleUploaderFile/SampleUploader
 import { validateFiles } from "../../validators/fileValidator";
 import { CustomFileError } from "../../errors/fileErrors";
 import * as Icon from "@phosphor-icons/react";
-import { Button, Flex } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import { Header } from "../../components/Header/Header";
+import { Button } from "../../components/Button/Button";
 
 const CreateSamplePage = () => {
     const [sampleFiles, setSampleFiles] = useState<SampleFile[]>(FILES_AVAILABLE_TO_CREATE_SAMPLE);
@@ -121,9 +122,9 @@ const CreateSamplePage = () => {
     });
 
     return (
-        <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5`}>
+        <>
 
-            <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />}  />
+            <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />} />
             <Notify
                 open={!!notificationTitle}
                 onOpenChange={() => setNotificationTitle("")}
@@ -230,11 +231,11 @@ const CreateSamplePage = () => {
                     />
 
                     <Form.Submit asChild className="mt-10">
-                        <Button color="grass" className="hover:cursor-pointer">Enviar Solicitação</Button>
+                        <Button size="Extra Large" color="green" title={"Enviar Solicitação"} className="m-auto" />
                     </Form.Submit>
                 </Form.Root>
             </Notify>
-        </Flex>
+        </>
     );
 };
 

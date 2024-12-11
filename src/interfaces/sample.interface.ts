@@ -20,6 +20,7 @@ export interface AcceptSampleFile {
 }
 
 export interface ISample {
+    id: string;
     _id?: string;
     researchTitle: string;
     sampleTitle: string;

@@ -13,14 +13,16 @@ interface InputFieldProps extends React.PropsWithRef<React.JSX.IntrinsicElements
 export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
     ({ label, placeholder, name, errorMessage, type, className, icon, ...rest }, ref) => {
         return (
-            <Form.Field className="w-full border-none px-3 rounded-[8px] " name={name}>
+            <Form.Field className={`w-full border-none rounded-lg ${className}`} name={name}>
                 <Form.Label className={`block text-left text-xs font-bold uppercase tracking-wide`}>
                     {label}
                 </Form.Label>
-                <Flex className={`items-center ${className} border-2 rounded-[8px]`}>
+                <Flex justify="center" align="center" className={`border-2 rounded-md`}>
                     {icon && <Flex className="p-2">{icon}</Flex>}
-                    <Form.Control asChild className={`h-[35px] w-full rounded-[4px] px-4 text-sm  ${className}`}>
-                        <input placeholder={placeholder} ref={ref} type={type} {...rest} className="border-none" />
+                    <Form.Control asChild className={`h-10 w-full`}>
+
+                        <input placeholder={placeholder} ref={ref} type={type} {...rest} className=" border-none bg-white" />
+
                     </Form.Control>
                 </Flex>
                 {errorMessage && <Form.Message className="error-message">{errorMessage}</Form.Message>}

@@ -16,6 +16,9 @@ import { patchValidateVerificationCode } from "../../api/participant.api";
 import { getResearcherNameBySampleId } from "../../api/researchers.api";
 import FormGroupsStep from "./steps/FormGroupsStep";
 import { ISecondSource } from "../../interfaces/secondSource.interface";
+import { Box, Flex, Progress, Text } from "@radix-ui/themes";
+import * as Icon from "@phosphor-icons/react";
+import { ScrollToTop } from "../../components/ScrollToTop/ScrollToTop";
 
 const stepsInfo = [
     {
@@ -88,10 +91,12 @@ const AdultForm = () => {
     const [notificationData, setNotificationData] = useState({
         title: "",
         description: "",
+        type: "",
     });
     const [researcherName, setResearcherName] = useState<string>("");
     const { sampleId, participantId, verificationCode } = useParams();
     const navigate = useNavigate();
+
 
     /* It is used to fetch the researcher name based on a sample ID. */
     useEffect(() => {
@@ -124,6 +129,7 @@ const AdultForm = () => {
                     setNotificationData({
                         title: "Link inválido!",
                         description: "Verifique se está utilizando o código que foi enviado para o seu e-mail.",
+                        type: "erro"
                     });
                 })
                 .finally(() => {
@@ -176,59 +182,68 @@ const AdultForm = () => {
     };
 
     return (
+
         <Notify
             open={!!notificationData.title}
-            onOpenChange={() => setNotificationData({ title: "", description: "" })}
+            onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
             title={notificationData.title}
             description={notificationData.description}
+            icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" /> : <Icon.CheckCircle size={30} color="white" />}
+            className={notificationData.type === "erro" ? "bg-red-500" : "bg-green-500"}
+
         >
+
             {loading && (
-                <div className="absolute flex h-full w-full bg-black opacity-60">
-                    <ReactLoading className="m-auto" type="spinningBubbles"></ReactLoading>
-                </div>
+                <Flex direction="column-reverse" className="absolute h-full w-full bg-black m-auto">
+                    <h1 className="text-white m-auto">Aguarde...
+                        <ReactLoading className="m-auto" type="spinningBubbles"></ReactLoading>
+                    </h1>
+
+                </Flex>
             )}
-            <div
-                id="bg-div"
-                className="h-full overflow-y-scroll bg-slate-950 bg-opacity-50 bg-default-bg bg-cover bg-no-repeat bg-blend-multiply"
-            >
-                {/* HEADER */}
-                <div className="flex justify-start p-4">
-                    <h1>GRUPAC</h1>
-                </div>
+            <Box id="bg-div"
+                className={`w-full bg-slate-950 bg-opacity-50 bg-default-bg bg-cover bg-no-repeat bg-blend-multiply font-roboto text-white p-4 h-full overflow-y-scroll`}>
 
                 {/* STEPPER WITH THREE ROWS */}
+                {/* <Flex direction="column" justify="center" align="center" gap="4" className="bg-white text-black">
+                    {stepsInfo.map((step, index) => (
+
+                        <Flex direction="column" key={index} className="w-[800px] font-roboto text-xl">
+                            {currentStep === index + 1 ?
+                                <>
+                                    <Text as="label"> {currentStep} -{step.title}</Text>
+                                    <Text as="label"> {step.stepDescription}</Text>
+                                    <Progress size="3" value={(step.step * 10) + 1} color="purple" />
+                                </> : <></>
+                            }
+
+                        </Flex>
+
+                    ))}
+                </Flex> */}
                 {currentStep > EAdultFormSteps.INTRODUCTION && (
+
                     <>
-                        <Stepper.Root>
-                            {stepsInfo.slice(0, 4).map((step) => (
-                                <Stepper.Step
-                                    stepState={getStepState(step.step)}
-                                    stepNumber={step.stepNumber}
-                                    stepTitle={step.title}
-                                    stepDescription={step.stepDescription}
-                                />
-                            ))}
-                        </Stepper.Root>
-                        <Stepper.Root>
-                            {stepsInfo.slice(4, 7).map((step) => (
-                                <Stepper.Step
-                                    stepState={getStepState(step.step)}
-                                    stepNumber={step.stepNumber}
-                                    stepTitle={step.title}
-                                    stepDescription={step.stepDescription}
-                                />
-                            ))}
-                        </Stepper.Root>
-                        <Stepper.Root>
-                            {stepsInfo.slice(7, 10).map((step) => (
-                                <Stepper.Step
-                                    stepState={getStepState(step.step)}
-                                    stepNumber={step.stepNumber}
-                                    stepTitle={step.title}
-                                    stepDescription={step.stepDescription}
-                                />
-                            ))}
-                        </Stepper.Root>
+                        
+                            <Stepper.Root>
+                            {stepsInfo.map((step, index) => (
+                                <>
+                                {currentStep === index + 1 ?
+                                    <Flex  key={index}>
+                                        <Stepper.Step
+                                            stepState={getStepState(step.step)}
+                                            stepNumber={step.stepNumber}
+                                            stepTitle={step.title}
+                                            stepDescription={step.stepDescription}
+                                        />
+
+                                    </Flex>
+                                    : <></>}
+                                    </>
+
+                        ))}
+                            </Stepper.Root>
+
                     </>
                 )}
 
@@ -299,8 +314,10 @@ const AdultForm = () => {
                         setNotificationData={setNotificationData}
                     />
                 )}
-            </div>
+                {/* </Flex> */}
+            </Box>
         </Notify>
+
     );
 };
 

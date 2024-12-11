@@ -66,7 +66,8 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
                             options={{
-                                maxDate: "today",
+                                maxDate: 'today',
+                                closeOnSelect: true,
                             }}
                         />
                         {errors?.personalData?.birthDate && (

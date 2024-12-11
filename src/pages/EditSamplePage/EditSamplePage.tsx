@@ -15,9 +15,9 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithSample } from "../../validators/navigationStateValidators";
 import { CustomFileError } from "../../errors/fileErrors";
 import { validateFiles } from "../../validators/fileValidator";
-import { Button, Flex } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
 import { Header } from "../../components/Header/Header";
+import { Button } from "../../components/Button/Button";
 
 
 const EditSamplePage = () => {
@@ -145,7 +145,7 @@ const EditSamplePage = () => {
     });
 
     return (
-        <Flex direction="column" className={`relative ml-2  border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] `}>
+        <>
 
             <Notify
                 open={!!notificationTitle}
@@ -153,8 +153,7 @@ const EditSamplePage = () => {
                 title={notificationTitle}
                 description={notificationDescription}
             >
-                <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />} children={`Amostra selecioanda: ${sample.sampleTitle}`} />
-
+                <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />} />
 
                 <Form.Root onSubmit={onSubmit} className="mx-auto mb-6 mt-11 w-11/12">
                     <h3 className="text-left text-primary">Detalhes da amostra</h3>
@@ -257,15 +256,15 @@ const EditSamplePage = () => {
 
                     <div className="mt-10 flex justify-center gap-2">
                         <Form.Submit asChild>
-                            <Button color="grass" className="hover:cursor-pointer hover:bg-green-500">Salvar alterações</Button>
+                            <Button color="green" title={"Salvar alterações"} size={"Medium"}></Button>
                         </Form.Submit>
-                        <Button color="red" className="hover:cursor-pointer hover:bg-red-600" onClick={() => navigate("/app/my-samples")}>
-                            Cancelar
+                        <Button color="gray" onClick={() => navigate("/app/my-samples")} title={"Cancelar"} size={"Medium"}>
+
                         </Button>
                     </div>
                 </Form.Root>
             </Notify>
-        </Flex>
+        </>
     );
 };
 

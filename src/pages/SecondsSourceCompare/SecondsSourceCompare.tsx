@@ -9,7 +9,6 @@ import ApexChart from "react-apexcharts";
 import { ApexOptions } from 'apexcharts';
 import { SelectField } from "../../components/SelectField/SelectField";
 import * as Form from "@radix-ui/react-form";
-import { Button } from "../../components/Button/Button";
 import { useState } from "react";
 
 
@@ -230,7 +229,7 @@ const SecondsSourceCompare = () => {
     const selectedQuestions = secondSources[0].adultForm?.answersByGroup?.[selectedBlockIndex]?.questions || [];
 
     return (
-        <Flex direction="column" className="relative ml-2 border-t-4 border-primary rounded-tl-[30px] w-full bg-[#fbfaff] p-5">
+        <>
             <Header title="Comparação com Segunda Fonte" icon={<Icon.Books size={24} />} />
             <Box className="w-[90%] m-auto">
                 <Accordeon
@@ -415,7 +414,7 @@ const SecondsSourceCompare = () => {
                     defaultValue={""} />
 
             </Box >
-        </Flex >
+        </>
     );
 };
 

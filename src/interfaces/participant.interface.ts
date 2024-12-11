@@ -9,6 +9,7 @@ import {
 } from "../utils/consts.utils";
 import IQuestion from "./question.interface";
 import { ISecondSource } from "./secondSource.interface";
+import IBio from "./evaluateAutobiography.interface";
 
 export interface IParticipant {
     _id?: string;
@@ -54,9 +55,7 @@ export interface IParticipant {
         text?: string;
         videoUrl?: string;
     };
-    evaluateAutobiography?: {
-        text?: string;
-    };
+    evaluateAutobiography: IBio[];
     secondSources?: DeepPartial<ISecondSource>[];
     createdAt?: string;
     updatedAt?: string;

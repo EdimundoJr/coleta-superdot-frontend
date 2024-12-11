@@ -68,19 +68,19 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
             addressData: {
                 state: "bahia",
             },
-            giftdnessIndicatorsByResearcher: false,
-            knowledgeAreasIndicatedByResearcher: [
-                "teste",
-                "teste2",
-            ],
-            evaluateAutobiography: {
-                id: 1,
-                text: "teste",
-                comment: "string",
-                mark: "string",
-                start: 0,
-                end: 1,
-            }
+            // giftdnessIndicatorsByResearcher: false,
+            // knowledgeAreasIndicatedByResearcher: [
+            //     "teste",
+            //     "teste2",
+            // ],
+            // evaluateAutobiography: {
+            //     id: 1,
+            //     text: "teste",
+            //     comment: "string",
+            //     mark: "string",
+            //     start: 0,
+            //     end: 1,
+            // }
         });
 
         setFullName("");
@@ -182,10 +182,11 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                 )}
                 <div className="flex justify-between mt-5 ">
                     <Form.Submit asChild>
-                        <Button className="hover:cursor-pointer" title={`Adicionar`} color={"gray"}></Button>
+                        <Button size="Extra Small" className="hover:cursor-pointer" title={`Adicionar`} color={"gray"}></Button>
                     </Form.Submit>
                     <Button
-                        color={participants.length ? "green" : undefined}
+                        size="Extra Small"
+                        color={participants.length ? "green" : ""}
                         disabled={!participants.length}                        
                         onClick={onSubmit} 
                         title={"Finalizar"}                    >

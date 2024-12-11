@@ -21,7 +21,6 @@ export function Alert({ trigger,title,description,buttonAction,buttoncancel }: A
           <AlertDialog.Description size="2">
             {description}
           </AlertDialog.Description>
-
           <Flex gap="3" mt="4" justify="end">
             <AlertDialog.Cancel>
               {buttoncancel}

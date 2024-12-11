@@ -11,6 +11,10 @@ import { fetchUserRole } from "../../api/auth.api";
 import Notify from "../../components/Notify/Notify";
 import { usersPageSearchFormSchema } from "../../schemas/usersPage.schema";
 import { USER_ROLE } from "../../utils/consts.utils";
+import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
+import { Header } from "../../components/Header/Header";
+import { Button } from "../../components/Button/Button";
+import * as Icon from "@phosphor-icons/react";
 
 const UsersPage = () => {
     const {
@@ -24,7 +28,7 @@ const UsersPage = () => {
     const [userSelected, setUserSelected] = useState<string | null>();
     const [filters, setFilters] = useState<Filters>();
     const [currentUserRole, setCurrentUserRole] = useState<USER_ROLE>("Pesquisador");
-
+    const [loading, setLoading] = useState(true)
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
 
     const [modalOpen, setModalOpen] = useState(false);
@@ -38,6 +42,7 @@ const UsersPage = () => {
         };
 
         getPage();
+        setLoading(false)
     }, [currentTablePage, filters]);
 
     const onUserSelected = async (userId: string) => {
@@ -68,22 +73,29 @@ const UsersPage = () => {
     };
 
     return (
-        <Notify
-            open={showSuccessNotify}
-            onOpenChange={setShowSuccessNotify}
-            title="Sucesso!"
-            description="O perfil do usuário foi atualizado com sucesso!"
-        >
-            <header className="mt-6 text-2xl font-bold">Usuários</header>
-            <div>
-                <Form.Root
-                    onSubmit={handleSubmit((data) => setFilters(data))}
-                    className="mx-auto my-8 inline-block w-11/12"
-                >
-                    <div className="sm:flex">
+        <>
+            <Notify
+                open={showSuccessNotify}
+                onOpenChange={setShowSuccessNotify}
+                title="Sucesso!"
+                description="O perfil do usuário foi atualizado com sucesso!"
+                icon={<Icon.CheckCircle size={30} color="white" />}
+                className="bg-green-400"
+            >
+                <Header title="Usuários" icon={<Icon.UserGear size={24} />}></Header>
+                <Box className="w-full pt-10 pb-10">
+                    <Form.Root
+                        onSubmit={handleSubmit((data) => setFilters(data))}
+                        className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-1 ">
+                        <Form.Submit asChild>
+                            <Button className="items-center w-[200px]" title="Filtrar" children={<Icon.Funnel size={20} color="white" />} color="primary">
+
+                            </Button>
+                        </Form.Submit>
                         <InputField
                             label="Pesquisar pelo nome do usuário"
                             placeholder="Digite o nome do usuário"
+                            icon={<Icon.MagnifyingGlass />}
                             type="text"
                             errorMessage={errors.userName?.message}
                             {...register("userName")}
@@ -92,43 +104,44 @@ const UsersPage = () => {
                             label="Pesquisar pelo e-mail do usuário"
                             placeholder="Digite o e-mail do usuário"
                             type="email"
+                            icon={<Icon.MagnifyingGlass />}
                             errorMessage={errors.userEmail?.message}
                             {...register("userEmail")}
                         />
-                    </div>
-                    <button
-                        onClick={() => setFilters({})}
-                        type="reset"
-                        className="button-neutral-light float-right mr-3"
+                        <Button onClick={() => setFilters({})}
+                            title="Limpar Filtro"
+                            color="primary" />
+
+                        <Flex >
+                        </Flex>
+                    </Form.Root>
+                </Box>
+                <Skeleton loading={loading}>
+                    <Container className="mb-8">
+
+                        <UsersTable
+                            onClickPencil={onUserSelected}
+                            currentPage={currentTablePage}
+                            setCurrentPage={setCurrentTablePage}
+                            data={tablePageData}
+                        />
+
+                    </Container>
+                    <Modal
+                        accessibleDescription="Selecione um novo perfil para o usuário escolhido."
+                        title="Alterando Perfil"
+                        open={modalOpen}
+                        setOpen={setModalOpen}
                     >
-                        Limpar Campos
-                    </button>
-                    <Form.Submit asChild>
-                        <button className="button-primary float-right mr-3">Pesquisar</button>
-                    </Form.Submit>
-                </Form.Root>
-            </div>
-            <div className="mb-8 overflow-x-scroll">
-                <UsersTable
-                    onClickPencil={onUserSelected}
-                    currentPage={currentTablePage}
-                    setCurrentPage={setCurrentTablePage}
-                    data={tablePageData}
-                />
-            </div>
-            <Modal
-                accessibleDescription="Selecione um novo perfil para o usuário escolhido."
-                title="Alterando Perfil"
-                open={modalOpen}
-                setOpen={setModalOpen}
-            >
-                <ChangeRoleForm
-                    currentUserRole={currentUserRole}
-                    onFinish={onUpdateUserRole}
-                    userId={userSelected || ""}
-                />
-            </Modal>
-        </Notify>
+                        <ChangeRoleForm
+                            currentUserRole={currentUserRole}
+                            onFinish={onUpdateUserRole}
+                            userId={userSelected || ""}
+                        />
+                    </Modal>
+                </Skeleton>
+            </Notify>
+        </>
     );
 };
 

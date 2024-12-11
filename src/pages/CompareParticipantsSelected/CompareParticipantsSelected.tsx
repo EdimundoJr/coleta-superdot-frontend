@@ -21,6 +21,7 @@ const CompareParticipantsSelected = () => {
   const location = useLocation();
   const state = location.state as LocationState;
   const { selectedParticipants } = state || { selectedParticipants: [] };
+  
 
   const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
 
@@ -171,7 +172,7 @@ const CompareParticipantsSelected = () => {
 
 
   return (
-    <Flex direction="column" className={`relative ml-2  border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5 font-roboto `}>
+    <>
       <Header title="Comparação dos Participantes Selecionados" icon={<Icon.Books size={24}></Icon.Books>}></Header>
       <Box className="w-[90%] m-auto">
         <Accordeon
@@ -225,9 +226,9 @@ const CompareParticipantsSelected = () => {
 
 
         <GridComponent className="gap-5 m-auto mt-2 " columns={2}>
-          <Skeleton loading={false}>
+          
             <Box>
-              <Table.Root variant="surface" className=" text-black rounded rounded-b-lg w-full drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto overflow-auto">
+              <Table.Root variant="surface" className=" text-black rounded rounded-b-lg w-full  font-roboto overflow-auto">
                 <Table.Header className="text-[14px] text-black bg-violet-200">
                   <Table.ColumnHeaderCell align="center" colSpan={8}>Detalhes de cada bloco</Table.ColumnHeaderCell>
                 </Table.Header>
@@ -249,12 +250,12 @@ const CompareParticipantsSelected = () => {
                 </Table.Body>
               </Table.Root>
             </Box>
-          </Skeleton>
-          <Skeleton loading={false}>
-            <Box className="rounded overflow-hidden bg-white rounded-b-lg w-full pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
+         
+          
+            <Box className="rounded overflow-hidden bg-white rounded-b-lg w-full pt-4  font-roboto border-2 p-2">
               <ApexChart options={options2} series={options2.series} type="bar" height={300} />
             </Box>
-          </Skeleton>
+        
         </GridComponent>
         <Box className="w-full ">
           <Form.Root className="flex flex-row items-center ">
@@ -326,7 +327,7 @@ const CompareParticipantsSelected = () => {
           defaultValue={""}
         />
       </Box >
-    </Flex>
+    </>
   );
 };
 

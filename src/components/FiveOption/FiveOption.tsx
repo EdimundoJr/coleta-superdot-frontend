@@ -1,3 +1,6 @@
+import { Flex } from "@radix-ui/themes";
+import { Button } from "../Button/Button";
+import * as Icon from "@phosphor-icons/react"
 interface FiveOptionProps {
     options: string[];
     value: string;
@@ -6,17 +9,20 @@ interface FiveOptionProps {
 
 const FiveOption = ({ options, value, onSelect }: FiveOptionProps) => {
     return (
-        <div className="mt-4 justify-center gap-4 sm:flex">
+        <Flex justify={"center"} align={"center"} className="mt-4 gap-3 ">
             {options?.map((option) => (
-                <button
+                <Button
+                    size="Large"
                     key={option}
                     onClick={() => onSelect(option)}
-                    className={`${option === value ? "button-secondary" : "button-primary"}`}
-                >
-                    {option}
-                </button>
+                    title={option}
+                    color={`${option === value ? "secondary" : "primary"}`}
+                    children={value === option ? <Icon.Check size={20} color="green" /> : ""}
+                    className="w-[250px] text-[15px] gap-1 "
+                />
+
             ))}
-        </div>
+        </Flex>
     );
 };
 

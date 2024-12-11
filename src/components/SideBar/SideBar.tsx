@@ -41,7 +41,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
 
     const Menus = [
         { title: "Dashboard", icon: <Icon.SquaresFour weight={`${isActiveIcon("/app/home")}`} size={24} />, link: "/app/home", active: `${isActive("/app/home")}` },
-        { title: "Minhas Amostras", icon: <Icon.Books weight={`${isActiveIcon("/app/my-samples", "/app/analyze-sample", "/app/participants-registration", "/app/seconds-source-compare", "/app/evaluate-autobiography", "/app/compare-participants-selected", "/app/edit-sample")}`} size={24} />, link: "/app/my-samples", active: `${isActive("/app/my-samples", "/app/analyze-sample", "/app/seconds-source-compare", "/app/participants-registration", "/app/evaluate-autobiography", "/app/compare-participants-selected", "/app/edit-sample")}` },
+        { title: "Minhas Amostras", icon: <Icon.Books weight={`${isActiveIcon("/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/participants-registration", "/app/my-samples/seconds-source-compare", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample")}`} size={24} />, link: "/app/my-samples", active: `${isActive("/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/seconds-source-compare", "/app/my-samples/participants-registration", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample")}` },
         { title: "Criar Amostras", icon: <Icon.FolderSimplePlus weight={`${isActiveIcon("/app/create-sample", "/app/choose-sample-group")}`} size={24} />, link: "/app/create-sample", active: `${isActive("/app/choose-sample-group", "/app/create-sample")}` },
 
 
@@ -91,7 +91,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                     <>
                         <NavigationMenu.Item className={`flex p-2 mb-[26px] mt-[26px] justify-between hover:bg-secondary hover:rounded text-alternative-text hover:translate-x-0.5 transition-all ease-in-out ${isActive("/app/users")}`}>
                             <Link to="/app/users" className="flex gap-3">
-                                <Icon.UserGear weight="thin" size={24} />
+                                <Icon.UserGear weight={`${isActiveIcon("/app/users")}`} size={24} />
                                 <h2 className={`origin-left ${!expanded && "scale-0"} duration-300`}>Usuários</h2>
                             </Link>
                         </NavigationMenu.Item>

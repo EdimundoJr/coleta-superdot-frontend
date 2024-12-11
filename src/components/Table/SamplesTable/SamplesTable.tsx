@@ -32,7 +32,7 @@ const SamplesTable = ({
         onChangeFilterStatus(status);
     };
     return (
-        <Table.Root variant="surface" className="w-full truncate m-auto" >
+        <Table.Root variant="surface" className="w-full m-auto" >
 
             <Table.Header className="text-[15px]">
                 <Table.Row>

@@ -54,7 +54,7 @@ const ParticipantsRegistrationTable = ({
                             <Table.ColumnHeaderCell className="border-l">Andamento</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="border-l">2ªs Fontes</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="border-l">Data de início</Table.ColumnHeaderCell>
-                            <Table.ColumnHeaderCell className="border-l">Data de fim</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l">Data de finalização</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="border-l">Indicadores de AH/SD</Table.ColumnHeaderCell>
                             <Table.ColumnHeaderCell className="border-l">URL 2ª fonte</Table.ColumnHeaderCell>
                         </Table.Row>
@@ -116,7 +116,7 @@ const ParticipantsRegistrationTable = ({
             }
             className="mb-2"
             defaultValue="item-1"
-        />  
+        />
     );
 };
 

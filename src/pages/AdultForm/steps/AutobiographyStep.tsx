@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { patchSaveAutobiography } from "../../../api/participant.api";
 import { IParticipant } from "../../../interfaces/participant.interface";
+import { Button } from "../../../components/Button/Button";
 
 interface AutobiographyStepProps {
     formData: IParticipant;
@@ -65,14 +66,15 @@ const AutobiographyStep = ({
                 </h3>
             </header>
 
-            <div className="mx-auto sm:w-3/4 ">
+            <div className="mx-auto  ">
                 <label htmlFor="autobiographyText">ESCREVA SOBRE VOCÊ</label>
                 <textarea
                     onChange={(e) => setAutobiographyText(e.target.value)}
                     value={autobiographyText}
                     rows={20}
                     id="autobiographyText"
-                    className="my-6"
+                    className=" p-4 w-full text-black border-2 border-b-gray-500 rounded-xl  text-justify"
+
                 ></textarea>
                 <label htmlFor="autobiographyVideo">
                     COLE A URL DO SEU VÍDEO DO YOUTUBE NO CAMPO ABAIXO (NÃO DEIXE O VÍDEO PRIVADO)
@@ -86,25 +88,24 @@ const AutobiographyStep = ({
 
                 <div className="mt-5 flex w-full justify-center gap-x-4 px-3 ">
                     <div className="flex justify-center gap-6">
-                        <button
+                        <Button
+                            size="Medium"
                             type="button"
                             onClick={previousStep}
-                            className="button-secondary mt-5 w-3/4 px-3 md:w-56"
-                        >
-                            VOLTAR
-                        </button>
-                        <button
-                            className="button-secondary mt-5 w-3/4 px-3 md:w-56"
-                            onClick={() => handleSaveAutobiography(false)}
-                        >
-                            SALVAR E SAIR
-                        </button>
-                        <button
-                            className="button-secondary mt-5 w-3/4 px-3 disabled:bg-neutral-dark md:w-56"
+                            title={"Voltar"}
+                            color={"primary"}                        >
+
+                        </Button>
+                        <Button
+                            size="Medium"
+                            onClick={() => handleSaveAutobiography(false)} title={"Salvar e Sair"} color={"primary"}                        >
+                        </Button>
+                        <Button
+                            size="Medium"
                             onClick={() => handleSaveAutobiography(true)}
-                        >
-                            SALVAR E FINALIZAR
-                        </button>
+                            title={"Salvar e Finalizar"}
+                            color={"primary"}                        >
+                        </Button>
                     </div>
                 </div>
             </div>

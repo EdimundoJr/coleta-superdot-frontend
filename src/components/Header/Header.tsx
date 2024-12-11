@@ -83,13 +83,6 @@ export function Header({ title, icon, sampleFile }: HeaderProps) {
                     {icon}
                 </Flex>
                 <Flex>
-                    {/* <Form.Root className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-0 ">
-                        <Form.Submit asChild>
-                        </Form.Submit>
-                        <InputField icon={
-                            <Icon.MagnifyingGlass size={20} />
-                        } placeholder="Faça sua busca aqui..." label="" name="participant-name" className="" />
-                    </Form.Root> */}
                     <Flex justify="center" align="center" gap="3" >
                         <Box maxWidth="240px">
                             <Skeleton loading={loading}>
@@ -116,11 +109,16 @@ export function Header({ title, icon, sampleFile }: HeaderProps) {
                                         <DropdownMenu.Item className='hover:cursor-pointer' >Editar Perfil</DropdownMenu.Item>
                                         <DropdownMenu.Separator />
                                         <Alert
-                                            trigger={<Button color='red' title={''}>
+                                            trigger={<Button size='' className='w-[200px]' color='red' title={''}>
+
                                                 <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer hover:bg-red-500 active:bg-red-600'>Sair</DropdownMenu.Item>
+
                                             </Button>}
                                             title={'Tem certeza que deseja sair da plataforma?'} description={''}
-                                            buttoncancel={<Button color="gray" title={'Cancelar'} />} buttonAction={<Button onClick={logout} color="red" title={' Sim, desejo sair.'} />} />
+                                            buttoncancel={<Button size='Small' color="gray" title={'Cancelar'} />}
+                                            buttonAction={<Button size='Small' onClick={logout}
+                                                color="red"
+                                                title={'Sim, desejo sair.'} />} />
 
                                     </DropdownMenu.Content>
                                 </DropdownMenu.Root>

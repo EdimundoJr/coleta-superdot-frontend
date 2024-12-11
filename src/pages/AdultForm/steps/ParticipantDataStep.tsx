@@ -16,11 +16,12 @@ import { useForm } from "react-hook-form";
 import { putSaveParticipantData, putSubmitParticipantData } from "../../../api/participant.api";
 import Select from "react-select";
 import { IParticipant } from "../../../interfaces/participant.interface";
+import { Button } from "../../../components/Button/Button";
 
 interface ParticipantDataStepProps {
     nextStep: () => void;
     setFormData: (formData: IParticipant) => void;
-    setNotificationData: (data: { title: string; description: string }) => void;
+    setNotificationData: (data: { title: string; description: string; type: String }) => void;
     formData?: IParticipant;
     sampleId: string;
     saveAndExit: () => void;
@@ -57,6 +58,7 @@ const ParticipantDataStep = ({
             setNotificationData({
                 title: "Preenchimento inválido!",
                 description: "Preencha todos os campos corretamente.",
+                type: "erro"
             });
         }
     };
@@ -80,6 +82,7 @@ const ParticipantDataStep = ({
             setNotificationData({
                 title: "Preenchimento inválido!",
                 description: "Preencha todos os campos corretamente.",
+                type: "erro"
             });
         }
     });
@@ -267,10 +270,12 @@ const ParticipantDataStep = ({
                     />
                 </div>
                 <div className="flex justify-center gap-6">
-                    <button type="button" onClick={onSaveAndExit} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
-                        SALVAR E SAIR
-                    </button>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">SALVAR E CONTINUAR</button>
+                    <Button
+                        size="Medium"
+                        onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                    >
+                    </Button>
+                    <Button 
+                    size="Medium" title={"Salvar e Continuar"} color={"primary"} ></Button>
                 </div>
             </Form.Root>
         </div>

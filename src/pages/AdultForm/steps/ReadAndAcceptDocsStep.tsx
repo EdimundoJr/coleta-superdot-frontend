@@ -11,6 +11,8 @@ import * as ParticipantApi from "../../../api/participant.api";
 import * as SecondSourceApi from "../../../api/secondSource.api";
 import { IParticipant } from "../../../interfaces/participant.interface";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
+import { Button } from "../../../components/Button/Button";
+import { Flex } from "@radix-ui/themes";
 
 interface ReadAndAcceptDocsStepProps {
     sourceForm: EAdultFormSource;
@@ -164,13 +166,12 @@ const ReadAndAcceptDocsStep = ({
                 <h3>Leia o documento e confirme que está de acordo.</h3>
             </header>
 
-            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.4.120/build/pdf.worker.min.js">
+            <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.6.172/build/pdf.worker.min.js">
                 <div className="h-[730px] p-7">
                     {currentDoc && (
                         <Viewer
-                            fileUrl={`${import.meta.env.VITE_BACKEND_HOST}/api/sample/attachment/${
-                                currentDoc.backendFileName
-                            }`}
+                            fileUrl={`${import.meta.env.VITE_BACKEND_HOST}/api/sample/attachment/${currentDoc.backendFileName
+                                }`}
                         />
                     )}
                 </div>
@@ -194,27 +195,26 @@ const ReadAndAcceptDocsStep = ({
                 </label>
             </div>
 
-            <div className="mt-5 flex w-full justify-center gap-x-4 px-3 ">
-                <div className="flex justify-center gap-6">
-                    <button
-                        type="button"
-                        onClick={onClickToPreviouStep}
-                        className="button-secondary mt-5 w-3/4 px-3 md:w-56"
-                    >
-                        VOLTAR
-                    </button>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56" onClick={saveAndExit}>
-                        SALVAR E SAIR
-                    </button>
-                    <button
-                        className="button-secondary mt-5 w-3/4 px-3 disabled:bg-neutral-dark md:w-56"
-                        disabled={!accepted}
-                        onClick={() => handleOnAccepted(currentDoc?.jsonFileKey || "")}
-                    >
-                        SALVAR E CONTINUAR
-                    </button>
-                </div>
-            </div>
+
+            <Flex align={"center"} justify={"center"} className="gap-6">
+                <Button
+                    size="Medium"
+                    onClick={onClickToPreviouStep}
+                    className="w-[250px]" title={"Voltar"} color={"primary"}                    >
+
+                </Button>
+                <Button size="Medium" className="w-[250px]" onClick={saveAndExit} title={"Savar e Sair"} color={"primary"}>
+
+                </Button>
+                <Button
+                    size="Medium"
+                    className="w-[250px] disabled:bg-neutral-dark disabled:cursor-not-allowed"
+                    disabled={!accepted}
+                    onClick={() => handleOnAccepted(currentDoc?.jsonFileKey || "")} title={"Salvar e Continuar"} color={`${!accepted ? "" : "primary"}`}>
+
+                </Button>
+            </Flex>
+
         </div>
     );
 };

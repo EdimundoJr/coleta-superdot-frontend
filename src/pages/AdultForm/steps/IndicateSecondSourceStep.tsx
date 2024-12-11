@@ -7,12 +7,14 @@ import isEmail from "validator/lib/isEmail";
 import { AxiosError } from "axios";
 import { putSaveSecondSources } from "../../../api/participant.api";
 import { IParticipant } from "../../../interfaces/participant.interface";
+import { Flex, Select } from "@radix-ui/themes";
+import { Button } from "../../../components/Button/Button";
 
 interface IndicateSecondSourceStepProps {
     formData: IParticipant;
     setFormData: (data: IParticipant) => void;
     nextStep: () => void;
-    setNotificationData: (data: { title: string; description: string }) => void;
+    setNotificationData: (data: { title: string; description: string; type: String }) => void;
     sampleId: string;
     saveAndExit: () => void;
     previousStep: () => void;
@@ -41,6 +43,7 @@ const IndicateSecondSourceStep = ({
             setNotificationData({
                 title: "Campos vazios!",
                 description: "Por favor, preencha todos os campos.",
+                type: "erro"
             });
             return false;
         }
@@ -49,6 +52,7 @@ const IndicateSecondSourceStep = ({
             setNotificationData({
                 title: "Indique a matéria!",
                 description: "É necessário indicar a matéria ministrada pelo professor.",
+                type: "erro"
             });
             return false;
         }
@@ -57,6 +61,7 @@ const IndicateSecondSourceStep = ({
             setNotificationData({
                 title: "E-mail inválido!",
                 description: "É necessário informar um e-mail válido.",
+                type: "erro"
             });
             return false;
         }
@@ -83,6 +88,7 @@ const IndicateSecondSourceStep = ({
             setNotificationData({
                 title: "Pessoa já indicada!",
                 description: "Você já indicou essa pessoa, não é possível indicar novamente.",
+                type: "erro"
             });
             return;
         }
@@ -128,6 +134,7 @@ const IndicateSecondSourceStep = ({
         setNotificationData({
             title: "Pessoa indicada com sucesso!",
             description: "Ao finalizar essa etapa, a pessoa receberá um e-mail informativo.",
+            type: "ok"
         });
     };
 
@@ -143,6 +150,7 @@ const IndicateSecondSourceStep = ({
         setNotificationData({
             title: "Pessoa removida!",
             description: "A pessoa foi removida das indicações.",
+            type: "ok"
         });
     };
 
@@ -160,6 +168,7 @@ const IndicateSecondSourceStep = ({
                 setNotificationData({
                     title: "Indicações concluídas.",
                     description: "As indicações foram registradas e os e-mails foram enviados.",
+                    type: "ok"
                 });
                 if (exit) {
                     saveAndExit();
@@ -174,12 +183,14 @@ const IndicateSecondSourceStep = ({
                     setNotificationData({
                         title: "E-mail em uso.",
                         description: "Esse e-mail já está sendo utilizado.",
+                        type: "erro"
                     });
                 } else {
                     setNotificationData({
                         title: "Erro no servidor.",
                         description:
                             "Ocorreu um erro ao tentar salvar as inforamções, contate o responsável pela pesquisa ou os responsáveis pela plataforma.",
+                        type: "erro"
                     });
                 }
             }
@@ -214,7 +225,7 @@ const IndicateSecondSourceStep = ({
                 <Form.Root onSubmit={handleAddPeople}>
                     <div className="md:flex">
                         <Form.Field className="mb-6 w-full px-3" name="relationType">
-                            <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                            <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                                 Tipo de relação
                             </Form.Label>
                             <select
@@ -226,6 +237,15 @@ const IndicateSecondSourceStep = ({
                                 <option>Parente</option>
                                 <option>Professor</option>
                             </select>
+                            {/* <select
+                                className="h-[35px] w-full rounded-[4px] px-4 text-sm "
+                                value={relationship}
+                                onChange={(e) => setRelationship(e.target.value as Relationships)}
+                            >
+                                <option>Amigo</option>
+                                <option>Parente</option>
+                                <option>Professor</option>
+                            </select> */}
                         </Form.Field>
                         <InputField
                             name="fullName"
@@ -255,7 +275,7 @@ const IndicateSecondSourceStep = ({
                         )}
                     </div>
                     <Form.Submit asChild>
-                        <button className="button-primary">Adicionar</button>
+                        <Button size="Extra Small" title={"Adicionar"} color={"primary"} className="m-auto" />
                     </Form.Submit>
                 </Form.Root>
                 {(formData.secondSources?.length || 0) > 0 && (
@@ -291,23 +311,23 @@ const IndicateSecondSourceStep = ({
                 )}
             </section>
 
-            <div className="mt-5 flex w-full justify-center gap-x-4 px-3 ">
-                <div className="flex justify-center gap-6">
-                    <button type="button" onClick={previousStep} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
-                        VOLTAR
-                    </button>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56" onClick={() => onSubmit(true)}>
-                        SALVAR E SAIR
-                    </button>
-                    <button
-                        className="button-secondary mt-5 w-3/4 px-3 disabled:bg-neutral-dark md:w-56"
-                        disabled={!formData.secondSources?.length}
-                        onClick={() => onSubmit()}
-                    >
-                        SALVAR E CONTINUAR
-                    </button>
-                </div>
-            </div>
+            <Flex align={"center"} justify={"center"} className="gap-6">
+                <Button size="Medium" onClick={previousStep} title={"Voltar"} color={"primary"}>
+
+                </Button>
+                <Button
+                    size="Medium" onClick={() => onSubmit(true)} title={"Salvar e sair"} color={"primary"}>
+
+                </Button>
+                <Button
+                    size="Medium"
+                    className=" disabled:bg-neutral-dark disabled:hover:cursor-not-allowed"
+                    disabled={!formData.secondSources?.length}
+                    onClick={() => onSubmit()} title={"Salvar e continuar"} color={"primary"}                    >
+
+                </Button>
+
+            </Flex>
         </div>
     );
 };

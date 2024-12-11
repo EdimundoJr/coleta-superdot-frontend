@@ -63,7 +63,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
                 {...register("emailMessage")}
             />
             <Form.Submit asChild>
-                <Button  title={"Salvar"} color={"green"} />
+                <Button  title={"Salvar"} color={"green"} size={"Medium"} />
             </Form.Submit>
         </Form.Root>
     );

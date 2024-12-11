@@ -13,10 +13,11 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithNotification } from "../../validators/navigationStateValidators";
 import { DateTime } from "luxon";
 import { ISample } from "../../interfaces/sample.interface";
-import { Badge, Box, Button, Container, Flex, IconButton, Skeleton, Text, Tooltip } from "@radix-ui/themes";
+import { Badge, Box, Container, Flex, IconButton, Skeleton, Text, Tooltip } from "@radix-ui/themes";
 import { Header } from "../../components/Header/Header";
 import * as Icon from "@phosphor-icons/react";
 import { GridComponent } from "../../components/Grid/Grid";
+import { Button } from "../../components/Button/Button";
 
 const MySamplesPage = () => {
     const {
@@ -55,7 +56,7 @@ const MySamplesPage = () => {
     useEffect(() => {
         const timeoutId = setTimeout(() => {
             setLoading(false);
-        }, 2000);
+        }, 1000);
 
         const getPage = async () => {
             const response = await paginateSamples(1, PAGE_SIZE, filters);
@@ -114,7 +115,7 @@ const MySamplesPage = () => {
     };
 
     const handleRegisterPeople = (sampleId: string) => {
-        navigate("/app/participants-registration", {
+        navigate("/app/my-samples/participants-registration", {
             state: {
                 sampleId,
             },
@@ -122,7 +123,7 @@ const MySamplesPage = () => {
     };
 
     const handleClickToAnalyzeSampleParticipantes = (sample: ISample) => {
-        navigate("/app/analyze-sample", {
+        navigate("/app/my-samples/analyze-sample", {
             state: {
                 sample,
             },
@@ -130,7 +131,7 @@ const MySamplesPage = () => {
     };
 
     return (
-        <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5`}>
+        <>
             <Notify
                 open={!!notificationTitle}
                 onOpenChange={handleCleanNotification}
@@ -148,37 +149,46 @@ const MySamplesPage = () => {
                                 ...data,
                             });
                         })}
-                        className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-1 ">
+                        className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-1">
                         <Form.Submit asChild>
-                            <Button size="3" mr="3" className="items-center">
-                                <Icon.FunnelSimple size={24} />
-                                Filtrar
-                            </Button>
+                            <Button
+                                size="Large"
+                                className="items-center w-[300px] mr-3" title="Filtrar"
+                                children={<Icon.Funnel
+                                    size={20}
+                                    color="white" />}
+                                color="primary" />
                         </Form.Submit>
                         <InputField
-                            label=""
+                            label="Pesquisar pela pesquisa"
                             icon={<Icon.MagnifyingGlass />}
                             placeholder="Digite o título da pesquisa"
                             errorMessage={errors.researcherTitle?.message}
                             {...register("researcherTitle")}
                         />
                         <InputField
-                            label=""
+                            label="Pesquisar pela amostra"
                             icon={<Icon.MagnifyingGlass />}
                             placeholder="Digite o título da amostra"
                             errorMessage={errors.sampleTitle?.message}
                             {...register("sampleTitle")}
                             className="ml-1 m"
                         />
-                        <Button onClick={() => setFilters({})} type="reset" size="3" ml="3" className="items-center">
-                            limpar Filtro
+                        <Button size="Large" onClick={() => setFilters({})} type="reset" className="items-center w-[300px] ml-3" color={"primary"} title={"Limpar Filtro"}>
+
                         </Button>
                         <Flex >
                         </Flex>
                     </Form.Root>
                 </Box>
                 <Container className="mb-4">
-                    {pageData?.data?.length === 0 ? <h3>Você não possui nenhuma amostra.</h3> :
+                    {pageData?.data?.length === 0 ? <Text size="4" as="label" className="font-semibold">
+                        <Flex direction="column" justify="center" className="mt-10">
+                            <Icon.FileX size={100} weight="thin" className="opacity-20 m-auto  " />
+                            Nenhuma amostra encontrada.
+                        </Flex>
+                    </Text>
+                        :
 
                         <GridComponent children={
                             <>
@@ -284,17 +294,12 @@ const MySamplesPage = () => {
                 >
 
                     <Flex gap="3" mt="4" justify="end">
-                        <Button onClick={handleDeleteSample} variant="soft" color="gray">
-                            Ecluir
-                        </Button>
-
-                        <Button onClick={() => setOpenModalDelete(false)} variant="solid" color="red">
-                            Cancelar
-                        </Button>
+                        <Button onClick={handleDeleteSample} color="red" title={"Ecluir"} size={""} />
+                        <Button onClick={() => setOpenModalDelete(false)} color="gray" title={"Cancelar"} size={""} />
                     </Flex>
                 </Modal>
             </Notify>
-        </Flex >
+        </>
     );
 };
 

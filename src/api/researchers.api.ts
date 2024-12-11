@@ -11,12 +11,17 @@ export interface Filters {
     userEmail?: string;
 }
 
-export interface Users {
-    fullName: string,
-    phone: string,
-    profilePhoto: string,
-    birthDate: Date,
-    countryState: string,
+export interface Users {   
+    
+        researcher: {
+          fullName: string,
+          phone: number,
+          profilePhoto: string,
+          birthDate: Date,
+          countryState: string
+        },
+        role: string
+      
 }
 
 
@@ -56,7 +61,7 @@ export const getResearchDataBySampleIdAndParticipantId = ({
 export const getUser = async () => {
     try {
         setAuthHeaders();
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher`);
+        const response = await axios.get<Users>(`${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher`);
 
         console.log("Resposta da requisição para obter dados do pesquisador:", response.data);
         return response.data;

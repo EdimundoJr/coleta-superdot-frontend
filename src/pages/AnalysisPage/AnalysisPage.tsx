@@ -6,28 +6,37 @@ import { SelectField } from "../../components/SelectField/SelectField";
 import * as Icon from '@phosphor-icons/react'
 import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithSample } from "../../validators/navigationStateValidators";
-import { AlertDialog, Box, Button, Checkbox, Dialog, Flex, IconButton, Select, Table, Text, TextField, Tooltip, HoverCard, Skeleton } from "@radix-ui/themes";
+import { Box, Checkbox, Dialog, Flex, IconButton, Select, Table, Text, TextField, Tooltip, HoverCard, Skeleton, AlertDialog } from "@radix-ui/themes";
+import * as Theme from "@radix-ui/themes"
 import { IParticipant } from "../../interfaces/participant.interface";
 import { Header } from "../../components/Header/Header";
 import ApexChart from "react-apexcharts";
 import { ApexOptions } from 'apexcharts';
 import { GridComponent } from "../../components/Grid/Grid";
 import { answerByGender, AnswerByGender } from "../../api/sample.api";
-import { ScrollToTop } from "../../components/ScrollToTop/ScrollToTop";
-
-
+import { Button } from "../../components/Button/Button";
+import Modal from "../../components/Modal/Modal";
+import WordCloudGenerator from "../../components/WordCloud/WordCloudGenerator";
 
 const AnalysisPage = () => {
+    const navigate = useNavigate();
+    const location = useLocation();
     const [sample, setSample] = useState({} as ISample);
     const [isCheckedAll, setIsCheckedAll] = useState(false);
     const [isChecked, setIsChecked] = useState<boolean[]>([]);
-    const navigate = useNavigate();
-    const location = useLocation();
+    const [isCheckedWC, setIsCheckedWC] = useState<boolean[]>([])
+    const [showNewComponent, setShowNewComponent] = useState(false);
+    const [selectedParticipants, setSelectedParticipants] = useState<IParticipant[]>([]);
     const [currentPage, setCurrentPage] = useState(1);
     const [dados, setDados] = useState<null | AnswerByGender>(null);
     const [error, setError] = useState(null);
     const [notificationDescription, setNotificationDescription] = useState("");
     const [notificationTitle, setNotificationTitle] = useState("");
+    const [openModalCompare, setOpenModalCompare] = useState(false);
+    const [openModal, setOpenModal] = useState(false);
+    const [openModalCloud, setOpenModalCloud] = useState(false);
+    const [openModalKA, setOpenModalKA] = useState(false);
+
 
 
     const itemsPerPage = 5;
@@ -44,14 +53,14 @@ const AnalysisPage = () => {
         const pages = [];
         for (let i = 1; i <= totalPages; i++) {
             pages.push(
-                <Button
+                <Theme.Button
                     key={i}
                     variant={currentPage === i ? "solid" : "soft"}
                     onClick={() => handlePageChange(i)}
                     className="w-10 hover:cursor-pointer"
                 >
                     {i}
-                </Button>
+                </Theme.Button>
             );
         }
         return pages;
@@ -62,7 +71,6 @@ const AnalysisPage = () => {
             try {
                 const response = await answerByGender()
                 setDados(response);
-                console.log(response)
                 //setLoading(false);
             } catch (error: any) {
                 setError(error.message);
@@ -99,16 +107,17 @@ const AnalysisPage = () => {
             return;
         }
 
-        navigate("/app/seconds-source-compare", {
+        navigate("/app/my-samples/seconds-source-compare", {
             state: {
                 participant,
             },
         });
     };
 
-    const handleEvaluateAutobiography = (participant: IParticipant) => {
-        navigate("/app/evaluate-autobiography", {
+    const handleEvaluateAutobiography = (participant: IParticipant, sample: ISample) => {
+        navigate("/app/my-samples/evaluate-autobiography", {
             state: {
+                sample,
                 participant,
             },
         });
@@ -133,14 +142,22 @@ const AnalysisPage = () => {
         setIsChecked(newCheckedState);
     };
 
+    const handleChangeWC = (index: number) => {
+        const updatedCheckedWC = [...isCheckedWC];
+        updatedCheckedWC[index] = !updatedCheckedWC[index];
+        setIsCheckedWC(updatedCheckedWC);
+
+    };
+
     const handleCompareSelected = () => {
         const selectedParticipants = sample.participants?.filter((participant, index) => isChecked[index]);
 
         if (!selectedParticipants || selectedParticipants.length === 0) {
+            setOpenModalCompare(true)
             return;
         }
 
-        navigate("/app/compare-participants-selected", {
+        navigate("/app/my-samples/compare-participants-selected", {
             state: {
                 selectedParticipants,
             },
@@ -148,8 +165,39 @@ const AnalysisPage = () => {
     };
 
     const handleShowPunctuation = () => {
+        setOpenModal(true)
         return;
     }
+    const handleShowKA = () => {
+        setOpenModalKA(true)
+        return;
+    }
+
+    const handleShowCloud = () => {
+        const selectedParticipants = sample.participants?.filter((participant, index) => isChecked[index]);
+        if (!selectedParticipants || selectedParticipants.length === 0) {
+            setOpenModalCompare(true);
+            setSelectedParticipants([]);
+            setShowNewComponent(false);
+        } else {
+            setOpenModalCloud(true);
+            const participantesBio = selectedParticipants.map((participant) => (
+                participant?.autobiography?.text
+            )).filter(text => text !== undefined);
+            setSelectedParticipants(participantesBio);
+            setShowNewComponent(false);
+        }
+    };
+
+    const cloudWords = () => {
+        if (showNewComponent === true) {
+            setShowNewComponent(false);
+        } else {
+            setShowNewComponent(true);
+        }
+    };
+
+
 
     const getFormattedBirthDate = (birthDate: Date | string | undefined) => {
         if (!birthDate) return '';
@@ -164,7 +212,7 @@ const AnalysisPage = () => {
 
     function calcularPorcentagemDeSuperdotados(participants: IParticipant[] | undefined) {
         if (!participants || participants.length === 0) {
-            return 0; // Retorna 0 se não houver participantes
+            return 0;
         }
 
         console.log(participants)
@@ -174,7 +222,7 @@ const AnalysisPage = () => {
             }
             return count;
         }, 0);
-        // Calcula a porcentagem de superdotados
+
         return Math.round((superdotados / participants.length) * 100 * 100) / 100;
     }
 
@@ -369,178 +417,268 @@ const AnalysisPage = () => {
         },
     };
 
+    const selectItensPM = [
+        { value: "100", label: "100% (219 a 242 pontos)" },
+        { value: "90", label: "90% (195 a 218 pontos)" },
+        { value: "80", label: "80% (170 a 194 pontos)" },
+        { value: "70", label: "70% (146 a 169 pontos)" },
+        { value: "60", label: "60% (122 a 145 pontos)" },
+        { value: "50", label: "50% (98 a 121 pontos)" },
+        { value: "40", label: "40% (73 a 97 pontos)" },
+        { value: "30", label: "30% (49 a 73 pontos)" },
+        { value: "20", label: "20% (25 a 48 pontos)" },
+        { value: "10", label: "10% (0 a 24 pontos)" }
+    ];
 
+    const selectItensKA = [
+        { label: "Selecione" },
+        { label: "Memória" },
+        { label: "Dança" },
+        { label: "História" },
+        { label: "Química" },
+        { label: "Física" },
+        { label: "Pintura" },
+        { label: "Biologia" },
+        { label: "Esportes" },
+        { label: "Liderança" },
+        { label: "Astronomia" },
+        { label: "Música" },
+        { label: "Criatividade" },
+        { label: "Cinema" },
+        { label: "Observação" },
+        { label: "Matemática" },
+        { label: "Abstração" },
+        { label: "Comunicação" },
+        { label: "Português" },
+        { label: "Planejamento" },
+        { label: "Fotografia" },
+        { label: "Geografia" },
+        { label: "Línguas estrangeiras" },
+        { label: "Escultura" },
+        { label: "Política" },
+        { label: "Mitologia" },
+        { label: "Arqueologia" },
+    ];
+
+    const CloudWord = [
+        { title: "Respostas subjetivas" },
+        { title: "Autobiografia" },
+        { title: "Áreas do Saber" },
+    ];
 
     return (
 
-        <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5 font-roboto`}>
-            <ScrollToTop/>
+        <>
+
+
             <Header title="Analisar Amostra" icon={<Icon.Books size={24} className="items-center" />} />
 
-            <Box className="mb-[32px] w-full">
+            <Box className="mb-8 w-full">
                 <Text size="4" as="label" className="font-bold">{sample.sampleGroup} - Total de {sample.participants?.length} Avaliado(s).</Text>
-                <Box className="w-full mb-[32px]">
-                    <Form.Root className="flex flex-row items-center justify-between truncate">
+                <Box className="w-full mt-2">
+                    <Form.Root className="flex items-center justify-between truncate">
                         <Form.Submit asChild>
-                            <Button size="3" mr="3" className="items-center hover:cursor-pointer">
-                                <Icon.FunnelSimple size={24} />
-                                Filtrar
+                            <Button
+                                size="Large"
+                                className="mb-4 items-center hover:cursor-pointer mr-3"
+                                title={" Filtrar"}
+                                color={"primary"}
+                                children={<Icon.Funnel size={20} color="white" />}>
                             </Button>
                         </Form.Submit>
                         <InputField label="" icon={<Icon.MagnifyingGlass />} placeholder="Pesquisar pelo nome do avaliado..." name="participant-name" />
                         <Flex >
-                            <SelectField label="Área do Saber" name="knowledge-area" children={
-                                <>
-                                    <option>teste</option>
-                                    <option>test2</option>
-                                </>
-                            }>
-
+                            <SelectField label="Área do Saber" name="knowledge-area" defaultValue="Selecione">
+                                {selectItensKA.map(option => (
+                                    <option className="hover:cursor-pointer" key={option.label} value={option.label}>
+                                        {option.label}
+                                    </option>
+                                ))}
                             </SelectField>
-                            <SelectField label="Pontuação Mínima" name="min-punctuation" children={
-                                <>
-                                    <option>100% (219 a 242 pontos)</option>
-                                    <option>90% (195 a 218 pontos)</option>
-                                    <option>80% (170 a 194 pontos)</option>
-                                    <option>70% (146 a 169 pontos)</option>
-                                    <option>60% (122 a 145 pontos)</option>
-                                    <option>50% (98 a 121 pontos)</option>
-                                    <option>40% (73 a 97 pontos)</option>
-                                    <option>30% (49 a 73 pontos)</option>
-                                    <option>20 % (25 a 48 pontos)</option>
-                                    <option>10% (0 a 24 pontos)</option>
-
-                                </>
-                            }>
+                            <SelectField label="Pontuação Mínima" name="min-punctuation">
+                                {selectItensPM.map(option => (
+                                    <option className="hover:cursor-pointer" key={option.value} value={option.value}>
+                                        {option.label}
+                                    </option>
+                                ))}
                             </SelectField>
+                            <Button size="Large" onClick={() => setFilters({})} type="reset" className="items-center w-[300px] ml-3" color={"primary"} title={"Limpar Filtro"}></Button>
                         </Flex>
                     </Form.Root>
                 </Box>
-                <Flex direction="row" justify="center" gap="6" className=" mb-[32px] sm:flex-row items-center justify-between">
-                    <AlertDialog.Root >
-                        <AlertDialog.Trigger>
-                            <Button className="hover:cursor-pointer" onClick={() => handleCompareSelected()}>Comparar selecionados</Button>
-                        </AlertDialog.Trigger>
-                        <AlertDialog.Content>
-                            <AlertDialog.Title>Você não selecionou nenhum participante. </AlertDialog.Title>
-                            <AlertDialog.Description size="2">
-                                Para comparar as respostas entre os avaliados, selecione pelo menos um participante.
-                            </AlertDialog.Description>
+                <Flex direction="row" justify="center" gap="6" className="mb-8">
+                    <Modal
+                        open={openModalCompare}
+                        setOpen={setOpenModalCompare}
+                        title={"Você não selecionou nenhum participante."}
+                        accessibleDescription={"Para comparar as respostas entre os avaliados ou gerar a nuvem de palavras, você deve selecionar pelo menos um participante."} />
 
-                            <Flex gap="3" mt="4" justify="end">
-                                <AlertDialog.Cancel>
-                                    <Button className="hover:cursor-pointer" variant="soft" color="red">
-                                        Voltar
-                                    </Button>
-                                </AlertDialog.Cancel>
+                    <Button
+                        size="Medium"
+                        onClick={() => handleCompareSelected()}
+                        title={"Comparar selecionados"}
+                        color={"primary"} />
 
-                            </Flex>
-                        </AlertDialog.Content>
-                    </AlertDialog.Root>
-                    <AlertDialog.Root>
-                        <AlertDialog.Trigger>
-                            <Button className="hover:cursor-pointer">Pontuação do questionário</Button>
-                        </AlertDialog.Trigger>
-                        <AlertDialog.Content>
-                            <AlertDialog.Title>Selecione as fontes de palavras:</AlertDialog.Title>
-                            <AlertDialog.Description size="4">
-                                <Flex justify="between" gap="8" className="pt-4 pb-4">
-                                    <Text as="label" size="3">
-                                        <Flex gap="2">
-                                            <Checkbox />
-                                            Respostas subjetivas
-                                        </Flex>
-                                    </Text>
-                                    <Text as="label" size="3">
-                                        <Flex gap="2">
-                                            <Checkbox />
-                                            Autobiografia
-                                        </Flex>
-                                    </Text>
-                                    <Text as="label" size="3">
-                                        <Flex gap="2">
-                                            <Checkbox />
-                                            Áreas do saber
-                                        </Flex>
-                                    </Text>
-                                </Flex>
-                            </AlertDialog.Description>
+                    <Modal
+                        open={openModal}
+                        setOpen={setOpenModal}
+                        title={"Pontuação:"}
+                        accessibleDescription={""}
+                        children={
+                            <Table.Root variant="ghost" className="w-full mt-3">
+                                <Table.Header className="text-[16px]">
+                                    <Table.Row align="center" className="text-center">
+                                        <Table.ColumnHeaderCell colSpan={2} className="border-l">Nº da pergunta do Questionário</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell colSpan={5} className="border-l"></Table.ColumnHeaderCell>
 
-                            <Flex gap="3" mt="4" justify="end">
-                                <AlertDialog.Action>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Header className="text-[16px]">
+                                    <Table.Row align="center" className="text-center">
+                                        <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto -
+                                            2ª Fonte</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell className="border-l">Respostas comuns</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell className="border-l">Respostas não comuns</Table.ColumnHeaderCell>
+                                        <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
+                                    </Table.Row>
+                                </Table.Header>
+                                <Table.Body>
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                        <Table.Cell justify="center">1</Table.Cell>
+                                        <Table.Cell justify="center">Sim</Table.Cell>
+                                        <Table.Cell justify="center">2</Table.Cell>
+                                        <Table.Cell justify="center">Não</Table.Cell>
+                                        <Table.Cell justify="center">0</Table.Cell>
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                                <Table.Body>
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                        <Table.Cell justify="center">1</Table.Cell>
+                                        <Table.Cell justify="center">Sim</Table.Cell>
+                                        <Table.Cell justify="center">2</Table.Cell>
+                                        <Table.Cell justify="center">Não</Table.Cell>
+                                        <Table.Cell justify="center">0</Table.Cell>
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                                <Table.Body>
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                        <Table.Cell justify="center">1</Table.Cell>
+                                        <Table.Cell justify="center">Sim</Table.Cell>
+                                        <Table.Cell justify="center">2</Table.Cell>
+                                        <Table.Cell justify="center">Não</Table.Cell>
+                                        <Table.Cell justify="center">0</Table.Cell>
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                                <Table.Body>
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                        <Table.Cell justify="center">1</Table.Cell>
+                                        <Table.Cell justify="center">Sim</Table.Cell>
+                                        <Table.Cell justify="center">2</Table.Cell>
+                                        <Table.Cell justify="center">Não</Table.Cell>
+                                        <Table.Cell justify="center">0</Table.Cell>
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                                <Table.Body>
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">5</Table.Cell>
+                                        <Table.Cell justify="center">1</Table.Cell>
+                                        <Table.Cell justify="center">Sim</Table.Cell>
+                                        <Table.Cell justify="center">2</Table.Cell>
+                                        <Table.Cell justify="center">Não</Table.Cell>
+                                        <Table.Cell justify="center">0</Table.Cell>
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                                <Table.Body>
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">6</Table.Cell>
+                                        <Table.Cell justify="center">1</Table.Cell>
+                                        <Table.Cell justify="center">Sim</Table.Cell>
+                                        <Table.Cell justify="center">2</Table.Cell>
+                                        <Table.Cell justify="center">Não</Table.Cell>
+                                        <Table.Cell justify="center">0</Table.Cell>
+                                        <Table.Cell justify="center">-</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                                <Table.Body>
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">1</Table.Cell>
+                                        <Table.Cell justify="center">2</Table.Cell>
+                                        <Table.Cell justify="center">3</Table.Cell>
+                                        <Table.Cell justify="center">4</Table.Cell>
+                                        <Table.Cell justify="center">5</Table.Cell>
+                                        <Table.Cell justify="center">6</Table.Cell>
+                                        <Table.Cell justify="center">7</Table.Cell>
+                                    </Table.Row>
+                                </Table.Body>
+                            </Table.Root>
+                        } />
 
-                                    <Button variant="soft" color="grass" className="hover:cursor-pointer">
-                                        Confirmar
-                                    </Button>
-
-                                </AlertDialog.Action>
-                                <AlertDialog.Cancel>
-                                    <Button variant="soft" color="red" className="hover:cursor-pointer">
-                                        Voltar
-                                    </Button>
+                    <Button
+                        size="Medium"
+                        onClick={() => handleShowPunctuation()}
+                        title={"Pontuação do questionário"}
+                        color={"primary"} />
 
 
-                                </AlertDialog.Cancel>
+                    <Modal
+                        open={openModalCloud}
+                        setOpen={setOpenModalCloud}
+                        title={"Selecione as fontes de palavras:"}
+                        accessibleDescription={""}
+                    >
+                        <Flex justify="between" gap="8" className="pt-4 pb-4">
+                            {CloudWord.map((itens, index) => (
+                                <Text as="label" size="3" >
+                                    <Flex gap="2" className="p-1">
+                                        <Checkbox
+                                            key={index}
+                                            className="hover:cursor-pointer"
+                                            onCheckedChange={() => handleChangeWC(index)}
+                                        />
+                                        {itens.title}
+                                    </Flex>
+                                </Text>
+                            ))}
+                        </Flex>
+                        <Flex justify="end">
+                            <Button
+                                onClick={cloudWords}
+                                className="items-end"
+                                color="green"
+                                title={"Confirmar"}
+                                size={"Extra Small"}
+                            />
+                        </Flex>
+                        {showNewComponent === true ?
+                            <Box>
+                                <p className="text-lg font-bold text-center mb-4">Quantidade de Avaliados : {selectedParticipants.length} </p>
 
-                            </Flex>
-                        </AlertDialog.Content>
-                    </AlertDialog.Root>
-                    <AlertDialog.Root>
-                        <AlertDialog.Trigger>
-                            <Button className="hover:cursor-pointer">Gerar nuvem de palavras</Button>
-                        </AlertDialog.Trigger>
-                        <AlertDialog.Content>
-
-                            <AlertDialog.Title>Gerar nuvem de palavras dos avaliados selecionados</AlertDialog.Title>
-                            <AlertDialog.Description>
-                                Selecione as fontes de palavras:
-                            </AlertDialog.Description>
-                            <AlertDialog.Description size="4">
-                                <Flex justify="between" gap="8" className="pt-4 pb-4">
-                                    <Text as="label" size="3">
-                                        <Flex gap="2">
-                                            <Checkbox />
-                                            Respostas subjetivas
-                                        </Flex>
-                                    </Text>
-                                    <Text as="label" size="3">
-                                        <Flex gap="2">
-                                            <Checkbox />
-                                            Autobiografia
-                                        </Flex>
-                                    </Text>
-                                    <Text as="label" size="3">
-                                        <Flex gap="2">
-                                            <Checkbox />
-                                            Áreas do saber
-                                        </Flex>
-                                    </Text>
-                                </Flex>
-                            </AlertDialog.Description>
-
-                            <Flex gap="3" mt="4" justify="end">
-                                <AlertDialog.Action>
-
-                                    <Button variant="soft" color="grass" className="hover:cursor-pointer">
-                                        Confirmar
-                                    </Button>
-
-                                </AlertDialog.Action>
-                                <AlertDialog.Cancel>
-                                    <Button variant="soft" color="red" className="hover:cursor-pointer">
-                                        Voltar
-                                    </Button>
-
-
-                                </AlertDialog.Cancel>
-
-                            </Flex>
-                        </AlertDialog.Content>
-                    </AlertDialog.Root>
+                                <WordCloudGenerator texts={selectedParticipants} />
+                            </Box>
+                            : <></>
+                        }
+                    </Modal>
+                    <Button
+                        size="Medium"
+                        onClick={handleShowCloud}
+                        title={"Gerar nuvem de palavras"}
+                        color={"primary"}
+                    />
                 </Flex>
                 <Box>
-                    <Table.Root variant="surface" className="w-full truncate" >
-                        <Table.Header className="text-[20px]">
+                    <Table.Root variant="surface" className="w-full truncate drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)]" >
+                        <Table.Header className="text-[14px] ">
                             <Table.Row className="bg-red" >
                                 <Table.ColumnHeaderCell colSpan={4} className="border-l border-none" align="center">Informações do participante</Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell colSpan={2} className="border-l" align="center">Indicadores de AH/SD</Table.ColumnHeaderCell>
@@ -548,7 +686,8 @@ const AnalysisPage = () => {
                                 <Table.ColumnHeaderCell className="border-l"></Table.ColumnHeaderCell>
                             </Table.Row>
                         </Table.Header>
-                        <Table.Header className="text-[18px]">
+
+                        <Table.Header className="text-[14px] ">
                             <Table.Row>
                                 <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r" >
                                     {isCheckedAll ? "Desmarcar Todos" : "Selecionar Todos "}
@@ -562,22 +701,16 @@ const AnalysisPage = () => {
                             </Table.Row>
 
                         </Table.Header>
-                        <Table.Header className="text-[16px]">
-                            <Table.Row align="center" className="text-center">
+                        <Table.Header className="text-[14px] ">
+                            <Table.Row align={"center"} className="text-center">
                                 <Table.ColumnHeaderCell colSpan={1}  >
-                                    <Flex align="center">
-                                        <button className="flex flex-col m-auto align-center" onClick={handleCheckAll}>
-                                            <Checkbox className="m-2 " color="violet" />
-                                        </button>
-
-                                    </Flex>
+                                    <Checkbox className="hover:cursor-pointer" onClick={handleCheckAll} color="violet" />
                                 </Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell className="border-l "> Nome do Avaliado </Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell className="border-l ">Pontuação</Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell className="border-l ">Quant. 2ªs fontes</Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell className="border-l">Pesquisador</Table.ColumnHeaderCell>
-
                                 <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell className="border-l">Áreas gerais</Table.ColumnHeaderCell>
                                 <Table.ColumnHeaderCell className="border-l">Áreas específicas</Table.ColumnHeaderCell>
@@ -618,8 +751,11 @@ const AnalysisPage = () => {
                                                 <AlertDialog.Action>
                                                     <Flex gap="3" mt="4" justify="end">
                                                         <AlertDialog.Cancel>
-                                                            <Button variant="soft" color="red" className="hover:cursor-pointer">
-                                                                Voltar
+                                                            <Button
+                                                                color="red"
+                                                                title={"Voltar"} size={""}
+                                                            >
+
                                                             </Button>
                                                         </AlertDialog.Cancel>
                                                     </Flex>
@@ -631,15 +767,15 @@ const AnalysisPage = () => {
 
                             </Table.Row>
                         </Table.Header>
-                        <Table.Body>
+                        <Table.Body className="text-[14px]">
                             {sample.participants?.slice(startIndex, endIndex).map((participant, idx) => (
-                                <Table.Row
-                                    align="center"
+                                <Table.Row align={"center"}
 
-                                    className={isChecked[startIndex + idx] ? 'bg-violet-200' : ''}
+                                    className={isChecked[startIndex + idx] ? 'bg-violet-100' : ''}
                                     key={startIndex + idx}>
                                     <Table.Cell justify="center">
                                         <Checkbox
+                                            className="hover:cursor-pointer"
                                             checked={isChecked[startIndex + idx] ?? false}
                                             onCheckedChange={() => handleChange(startIndex + idx)}
                                             color="violet" />
@@ -649,8 +785,8 @@ const AnalysisPage = () => {
                                     <Table.Cell justify="center">{participant.secondSources?.length}</Table.Cell>
                                     <Table.Cell justify="center">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
                                     <Table.Cell justify="center">
-                                        <Select.Root defaultValue="definir">
-                                            <Select.Trigger variant="ghost" />
+                                        <Select.Root>
+                                            <Select.Trigger placeholder="Definir..." variant="ghost" />
                                             <Select.Content >
                                                 <Select.Item value="definir" >Definir</Select.Item>
                                                 <Select.Item value="true">Sim</Select.Item>
@@ -685,22 +821,18 @@ const AnalysisPage = () => {
 
                                     </Table.Cell>
                                     <Table.Cell justify="center">
-                                        <Select.Root defaultValue="definir">
-                                            <Select.Trigger variant="ghost" />
-                                            <Select.Content >
-                                                <Select.Item value="definir">Definir</Select.Item>
-                                                <Select.Item value="teste">teste</Select.Item>
-                                            </Select.Content>
-                                        </Select.Root>
+                                        <Modal
+                                            open={openModalKA}
+                                            setOpen={setOpenModalKA}
+                                            title={"Selecione as Áreas Gerias:"}
+                                            accessibleDescription={"Para comparar as respostas entre os avaliados ou gerar a nuvem de palavras, você deve selecionar pelo menos um participante."} >
+                                                inserir aqui
+                                            </Modal>
+                                        <Button title={"Definir"} color={"primary"} size={"Medium"} className="mt-0" onClick={() => handleShowKA()} />
                                     </Table.Cell>
                                     <Table.Cell justify="center">
-                                        <Select.Root defaultValue="definir">
-                                            <Select.Trigger variant="ghost" />
-                                            <Select.Content >
-                                                <Select.Item value="definir">Definir</Select.Item>
-                                                <Select.Item value="teste">teste</Select.Item>
-                                            </Select.Content>
-                                        </Select.Root>
+
+                                        <Button title={"Definir"} color={"primary"} size={"Medium"} className="mt-0" />
                                     </Table.Cell>
                                     <Table.Cell justify="center">
                                         <Flex justify="center" align="center" className="gap-4">
@@ -777,8 +909,8 @@ const AnalysisPage = () => {
 
                                                     <Flex gap="3" mt="4" justify="end">
                                                         <Dialog.Close>
-                                                            <Button variant="soft" color="red" className="hover:cursor-pointer">
-                                                                Fechar
+                                                            <Button color="red" className="w-[100px]" title={"Fechar"} size={""}>
+
                                                             </Button>
                                                         </Dialog.Close>
                                                     </Flex>
@@ -789,7 +921,7 @@ const AnalysisPage = () => {
                                                     <Box className="flex gap-3" onClick={() => handleCompareSource(participant)}>
                                                         <Tooltip content="Comparar as respostas do avaliado com as respostas das 2ª fontes">
                                                             <IconButton color="cyan" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
-                                                                <Icon.ClipboardText onClick={() => handleCompareSelected()} size={20} />
+                                                                <Icon.ClipboardText size={20} />
                                                             </IconButton>
                                                         </Tooltip>
                                                     </Box>
@@ -797,14 +929,14 @@ const AnalysisPage = () => {
                                                 <AlertDialog.Content >
                                                     <AlertDialog.Title> Nenhuma pessoa foi identificada como segunda fonte desse avaliado. </AlertDialog.Title>
                                                     <AlertDialog.Description size="2">
-                                                        Para contrastar as respostas do avaliado com as da(s) segunda(s) fonte(s), é necessário que um participante tenha recebido as respostas do questionário de uma pessoa adicional, atuando como a segunda fonte.
+                                                        Para mostrar as respostas do avaliado com as da(s) segunda(s) fonte(s), é necessário a finalização do questionário de uma pessoa adicional, atuando como a segunda fonte.
                                                     </AlertDialog.Description>
 
                                                     <Flex gap="3" mt="4" justify="end">
                                                         <AlertDialog.Cancel>
-                                                            <Button variant="soft" color="red" className="hover:cursor-pointer">
+                                                            <Theme.Button variant="soft" color="red" className="hover:cursor-pointer">
                                                                 Voltar
-                                                            </Button>
+                                                            </Theme.Button>
                                                         </AlertDialog.Cancel>
 
                                                     </Flex>
@@ -812,7 +944,7 @@ const AnalysisPage = () => {
                                             </AlertDialog.Root>
 
 
-                                            <Box className="flex gap-3" onClick={() => handleEvaluateAutobiography(participant)}>
+                                            <Box className="flex gap-3" onClick={() => handleEvaluateAutobiography(participant, sample)}>
                                                 <Tooltip content="Visualizar Autobiaografia do participante">
                                                     <IconButton color="bronze" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
                                                         <Icon.IdentificationBadge size={20} />
@@ -827,9 +959,9 @@ const AnalysisPage = () => {
                     </Table.Root>
                 </Box>
                 <Flex gap="2" mt="4" justify="center" align="center">
-                    <Button className="hover:cursor-pointer" variant="surface" onClick={() => handlePageChange(currentPage - 1)}>{`<`}</Button>
+                    <Theme.Button className="hover:cursor-pointer" variant="surface" onClick={() => handlePageChange(currentPage - 1)}>{`<`}</Theme.Button>
                     {renderPagination()}
-                    <Button className="hover:cursor-pointer" variant="surface" onClick={() => handlePageChange(currentPage + 1)}>{`>`}</Button>
+                    <Theme.Button className="hover:cursor-pointer" variant="surface" onClick={() => handlePageChange(currentPage + 1)}>{`>`}</Theme.Button>
                 </Flex>
                 <GridComponent
                     className="gap-5 mt-5 m-auto w-[80%] "
@@ -850,8 +982,8 @@ const AnalysisPage = () => {
                     columns={2}>
 
                 </GridComponent>
-            </Box>
-        </Flex >
+            </Box >
+        </>
 
     );
 };

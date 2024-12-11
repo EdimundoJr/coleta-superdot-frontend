@@ -1,12 +1,12 @@
 import * as Icon from "@phosphor-icons/react";
-import { Box,  Flex, Skeleton } from "@radix-ui/themes";
-import { Header } from "../../Components/Header/Header";
+import { Box, Flex, Skeleton } from "@radix-ui/themes";
+import { Header } from "../../components/Header/Header";
 import { useEffect, useState } from "react";
 import { DashboardInfo, getinfoDashboard } from "../../api/sample.api";
-import Dcard from "../../Components/DashboardCard/DCard";
+import Dcard from "../../components/DashboardCard/DCard";
 import ApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
-import { GridComponent } from "../../Components/Grid/Grid";
+import { GridComponent } from "../../components/Grid/Grid";
 import Notify from "../../components/Notify/Notify";
 
 function DashBoardPage() {
@@ -19,7 +19,7 @@ function DashBoardPage() {
     useEffect(() => {
         const fetchDados = async () => {
             try {
-                const response = await getinfoDashboard()// Rota do backend para buscar os dados
+                const response = await getinfoDashboard()
                 setDados(response);
                 console.log(dados)
                 setLoading(false);
@@ -39,40 +39,42 @@ function DashBoardPage() {
             type: 'donut',
         },
         labels: ['Feminino', 'Masculino'],
-        colors: ['#0090ff', '#30a46c']
+        colors: ['#46a75896', '#46a758']
     };
 
+
     return (
-        <Flex direction="column" className={`relative  ml-2 border-t-4 border-primary rounded-tl-[30px]  w-full bg-[#fbfaff] p-5`}>
+        <>
+
             <Notify
                 open={!!notificationTitle}
                 onOpenChange={() => setNotificationTitle("")}
                 title={notificationTitle}
                 description={notificationDescription}
-                icon={<Icon.XCircle size={20} color="red" />}
-                className="border-red-400"
+                icon={<Icon.XCircle size={30} color="white" />}
+                className="bg-red-400"
             ></Notify>
             <Skeleton loading={loading}>
                 <Header title="Dashboard" icon={<Icon.SquaresFour size={20} />} />
             </Skeleton>
 
             <GridComponent
-                clasName="gap-5"
+                className="gap-5"
                 children={
                     <>
                         <Skeleton loading={loading}>
                             <Box>
-                                <Dcard title={"Total de Amostra"} description={dados?.result.total_samples.toString()} iconBase={<Icon.Swatches size={60} />} seeButton={true} linkTo="/app/my-samples" colorBadge="tomato" style="border-[#e54d2e]" styleButton="hover:bg-[#e54d2e]"></Dcard>
+                                <Dcard title={"Total de Amostra"} description={dados?.result.total_samples.toString()} iconBase={<Icon.Swatches size={60} />} seeButton="hover:visible" linkTo="/app/my-samples" colorBadge="tomato" style="border-[#e54d2e]" styleButton="hover:bg-[#e54d2e]"></Dcard>
                             </Box>
                         </Skeleton>
                         <Skeleton loading={loading}>
                             <Box>
-                                <Dcard title={"Participantes"} description={dados?.result.total_participants.toString()} iconBase={<Icon.UsersThree size={60} />} seeButton={false} colorBadge="blue" style="border-[#0090ff]" ></Dcard>
+                                <Dcard title={"Participantes"} description={dados?.result.total_participants.toString()} iconBase={<Icon.UsersThree size={60} />} seeButton={`invisible`} colorBadge="blue" style="border-[#0090ff]" ></Dcard>
                             </Box>
                         </Skeleton>
                         <Skeleton loading={loading}>
                             <Box>
-                                <Dcard title={"Intituições"} description={dados?.result.total_unique_instituition.toString()} iconBase={<Icon.GraduationCap size={60} />} seeButton={false} colorBadge="green" style="border-[#30a46c]"></Dcard>
+                                <Dcard title={"Intituições"} description={dados?.result.total_unique_instituition.toString()} iconBase={<Icon.GraduationCap size={60} />} seeButton={`invisible`} colorBadge="grass" style="border-[#46a758]"></Dcard>
                             </Box>
                         </Skeleton>
                     </>
@@ -80,33 +82,47 @@ function DashBoardPage() {
                 columns={3}>
             </GridComponent>
             <GridComponent
-                clasName="gap-5"
+                className="gap-5"
                 children={
                     <>
                         <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
-                                <ApexChart options={options} series={series} type="donut" height={350} />
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
+                                <ApexChart options={options} series={series} type="donut" height={250} />
                             </Box>
                         </Skeleton>
                         <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
-                                <ApexChart options={options} series={series} type="donut" height={350} />
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
+                                <ApexChart options={options} series={series} type="donut" height={250} />
                             </Box>
                         </Skeleton>
-                        <Skeleton loading={loading}>
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
-                                <ApexChart options={options} series={series} type="donut" height={350} />
-                            </Box>
-                        </Skeleton>
-                        <Skeleton loading={loading}>
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg   group group/item transition-all pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto">
-                                <ApexChart options={options} series={series} type="donut" height={350} />
-                            </Box>
-                        </Skeleton>
+
                     </>}
                 columns={2}>
             </GridComponent>
-        </Flex >
+            <GridComponent
+                className="gap-5"
+                children={
+                    <>
+                        <Skeleton loading={loading} >
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
+                                <ApexChart options={options} series={series} type="donut" height={300} />
+                            </Box>
+                        </Skeleton>
+                        <Skeleton loading={loading} >
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
+                                <ApexChart options={options} series={series} type="donut" height={200} />
+                            </Box>
+                        </Skeleton>
+                        <Skeleton loading={loading} >
+                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
+                                <ApexChart options={options} series={series} type="donut" height={200} />
+                            </Box>
+                        </Skeleton>
+
+                    </>}
+                columns={3}>
+            </GridComponent>
+        </>
 
     );
 };

@@ -14,6 +14,8 @@ import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
 import FormGroupsStep from "../AdultForm/steps/FormGroupsStep";
 import { IParticipant } from "../../interfaces/participant.interface";
 import ReactLoading from "react-loading";
+import * as Icon from "@phosphor-icons/react";
+import { Box, Flex } from "@radix-ui/themes";
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
@@ -24,6 +26,7 @@ const AdultFormSecondSourcePage = () => {
     const [notificationData, setNotificationData] = useState({
         title: "",
         description: "",
+        type: "",
     });
 
     const { sampleId = "", participantId = "", secondSourceId = "", verificationCode = "" } = useParams();
@@ -63,6 +66,7 @@ const AdultFormSecondSourcePage = () => {
                     setNotificationData({
                         title: "Link inválido!",
                         description: "Verifique se está utilizando o código que foi enviado para o seu e-mail.",
+                        type: "erro"
                     });
                 })
                 .finally(() => {
@@ -93,6 +97,7 @@ const AdultFormSecondSourcePage = () => {
             setNotificationData({
                 title: "Questionário finalizado!",
                 description: "Agradecemos pelas respostas. Em breve o pesquisador entrará em contato.",
+                type: "ok"
             });
             setCurrentStep(EAdultFormSteps.INTRODUCTION);
             return;
@@ -122,23 +127,26 @@ const AdultFormSecondSourcePage = () => {
     return (
         <Notify
             open={!!notificationData.title}
-            onOpenChange={() => setNotificationData({ title: "", description: "" })}
+            onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
             title={notificationData.title}
             description={notificationData.description}
+            icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" /> : <Icon.CheckCircle size={30} color="white" />}
+            className={notificationData.type === "erro" ? "bg-red-500" : "bg-green-500"}
+
         >
-        {loading && (
-            <div className="absolute flex h-full w-full bg-black opacity-60">
-                <ReactLoading className="m-auto" type="spinningBubbles"></ReactLoading>
-            </div>
-        )}
-            <div
+            {loading && (
+                <Flex direction="column-reverse" className="absolute h-full w-full bg-black m-auto">
+                    <h1 className="text-white m-auto">Aguarde...
+                        <ReactLoading className="m-auto" type="spinningBubbles"></ReactLoading>
+                    </h1>
+
+                </Flex>
+            )}
+            <Box
                 id="bg-div"
-                className="h-full overflow-y-scroll bg-slate-950 bg-opacity-50 bg-default-bg bg-cover bg-no-repeat bg-blend-multiply"
-            >
-                {/* HEADER */}
-                <div className="flex justify-start p-4">
-                    <h1>GRUPAC</h1>
-                </div>
+                className={`w-full bg-slate-950 bg-opacity-50 bg-default-bg bg-cover bg-no-repeat bg-blend-multiply font-roboto text-white p-4 h-full overflow-y-scroll`}
+            >           
+
 
                 {/* STEPPER */}
                 {currentStep > EAdultFormSteps.INTRODUCTION &&
@@ -257,7 +265,7 @@ const AdultFormSecondSourcePage = () => {
                             setNotificationData={setNotificationData}
                         />
                     )}
-            </div>
+            </Box>
         </Notify>
     );
 };
