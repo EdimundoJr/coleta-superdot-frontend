@@ -8,12 +8,14 @@ export default {
         extend: {
             fontFamily: {
                 roboto: ['Roboto', 'sans-serif'],
-              },
+            },
             colors: {
-                primary: "#7A47E4",
+                primary: "#6e56cf",
+                "off-white": "#fbfaff",
+                'primary-reverse': '#b8cf57',
                 "primary-text": "#1B1B1B",
                 "alternative-text": "#FFFFFF",
-                secondary: "#9873FA",
+                secondary: "#7d66d9",
                 "primary-light": "#B57CFF",
                 "neutral-dark": "#737373",
                 "neutral-light": "#C9C9C9",
@@ -49,23 +51,24 @@ export default {
                 }, slideDown: {
                     from: { height: '0px' },
                     to: { height: 'var(--radix-accordion-content-height)' },
-                  },
-                  slideUp: {
+                },
+                slideUp: {
                     from: { height: 'var(--radix-accordion-content-height)' },
                     to: { height: '0px' },
-                  },
                 },
             },
-            animation: {
-                hide: "hide 100ms ease-in",
-                slideIn: "slideIn 150ms cubic-bezier(0.16, 1, 0.3, 1)",
-                swipeOut: "swipeOut 100ms ease-out",
-                overlayShow: "overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
-                contentShow: "contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
-                slideDown: 'slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1)',
-                slideUp: 'slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1)',
-            },
+
         },
-    
+        animation: {
+            hide: "hide 100ms ease-in",
+            slideIn: "slideIn 150ms cubic-bezier(0.16, 1, 0.3, 1)",
+            swipeOut: "swipeOut 100ms ease-out",
+            overlayShow: "overlayShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
+            contentShow: "contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
+            slideDown: 'slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1)',
+            slideUp: 'slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1)',
+        },
+    },
+
     plugins: [],
 } satisfies Config;
