@@ -1,12 +1,11 @@
 import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
-import GuardRoute from "./Components/GuardRoute/GuardRoute";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
 import CreateSamplePage from "./pages/CreateSamplePage/CreateSamplePage";
 import ChooseSampleGroupPage from "./pages/ChooseSampleGroupPage/ChooseSampleGroupPage";
 import SampleReviewPage from "./pages/SampleReviewPage/SampleReviewPage";
-import SideBar from "./Components/SideBar/SideBar";
+import SideBar from "./components/SideBar/SideBar";
 import LogoutPage from "./pages/LogoutPage/LogoutPage";
 import { getUserRole } from "./utils/auth.utils";
 import MySamplesPage from "./pages/MySamplesPage/MySamplesPage";
@@ -20,10 +19,11 @@ import SecondsSourceCompare from "./pages/SecondsSourceCompare/SecondsSourceComp
 import CompareParticipantsSelected from "./pages/CompareParticipantsSelected/CompareParticipantsSelected";
 import EvaluateAutobiography from "./pages/EvaluateAutobiography/EvaluateAutobiography";
 import { Flex } from "@radix-ui/themes";
+import GuardRoute from "./components/GuardRoute/GuardRoute";
 
 function OuterLayout() {
     return (
-        <Flex className="overflow-hidden h-[100vh]">
+        <Flex className="overflow-hidden h-full w-full font-roboto bg-off-white">
             <GuardRoute scope="OUTER">
                 <Outlet />
             </GuardRoute>
@@ -36,11 +36,13 @@ function InnerLayout() {
 
 
     return (
-        <Flex className="bg-primary">
+        <Flex className="bg-primary font-roboto">
             <SideBar userRole={userRole} />
-            <GuardRoute scope="INNER">
-                <Outlet />
-            </GuardRoute>
+            <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px] w-full bg-off-white p-5`}>
+                <GuardRoute scope="INNER">
+                    <Outlet />
+                </GuardRoute>
+            </Flex>
         </Flex>
 
     );
@@ -100,11 +102,11 @@ const router = createBrowserRouter([
                 Component: EditSamplePage,
             },
             {
-                path: "participants-registration",
+                path: "my-samples/participants-registration",
                 Component: ParticipantsRegistration,
             },
             {
-                path: "analyze-sample",
+                path: "my-samples/analyze-sample",
                 Component: AnalysisPage,
             },
             {
@@ -120,15 +122,15 @@ const router = createBrowserRouter([
                 Component: LogoutPage,
             },
             {
-                path: "seconds-source-compare",
+                path: "my-samples/seconds-source-compare",
                 Component: SecondsSourceCompare,
             },
             {
-                path: "compare-participants-selected",
+                path: "my-samples/compare-participants-selected",
                 Component: CompareParticipantsSelected,
             },
             {
-                path: "evaluate-autobiography",
+                path: "my-samples/evaluate-autobiography",
                 Component: EvaluateAutobiography,
             },
         ],
