@@ -1,130 +1,152 @@
 import * as Icon from "@phosphor-icons/react";
-import { Box, Flex, Skeleton } from "@radix-ui/themes";
-import { Header } from "../../components/Header/Header";
+import { Skeleton } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { DashboardInfo, getinfoDashboard } from "../../api/sample.api";
 import Dcard from "../../components/DashboardCard/DCard";
 import ApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
-import { GridComponent } from "../../components/Grid/Grid";
 import Notify from "../../components/Notify/Notify";
+import ChartContainer from "../../components/Charts/GenderChart";
 
 function DashBoardPage() {
     const [dados, setDados] = useState<null | DashboardInfo>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [notificationTitle, setNotificationTitle] = useState("");
-    const [notificationDescription, setNotificationDescription] = useState("");
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+        type: "",
+    });
 
     useEffect(() => {
         const fetchDados = async () => {
             try {
                 const response = await getinfoDashboard()
                 setDados(response);
-                console.log(dados)
                 setLoading(false);
             } catch (error: any) {
                 setError(error.message);
-                setNotificationTitle("Erro no servidor.");
-                setNotificationDescription("Não foi possível carregar os dados do Dashboard.");
+                setNotificationData({
+                    title: "Erro no servidor",
+                    description: "Não foi possível carregar os dados do Dashboard",
+                    type: "error"
+                });
             }
         };
 
         fetchDados();
     }, []);
 
-    const series = [dados?.result.count_female || 0, dados?.result.count_male || 0];
-    const options: ApexOptions = {
+    const genderChartOptions: ApexOptions = {
         chart: {
             type: 'donut',
+            fontFamily: 'Roboto, sans-serif',
         },
         labels: ['Feminino', 'Masculino'],
-        colors: ['#46a75896', '#46a758']
+        colors: ['#2A5C8B', '#4CAF50'],
+        dataLabels: {
+            style: {
+                fontSize: '14px',
+                fontWeight: 500,
+            }
+        },
+        plotOptions: {
+            pie: {
+                donut: {
+                    size: '65%',
+                    labels: {
+                        show: true,
+                        total: {
+                            show: true,
+                            label: 'Total',
+                            fontSize: '16px'
+                        }
+                    }
+                }
+            }
+        },
+        legend: {
+            position: 'bottom',
+            horizontalAlign: 'center'
+        }
     };
 
+    const genderSeries = [
+        dados?.result.count_female || 0,
+        dados?.result.count_male || 0
+    ];
 
     return (
         <>
-
             <Notify
-                open={!!notificationTitle}
-                onOpenChange={() => setNotificationTitle("")}
-                title={notificationTitle}
-                description={notificationDescription}
-                icon={<Icon.XCircle size={30} color="white" />}
-                className="bg-red-400"
-            ></Notify>
-            <Skeleton loading={loading}>
-                <Header title="Dashboard" icon={<Icon.SquaresFour size={20} />} />
-            </Skeleton>
+                open={!!notificationData.title}
+                onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
+                title={notificationData.title}
+                description={notificationData.description}
+                icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
+                className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
+            />
 
-            <GridComponent
-                className="gap-5"
-                children={
-                    <>
-                        <Skeleton loading={loading}>
-                            <Box>
-                                <Dcard title={"Total de Amostra"} description={dados?.result.total_samples.toString()} iconBase={<Icon.Swatches size={60} />} seeButton="hover:visible" linkTo="/app/my-samples" colorBadge="tomato" style="border-[#e54d2e]" styleButton="hover:bg-[#e54d2e]"></Dcard>
-                            </Box>
-                        </Skeleton>
-                        <Skeleton loading={loading}>
-                            <Box>
-                                <Dcard title={"Participantes"} description={dados?.result.total_participants.toString()} iconBase={<Icon.UsersThree size={60} />} seeButton={`invisible`} colorBadge="blue" style="border-[#0090ff]" ></Dcard>
-                            </Box>
-                        </Skeleton>
-                        <Skeleton loading={loading}>
-                            <Box>
-                                <Dcard title={"Intituições"} description={dados?.result.total_unique_instituition.toString()} iconBase={<Icon.GraduationCap size={60} />} seeButton={`invisible`} colorBadge="grass" style="border-[#46a758]"></Dcard>
-                            </Box>
-                        </Skeleton>
-                    </>
-                }
-                columns={3}>
-            </GridComponent>
-            <GridComponent
-                className="gap-5"
-                children={
-                    <>
-                        <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
-                                <ApexChart options={options} series={series} type="donut" height={250} />
-                            </Box>
-                        </Skeleton>
-                        <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
-                                <ApexChart options={options} series={series} type="donut" height={250} />
-                            </Box>
-                        </Skeleton>
+            {/* Top Cards Section */}
+            <div className="grid grid-cols-1 xl:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
+                <Dcard
+                    loading={loading}
+                    title="Total de Amostras"
+                    value={dados?.result.total_samples}
+                    icon={<Icon.Swatches size={32} />}
+                    colorBadge="blue"
+                    style="!bg-gradient-to-l from-red-500 to-amber-500" />
 
-                    </>}
-                columns={2}>
-            </GridComponent>
-            <GridComponent
-                className="gap-5"
-                children={
-                    <>
-                        <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
-                                <ApexChart options={options} series={series} type="donut" height={300} />
-                            </Box>
-                        </Skeleton>
-                        <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
-                                <ApexChart options={options} series={series} type="donut" height={200} />
-                            </Box>
-                        </Skeleton>
-                        <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg  pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
-                                <ApexChart options={options} series={series} type="donut" height={200} />
-                            </Box>
-                        </Skeleton>
+                <Dcard
+                    loading={loading}
+                    title="Participantes"
+                    value={dados?.result.total_participants}
+                    icon={<Icon.UsersThree size={32} />}
+                    colorBadge="green"
+                    style="!bg-gradient-to-l from-lime-500 to-sky-500"
+                />
 
-                    </>}
-                columns={3}>
-            </GridComponent>
+                <Dcard
+                    loading={loading}
+                    title="Instituições"
+                    value={dados?.result.total_unique_instituition}
+                    icon={<Icon.GraduationCap size={32} />}
+                    colorBadge="purple"
+                    style="!bg-gradient-to-l from-violet-500 to-pink-500"
+                />
+
+            </div>
+
+            {/* Charts Section */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-5">
+                <ChartContainer
+                    title="Distribuição por Gênero"
+                    loading={loading}
+
+                >
+                    <ApexChart
+                        options={genderChartOptions}
+                        series={genderSeries}
+                        type="donut"
+                        height={350}
+                    />
+                </ChartContainer>
+
+                <ChartContainer
+                    title="Progresso de Coletas"
+                    loading={loading}
+                >
+                    <div className="text-gray-500 text-center py-12">
+                        <Icon.ChartBar size={48} className="mx-auto mb-4" />
+                        <p>Gráfico em desenvolvimento</p>
+                    </div>
+                </ChartContainer>
+
+            </div>
         </>
-
     );
 };
+
+
 
 export default DashBoardPage;

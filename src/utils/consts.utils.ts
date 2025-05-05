@@ -114,7 +114,7 @@ export enum EAdultFormSteps {
     INDICATE_SECOND_SOURCE = 3,
     GENERAL_CHARACTERISTICS = 4,
     HIGH_ABILITIES = 5,
-    CRIATIVITY = 6,
+    CREATIVITY = 6,
     TASK_COMMITMENT = 7,
     LEADERSHIP = 8,
     ARTISTIC_ACTIVITIES = 9,
@@ -125,7 +125,7 @@ export enum EAdultFormSteps {
 export enum EAdultFormGroup {
     GENERAL_CHARACTERISTICS = 0,
     HIGH_ABILITIES = 1,
-    CRIATIVITY = 2,
+    CREATIVITY = 2,
     TASK_COMMITMENT = 3,
     LEADERSHIP = 4,
     ARTISTIC_ACTIVITIES = 5,

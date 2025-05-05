@@ -1,5 +1,5 @@
 import ParticipantsRegistrationTable from "../../components/Table/ParticipantsRegistrationTable/ParticipantsRegistrationTable";
-import { useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { ISample } from "../../interfaces/sample.interface";
 import Modal from "../../components/Modal/Modal";
@@ -11,13 +11,12 @@ import { ISecondSource } from "../../interfaces/secondSource.interface";
 import { DeepPartial } from "react-hook-form";
 import ParticipantsIndicationForm from "../../components/ParticipantsIndicationForm/ParticipantsIndicationForm";
 import { getSampleById } from "../../api/sample.api";
-import { Button, Callout, Flex, IconButton, Skeleton, Strong, Table, Text } from "@radix-ui/themes";
-import { Header } from "../../components/Header/Header";
+import { DataList, Flex, IconButton, Separator, Strong, Table, Text, Tooltip } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
+import { Button } from "../../components/Button/Button";
 
 const ParticipantsRegistration = () => {
     const [sample, setSample] = useState<ISample>({} as ISample);
-    // const [currentPage, setCurrentPage] = useState(1);
     const [modalSecondSourcesOpen, setModalSecondSourcesOpen] = useState(false);
     const [loading, setLoading] = useState(true);
     const [currentParticipant, setCurrentParticipant] = useState<IParticipant>();
@@ -27,6 +26,7 @@ const ParticipantsRegistration = () => {
         description: "",
         type: "",
     });
+    const [copied, setCopied] = useState(false);
 
     const navigate = useNavigate();
     const location = useLocation();
@@ -72,26 +72,27 @@ const ParticipantsRegistration = () => {
         setModalSecondSourcesOpen(true);
     };
 
-    const getFirstAndLastName = (fullName: string) => {
-        const names = fullName.split(' ');
-        if (names.length > 1) {
-            return `${names[0]} ${names[names.length - 1]}`;
-        } else {
-            return fullName;
+
+    const handleCopy = async () => {
+        try {
+            await navigator.clipboard.writeText(urlParticipantForm);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000); // volta pro ícone original após 2s
+        } catch (error) {
+            console.error("Erro ao copiar:", error);
         }
     };
+
     const handleSendTextToClipBoard = (text: string) => {
         navigator.clipboard.writeText(text);
         setNotificationData({
             title: "Link copiado.",
             description: "O link foi copiado para a sua área de transferência.",
-            type: "ok"
+            type: "success"
         });
     };
 
-    useEffect(() => {
 
-    }, []);
 
     const getFormFillStatus = (secondSource: DeepPartial<ISecondSource>): TFormFillStatus => {
         if (!secondSource.adultForm?.startFillFormAt) {
@@ -119,6 +120,23 @@ const ParticipantsRegistration = () => {
 
     const urlParticipantForm = `${import.meta.env.VITE_FRONTEND_URL}/formulario-adulto/${sample?._id}`;
 
+    const StatItem = ({ icon, label, value, background }: { icon?: ReactNode; label: string; value: ReactNode; background?: string }) => (
+        <Flex align="center" gap="2" className={`${background} p-3 rounded-lg`} >
+            {icon && <span className="text-primary-600">{icon}</span>}
+            <Text size="2" weight="medium" className="text-gray-600">{label}:</Text>
+            <Text size="2" weight="bold" className="text-gray-900">{value}</Text>
+        </Flex>
+    );
+
+
+    const EmptyState = ({ icon, title, description }: { icon: ReactNode; title: string; description: string }) => (
+        <Flex direction="column" align="center" gap="4" className="py-12">
+            <div className="text-primary-600">{icon}</div>
+            <Text size="4" weight="bold">{title}</Text>
+            <Text size="2" className="text-gray-600 text-center">{description}</Text>
+        </Flex>
+    );
+
     return (
         <>
             <Notify
@@ -127,128 +145,214 @@ const ParticipantsRegistration = () => {
                 title={notificationData.title}
                 description={notificationData.description}
                 icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
-                className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : "bg-green-500"}
-
+                className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
             >
-                <Header title={`Minhas Amostras / Cadastrar Pessoas`} ></Header>
 
 
+                {/* Header Reestruturado */}
+                <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
+                    <h2 className="heading-2 font-semibold text-gray-900">
+                        Gerenciamento de Participantes
+                    </h2>
+                    <p className="text-lg text-gray-600">
+                        Amostra: <Strong className="text-primary-600">{sample?.sampleGroup}</Strong>
+                    </p>
+                </header>
 
-                <Flex direction="column">
-                    <h3>{sample?.sampleGroup}</h3>
-                    <Callout.Root variant="surface" size="3" className="m-auto w-fit mb-10">
-                        <Skeleton loading={loading}>
-                            <Text size="4" as="label" className="font-bold">Utilize os recursos
-                                da página para adicionar mais participantes.</Text>
 
-                            <Callout.Icon>
-                                <Icon.Info size={20} />
-                            </Callout.Icon>
-                            <Callout.Text>
-                                URL DO AVALIADO:
-                            </Callout.Text>
-                            <Callout.Text>
-                                <Flex align="center" gap="4">
-                                    <Strong>{urlParticipantForm}</Strong>
-                                    <IconButton size="2"
-                                        className="hover:cursor-pointer"
-                                        variant="ghost"
-                                        onClick={() => handleSendTextToClipBoard(urlParticipantForm)}
-                                    >
+                {/* Seção de URL Modernizada */}
+                <div className="card-container p-5 ">
+                    <Flex direction="column" gap="4">
+                        <Flex align="center" gap="2">
+                            <Icon.Info size={24} className="text-primary-600" />
+                            <Text size="5" weight="bold">URL de Cadastro</Text>
+                        </Flex>
+
+                        <Flex align="center" gap="3" className={`${copied ? "bg-confirm" : "bg-gray-100"} p-3 rounded`}>
+                            <Text className="text-ellipsis overflow-hidden whitespace-nowrap flex-1">
+                                {urlParticipantForm}
+                            </Text>
+                            <Tooltip content="Copiar URL">
+                                <IconButton
+                                    variant="soft"
+                                    onClick={() => {
+                                        handleCopy();
+                                        handleSendTextToClipBoard(urlParticipantForm)
+                                    }}
+                                    className="transition-transform duration-150 active:scale-90"
+                                >
+                                    <div className="relative w-[20px] h-[20px]">
                                         <Icon.Copy
-                                            weight="bold"
-                                            size={20}
+                                            className={`absolute inset-0 transition-opacity duration-300 ${copied ? "opacity-0" : "opacity-100"}`}
+                                            width={20}
+                                            height={20}
                                         />
-                                    </IconButton>
-                                </Flex>
 
-                            </Callout.Text>
-                            <Callout.Text>Compartilhe a URL com os adultos que deseja adicionar à base de dados</Callout.Text>
-                            <Flex justify="center">
-                                <Callout.Text>Máximo de inscrições: <Strong>{sample?.qttParticipantsAuthorized}</Strong></Callout.Text>
-                            </Flex>
-                            {sample?.participants?.length !== sample?.qttParticipantsAuthorized ?
-                                <Button color="grass" className=" hover:bg-green-400 mb-10 hover:cursor-pointer" onClick={() => setModalIndicateParticipantsOpen(true)}>
-                                    <Icon.PlusCircle size={20}></Icon.PlusCircle>
-                                    INDICAR PARTICIPANTES
-                                </Button>
-                                : <></>}
-                            <Callout.Text>
-                                <Flex justify="center" gap="1">
-                                    Total de participantes:
-                                    <Strong>{sample?.participants?.length}</Strong>
-                                    (Aguardando <Strong>{(sample?.qttParticipantsAuthorized || 0) - (sample?.participants?.length || 0)
-                                    }</Strong> participante(s))
-                                </Flex>
-                            </Callout.Text>
-                        </Skeleton>
-                    </Callout.Root>
-                    <Skeleton loading={loading}>
-                        <ParticipantsRegistrationTable
-                            sampleId={sample?._id || ""}
-                            data={sample?.participants}
-                            // currentPage={currentPage}
-                            // setCurrentPage={(newPage) => setCurrentPage(newPage)}
-                            onClickToViewSecondSources={handleViewSecondSources}
-                            onClickToCopySecondSourceURL={handleSendTextToClipBoard}
-                        />
+                                        {/* Ícone de check */}
+                                        <Icon.Check
+                                            className={`absolute inset-0  transition-opacity duration-300 ${copied ? "opacity-100" : "opacity-0"}`}
+                                            width={20}
+                                            height={20}
+                                        />
+                                    </div>
+                                </IconButton>
+                            </Tooltip>
+                        </Flex>
 
-                        <Modal
-                            open={modalIndicateParticipantsOpen}
-                            setOpen={setModalIndicateParticipantsOpen}
-                            title="Indicar participantes"
-                            accessibleDescription="Digite o nome e o e-mail de cada participante que deseja indicar e clique no botão ADICIONAR.Em
-                    seguida, clique em FINALIZAR para enviar um e-mail a todos os participantes indicados."
+                        <Separator size="4" />
 
-                        >
-
-                            <ParticipantsIndicationForm
-                                setNotificationData={setNotificationData}
-                                sampleId={sample?._id as string}
-                                onFinish={handleFinishParticipantIndication}
+                        {/* Estatísticas com Layout Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                            <StatItem
+                                icon={<Icon.Users size={20} />}
+                                label="Total Permitido"
+                                value={sample?.qttParticipantsAuthorized}
+                                background={"bg-violet-200"}
                             />
+                            <StatItem
+                                icon={<Icon.UserPlus size={20} />}
+                                label="Cadastrados"
+                                value={sample?.participants?.length}
+                                background={"bg-green-200"}
+                            />
+                            <StatItem
+                                icon={<Icon.Clock size={20} />}
+                                label="Pendentes"
+                                value={(sample?.qttParticipantsAuthorized || 0) - (sample?.participants?.length || 0)} background={"bg-amber-200"} />
+                            {sample?.participants?.length !== sample?.qttParticipantsAuthorized && (
+                                <Button
 
-                        </Modal>
-                    </Skeleton>
-                    {/* MODAL TO SHOW SECOND SOURCES */}
-                    <Modal
-                        open={modalSecondSourcesOpen}
-                        setOpen={setModalSecondSourcesOpen}
-                        title="Segundas fontes"
-                        accessibleDescription="Abaixo estão listadas as informações das segundas fontes do participante."
-                    >
+                                    size="Large"
 
-                        <Table.Root variant="surface" className="w-full">
-                            <Table.Header className="text-[16px]">
-                                <Table.Row align="center" className="text-center">
-                                    <Table.ColumnHeaderCell className="border-l">Nome</Table.ColumnHeaderCell>
-                                    <Table.ColumnHeaderCell className="border-l">Andamento</Table.ColumnHeaderCell>
-                                    <Table.ColumnHeaderCell className="border-l">Relação</Table.ColumnHeaderCell>
-                                    <Table.ColumnHeaderCell className="border-l">Data de início</Table.ColumnHeaderCell>
-                                    <Table.ColumnHeaderCell className="border-l">Data de finalização</Table.ColumnHeaderCell>
-                                </Table.Row>
-                            </Table.Header>
-                            <Table.Body>
-                                {currentParticipant?.secondSources?.map((secondSource) => (
-                                    <Table.Row key={secondSource._id} align="center">
-                                        <Table.Cell justify="center">{secondSource.personalData?.fullName}</Table.Cell>
-                                        <Table.Cell justify="center">{getFormFillStatus(secondSource)}</Table.Cell>
-                                        <Table.Cell justify="center">{secondSource.personalData?.relationship}</Table.Cell>
-                                        <Table.Cell justify="center"> {secondSource.adultForm?.startFillFormAt &&
-                                            DateTime.fromISO(secondSource.adultForm.startFillFormAt).toFormat(
-                                                "dd/LL/yyyy - HH:mm"
-                                            )}</Table.Cell>
-                                        <Table.Cell justify="center"> {secondSource.adultForm?.endFillFormAt &&
-                                            DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat(
-                                                "dd/LL/yyyy - HH:mm"
-                                            )}</Table.Cell>
+                                    className="w-full md:w-auto bg-am"
+                                    children={<Icon.PlusCircle size={20} />}
+                                    onClick={() => setModalIndicateParticipantsOpen(true)} title={"Adicionar Participantes"} color={"green"}                                >
+
+
+                                </Button>
+                            )}
+                        </div>
+
+
+                    </Flex>
+                </div>
+
+                <div className="card-container-border-variante">
+                    <ParticipantsRegistrationTable
+                        sampleId={sample?._id || ""}
+                        data={sample?.participants}
+                        onClickToViewSecondSources={handleViewSecondSources}
+                        onClickToCopySecondSourceURL={handleSendTextToClipBoard}
+                    />
+                </div>
+
+
+                <Modal
+                    open={modalIndicateParticipantsOpen}
+                    setOpen={setModalIndicateParticipantsOpen}
+                    title={"Indicar Novos Participantes"} accessibleDescription={""}
+                >
+                    <ParticipantsIndicationForm
+                        setNotificationData={setNotificationData}
+                        sampleId={sample?._id as string}
+                        onFinish={handleFinishParticipantIndication}
+                    />
+                </Modal>
+
+                {/* Modal de Segundas Fontes Aprimorado */}
+                <Modal
+                    open={modalSecondSourcesOpen}
+                    setOpen={setModalSecondSourcesOpen}
+                    title="Segundas Fontes" accessibleDescription={""}                    >
+                    {currentParticipant?.secondSources?.length ? (
+                        <>
+
+                            <Table.Root className="hidden md:table">
+                                <Table.Header className="bg-gray-50">
+                                    <Table.Row>
+                                        {["Nome", "Status", "Relação", "Início", "Término"].map((header) => (
+                                            <Table.ColumnHeaderCell key={header} className="font-semibold">
+                                                {header}
+                                            </Table.ColumnHeaderCell>
+                                        ))}
                                     </Table.Row>
-                                ))}
-                            </Table.Body>
-                        </Table.Root>
-                    </Modal>
+                                </Table.Header>
+                                <Table.Body>
+                                    {currentParticipant.secondSources.map((secondSource) => (
+                                        <Table.Row key={secondSource._id} className="hover:bg-gray-50" align="center">
+                                            <Table.Cell justify="center">{secondSource.personalData?.fullName}</Table.Cell>
+                                            <Table.Cell justify="center">{getFormFillStatus(secondSource)}</Table.Cell>
+                                            <Table.Cell justify="center">{secondSource.personalData?.relationship}</Table.Cell>
+                                            <Table.Cell justify="center"> {secondSource.adultForm?.startFillFormAt &&
+                                                DateTime.fromISO(secondSource.adultForm.startFillFormAt).toFormat(
+                                                    "dd/LL/yyyy - HH:mm"
+                                                )}</Table.Cell>
+                                            <Table.Cell justify="center"> {secondSource.adultForm?.endFillFormAt &&
+                                                DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat(
+                                                    "dd/LL/yyyy - HH:mm"
+                                                )}</Table.Cell>
+                                        </Table.Row>
+                                    ))}
+                                </Table.Body>
+                            </Table.Root>
 
-                </Flex>
+                            {/* Cards Mobile */}
+                            <div className="mobo">
+                                <DataList.Root orientation={"vertical"} className="!font-roboto " >
+                                    <DataList.Item >
+                                        <p className="text-[16px] font-bold text-center  border-b-black">Informações do participante Segunda fonte</p>
+                                        {currentParticipant?.secondSources?.map((secondSource) => (
+                                            <div className="w-full p-2 rounded-lg card-container mb-5 " key={secondSource._id}>
+
+
+                                                <DataList.Label minWidth="88px" >Nome</DataList.Label>
+
+                                                <DataList.Value >{secondSource.personalData?.fullName}</DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
+                                                <DataList.Label minWidth="88px">Andamento</DataList.Label>
+
+                                                <DataList.Value >
+                                                    {getFormFillStatus(secondSource)}
+                                                </DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
+                                                <DataList.Label minWidth="88px">Relação</DataList.Label>
+
+                                                <DataList.Value >
+                                                    {secondSource.personalData?.relationship}
+                                                </DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
+                                                <DataList.Label minWidth="88px">Data de início</DataList.Label>
+
+                                                <DataList.Value >
+                                                    {secondSource.adultForm?.startFillFormAt
+                                                        ? DateTime.fromISO(secondSource.adultForm.startFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                        : "Não iniciado"}
+                                                </DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
+                                                <DataList.Label minWidth="88px">Data de finalização</DataList.Label>
+
+                                                <DataList.Value >
+                                                    {secondSource.adultForm?.endFillFormAt
+                                                        ? DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                        : "Não iniciado"}
+                                                </DataList.Value>
+                                            </div>
+                                        ))}
+                                    </DataList.Item>
+
+                                </DataList.Root>
+
+
+                            </div>
+                        </>
+                    ) : (
+                        <EmptyState
+                            icon={<Icon.UserGear size={40} />}
+                            title="Nenhuma segunda fonte encontrada"
+                            description="Adicione segundas fontes através do formulário do participante"
+                        />
+                    )}
+                </Modal>
             </Notify >
 
         </ >

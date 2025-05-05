@@ -17,14 +17,16 @@ import { putSaveParticipantData, putSubmitParticipantData } from "../../../api/p
 import Select from "react-select";
 import { IParticipant } from "../../../interfaces/participant.interface";
 import { Button } from "../../../components/Button/Button";
+import { Flex } from "@radix-ui/themes";
 
 interface ParticipantDataStepProps {
     nextStep: () => void;
     setFormData: (formData: IParticipant) => void;
-    setNotificationData: (data: { title: string; description: string; type: String }) => void;
+    setNotificationData: (data: { title: string; description: string; type: string }) => void;
     formData?: IParticipant;
     sampleId: string;
     saveAndExit: () => void;
+    header: string;
 }
 
 /* This step will collect the personal, family, and address data from participant. */
@@ -35,16 +37,19 @@ const ParticipantDataStep = ({
     setNotificationData,
     sampleId,
     saveAndExit,
+    header,
 }: ParticipantDataStepProps) => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
         watch,
         setValue,
+        formState,
     } = useForm({
         resolver: yupResolver(participantDataSchema),
         defaultValues: formData,
+        mode: "onChange",
     });
 
     const onSaveAndExit = async () => {
@@ -76,6 +81,7 @@ const ParticipantDataStep = ({
                     setFormData(participantData);
                 }
                 nextStep();
+                window.scrollTo(0, 0);
             }
         } catch (e: any) {
             console.error(e);
@@ -87,14 +93,19 @@ const ParticipantDataStep = ({
         }
     });
 
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 8, today.getMonth(), today.getDate());
+
     return (
-        <div className="grid gap-y-10">
-            <header>
-                <h1>Informações pessoais</h1>
-                <h3>Preencha os campos abaixo para continuar.</h3>
+        <Flex direction={"column"} className="rt-Flex rt-r-fd-column bg-white gap-y-5  max-sm:p-0  relative w-[100%]  m-auto rounded-2xl p-5">
+            <header className="text-primary">
+                <h3 className="text-xl max-sm:text-lg md:text-xl lg:text-2xl font-bold">
+                    {header}
+                </h3>
+
             </header>
             <Form.Root onSubmit={onSubmit} className="w-full">
-                <div className="grid grid-cols-1 gap-y-5 sm:grid-cols-2 md:grid-cols-3 ">
+                <div className="grid grid-cols-1 gap-y-5  gap-3 ">
                     <InputField
                         {...register("personalData.fullName")}
                         label="Nome completo*"
@@ -143,8 +154,8 @@ const ParticipantDataStep = ({
                             <option key={gender}>{gender}</option>
                         ))}
                     </SelectField>
-                    <Form.Field name="birthDate" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="birthDate" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Data de nascimento*
                         </Form.Label>
                         <Flatpicker
@@ -153,7 +164,8 @@ const ParticipantDataStep = ({
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
                             options={{
-                                maxDate: "today",
+                                dateFormat: "d/m/Y",
+                                maxDate: minDate,
                             }}
                         />
                         {errors.personalData?.birthDate?.message && (
@@ -198,8 +210,8 @@ const ParticipantDataStep = ({
                         ))}
                     </SelectField>
 
-                    <Form.Field name="personalData.houseDevices" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="personalData.houseDevices" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Aparelhos na casa
                         </Form.Label>
                         <Select
@@ -210,19 +222,36 @@ const ParticipantDataStep = ({
                                 )
                             }
                             isMulti
+                            styles={{
+                                control: (provided) => ({
+                                    ...provided,
+                                    minHeight: '40px',
+                                    height: '40px',
+                                    overflowY: 'auto',
+                                }),
+                                valueContainer: (provided) => ({
+                                    ...provided,
+                                    flexWrap: 'nowrap',
+                                    overflowX: 'auto',
+                                }),
+                                placeholder: (provided) => ({
+                                    ...provided,
+                                    fontSize: '14px',
+                                })
+                            }}
                             options={DEVICES_ARRAY.map((device) => {
                                 return { value: device, label: device };
                             })}
                             className="text-black"
                             placeholder="Selecione uma ou várias opções"
                         />
-                        <span className="error-message">
+                        {/* <span className="error-message h-0 text-[12px]">
                             {(watch("familyData.outsideHouseDevices")?.length || 0) > 0 &&
                                 "Você pode selecionar mais do que uma opção."}
-                        </span>
+                        </span> */}
                     </Form.Field>
-                    <Form.Field name="personalData.outsideHouseDevices" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="personalData.outsideHouseDevices" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Fora de casa, você tem acesso a
                         </Form.Label>
                         <Select
@@ -236,13 +265,30 @@ const ParticipantDataStep = ({
                                 return { value: device, label: device };
                             })}
                             isMulti
-                            className="text-black"
+                            className="text-black !h-10"
                             placeholder="Selecione uma ou várias opções"
+                            styles={{
+                                control: (provided) => ({
+                                    ...provided,
+                                    minHeight: '40px',
+                                    height: '40px',
+                                    overflowY: 'auto',
+                                }),
+                                valueContainer: (provided) => ({
+                                    ...provided,
+                                    flexWrap: 'nowrap',
+                                    overflowX: 'auto',
+                                }),
+                                placeholder: (provided) => ({
+                                    ...provided,
+                                    fontSize: '14px',
+                                })
+                            }}
                         />
-                        <span className="error-message">
+                        {/* <span className="error-message h-0 text-[12px]">
                             {(watch("familyData.houseDevices")?.length || 0) > 0 &&
                                 "Você pode selecionar mais do que uma opção."}
-                        </span>
+                        </span> */}
                     </Form.Field>
                     <InputField
                         {...register("addressData.city")}
@@ -269,16 +315,22 @@ const ParticipantDataStep = ({
                         errorMessage={errors.addressData?.houseNumber?.message}
                     />
                 </div>
-                <div className="flex justify-center gap-6">
+                <div className="flex justify-center gap-6 mt-6">
                     <Button
                         size="Medium"
-                        onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                    >
+                        onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                     >
                     </Button>
-                    <Button 
-                    size="Medium" title={"Salvar e Continuar"} color={"primary"} ></Button>
+                    <Button
+                        size="Medium"
+                        className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                        title={"Salvar e Continuar"}
+                        color={`${formState.isValid ? "green" : "gray"}`}
+                        type="submit"
+                        disabled={!formState.isValid}
+                    />
                 </div>
             </Form.Root>
-        </div>
+        </Flex>
     );
 };
 

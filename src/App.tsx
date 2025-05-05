@@ -1,4 +1,4 @@
-import { Outlet, RouterProvider, createBrowserRouter } from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter, useLocation } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
@@ -18,12 +18,19 @@ import AnalysisPage from "./pages/AnalysisPage/AnalysisPage";
 import SecondsSourceCompare from "./pages/SecondsSourceCompare/SecondsSourceCompare";
 import CompareParticipantsSelected from "./pages/CompareParticipantsSelected/CompareParticipantsSelected";
 import EvaluateAutobiography from "./pages/EvaluateAutobiography/EvaluateAutobiography";
-import { Flex } from "@radix-ui/themes";
+import { Box, Flex } from "@radix-ui/themes";
 import GuardRoute from "./components/GuardRoute/GuardRoute";
+import { Header } from "./components/Header/Header";
+import * as Icon from "@phosphor-icons/react";
+import { MenuProvider, useMenu } from "./components/UseMenu/UseMenu ";
+import BackToTop from "./components/BackToTop/BackToTop";
+import { PageContainer } from "./components/PageContainer/PageContainer";
+
+
 
 function OuterLayout() {
     return (
-        <Flex className="overflow-hidden h-full w-full font-roboto bg-off-white">
+        <Flex className="h-full w-full font-roboto bg-off-white">
             <GuardRoute scope="OUTER">
                 <Outlet />
             </GuardRoute>
@@ -33,18 +40,54 @@ function OuterLayout() {
 
 function InnerLayout() {
     const userRole = getUserRole();
+    const location = useLocation();
+    const { isMobileMenuOpen, toggleMobileMenu } = useMenu();
 
+
+    const headerConfig: Record<string, { title: string; icon: JSX.Element }> = {
+        "home": { title: "Dashboard", icon: <Icon.SquaresFour size={20} /> },
+        "choose-sample-group": { title: "Escolher Grupo de Amostras", icon: <Icon.Binoculars size={20} /> },
+        "my-samples": { title: "Minhas Amostras", icon: <Icon.Books size={20} /> },
+        "create-sample": { title: "Criar Amostra", icon: <Icon.FolderSimplePlus size={20} /> },
+        "edit-sample": { title: "Editar Amostra", icon: <Icon.PencilSimple size={20} /> },
+        "my-samples/participants-registration": { title: "Cadastro de Participantes", icon: <Icon.UserPlus size={20} /> },
+        "my-samples/analyze-sample": { title: "Análise da Amostra", icon: <Icon.MagnifyingGlass size={20} /> },
+        "users": { title: "Usuários", icon: <Icon.UsersThree size={20} /> },
+        "review-requests": { title: "Revisar Solicitações", icon: <Icon.CheckCircle size={20} /> },
+        "logout": { title: "Sair", icon: <Icon.SignOut size={20} /> },
+        "my-samples/seconds-source-compare": { title: "Comparar Segunda Fonte", icon: <Icon.UsersFour size={20} /> },
+        "my-samples/compare-participants-selected": { title: "Comparar Participantes", icon: <Icon.UsersFour size={20} /> },
+        "my-samples/evaluate-autobiography": { title: "Avaliar Autobiografia", icon: <Icon.BookOpen size={20} /> },
+    } as const;
+
+    const currentPath = location.pathname.replace(/^\/app\//, "");
+    const { title, icon } = headerConfig[currentPath] || {
+        title: "Página não encontrada",
+        icon: <Icon.WarningCircle size={24} />
+    };
 
     return (
-        <Flex className="bg-primary font-roboto">
-            <SideBar userRole={userRole} />
-            <Flex direction="column" className={`relative border-t-4 border-primary rounded-tl-[30px] w-full bg-off-white p-5`}>
-                <GuardRoute scope="INNER">
-                    <Outlet />
-                </GuardRoute>
-            </Flex>
-        </Flex>
 
+        <Flex className="bg-background font-roboto min-h-screen">
+            <Box className={`max-xl:!w-0 ${isMobileMenuOpen ? 'w-64' : 'w-16'}`}>
+                <SideBar userRole={userRole} />
+            </Box>
+
+
+            <Box className="flex-1 transition-all duration-300 w-full">
+                <GuardRoute scope="INNER">
+                    <Header
+                        title={title}
+                        icon={icon}
+                        onMenuToggle={toggleMobileMenu}
+                    />
+                    <PageContainer>
+                        <Outlet />
+                    </PageContainer>
+                </GuardRoute>
+            </Box>
+            <BackToTop />
+        </Flex>
     );
 }
 
@@ -142,5 +185,9 @@ const router = createBrowserRouter([
 ]);
 
 export default function App() {
-    return <RouterProvider router={router} />;
+    return (
+        <MenuProvider>
+            <RouterProvider router={router} />
+        </MenuProvider>
+    );
 }

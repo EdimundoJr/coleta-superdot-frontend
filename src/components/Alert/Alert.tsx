@@ -9,16 +9,16 @@ interface AlertProps {
   buttonAction: ReactNode;
 }
 
-export function Alert({ trigger,title,description,buttonAction,buttoncancel }: AlertProps) {
+export function Alert({ trigger, title, description, buttonAction, buttoncancel }: AlertProps) {
   return (
     <>
-      <AlertDialog.Root>
+      <AlertDialog.Root >
         <AlertDialog.Trigger>
           {trigger}
         </AlertDialog.Trigger>
-        <AlertDialog.Content maxWidth="450px">
+        <AlertDialog.Content maxWidth="450px" className=''>
           <AlertDialog.Title>{title}</AlertDialog.Title>
-          <AlertDialog.Description size="2">
+          <AlertDialog.Description size="1">
             {description}
           </AlertDialog.Description>
           <Flex gap="3" mt="4" justify="end">
@@ -28,7 +28,7 @@ export function Alert({ trigger,title,description,buttonAction,buttoncancel }: A
             <AlertDialog.Action>
               {buttonAction}
             </AlertDialog.Action>
-          </Flex>         
+          </Flex>
         </AlertDialog.Content>
       </AlertDialog.Root>
     </>

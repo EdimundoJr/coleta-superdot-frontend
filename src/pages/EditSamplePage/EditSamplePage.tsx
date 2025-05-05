@@ -25,9 +25,11 @@ const EditSamplePage = () => {
     const [sample, setSample] = useState({} as ISample);
     const sampleId = useRef<string>();
     const fileChangeRef = useRef(false);
-    /* NOTIFY */
-    const [notificationTitle, setNotificationTitle] = useState("");
-    const [notificationDescription, setNotificationDescription] = useState("");
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+        type: "",
+    });
     const navigate = useNavigate();
     const location = useLocation();
 
@@ -70,8 +72,11 @@ const EditSamplePage = () => {
                 validateFiles(sampleFiles);
             } catch (e: any) {
                 if (e instanceof CustomFileError) {
-                    setNotificationTitle("Arquivos inválidos.");
-                    setNotificationDescription(e.message);
+                    setNotificationData({
+                        title: "Erro ao enviar arquivo.",
+                        description: e.message,
+                        type: "erro",
+                    });
                 }
                 return;
             }
@@ -139,8 +144,11 @@ const EditSamplePage = () => {
             }
         } catch (error) {
             console.error(error);
-            setNotificationTitle("Erro no servidor.");
-            setNotificationDescription("Não foi possível cadastrar a amostra com as informações fornecidas.");
+            setNotificationData({
+                title: "Erro no servidor.",
+                description: "Não foi possível atualizar as informações da amostra.",
+                type: "erro",
+            });
         }
     });
 
@@ -148,14 +156,16 @@ const EditSamplePage = () => {
         <>
 
             <Notify
-                open={!!notificationTitle}
-                onOpenChange={() => setNotificationTitle("")}
-                title={notificationTitle}
-                description={notificationDescription}
+                open={!!notificationData.title}
+                onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
+                title={notificationData.title}
+                description={notificationData.description}
+                icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
+                className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
             >
-                <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />} />
 
-                <Form.Root onSubmit={onSubmit} className="mx-auto mb-6 mt-11 w-11/12">
+
+                <Form.Root onSubmit={onSubmit} className="mx-auto mb-6  max-sm:mt-5 w-11/12">
                     <h3 className="text-left text-primary">Detalhes da amostra</h3>
                     <Separator.Root className="my-6 h-px w-full bg-black" />
 
@@ -197,12 +207,19 @@ const EditSamplePage = () => {
                         </div>
 
                         <div className="md:col-span-2 md:flex lg:col-span-3 mb-12 gap-2">
-                            <InputField
+                            <SelectField
                                 label="REGIÃO DA AMOSTRA*"
                                 defaultValue={sample.countryRegion}
                                 errorMessage={errors.countryRegion?.message}
                                 {...register("countryRegion")}
-                            ></InputField>
+                            >
+                                <option value="Norte">Norte</option>
+                                <option value="Nordeste">Nordeste</option>
+                                <option value="Centro-Oeste">Centro-Oeste</option>
+                                <option value="Sudeste">Sudeste</option>
+                                <option value="Sul">Sul</option>
+                            </SelectField>
+
 
                             <InputField
                                 label="ESTADO DA AMOSTRA*"

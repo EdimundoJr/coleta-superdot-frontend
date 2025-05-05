@@ -44,7 +44,7 @@ const AccordionItem = React.forwardRef<HTMLDivElement, AccordionItemProps>(
   ({ children, value, className, ...props }, forwardedRef) => (
     <Accordion.Item
       className={classNames(
-        'focus-within:shadow-mauve12 mt-px overflow-hidden first:mt-0 first:rounded-t last:rounded-b focus-within:relative focus-within:z-10 focus-within:shadow-[0_0_0_2px]',
+        'focus-within:shadow-mauve12 mt-px overflow-hidden first:mt-0 first:rounded-t last:rounded-b focus-within:relative focus-within:shadow-[0_0_0_2px]',
         className
       )}
       value={value}
@@ -62,7 +62,7 @@ const AccordionTrigger = React.forwardRef<HTMLButtonElement, AccordionTriggerPro
     <Accordion.Header>
       <Accordion.Trigger
         className={classNames(
-          'text-primary  shadow-mauve6 hover:bg-mauve2 group flex h-[60px] w-full flex-1 cursor-default items-center justify-between bg-white px-5  leading-none shadow-[0_1px_0] outline-none',
+          'text-primary  shadow-mauve6 hover:bg-mauve2 group flex h-[60px] w-full flex-1 cursor-default items-center justify-between bg-white px-5 max-xl:px-2 leading-none shadow-[0_1px_0] outline-none',
           className
         )}
         {...props}
@@ -90,7 +90,7 @@ const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>
       {...props}
       ref={forwardedRef}
     >
-      <div className="py-[15px] px-5">{children}</div>
+      <div className="py-[15px] px-5 max-xl:px-2">{children}</div>
     </Accordion.Content>
   )
 );

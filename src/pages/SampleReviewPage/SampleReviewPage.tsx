@@ -100,9 +100,9 @@ const SampleReviewPage = () => {
                 description="O perfil do usuário foi atualizado com sucesso!"
                 title="Sucesso"
             >
-                <Header title="Solicitações" icon={<Icon.Check size={24} />}></Header>
+
                 <Skeleton loading={loading}>
-                    <Container className="mb-8">
+                    <Container className="mb-8 p-4 ">
 
                         <SamplesTable
                             onClickToReviewSample={handleOnClickToReviewSample}
@@ -128,6 +128,7 @@ const SampleReviewPage = () => {
                     <Modal
                         accessibleDescription="Visulizando todas as revisões da respectiva amostra."
                         title="Revisões"
+                        className="overflow-auto"
                         open={modalListReviewsOpen}
                         setOpen={setModalListReviewsOpen}
                     >
@@ -141,14 +142,13 @@ const SampleReviewPage = () => {
                         open={modalAttachmentsOpen}
                         setOpen={setModalAttachmentsOpen}
                     >
-                        <Flex align="center" direction="column" >
+                        <Flex align="center" justify="center" gap="2" className="flex-row max-sm:flex-col">
                             {attachmentsToDisplay?.researchDocument && (
 
 
                                 <Button
                                     onClick={() => handleSeeAttachment(attachmentsToDisplay.researchDocument || "")} title={"Projeto de pesquisa"}
-                                    className="w-[200px]"
-                                    children={<Icon.Files size={20} />} color={"primary"}                            >
+                                    children={<Icon.Files size={20} />} color={"primary"} size={"Small"}                            >
 
                                 </Button>
 
@@ -158,8 +158,7 @@ const SampleReviewPage = () => {
                                 <Button
                                     onClick={() => handleSeeAttachment(attachmentsToDisplay.tcleDocument || "")}
                                     title={"TCLE"}
-                                    className="w-[200px]"
-                                    children={<Icon.Files size={20} />} color={"primary"}                            >
+                                    children={<Icon.Files size={20} />} color={"primary"} size={"Small"}                            >
 
                                 </Button>
                             )}
@@ -168,9 +167,8 @@ const SampleReviewPage = () => {
 
                                 <Button
                                     onClick={() => handleSeeAttachment(attachmentsToDisplay.taleDocument || "")}
-                                    className="w-[200px]"
                                     title={"TALE"}
-                                    children={<Icon.Files size={20} />} color={"primary"}                            >
+                                    children={<Icon.Files size={20} />} color={"primary"} size={"Small"}                            >
 
                                 </Button>
 

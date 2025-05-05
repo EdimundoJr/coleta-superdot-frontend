@@ -96,9 +96,51 @@ export const patchSaveAutobiography = async ({
     );
 };
 
+interface SaveGiftdnessIndicatorsByResearcherParams {
+    sampleId: string;
+    participantId: string;
+    giftdnessIndicatorsByResearcher: boolean;
+    submitForm?: boolean;
+}
 
 
 
+export const patchSaveGiftdnessIndicatorsByResearcher = async ({
+    sampleId,
+    participantId,
+    giftdnessIndicatorsByResearcher,
+    submitForm,
+}: SaveGiftdnessIndicatorsByResearcherParams) => {
+    const response = await axios.patch<boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-giftdness-indicators-by-researcher/sample/${sampleId}/participant/${participantId}?submitForm=${String(submitForm)}`,
+        { giftdnessIndicatorsByResearcher }
+    );
+    return response.data;
+};
+
+interface SaveKnowledgeAreasIndicatedByResearcherParams {
+    sampleId: string;
+    participantId: string;
+    knowledgeAreasIndicatedByResearcher: {
+        general: string[];
+        specific: string[];
+    };
+    submitForm?: boolean;
+}
+
+export const patchSaveKnowledgeAreasIndicatedByResearcher = async ({
+    sampleId,
+    participantId,
+    knowledgeAreasIndicatedByResearcher,
+    submitForm,
+}: SaveKnowledgeAreasIndicatedByResearcherParams) => {
+
+    const response = await axios.patch<boolean>(
+        `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-knowledge-areas-indicated-by-researcher/sample/${sampleId}/participant/${participantId}?submitForm=${String(submitForm)}`,
+        { knowledgeAreasIndicatedByResearcher }
+    );
+    return response.data;
+};
 interface PatchSaveEvalueAutobiographyParams {
     sampleId?: string;
     participantId?: string;
@@ -125,18 +167,6 @@ export const patchSaveEvalueAutobiography = async ({
     submitForm,
 }: PatchSaveEvalueAutobiographyParams): Promise<boolean> => {
     try {
-        console.log("Sending data:", {
-            sampleId,
-            participantId,
-            idEvalueAutobiography,
-            textEvalueAutobiography,
-            commentEvalueAutobiography,
-            markEvalueAutobiography,
-            startEvalueAutobiography,
-            endEvalueAutobiography,
-            backgroundEvalueAutobiography,
-            submitForm
-        });
 
         const response = await axios.patch<boolean>(
             `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-evalueAutobiography/sample/${sampleId}/participant/${participantId}?submitForm=${String(submitForm)}`,
@@ -147,14 +177,12 @@ export const patchSaveEvalueAutobiography = async ({
                 markEvalueAutobiography,
                 startEvalueAutobiography,
                 endEvalueAutobiography,
-                backgroundEvalueAutobiography
+                backgroundEvalueAutobiography,
             }
         );
 
-        console.log("Response data:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Error saving evalue autobiography:", error);
         throw error;
     }
 };

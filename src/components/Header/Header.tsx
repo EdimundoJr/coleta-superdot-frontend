@@ -1,133 +1,47 @@
-import { Avatar, Box, Text, Separator, Flex, Section, Card, Skeleton, DropdownMenu } from '@radix-ui/themes';
-import NoImg from "../../assets/no-image.jpg"
-import { useEffect, useState } from 'react';
-import { seeAttachmentImage } from '../../api/sample.api';
-import { SampleFile } from '../../interfaces/sample.interface';
-import { getUser, Users } from '../../api/researchers.api';
-
-import * as Icon from "@phosphor-icons/react"
-import { clearTokens } from '../../utils/tokensHandler';
-import { useNavigate } from 'react-router-dom';
-import { Alert } from '../Alert/Alert';
-import { Button } from '../Button/Button';
+import { Flex, Text } from '@radix-ui/themes';
+import UserInfo from '../UserInfo/UserInfo';
+import * as Icon from '@phosphor-icons/react';
+import React from 'react';
+import { useMenu } from '../UseMenu/UseMenu ';
 
 interface HeaderProps {
-    title: String;
+    title: string;
     icon?: React.ReactNode;
-    sampleFile?: SampleFile;
+    onMenuToggle?: () => void;
 }
 
-export function Header({ title, icon, sampleFile }: HeaderProps) {
-    const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
-    const [userData, setUserData] = useState<null | Users>(null);
-    const [loading, setLoading] = useState(true);
+export function Header({ title, icon, onMenuToggle }: HeaderProps) {
+    const { isMobileMenuOpen } = useMenu();
 
-    const [error, setError] = useState();
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await getUser();
-                setUserData(data);
-                setLoading(false);
-                console.log(data);
-            } catch (error: any) {
-                setError(error);
-                setLoading(false);
-            }
-        };
-
-        if (!userData && loading) {
-            fetchData();
-        }
-    }, [userData, loading]);
-
-    useEffect(() => {
-        const fetchImage = async () => {
-            if (userData?.researcher.profilePhoto === "undefined") {
-                return;
-            } else {
-                try {
-                    const url = await seeAttachmentImage(`${userData?.researcher.profilePhoto}`);
-                    setImageUrl(url);
-                    setLoading(false);
-                } catch (error) {
-                    console.error("Erro ao recuperar a imagem:", error);
-                    setLoading(false);
-                }
-            }
-        };
-        fetchImage();
-    }, [sampleFile, userData?.researcher.profilePhoto]);
-
-    const getFirstAndLastName = (fullName: string) => {
-        const names = fullName.split(' ');
-        if (names.length > 1) {
-            return `${names[0]} ${names[names.length - 1]}`;
-        } else {
-            return fullName;
-        }
-    };
-
-    const navigate = useNavigate();
-    const logout = () => {
-        clearTokens();
-        navigate("/");
-    };
     return (
-        <Section size={'1'} className="w-full font-roboto p-4">
-            <Flex justify="between" align="center">
-                <Flex align="center" className="gap-2 ">
-                    <Text as="p" size="6" className="text-gray-300"> Página / </Text>
-                    <Text as="p" size="6" className="">{title}</Text>
-                    {icon}
-                </Flex>
-                <Flex>
-                    <Flex justify="center" align="center" gap="3" >
-                        <Box maxWidth="240px">
-                            <Skeleton loading={loading}>
-                                <DropdownMenu.Root>
-                                    <DropdownMenu.Trigger>
-                                        <button>
-                                            <Card variant='ghost'>
-                                                <Flex gap="3" align="center">
-                                                    <Avatar size="4" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={getFirstAndLastName(`${userData?.researcher.fullName}`)} />
-                                                    <Box>
-                                                        <Text as="div" size="2" weight="bold">
-                                                            {getFirstAndLastName(`${userData?.researcher.fullName}`)}
-                                                        </Text>
-                                                        <Text as="div" size="2" color="gray">
-                                                            {userData?.role}
-                                                        </Text>
-                                                    </Box>
-                                                    <Icon.CaretDown />
-                                                </Flex>
-                                            </Card>
-                                        </button>
-                                    </DropdownMenu.Trigger>
-                                    <DropdownMenu.Content variant="soft" className='w-full mt-1'>
-                                        <DropdownMenu.Item className='hover:cursor-pointer' >Editar Perfil</DropdownMenu.Item>
-                                        <DropdownMenu.Separator />
-                                        <Alert
-                                            trigger={<Button size='' className='w-[200px]' color='red' title={''}>
+        <Flex
+            asChild
+            className={`w-full bg-white border-b border-gray-100 fixed top-0 z-30 h-16 px-4 sm:px-6 xl:pl-24 transition-all duration-300 ease-in-out max-xl:mt-8 shadow-bottom-lg`}
+        >
+            <header>
+                <Flex align="center" className="w-full h-full">
+                    {/* Left Section - Mobile Menu Button + Title */}
+                    <Flex align="center" gap="4" className="flex-1">
+                        <Flex align="center" gap="2" className="text-gray-800">
+                            {icon && React.cloneElement(icon as React.ReactElement, {
+                                className: "text-primary w-6 h-6"
+                            })}
+                            <h2 className="text-xl font-semibold truncate">
+                                {title}
+                            </h2>
+                        </Flex>
+                    </Flex>
 
-                                                <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer hover:bg-red-500 active:bg-red-600'>Sair</DropdownMenu.Item>
+                    {/* Right Section - User Info */}
+                    <Flex align="center" gap="4" className="flex-shrink-0 mr-14 max-xl:!hidden">
+                        <div className="hidden md:flex">
+                            <UserInfo />
+                        </div>
 
-                                            </Button>}
-                                            title={'Tem certeza que deseja sair da plataforma?'} description={''}
-                                            buttoncancel={<Button size='Small' color="gray" title={'Cancelar'} />}
-                                            buttonAction={<Button size='Small' onClick={logout}
-                                                color="red"
-                                                title={'Sim, desejo sair.'} />} />
-
-                                    </DropdownMenu.Content>
-                                </DropdownMenu.Root>
-                            </Skeleton>
-                        </Box>
                     </Flex>
                 </Flex>
-            </Flex>
-            <Separator my="3" size="4" />
-        </Section>
+            </header>
+        </Flex>
     );
 }

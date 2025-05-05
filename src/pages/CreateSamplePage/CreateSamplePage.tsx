@@ -16,8 +16,7 @@ import SampleUploadFile from "../../components/SampleUploaderFile/SampleUploader
 import { validateFiles } from "../../validators/fileValidator";
 import { CustomFileError } from "../../errors/fileErrors";
 import * as Icon from "@phosphor-icons/react";
-import { Flex } from "@radix-ui/themes";
-import { Header } from "../../components/Header/Header";
+
 import { Button } from "../../components/Button/Button";
 
 const CreateSamplePage = () => {
@@ -25,10 +24,11 @@ const CreateSamplePage = () => {
     const [sampleFileError, setSampleFileError] = useState("");
 
     /* NOTIFY */
-    const [notificationTitle, setNotificationTitle] = useState("");
-    const [notificationDescription, setNotificationDescription] = useState("");
-    const [notificationIcon, setNotificationIcon] = useState<React.ReactNode>();
-    const [notificationClass, setNotificationClass] = useState("");
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+        type: "",
+    });
 
 
     /* GROUP SELECTION ASSERT */
@@ -48,7 +48,7 @@ const CreateSamplePage = () => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
     } = useForm({ resolver: yupResolver(sampleSchema) });
 
     const onSubmit = handleSubmit(async (data) => {
@@ -56,11 +56,13 @@ const CreateSamplePage = () => {
             validateFiles(sampleFiles);
         } catch (e: any) {
             if (e instanceof CustomFileError) {
-                setNotificationTitle("Arquivos inválidos.");
-                setNotificationDescription(e.message);
+                setNotificationData({
+                    title: "Arquivos inválidos.",
+                    description: e.message,
+                    type: "erro"
+                });
                 setSampleFileError(e.message);
-                setNotificationIcon(<Icon.XCircle size={30} color="white" />);
-                setNotificationClass("bg-red-500");
+
             }
             return;
         }
@@ -100,7 +102,6 @@ const CreateSamplePage = () => {
         try {
             const response = await createSample(formData);
             if (response.status === 201) {
-                console.log(response);
                 navigate("/app/my-samples", {
                     state: {
                         notification: {
@@ -113,115 +114,140 @@ const CreateSamplePage = () => {
             }
         } catch (error) {
             console.error(error);
-            setNotificationTitle("Erro no servidor.");
-            setNotificationDescription("Não foi possível cadastrar a amostra com as informações fornecidas.");
-            setNotificationIcon(<Icon.XCircle size={30} color="white" />);
-            setNotificationClass("bg-red-500");
-
+            setNotificationData({
+                title: "Erro no servidor.",
+                description: "Não foi possível cadastrar a amostra com as informações fornecidas.",
+                type: "erro"
+            });
         }
     });
 
     return (
         <>
 
-            <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />} />
+            {/* <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />} /> */}
             <Notify
-                open={!!notificationTitle}
-                onOpenChange={() => setNotificationTitle("")}
-                title={notificationTitle}
-                description={notificationDescription}
-                icon={notificationIcon}
-                className={notificationClass}
+                open={!!notificationData.title}
+                onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
+                title={notificationData.title}
+                description={notificationData.description}
+                icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
+                className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
             >
-                <h3>Grupo selecioando: {groupSelected}</h3>
-                <Form.Root onSubmit={onSubmit} className="mx-auto mb-6 mt-11 w-11/12">
-                    <h3 className="text-left text-primary">Detalhes da amostra</h3>
-                    <Separator.Root className="my-6 h-px w-full bg-black" />
+
+
+                <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
+                    <h2 className="heading-2 font-semibold text-gray-900">
+                        Grupo selecionado: {groupSelected}
+                    </h2>
+                </header>
+
+                <Form.Root
+                    onSubmit={onSubmit}
+                    className="mx-auto mb-6 mt-11 max-sm:mt-5 w-11/12 opacity-0 animate-fade-in animate-delay-100 animate-fill-forwards"
+                >
+                    <h3 className="text-left text-primary animate-fade-in animate-delay-200">
+                        Detalhes da amostra
+                    </h3>
+
+                    <Separator.Root className="my-6 h-px w-full bg-black animate-grow-width animate-delay-300" />
 
                     {/* CONTAINER TO INPUT SAMPLE DETAILS */}
-                    <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                        <div className="col-span-3 mb-2">
+                    <div className=" gap-4 ">
+                        <div className="col-span-3 animate-fade-in animate-delay-300">
                             <InputField
                                 label="TÍTULO DA PESQUISA*"
                                 placeholder="Digite o título da pesquisa"
                                 errorMessage={errors.researchTitle?.message}
                                 {...register("researchTitle")}
-
-                            ></InputField>
+                                className="transition-transform duration-300 hover:scale-[101%]"
+                            />
                         </div>
 
-                        <div className="col-span-3 mb-2">
+                        <div className="col-span-3 animate-fade-in animate-delay-400">
                             <InputField
                                 label="TÍTULO DA AMOSTRA*"
                                 placeholder="Digite o título da amostra"
                                 errorMessage={errors.sampleTitle?.message}
                                 {...register("sampleTitle")}
-                            ></InputField>
+                                className="transition-transform duration-300 hover:scale-[101%]"
+                            />
                         </div>
 
-                        <div className="col-span-3 md:flex mb-2 gap-2">
+                        <div className="col-span-3 md:flex gap-2 animate-fade-in animate-delay-500">
                             <InputField
                                 label="Código do Comitê de Ética*"
                                 placeholder="Digite o código fornecido pelo Comitê de Ética em Pesquisa"
                                 errorMessage={errors.researchCep?.cepCode?.message}
                                 {...register("researchCep.cepCode")}
-                            ></InputField>
+                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                            />
                             <InputField
                                 label="QUANTIDADE TOTAL DE PARTICIPANTES*"
                                 placeholder="Digite a quantidade total de participantes da pesquisa"
                                 errorMessage={errors.qttParticipantsRequested?.message}
                                 type="number"
                                 {...register("qttParticipantsRequested")}
-                            ></InputField>
+                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                            />
                         </div>
 
-                        <div className="md:col-span-2 md:flex lg:col-span-3 mb-12 gap-2">
-                            <InputField
+                        <div className="md:col-span-2 md:flex lg:col-span-3 mb-12 gap-2 animate-fade-in animate-delay-600">
+                            <SelectField
                                 label="REGIÃO DA AMOSTRA*"
-                                placeholder="Digite a região dos participantes da amostra"
                                 errorMessage={errors.countryRegion?.message}
                                 {...register("countryRegion")}
-                            ></InputField>
+                                className="md:flex-1 w-full md:w-auto transition-transform duration-300 hover:scale-[101%]"
+                            >
+                                <option value="Norte">Norte</option>
+                                <option value="Nordeste">Nordeste</option>
+                                <option value="Centro-Oeste">Centro-Oeste</option>
+                                <option value="Sudeste">Sudeste</option>
+                                <option value="Sul">Sul</option>
+                            </SelectField>
 
                             <InputField
                                 label="ESTADO DA AMOSTRA*"
                                 placeholder="Digite o estado dos participantes da amostra"
                                 errorMessage={errors.countryState?.message}
                                 {...register("countryState")}
-                            ></InputField>
+                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                            />
 
                             <InputField
                                 label="CIDADE DA AMOSTRA*"
                                 placeholder="Digite a cidade dos participantes da amostra"
                                 errorMessage={errors.countryCity?.message}
                                 {...register("countryCity")}
-                            ></InputField>
+                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                            />
                         </div>
                     </div>
 
                     {/* CONTAINER TO INPUT INSTITUITION DATA */}
-                    <div className="col-span-3 gap-2">
+                    <div className="col-span-3 gap-2 animate-fade-in animate-delay-700">
                         <h3 className="text-left text-primary">Instituição da Amostra</h3>
-                        <Separator.Root className="my-6 h-px w-full bg-black" />
-                        <div className="flex justify-center">
+                        <Separator.Root className="my-6 h-px w-full bg-black animate-grow-width" />
+
+                        <div className="flex justify-center gap-2 max-lg:flex-col">
                             <InputField
                                 label="NOME*"
                                 errorMessage={errors.instituition?.name?.message}
                                 {...register("instituition.name")}
-                            ></InputField>
-
+                                className="transition-transform duration-300 hover:scale-[101%]"
+                            />
 
                             <SelectField
                                 label="TIPO*"
                                 errorMessage={errors.instituition?.instType?.message}
                                 {...register("instituition.instType")}
+                                className="transition-transform duration-300 hover:scale-[101%]"
                             >
                                 <option>Pública</option>
                                 <option>Particular</option>
                             </SelectField>
                         </div>
                     </div>
-
 
                     {/* CONTAINER TO UPLOAD FILES */}
                     <SampleUploadFile
@@ -230,8 +256,15 @@ const CreateSamplePage = () => {
                         setSampleFiles={setSampleFiles}
                     />
 
-                    <Form.Submit asChild className="mt-10">
-                        <Button size="Extra Large" color="green" title={"Enviar Solicitação"} className="m-auto" />
+                    <Form.Submit asChild className="mt-10 animate-bounce-in">
+                        <Button
+                            size="Medium"
+                            className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed mx-auto 
+        transition-transform duration-300 hover:scale-105 active:scale-95`}
+                            color={`${isValid ? "green" : "gray"}`}
+                            disabled={!isValid}
+                            title={"Enviar Solicitação"}
+                        />
                     </Form.Submit>
                 </Form.Root>
             </Notify>

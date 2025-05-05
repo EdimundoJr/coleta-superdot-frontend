@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 :root {
-    font-family: Inter, system-ui, Avenir, Helvetica, Arial, sans-serif, roboto;
+    font-family: roboto, sans-serif;
     line-height: 0;
     font-weight: 400;
 
@@ -18,12 +18,12 @@
 }
 
 #root {
-    @apply mx-auto my-0 h-full min-w-fit text-center font-roboto sm:w-full;
+    @apply mx-auto my-0 h-full text-center font-roboto sm:w-full;
 }
 
 body,
 html {
-    @apply m-0 h-full min-w-fit overflow-x-auto sm:overflow-x-clip;
+    @apply m-0 h-full  overflow-x-auto sm:overflow-x-clip;
 }
 
 * DEFAULT ELEMENTS * h1,
@@ -32,7 +32,7 @@ h3 {
 }
 
 h1 {
-    @apply text-3xl;
+    @apply text-3xl font-bold;
 }
 
 h3 {
@@ -40,7 +40,7 @@ h3 {
 }
 
 h4 {
-    @apply text-4xl font-semibold leading-10 text-opacity-[0.87];
+    @apply text-2xl font-semibold leading-10 text-opacity-[0.87];
 }
 input,
 select {
@@ -58,35 +58,115 @@ span.error-message {
 }
 
 /** BACKGROUNDS, COLORS AND GRADIENTS **/
+* {
+    transition: background-color 0.2s ease, color 0.2s ease;
+  }
+  
+  /* Estilização de scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: var(--primary-light);
+    border-radius: 4px;
+  }
+  
+.bg-professional {
+    @apply bg-neutral-50;
+  }
+  .shadow-bottom-lg {
+    box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+  }
+  .card-container {
+    @apply bg-white rounded-xl shadow-lg border border-neutral-100;
+  }
+  .card-container-variante-border {
+    @apply bg-white shadow-lg ;
+  }
+  
+  .heading-1 {
+    @apply text-3xl font-bold text-neutral-800;
+  }
+  
+  .heading-2 {
+    @apply text-xl font-semibold text-neutral-700;
+  }
+  
+  .btn-primary {
+    @apply transition-all duration-200 hover:scale-105 active:scale-95;
+  }
+  
+  .btn-primary-mobo {
+    @apply transition-all duration-200 hover:scale-95 active:scale-105;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  
+  .animate-fade-in {
+    animation: fadeIn 0.5s ease-out forwards;
+  }
+  
+.bg-glass {       
+    background: rgba(255, 255, 255, 0.15); 
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px); 
+    border-radius: 12px; 
+    border: 1px solid rgba(255, 255, 255, 0.2); 
+}
+.bg-glass-no-border { 
+    background: rgba(255, 255, 255, 0.15); 
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); 
+    backdrop-filter: blur(20px); 
+    -webkit-backdrop-filter: blur(20px);
+}
+ 
+/** Background animate **/
+@keyframes forward-expand {
+    0% {
+      transform: scale(1);
+    }
+    100% {
+      transform: scale(1.2);
+    }
+  }
+  
+  .animate-forward-expand {
+    animation: forward-expand 1.2s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+    animation-delay: 0.3s; 
+    transform-origin: center;
+  }
+  
 
-.bg-dark-gradient {
-    @apply bg-gradient-to-br from-[#5300B8] to-[#7F35E1];
+/** PDF VIWER **/
+
+.pdf-viewer-container {
+    /* border: 1px solid #ccc; */
+    border-radius: 8px;
+    overflow: hidden;
+    transition: all 0.3s ease;
 }
 
-.bg-light-gradient {
-    @apply bg-gradient-to-b from-[#A256FF] to-[#CCA2FF];
+.pdf-viewer-container.fullscreen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 9999;
 }
 
-/** BUTTONS **/
-
-.button-default {
-    @apply rounded-[8px] p-3 font-medium;
-}
-
-.button-primary {
-    @apply button-default bg-primary text-white hover:bg-primary-light;
-}
-
-.button-secondary {
-    @apply button-default bg-secondary text-white hover:bg-primary-light;
-}
-
-.button-neutral-light {
-    @apply button-default bg-neutral-light text-[#272727] hover:bg-slate-300;
-}
-
-.button-neutral-dark {
-    @apply button-default bg-neutral-dark text-white hover:bg-slate-600;
+.overlay-message {
+    position: absolute;
+    bottom:     0%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.7);
+    color: white;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-size: 0.9em;
+    z-index: 100;
 }
 
 /** TYPOGRAPHY */
@@ -98,3 +178,44 @@ span.error-message {
 .caption {
     @apply text-xs font-normal leading-3 text-opacity-60;
 }
+
+  
+@media (max-width: 767px) {
+    h3 {
+        @apply text-base font-roboto font-bold;
+    }
+    
+    h1 {
+        @apply text-xl font-bold;
+    }    
+    
+    h4 {
+        @apply text-sm font-semibold leading-10 text-opacity-[0.87];
+    }
+
+}
+    @layer utilities {
+        @media (min-width: 1020px) {
+            .desktop {
+                display: block !important;
+            }
+            .mobo {
+                display: none !important;
+            }
+            
+        }
+        @media (max-width: 1019px) {
+            .desktop {
+                display: none !important;
+            }
+            .mobo {
+                display: block !important;
+            }
+            .mobo-only {
+                margin-top: 40px;
+            }
+            
+        }
+     
+}
+

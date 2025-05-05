@@ -4,18 +4,20 @@ import { USER_ROLE } from "../../utils/consts.utils";
 import * as Icon from "@phosphor-icons/react"
 import { useEffect, useState } from "react";
 import { getUser, Users } from "../../api/researchers.api";
-
+import UserInfo from "../UserInfo/UserInfo";
+import { Box, Flex } from "@radix-ui/themes";
+import { useMenu } from "../UseMenu/UseMenu ";
+import React from "react";
 
 interface SideBarProps {
-    userRole: USER_ROLE;
+    userRole?: USER_ROLE;
 }
-
 
 const SideBar = ({ userRole }: SideBarProps) => {
     const [expanded, setExpanded] = useState(false);
     const [userData, setUserData] = useState<null | Users>(null);
     const [error, setError] = useState<Error | null>(null);
-
+    const { isMobileMenuOpen, toggleMobileMenu } = useMenu();
 
     useEffect(() => {
         const fetchData = async () => {
@@ -31,77 +33,172 @@ const SideBar = ({ userRole }: SideBarProps) => {
     }, []);
 
     const location = useLocation();
-    function isActive(...pathNames: string[]) {
-        return pathNames.includes(location.pathname) ? "bg-secondary text-white rounded transition-all ease-in-out flex  items-center hover:translate-x-5  translate-x-5" : "";
-    }
+
+    const isActive = (...pathNames: string[]) => {
+        return pathNames.includes(location.pathname)
+            ? `truncate text-white rounded flex items-center overerflow-hidden 
+             transition-all duration-300 ease-in-out bg-glass-no-border   
+             ${expanded ? "w-[200px] " : "w-[full]  max-xl:w-full"} 
+           `
+            : "";
+    };
+
     function isActiveIcon(...pathNames: string[]) {
         return pathNames.includes(location.pathname) ? "bold" : "thin";
     }
-
 
     const Menus = [
         { title: "Dashboard", icon: <Icon.SquaresFour weight={`${isActiveIcon("/app/home")}`} size={24} />, link: "/app/home", active: `${isActive("/app/home")}` },
         { title: "Minhas Amostras", icon: <Icon.Books weight={`${isActiveIcon("/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/participants-registration", "/app/my-samples/seconds-source-compare", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample")}`} size={24} />, link: "/app/my-samples", active: `${isActive("/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/seconds-source-compare", "/app/my-samples/participants-registration", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample")}` },
         { title: "Criar Amostras", icon: <Icon.FolderSimplePlus weight={`${isActiveIcon("/app/create-sample", "/app/choose-sample-group")}`} size={24} />, link: "/app/create-sample", active: `${isActive("/app/choose-sample-group", "/app/create-sample")}` },
-
-
-
     ];
 
-
     return (
+        <>
+            {/* Desktop Sidebar */}
+            <aside className={`fixed desktop top-0 left-0 h-screen z-50 bg-primary shadow-md transition-all duration-300 ease-in-out ${expanded ? "w-64" : "w-20"} overflow-hidden`}>
+                <div className={`flex items-center p-4 overflow-hidden transition-all duration-500 ${expanded ? "max-w-[200px]" : "max-w-[60px]"}`}>
+                    <button
+                        onClick={() => setExpanded(!expanded)}
+                        className="relative z-50 text-white group transition-all duration-300 hover:scale-[1.15]"
+                    >
+                        <div className="relative w-6 h-6 ml-2 mt-2">
+                            {/* Ícone X */}
+                            <Icon.X
+                                size={24}
+                                className={`absolute transition-all duration-300 origin-center ${expanded
+                                    ? 'opacity-100 rotate-180 scale-100'
+                                    : 'opacity-0 -rotate-90 scale-50'
+                                    }`}
+                            />
 
-        <NavigationMenu.Root className={` h-screen bg-primary duration-300 ${expanded ? 'w-80' : 'w-20'} `}>
-            <NavigationMenu.List className={`fixed p-4`}>
-                <NavigationMenu.Item className="flex p-2 mb-[26px] mt-[26px] justify-between text-alternative-text">
-                    {expanded ? (
-                        <>
-                            <Icon.X size={24} onClick={() => setExpanded(false)} className="cursor-pointer" />
-                        </>
-                    ) : (
-                        <Icon.List size={24} onClick={() => setExpanded(true)}
-                            className="cursor-pointer transition-all ease-out" />
-                    )}
-                    <h2 className={`origin-left ${!expanded && "scale-0"} text-white  font-medium text-xl duration-200 "}`}>SUPERDOT</h2>
-                </NavigationMenu.Item>
-                {Menus.map((Menu, index) => (
-                    <NavigationMenu.Item key={index} className={`flex p-2 mb-[26px] mt-[26px] justify-between hover:bg-secondary hover:rounded text-alternative-text ${Menu.active} hover:translate-x-0.5 transition-all ease-in-out `}>
-                        {Menu.link && (
-                            <Link to={Menu.link!} className={`flex gap-3 `}>
-                                {Menu.icon}
-                                <h2 className={`origin-left ${!expanded ? "scale-0" : ""} duration-300 `}>{Menu.title}</h2>
-                            </Link>
-                        )}
-                    </NavigationMenu.Item>
-                ))}
+                            {/* Ícone Hambúrguer */}
+                            <Icon.List
+                                size={24}
+                                className={`absolute transition-all duration-300 origin-center ${expanded
+                                    ? 'opacity-0 rotate-90 scale-50'
+                                    : 'opacity-100 rotate-0 scale-100'
+                                    }`}
+                            />
+                        </div>
+                    </button>
 
-                {userRole.match("Revisor|Administrador") && (
-                    <>
-                        <NavigationMenu.Item
-                            className={`flex p-2 mb-[26px] mt-[26px] justify-between hover:bg-secondary hover:rounded text-alternative-text hover:translate-x-0.5 transition-all ease-in-out ${isActive("/app/review-requests")}`}
+                    <h1 className={`ml-4 text-xl font-bold text-white transition-all duration-300 ${expanded
+                        ? "opacity-100 translate-x-0 scale-100 delay-150"
+                        : "opacity-0 -translate-x-4 scale-0 absolute"
+                        } mt-2`}>
+                        SUPERDOT
+                    </h1>
+                </div>
+                <nav className="flex flex-col space-y-4 px-2 mt-2">
+                    {userRole?.match(/Pesquisador|Revisor|Administrador/) && Menus.map((menu, idx) => (
+                        <Link
+                            key={idx}
+                            to={menu.link}
+                            className={`group flex truncate items-center ${expanded ? "!justify-start" : "justify-center"} gap-4 p-3 rounded-md transition-all duration-300 hover:bg-secondary text-white ${isActive(menu.link) ? "bg-secondary" : ""
+                                } ${expanded ? "pl-4" : "pl-3"}`}
                         >
-                            <Link to="/app/review-requests" className="flex gap-3">
-                                <Icon.Check weight={`${isActiveIcon("/app/review-requests")}`} size={24} />
-                                <h2 className={`origin-left ${!expanded && "scale-0"} duration-300`}>Revisar solicitações</h2>
-                            </Link>
-                        </NavigationMenu.Item>
-                    </>
-                )}
-                {userRole === "Administrador" && (
-                    <>
-                        <NavigationMenu.Item className={`flex p-2 mb-[26px] mt-[26px] justify-between hover:bg-secondary hover:rounded text-alternative-text hover:translate-x-0.5 transition-all ease-in-out ${isActive("/app/users")}`}>
-                            <Link to="/app/users" className="flex gap-3">
-                                <Icon.UserGear weight={`${isActiveIcon("/app/users")}`} size={24} />
-                                <h2 className={`origin-left ${!expanded && "scale-0"} duration-300`}>Usuários</h2>
-                            </Link>
-                        </NavigationMenu.Item>
-                    </>
-                )}
+                            <div className="min-w-[24px] flex justify-center">
+                                {React.cloneElement(menu.icon, {
+                                    className: `transition-transform duration-300 ${expanded ? "translate-x-0" : "translate-x-1"}`
+                                })}
+                            </div>
+                            <span className={`origin-left font-medium transition-[opacity,transform] duration-300 ${expanded
+                                ? "opacity-100 translate-x-0 max-w-[300px] delay-150"
+                                : "opacity-0 translate-x-4 max-w-0 pointer-events-none"
+                                }`}>
+                                {menu.title}
+                            </span>
+                        </Link>
+                    ))}
 
-            </NavigationMenu.List>
-        </NavigationMenu.Root>
+                    {/* Links para Revisor/Administrador */}
+                    {userRole?.match(/Revisor|Administrador/) && (
+                        <Link
+                            to="/app/review-requests"
+                            className={`group flex items-center ${expanded ? "!justify-start" : "justify-center"} truncate gap-4 p-3 rounded-md transition-all duration-300 hover:bg-secondary text-white ${isActive("/app/review-requests") ? "bg-secondary" : ""
+                                } ${expanded ? "pl-4" : "pl-3"}`}
+                        >
+                            <Icon.Check size={24} className={`transition-transform duration-300 ${expanded ? "translate-x-0" : "translate-x-1"}`} weight={`${isActiveIcon("/app/review-requests")}`} />
+                            <span className={`origin-left font-medium transition-[opacity,transform] duration-300 ${expanded
+                                ? "opacity-100 translate-x-0 max-w-[200px] delay-200"
+                                : "opacity-0 translate-x-4 max-w-0 pointer-events-none"
+                                }`}>
+                                Revisar Solicitações
+                            </span>
+                        </Link>
+                    )}
+
+                    {/* Link para Administrador */}
+                    {userRole === "Administrador" && (
+                        <Link
+                            to="/app/users"
+                            className={`group flex items-center truncate ${expanded ? "!justify-start" : "justify-center"} gap-4 p-3 rounded-md transition-all duration-300 hover:bg-secondary text-white ${isActive("/app/users") ? "bg-secondary" : ""
+                                } ${expanded ? "pl-4" : "pl-3"}`}
+                        >
+                            <Icon.UserGear size={24} className={`transition-transform duration-300 ${expanded ? "translate-x-0" : "translate-x-1"}`} weight={`${isActiveIcon("/app/users")}`} />
+                            <span className={`origin-left font-medium transition-[opacity,transform] duration-300 ${expanded
+                                ? "opacity-100 translate-x-0 max-w-[200px] delay-300"
+                                : "opacity-0 translate-x-4 max-w-0 pointer-events-none"
+                                }`}>
+                                Usuários
+                            </span>
+                        </Link>
+                    )}
+                </nav>
+            </aside>
+
+
+            {/* Mobile Menu */}
+            < div className="fixed top-0 right-0 w-full bg-primary z-50 px-2 flex justify-between items-center xl:hidden" >
+                <h2 className="text-2xl  font-bold text-white">SUPERDOT</h2>
+                <button onClick={toggleMobileMenu} className="text-white z-50">
+                    {isMobileMenuOpen ? <Icon.X size={24} /> : <Icon.List size={24} />}
+                </button>
+            </div >
+
+            <div className={`fixed truncate top-0 right-0 h-full w-[60%] bg-primary z-40 transform transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+                <div className="p-2 mt-12 space-y-4">
+                    {userRole?.match(/Pesquisador|Revisor|Administrador/) && Menus.map((menu, idx) => (
+                        <Link
+                            key={idx}
+                            to={menu.link}
+                            onClick={toggleMobileMenu}
+                            className={`flex items-center gap-4 p-3 rounded-md text-white hover:bg-secondary ${isActive(menu.link) ? "bg-secondary" : ""}`}
+                        >
+                            {menu.icon}
+                            <span>{menu.title}</span>
+                        </Link>
+                    ))}
+
+                    {userRole?.match(/Revisor|Administrador/) && (
+                        <Link
+                            to="/app/review-requests"
+                            onClick={toggleMobileMenu}
+                            className={`flex items-center gap-2 p-2 rounded-md text-white hover:bg-secondary ${isActive("/app/review-requests") ? "bg-secondary" : ""}`}
+                        >
+                            <Icon.Check size={24} />
+                            <span>Revisar solicitações</span>
+                        </Link>
+                    )}
+
+                    {userRole === "Administrador" && (
+                        <Link
+                            to="/app/users"
+                            onClick={toggleMobileMenu}
+                            className={`flex items-center gap-4 p-3 rounded-md text-white hover:bg-secondary ${isActive("/app/users") ? "bg-secondary" : ""}`}
+                        >
+                            <Icon.UserGear size={24} />
+                            <span>Usuários</span>
+                        </Link>
+                    )}
+                </div>
+
+                <Flex className="absolute bottom-0 w-full p-4 bg-secondary">
+                    <UserInfo className="text-white" />
+                </Flex>
+            </div>
+        </>
     );
 };
 export default SideBar;
-
-

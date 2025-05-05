@@ -1,5 +1,4 @@
-import { useEffect, useState } from "react";
-import { Stepper } from "../../components/Stepper/Stepper";
+import { useEffect, useRef, useState } from "react";
 import { StepStateType } from "../../components/Stepper/StepperStep";
 import Notify from "../../components/Notify/Notify";
 import { useParams } from "react-router-dom";
@@ -16,10 +15,58 @@ import { IParticipant } from "../../interfaces/participant.interface";
 import ReactLoading from "react-loading";
 import * as Icon from "@phosphor-icons/react";
 import { Box, Flex } from "@radix-ui/themes";
+import Waves from "../../components/WavesBG/Waves";
+import { Button } from "../../components/Button/Button";
+import Stepper, { Step } from "../../components/NewStepper/NewStteper";
+import logo from "../../assets/Logo-GRUPAC.png"
+
+const stepsInfo = [
+    {
+        step: EAdultFormSteps.READ_AND_ACCEPT_DOCS,
+        stepNumber: "01",
+        title: "Termos",
+        stepDescription: "Leia e aceite os termos",
+        icon: <Icon.FileText size={32} />
+    },
+    {
+        step: EAdultFormSteps.PARTICIPANT_DATA,
+        stepNumber: "02",
+        title: "Pessoais",
+        stepDescription: "Dados cadastrais",
+        icon: <Icon.FolderSimpleUser size={32} />
+    },
+    {
+        step: EAdultFormSteps.GENERAL_CHARACTERISTICS,
+        stepNumber: "03",
+        title: "QUESTIONÁRIO",
+        stepDescription: `Formulário - Adulto - Segundas fontes`,
+        icon: <Icon.ClipboardText size={32} />
+    }
+];
+
+type FormGroupSteps =
+    | EAdultFormSteps.GENERAL_CHARACTERISTICS
+    | EAdultFormSteps.HIGH_ABILITIES
+    | EAdultFormSteps.CREATIVITY
+    | EAdultFormSteps.TASK_COMMITMENT
+    | EAdultFormSteps.LEADERSHIP
+    | EAdultFormSteps.ARTISTIC_ACTIVITIES;
 
 const AdultFormSecondSourcePage = () => {
     const [currentStep, setCurrentStep] = useState(EAdultFormSteps.INTRODUCTION);
     const [researchData, setResearchData] = useState({ researcherName: "", participantName: "" });
+    const [completedSteps, setCompletedSteps] = useState<Record<FormGroupSteps, boolean>>({
+        [EAdultFormSteps.GENERAL_CHARACTERISTICS]: false,
+        [EAdultFormSteps.HIGH_ABILITIES]: false,
+        [EAdultFormSteps.CREATIVITY]: false,
+        [EAdultFormSteps.TASK_COMMITMENT]: false,
+        [EAdultFormSteps.LEADERSHIP]: false,
+        [EAdultFormSteps.ARTISTIC_ACTIVITIES]: false
+    });
+    const stepperRef = useRef<{
+        handleNext: () => void;
+        handleBack: () => void;
+    }>(null);
     const [formData, setFormData] = useState({} as ISecondSource);
     const [loading, setLoading] = useState(true);
 
@@ -85,38 +132,61 @@ const AdultFormSecondSourcePage = () => {
         }
     }, [verificationCode, participantId, sampleId, secondSourceId]);
 
-    const getStepState = (stepToCompare: EAdultFormSteps): StepStateType => {
-        if (currentStep > stepToCompare) return "DONE";
-        else if (currentStep === stepToCompare) return "HOLD";
-        else return "DISABLED";
-    };
+
+    const allStepsCompleted = Object.values(completedSteps).every(Boolean);
 
     const handleNextStep = () => {
-        // Last step to second source
-        if (currentStep === EAdultFormSteps.ARTISTIC_ACTIVITIES) {
+        window.scrollTo(0, 0);
+        if (currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS) {
             setNotificationData({
                 title: "Questionário finalizado!",
                 description: "Agradecemos pelas respostas. Em breve o pesquisador entrará em contato.",
-                type: "ok"
+                type: "success"
             });
             setCurrentStep(EAdultFormSteps.INTRODUCTION);
             return;
         }
 
-        if (currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS) {
-            // Jump indicate second steps
+        if (currentStep === EAdultFormSteps.INDICATE_SECOND_SOURCE) {
             setCurrentStep(EAdultFormSteps.GENERAL_CHARACTERISTICS);
+            stepperRef.current?.handleNext();
+
+            return;
+        }
+        if (currentStep === EAdultFormSteps.PARTICIPANT_DATA) {
+            setCurrentStep(EAdultFormSteps.GENERAL_CHARACTERISTICS);
+            stepperRef.current?.handleNext();
             return;
         }
 
+        stepperRef.current?.handleNext();
         setCurrentStep(currentStep + 1);
+
+    };
+    const handleStepCompletion = (step: FormGroupSteps, isCompleted: boolean) => {
+        setCompletedSteps(prev => ({
+            ...prev,
+            [step]: isCompleted
+        }));
     };
 
     const handlePreviousStep = () => {
+        window.scrollTo(0, 0);
         if (currentStep === EAdultFormSteps.INTRODUCTION) {
             return;
         }
+        if (currentStep === EAdultFormSteps.INDICATE_SECOND_SOURCE) {
+            setCurrentStep(EAdultFormSteps.GENERAL_CHARACTERISTICS);
+            stepperRef.current?.handleBack();
+            return;
+        }
+        if (currentStep === EAdultFormSteps.PARTICIPANT_DATA) {
+            setCurrentStep(EAdultFormSteps.GENERAL_CHARACTERISTICS);
+            stepperRef.current?.handleBack();
+            return;
+        }
         setCurrentStep(currentStep - 1);
+        stepperRef.current?.handleBack();
     };
 
     const saveAndExit = () => {
@@ -130,143 +200,189 @@ const AdultFormSecondSourcePage = () => {
             onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
             title={notificationData.title}
             description={notificationData.description}
-            icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" /> : <Icon.CheckCircle size={30} color="white" />}
-            className={notificationData.type === "erro" ? "bg-red-500" : "bg-green-500"}
-
+            icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
+            className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
+
+
+            {currentStep != EAdultFormSteps.INTRODUCTION && (
+
+                <Flex direction={"column"} className="w-full m-auto ">
+                    <div className="absolute w-full h-full">
+
+                    </div>
+
+                    <img className="relative m-auto w-36 mb-[10px]" src={logo} alt="Logo"></img>
+                    <Stepper ref={stepperRef}
+                        className="w-[80%] max-sm:w-full m-auto"
+                        initialStep={1}
+                        footerClassName="hidden"
+                        disableStepIndicators
+                        onStepChange={(step) => {
+                            if (step === EAdultFormSteps.INDICATE_SECOND_SOURCE) {
+                                setCurrentStep(EAdultFormSteps.GENERAL_CHARACTERISTICS);
+                            } else {
+                                setCurrentStep(step as EAdultFormSteps);
+                            }
+                        }}
+
+                    >
+                        {stepsInfo.map((stepInfo) => (
+
+                            <Step key={stepInfo.step}>
+                                <header className="text-primary">
+                                    <Flex direction={"column"} justify={"center"} align={"center"} className="">
+                                        {stepInfo.icon}
+                                        <Flex direction={"column"}>
+                                            <h1> {stepInfo.title} </h1>
+                                            <h2>{stepInfo.stepDescription}</h2>
+                                        </Flex>
+                                    </Flex>
+                                </header>
+
+                                <Flex id="bg-div" className="bg-primary font-roboto w-full">
+                                    <Flex direction="column" className={`w-full bg-off-white p-5 pb-5 max-sm:p-1`}>
+
+                                        {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
+                                            <SecondSourceDataStep
+                                                formData={formData}
+                                                setFormData={setFormData}
+                                                nextStep={handleNextStep}
+                                                sampleId={sampleId}
+                                                setNotificationData={setNotificationData}
+                                                saveAndExit={saveAndExit}
+                                            />
+                                        )}
+
+                                        {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
+
+                                            <ReadAndAcceptDocsStep
+                                                formData={formData}
+                                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                                // @ts-ignore DONT WORRY TYPESCRIPT, KEEP CALM OK?
+                                                setFormData={setFormData}
+                                                sourceForm={EAdultFormSource.SECOND_SOURCE}
+                                                setNotificationData={setNotificationData}
+                                                nextStep={handleNextStep}
+                                                previousStep={handlePreviousStep}
+                                                sampleId={sampleId}
+                                                saveAndExit={saveAndExit}
+                                            />
+                                        )}
+
+                                        {currentStep === EAdultFormSteps.HIGH_ABILITIES && (<div> aqui </div>)}
+
+                                        {currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS && (
+                                            <Flex direction="column" className="m-auto">
+                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
+                                                    {[
+                                                        EAdultFormSteps.GENERAL_CHARACTERISTICS,
+                                                        EAdultFormSteps.HIGH_ABILITIES,
+                                                        EAdultFormSteps.CREATIVITY,
+                                                        EAdultFormSteps.TASK_COMMITMENT,
+                                                        EAdultFormSteps.LEADERSHIP,
+                                                        EAdultFormSteps.ARTISTIC_ACTIVITIES
+                                                    ].map((step) => (
+                                                        <FormGroupsStep
+                                                            key={step}
+                                                            formData={formData}
+                                                            setFormData={setFormData as (data: ISecondSource | IParticipant) => void}
+                                                            sourceForm={EAdultFormSource.SECOND_SOURCE}
+                                                            sampleId={sampleId}
+                                                            currentStep={step}
+                                                            completed={completedSteps[step as FormGroupSteps]}
+                                                            onCompletionChange={(isCompleted) =>
+                                                                handleStepCompletion(step as FormGroupSteps, isCompleted)
+                                                            }
+                                                            setNotificationData={setNotificationData}
+                                                        />
+                                                    ))}
+                                                </div>
+                                                <div className="flex justify-center gap-6">
+                                                    <Button
+                                                        onClick={handlePreviousStep}
+                                                        size="Medium"
+                                                        title="Voltar"
+                                                        color="primary"
+                                                    />
+                                                    <Button
+                                                        size="Medium"
+                                                        onClick={saveAndExit}
+                                                        title="Salvar e Sair"
+                                                        color="primary"
+                                                    />
+                                                    <Button
+                                                        size="Medium"
+                                                        className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                                                        onClick={handleNextStep}
+                                                        title="Salvar e Continuar"
+                                                        color={`${!allStepsCompleted ? "gray" : "green"}`}
+                                                        disabled={!allStepsCompleted}
+                                                    />
+                                                </div>
+                                            </Flex>
+                                        )}
+
+
+                                    </Flex>
+                                </Flex>
+
+                            </Step>
+
+                        )
+                        )}
+
+                    </Stepper>
+                    {/* {showFooter && <footer className="bg-primary h-10 "></footer>} */}
+
+
+                </Flex>
+
+            )}
+
+
+
             {loading && (
-                <Flex direction="column-reverse" className="absolute h-full w-full bg-black m-auto">
-                    <h1 className="text-white m-auto">Aguarde...
-                        <ReactLoading className="m-auto" type="spinningBubbles"></ReactLoading>
+
+                <Flex direction="column-reverse" className="absolute overflow-hidden h-screen w-full bg-white m-auto">
+                    <h1 className="text-primary m-auto">Aguarde...
+                        <ReactLoading color="#6e56cf" className="m-auto" type="spinningBubbles"></ReactLoading>
                     </h1>
+                    <Waves
+                        lineColor="#6e56cf"
+                        backgroundColor="rgba(255, 255, 255, 0)"
+                        waveSpeedX={0.02}
+                        waveSpeedY={0.01}
+                        waveAmpX={40}
+                        waveAmpY={20}
+                        friction={0.9}
+                        tension={0.01}
+                        maxCursorMove={120}
+                        xGap={12}
+                        yGap={36}
+                    />
 
                 </Flex>
             )}
-            <Box
-                id="bg-div"
-                className={`w-full bg-slate-950 bg-opacity-50 bg-default-bg bg-cover bg-no-repeat bg-blend-multiply font-roboto text-white p-4 h-full overflow-y-scroll`}
-            >           
 
 
-                {/* STEPPER */}
-                {currentStep > EAdultFormSteps.INTRODUCTION &&
-                    currentStep < EAdultFormSteps.GENERAL_CHARACTERISTICS && (
-                        <Stepper.Root>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.READ_AND_ACCEPT_DOCS)}
-                                stepNumber="01"
-                                stepTitle="Termos"
-                                stepDescription="Leia e aceite os termos"
-                            ></Stepper.Step>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.PARTICIPANT_DATA)}
-                                stepNumber="02"
-                                stepTitle="Pessoais"
-                                stepDescription="Informações pessoais"
-                            ></Stepper.Step>
-                            <Stepper.Step
-                                stepState="DISABLED"
-                                stepNumber="03"
-                                stepTitle="Questionário"
-                                stepDescription="Responda o questionário"
-                            ></Stepper.Step>
-                        </Stepper.Root>
-                    )}
-                {currentStep >= EAdultFormSteps.GENERAL_CHARACTERISTICS && (
-                    <div>
-                        <Stepper.Root>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.GENERAL_CHARACTERISTICS)}
-                                stepNumber="01"
-                                stepTitle="GRUPO 1"
-                                stepDescription="Características Gerais"
-                            ></Stepper.Step>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.HIGH_ABILITIES)}
-                                stepNumber="02"
-                                stepTitle="GRUPO 2"
-                                stepDescription="Habilidade Acima da Média"
-                            ></Stepper.Step>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.CRIATIVITY)}
-                                stepNumber="03"
-                                stepTitle="GRUPO 3"
-                                stepDescription="Criatividade"
-                            ></Stepper.Step>
-                        </Stepper.Root>
-                        <Stepper.Root>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.TASK_COMMITMENT)}
-                                stepNumber="04"
-                                stepTitle="GRUPO 4"
-                                stepDescription="Comprometimento da Tarefa"
-                            ></Stepper.Step>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.LEADERSHIP)}
-                                stepNumber="05"
-                                stepTitle="GRUPO 5"
-                                stepDescription="Liderança"
-                            ></Stepper.Step>
-                            <Stepper.Step
-                                stepState={getStepState(EAdultFormSteps.ARTISTIC_ACTIVITIES)}
-                                stepNumber="06"
-                                stepTitle="GRUPO 6"
-                                stepDescription="Atividades Artísticas e Esportivas"
-                            ></Stepper.Step>
-                        </Stepper.Root>
-                    </div>
-                )}
-
-                {currentStep === EAdultFormSteps.INTRODUCTION && (
-                    <IntroductionStep
-                        sourceForm={EAdultFormSource.SECOND_SOURCE}
-                        participantId={participantId}
-                        sampleId={sampleId}
-                        researcherName={researchData.researcherName}
-                        participantName={researchData.participantName}
-                        setNotificationData={setNotificationData}
-                    />
-                )}
-                {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
-                    <SecondSourceDataStep
-                        formData={formData}
-                        saveAndExit={saveAndExit}
-                        setFormData={setFormData}
-                        nextStep={handleNextStep}
-                        sampleId={sampleId}
-                        setNotificationData={setNotificationData}
-                    />
-                )}
-                {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
-                    <ReadAndAcceptDocsStep
-                        formData={formData}
-                        // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                        // @ts-ignore DONT WORRY TYPESCRIPT, KEEP CALM OK?
-                        setFormData={setFormData}
-                        previousStep={handlePreviousStep}
-                        saveAndExit={saveAndExit}
-                        sourceForm={EAdultFormSource.SECOND_SOURCE}
-                        nextStep={handleNextStep}
-                        sampleId={sampleId}
-                        setNotificationData={setNotificationData}
-                    />
-                )}
-                {currentStep >= EAdultFormSteps.GENERAL_CHARACTERISTICS &&
-                    currentStep <= EAdultFormSteps.ARTISTIC_ACTIVITIES && (
-                        <FormGroupsStep
-                            formData={formData}
-                            setFormData={setFormData as (data: ISecondSource | IParticipant) => void}
-                            previousStep={handlePreviousStep}
-                            saveAndExit={saveAndExit}
+            {currentStep === EAdultFormSteps.INTRODUCTION && (
+                <Flex direction={"column"} className="relative h-full lg:h-full max-sm:h-fit   md:h-auto sm:h-auto pb-4 w-full bg-default-bg max-sm:bg-default-bg-mobo bg-center bg-no-repeat bg-cover">
+                    <Flex align={"center"} id="bg-div" className={`font-roboto text-white   m-auto`}>
+                        <IntroductionStep
+                            participantName={researchData.participantName}
+                            researcherName={researchData.researcherName}
+                            participantId={participantId}
                             sourceForm={EAdultFormSource.SECOND_SOURCE}
                             sampleId={sampleId}
-                            currentStep={currentStep}
-                            nextStep={handleNextStep}
                             setNotificationData={setNotificationData}
                         />
-                    )}
-            </Box>
-        </Notify>
+                    </Flex>
+                </Flex>
+
+            )}
+
+        </Notify >
     );
 };
 

@@ -11,7 +11,7 @@ interface GridProps {
 export function GridComponent({ children, className, columns }: GridProps) {
   return (
 
-    <Grid columns={`${columns}`} className={`${className} font-roboto mb-5`}>
+    <Grid columns={{ md: `${columns}` }} className={`${className} font-roboto mb-5`}>
       {children}
     </Grid>
   );

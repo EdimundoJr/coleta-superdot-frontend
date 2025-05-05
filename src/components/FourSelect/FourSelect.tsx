@@ -21,7 +21,7 @@ const FourSelect = ({ options, values, onChange }: FourSelectProps) => {
     };
 
     return (
-        <div className="mx-auto mt-4 grid grid-cols-1 justify-center gap-5 sm:w-1/3">
+        <div className="mx-auto mt-4 grid grid-cols-1 justify-center gap-5 w-[50%] max-xl:w-[90%]">
             {/* CREATE AN ITERATOR FROM 0 TO 3 */}
             {[...Array(4).keys()].map((idx) => (
                 <div className="flex items-center gap-5" key={idx}>

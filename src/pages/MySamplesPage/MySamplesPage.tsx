@@ -13,11 +13,12 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithNotification } from "../../validators/navigationStateValidators";
 import { DateTime } from "luxon";
 import { ISample } from "../../interfaces/sample.interface";
-import { Badge, Box, Container, Flex, IconButton, Skeleton, Text, Tooltip } from "@radix-ui/themes";
+import { Badge, Box, Container, Flex, IconButton, Separator, Skeleton, Text, Tooltip } from "@radix-ui/themes";
 import { Header } from "../../components/Header/Header";
 import * as Icon from "@phosphor-icons/react";
 import { GridComponent } from "../../components/Grid/Grid";
 import { Button } from "../../components/Button/Button";
+import { AnimatePresence, motion } from "framer-motion";
 
 const MySamplesPage = () => {
     const {
@@ -28,6 +29,8 @@ const MySamplesPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
     const [loading, setLoading] = useState(true);
+    const [showSearch, setShowSearch] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
 
     const [pageData, setPageData] = useState<Page<ISample>>();
     //const [currentPage, setCurrentPage] = useState(1);
@@ -68,6 +71,18 @@ const MySamplesPage = () => {
         getPage();
         return () => clearTimeout(timeoutId);
     }, [filters]);
+
+    useEffect(() => {
+        const checkScreen = () => {
+            setIsDesktop(window.innerWidth >= 1020);
+        };
+
+        checkScreen();
+        window.addEventListener("resize", checkScreen);
+        return () => window.removeEventListener("resize", checkScreen);
+    }, []);
+
+    const showFilters = isDesktop || showSearch;
 
     const handleCleanNotification = () => {
         setNotificationTitle("");
@@ -140,48 +155,92 @@ const MySamplesPage = () => {
                 icon={notificationIcon}
                 className={notificationClass}
             >
-                <Header title="Minhas Amostra" icon={<Icon.Books size={24} className="items-center" />} />
 
-                <Box className="w-full pt-10 pb-10">
+
+                <Box className="w-full  pt-10 pb-10 max-xl:pt-2 max-xl:pb-2">
                     <Form.Root
                         onSubmit={handleSubmit((data) => {
                             setFilters({
                                 ...data,
                             });
                         })}
-                        className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-1">
-                        <Form.Submit asChild>
+                        className="flex flex-col items-center gap-4 xl:flex-row xl:justify-between p-4 pt-0 pb-1"
+                    >
+                        {!isDesktop && (
                             <Button
-                                size="Large"
-                                className="items-center w-[300px] mr-3" title="Filtrar"
-                                children={<Icon.Funnel
-                                    size={20}
-                                    color="white" />}
-                                color="primary" />
-                        </Form.Submit>
-                        <InputField
-                            label="Pesquisar pela pesquisa"
-                            icon={<Icon.MagnifyingGlass />}
-                            placeholder="Digite o título da pesquisa"
-                            errorMessage={errors.researcherTitle?.message}
-                            {...register("researcherTitle")}
-                        />
-                        <InputField
-                            label="Pesquisar pela amostra"
-                            icon={<Icon.MagnifyingGlass />}
-                            placeholder="Digite o título da amostra"
-                            errorMessage={errors.sampleTitle?.message}
-                            {...register("sampleTitle")}
-                            className="ml-1 m"
-                        />
-                        <Button size="Large" onClick={() => setFilters({})} type="reset" className="items-center w-[300px] ml-3" color={"primary"} title={"Limpar Filtro"}>
+                                type="button"
+                                onClick={() => setShowSearch(!showSearch)}
+                                className="block xl:hidden"
+                                title={`${showSearch ? "Fechar Filtros" : "Mostrar Filtros"}`}
+                                color="primary"
+                                size="Medium"
+                            >
+                                {showSearch ? <Icon.X size={20} /> : <Icon.Funnel size={20} />}
+                            </Button>
+                        )}
 
-                        </Button>
-                        <Flex >
-                        </Flex>
+                        <AnimatePresence>
+                            {showFilters && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="flex flex-col xl:flex-row xl:items-center gap-3 w-full overflow-hidden"
+                                >
+                                    <Form.Submit asChild className="hidden xl:block">
+                                        <Button
+                                            size="Large"
+                                            className="items-center w-full xl:w-[300px] xl:mt-2"
+                                            title="Filtrar"
+                                            color="primary"
+                                        >
+                                            <Icon.Funnel size={20} color="white" />
+                                        </Button>
+                                    </Form.Submit>
+                                    <InputField
+                                        label="Pesquisar pela pesquisa"
+                                        icon={<Icon.MagnifyingGlass />}
+                                        placeholder="Digite o título da pesquisa"
+                                        errorMessage={errors.researcherTitle?.message}
+                                        {...register("researcherTitle")}
+                                    />
+                                    <InputField
+                                        label="Pesquisar pela amostra"
+                                        icon={<Icon.MagnifyingGlass />}
+                                        placeholder="Digite o título da amostra"
+                                        errorMessage={errors.sampleTitle?.message}
+                                        {...register("sampleTitle")}
+                                    />
+                                    <Form.Submit asChild className="block xl:hidden">
+                                        <Button
+                                            size="Large"
+                                            className="items-center w-full xl:w-[300px]"
+                                            title="Filtrar"
+                                            color="primary"
+                                        >
+                                            <Icon.Funnel size={20} color="white" />
+                                        </Button>
+                                    </Form.Submit>
+
+                                    <Button
+                                        size="Large"
+                                        onClick={() => setFilters({})}
+                                        type="reset"
+                                        className="items-center w-full xl:w-[300px] xl:mt-2"
+                                        color="primary"
+                                        title="Limpar Filtro"
+                                    >
+                                    </Button>
+
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <Flex />
                     </Form.Root>
                 </Box>
-                <Container className="mb-4">
+
+                <Container className="mb-4 p-4">
                     {pageData?.data?.length === 0 ? <Text size="4" as="label" className="font-semibold">
                         <Flex direction="column" justify="center" className="mt-10">
                             <Icon.FileX size={100} weight="thin" className="opacity-20 m-auto  " />
@@ -190,99 +249,116 @@ const MySamplesPage = () => {
                     </Text>
                         :
 
-                        <GridComponent children={
-                            <>
-                                {pageData?.data?.map((sample, index) => {
-                                    return (
-                                        <Skeleton loading={loading}>
-                                            <Box>
-                                                <Card.Root key={index}>
-                                                    <Card.Header>
-                                                        <Flex justify="between">
-                                                            {sample.status == "Autorizado" && (
-                                                                <Tooltip content={"Editar Amostra"}>
-                                                                    <IconButton color="amber" radius="full" variant="outline">
-                                                                        <Icon.Pencil
-                                                                            onClick={() => handleNavigateToEditSample(sample)}
-                                                                            className="cursor-pointer"
-                                                                            size={20}
-                                                                        />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            )}
-                                                            <Text as="label">{sample.sampleGroup}</Text>
-                                                            {sample.status == "Autorizado" && (
-                                                                <Tooltip content={"Excluir Amostra"}>
-                                                                    <IconButton color="red" radius="full" variant="outline">
-                                                                        <Icon.Trash
-                                                                            className="cursor-pointer"
-                                                                            onClick={() => handleNavigateToDeleteSample(sample._id)}
-                                                                            size={20}
-                                                                        />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            )}
-                                                        </Flex>
-                                                    </Card.Header>
-                                                    <Card.Content>
-                                                        <ul>
-                                                            <li ><b>Amostra:</b> {sample.sampleTitle}</li>
-                                                            <li ><b>Pesquisa:</b> {sample.researchTitle}</li>
-                                                            {sample.qttParticipantsAuthorized && (
-                                                                <li ><b>Limite de participantes:</b> {sample.qttParticipantsAuthorized}</li>
-                                                            )}
-                                                            {sample.participants && (
-                                                                <li ><b>Participantes cadastrados:</b> {sample.participants.length}</li>
-                                                            )}
-                                                            <li ><b>Código do Comitê de Ética:</b> {sample.researchCep.cepCode}</li>
-                                                            <li >
-                                                                <b>Data da Solicitação da amostra:</b>{" "}
-                                                                {sample.createdAt &&
-                                                                    DateTime.fromISO(sample.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
-                                                            </li>
-                                                            <li >
-                                                                <b>Data da última atualização:</b>{" "}
-                                                                {sample.updatedAt &&
-                                                                    DateTime.fromISO(sample.updatedAt).toFormat("dd/LL/yyyy - HH:mm")}
-                                                            </li>
-                                                            <li > <b>Status da amostra:</b> {sample.status == "Autorizado" ? (
-                                                                <Badge color="green" className="radios-full">{sample.status}</Badge>
-                                                            ) : (
+                        <GridComponent columns={2} className="gap-5">
+                            {pageData?.data?.map((sample, index) => (
+                                <Skeleton key={index} loading={loading}>
+                                    <Card.Root
+                                        className={`${sample.status === "Autorizado" ? "!border-confirm" : sample.status === "Pendente" ? "!border-yellow-500" : "!border-red-500"} rounded-lg shadow-lg transition-all hover:drop-shadow-md`}>
+                                        <Card.Header>
+                                            <Flex justify="between" className="space-x-4">
+                                                {sample.status !== "Autorizado" && (
+                                                    <Tooltip content="Editar Amostra">
+                                                        <IconButton color="amber" radius="full" variant="outline">
+                                                            <Icon.Pencil
+                                                                onClick={() => handleNavigateToEditSample(sample)}
+                                                                className="cursor-pointer"
+                                                                size={20}
+                                                            />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                                <Text as="label" className="text-xl font-medium text-gray-800">{sample.sampleGroup}
 
-                                                                <Badge color="red">{sample.status}</Badge>
+                                                </Text>
 
+                                                {sample.status !== "Autorizado" && (
+                                                    <Tooltip content="Excluir Amostra">
+                                                        <IconButton color="red" radius="full" variant="outline">
+                                                            <Icon.Trash
+                                                                className="cursor-pointer"
+                                                                onClick={() => handleNavigateToDeleteSample(sample._id)}
+                                                                size={20}
+                                                            />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                )}
+                                            </Flex>
+                                        </Card.Header>
 
-                                                            )}</li>
-                                                        </ul>
-                                                    </Card.Content>
-                                                    <Card.Actions className="justify-around">
-                                                        <Card.Action
-                                                            disabled={
-                                                                sample.status !== "Autorizado"
-                                                                // ||
-                                                                // sample.qttParticipantsAuthorized === sample.participants?.length
-                                                            }
-                                                            onClick={() => handleRegisterPeople(sample._id as string)}
-                                                        >
-                                                            Cadastrar Pessoas
-                                                        </Card.Action>
-                                                        <Card.Action
-                                                            disabled={sample.status !== "Autorizado" || sample.participants?.length === 0}
-                                                            onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
-                                                        >
-                                                            Avaliar Pessoas
-                                                        </Card.Action>
-                                                    </Card.Actions>
-                                                </Card.Root>
-                                            </Box>
-                                        </Skeleton>
-                                    );
-                                })}
+                                        <Card.Content>
+                                            <div className="space-y-4">
+                                                <Separator size={"4"} ></Separator>
 
+                                                <ul className="space-y-2 text-gray-700 text-sm">
+                                                    <li>
+                                                        <span className="font-medium text-gray-900">Amostra:</span> {sample.sampleTitle}
+                                                    </li>
+                                                    <li>
+                                                        <span className="font-medium text-gray-900">Pesquisa:</span> {sample.researchTitle}
+                                                    </li>
+                                                    {sample.qttParticipantsAuthorized && (
+                                                        <li>
+                                                            <span className="font-medium text-gray-900">Limite de participantes:</span> {sample.qttParticipantsAuthorized}
+                                                        </li>
+                                                    )}
+                                                    {sample.participants && (
+                                                        <li>
+                                                            <span className="font-medium text-gray-900">Participantes cadastrados:</span> {sample.participants.length}
+                                                        </li>
+                                                    )}
+                                                    <li>
+                                                        <span className="font-medium text-gray-900">Código do Comitê de Ética:</span> {sample.researchCep.cepCode}
+                                                    </li>
+                                                    <li>
+                                                        <span className="font-medium text-gray-900">Data da Solicitação da amostra:</span>{" "}
+                                                        {sample.createdAt && DateTime.fromISO(sample.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                                    </li>
+                                                    <li>
+                                                        <span className="font-medium text-gray-900">Data da última atualização:</span>{" "}
+                                                        {sample.updatedAt && DateTime.fromISO(sample.updatedAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                                    </li>
+                                                    <li className="flex items-center gap-2">
+                                                        <span className="font-medium text-gray-900">Status da amostra:</span>
+                                                        {sample.status === "Autorizado" ? (
+                                                            <Badge color="green" className="rounded-full px-2 py-0.5 text-xs">Autorizado</Badge>
+                                                        ) : sample.status === "Pendente" ? (
+                                                            <Badge color="orange" className="rounded-full px-2 py-0.5 text-xs">Pendente</Badge>
+                                                        ) : (
+                                                            <Badge color="red" className="rounded-full px-2 py-0.5 text-xs">{sample.status}</Badge>
+                                                        )}
+                                                    </li>
+                                                </ul>
+                                            </div>
+                                        </Card.Content>
 
-                            </>
-                        } columns={2} className="gap-5">
+                                        <Card.Actions className="flex gap-4 justify-between max-sm:flex-col">
+                                            <Card.Action
+                                                disabled={
+                                                    sample.status !== "Autorizado" ||
+                                                    sample.qttParticipantsAuthorized === sample.participants?.length
+                                                }
+                                                onClick={() => handleRegisterPeople(sample._id as string)}
+                                            >
+                                                Cadastrar Pessoas
+                                            </Card.Action>
+                                            <Card.Action
+                                                disabled={
+                                                    sample.status !== "Autorizado" ||
+                                                    sample.participants?.filter(p => p.adultForm?.totalPunctuation != null).length === 0
+                                                }
+                                                onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
+                                            >
+                                                Avaliar Pessoas
+                                            </Card.Action>
+                                        </Card.Actions>
+                                    </Card.Root>
+
+                                </Skeleton>
+
+                            ))}
                         </GridComponent>
+
+
                     }
                 </Container>
                 <Modal
@@ -294,11 +370,11 @@ const MySamplesPage = () => {
                 >
 
                     <Flex gap="3" mt="4" justify="end">
-                        <Button onClick={handleDeleteSample} color="red" title={"Ecluir"} size={""} />
-                        <Button onClick={() => setOpenModalDelete(false)} color="gray" title={"Cancelar"} size={""} />
+                        <Button onClick={handleDeleteSample} color="red" title={"Ecluir"} size={"Extra Small"} />
+                        <Button onClick={() => setOpenModalDelete(false)} color="gray" title={"Cancelar"} size={"Extra Small"} />
                     </Flex>
                 </Modal>
-            </Notify>
+            </Notify >
         </>
     );
 };

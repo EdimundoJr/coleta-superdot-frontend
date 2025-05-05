@@ -42,7 +42,10 @@ export interface IParticipant {
     acceptTcleAt?: Date;
     acceptTaleAt?: Date;
     giftdnessIndicatorsByResearcher?: boolean;
-    knowledgeAreasIndicatedByResearcher?: string[];
+    knowledgeAreasIndicatedByResearcher?: {
+        general: [String],
+        specific: [String]
+    },
     adultForm?: {
         endFillFormAt?: string;
         startFillFormAt?: string;
@@ -50,7 +53,7 @@ export interface IParticipant {
         totalPunctuation?: number;
         giftednessIndicators?: boolean;
         knowledgeAreas?: string[];
-    };    
+    };
     autobiography?: {
         text?: string;
         videoUrl?: string;

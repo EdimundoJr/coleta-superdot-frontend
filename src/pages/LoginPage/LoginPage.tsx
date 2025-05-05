@@ -5,12 +5,11 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { loginResearcher } from "../../api/auth.api";
 import { saveTokens } from "../../utils/tokensHandler";
 import { useNavigate } from "react-router-dom";
-import saly16 from "../../assets/Saly-16.svg";
 import logo from '../../assets/Logo-GRUPAC.png'
 import { Link } from "react-router-dom";
 import { useState } from "react";
 import Notify from "../../components/Notify/Notify";
-import { Box, Flex } from "@radix-ui/themes";
+import { Box, Flex, Strong } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
 import { Button } from "../../components/Button/Button";
 import { InputField } from "../../components/InputField/InputField";
@@ -23,11 +22,11 @@ export const LoginPage = () => {
     } = useForm({ resolver: yupResolver(loginSchema) });
     const navigate = useNavigate();
 
-    const [showNotification, setShowNotification] = useState(false);
-    const [notificationTitle, setNotificationTitle] = useState("");
-    const [notificationDescription, setNotificationDescription] = useState("");
-    const [notificationIcon, setNotificationIcon] = useState<React.ReactNode>();
-    const [notificationClass, setNotificationClass] = useState("");
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+        type: "",
+    });
 
     const onSubmit = handleSubmit(async (data) => {
         try {
@@ -38,61 +37,63 @@ export const LoginPage = () => {
             }
         } catch (erroLogin) {
             console.error(erroLogin);
-            setShowNotification(true);
-            setNotificationTitle("Credenciais inválidas.");
-            setNotificationDescription("O email ou a senha estão incorretos.");
-            setNotificationIcon(<Icon.XCircle size={30} color="white" />);
-            setNotificationClass("bg-red-500");
+            setNotificationData({
+                title: "Credenciais inválidas.",
+                description: "O email ou a senha estão incorretos.",
+                type: "erro",
+            });
         }
     });
 
     return (
 
         <Notify
-            open={showNotification}
-            onOpenChange={(open: boolean) => setShowNotification(open)}
-            title={notificationTitle}
-            description={notificationDescription}
-            icon={notificationIcon}
-            className={notificationClass}
+            open={!!notificationData.title}
+            onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
+            title={notificationData.title}
+            description={notificationData.description}
+            icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
+            className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
+            <Flex className="h-screen w-full ">
+                <Flex className="bg-default-bg h-auto w-full align-middle desktop">
+                </Flex>
 
-            <Flex className="bg-gradient-to-b from-primary to-secondary h-full w-full align-middle">
-                <img className="m-auto " src={saly16}></img>
+                <Flex direction="column" className="w-full text-[#4F4F4F] m-auto">
+                    <Form.Root onSubmit={onSubmit} className="m-auto w-[70%] max-md:w-[80%] ">
+                        <Box className="mb-10">
+                            <img className="m-auto w-40" src={logo}></img>
+                        </Box>
+                        <Box className="text-left mb-10 w-[70%] lg:w-[100%] md:w-[100%] max-sm:w-[100%]">
+                            <h1 className="mb-4 text-[36px] leading-none">Acesse a plataforma</h1>
+                            <p className=" text-[16px]">Faça login ou registre-se para começar a sua pesquisa ainda hoje.</p>
+                        </Box>
+                        <Box className="mb-4">
+                            <InputField label={""} type="email" placeholder="E-mail" icon={<Icon.Envelope color="gray" />}  {...register("email")} errorMessage={errors?.email && (
+                                <Form.Message className="error-message">{errors.email.message}</Form.Message>
+                            )}></InputField>
+                        </Box>
+                        <Box>
+                            <InputField label={""} type="password" placeholder="Senha" icon={<Icon.Key color="gray" />}  {...register("password")} errorMessage={errors?.password && (
+                                <Form.Message className="error-message">{errors.password.message}</Form.Message>
+                            )}></InputField>
+                        </Box>
+                        <Box>
+                            <Form.Submit asChild>
+                                <Button size="Large" className="w-full mb-8 mt-4" title={"Entrar"} color={"primary"} ></Button>
+                            </Form.Submit>
 
+                            <p className="text-sm text-left">
+                                Ainda não tem uma conta? <Link to="/register">
+                                    <Strong className="text-primary bold">Inscreva-se</Strong>
+                                </Link>
+                            </p>
+                        </Box>
+
+                    </Form.Root>
+
+                </Flex>
             </Flex>
-
-
-            <Flex direction="column" className="w-full text-[#4F4F4F] m-auto">
-                <Form.Root onSubmit={onSubmit} className="m-auto sm:w-6/12">
-                    <Box className="mb-10">
-                        <img className="m-auto w-40" src={logo}></img>
-                    </Box>
-                    <Box className="mb-4">
-                        <InputField label={""} type="email" placeholder="E-mail" icon={<Icon.Envelope color="gray" />}  {...register("email")} errorMessage={errors?.email && (
-                            <Form.Message className="error-message">{errors.email.message}</Form.Message>
-                        )}></InputField>
-                    </Box>
-                    <Box>
-                        <InputField label={""} type="password" placeholder="Senha" icon={<Icon.Key color="gray" />}  {...register("password")} errorMessage={errors?.password && (
-                            <Form.Message className="error-message">{errors.password.message}</Form.Message>
-                        )}></InputField>
-                    </Box>
-                    <Box>
-                        <Form.Submit asChild>
-                            <Button size="Large" className="w-full mb-1" title={"Continuar"} color={"primary"} ></Button>
-                        </Form.Submit>
-
-                        <Link className="text-sm" to="/register">
-                            Não tenho uma conta...
-                        </Link>
-
-                    </Box>
-
-                </Form.Root>
-
-            </Flex>
-
         </Notify>
 
     );

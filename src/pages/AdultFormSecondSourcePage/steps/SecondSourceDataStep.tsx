@@ -9,14 +9,14 @@ import { useForm } from "react-hook-form";
 import { SecondSourceDTO, secondSourceDataSchema } from "../../../schemas/adultForm/secondSourceData.schema";
 import { putSaveSecondSourceData, putSubmitSecondSourceData } from "../../../api/secondSource.api";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
-import { Flex } from "@radix-ui/themes";
+
 import { Button } from "../../../components/Button/Button";
 
 interface SecondSourceDataStepProps {
     formData?: ISecondSource;
     setFormData: (formData: ISecondSource) => void;
     nextStep: () => void;
-    setNotificationData: (data: { title: string; description: string, type: String }) => void;
+    setNotificationData: (data: { title: string; description: string, type: string }) => void;
     sampleId: string;
     saveAndExit: () => void;
 }
@@ -32,7 +32,7 @@ const SecondSourceDataStep = ({
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
         setValue,
         watch,
     } = useForm({ resolver: yupResolver(secondSourceDataSchema), defaultValues: formData });
@@ -51,7 +51,9 @@ const SecondSourceDataStep = ({
                 type: "erro"
             });
         }
-};
+    };
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 8, today.getMonth(), today.getDate());
 
     const onSubmit = handleSubmit(async (secondSourceData: SecondSourceDTO) => {
         try {
@@ -66,6 +68,7 @@ const SecondSourceDataStep = ({
                     setFormData(secondSourceData);
                 }
                 nextStep();
+                window.scrollTo(0, 0);
             }
         } catch (e: any) {
             console.error(e);
@@ -78,13 +81,10 @@ const SecondSourceDataStep = ({
     });
 
     return (
-        <div className="grid gap-y-10">
-            <header>
-                <h1>Informações pessoais</h1>
-                <h3>Preencha os campos abaixo para continuar.</h3>
-            </header>
+        <div className="max-lg:grid max-lg:gap-y-5 relative w-[100%] xl:w-[100%] m-auto rounded-2xl p-5 max-lg:p-2">
+
             <Form.Root onSubmit={onSubmit} className="w-full">
-                <div className="grid grid-cols-1 gap-y-5 sm:grid-cols-2 md:grid-cols-3 ">
+                <div className="grid grid-cols-3 gap-y-5  gap-3 max-lg:grid-cols-1 max-lg:grid">
                     <InputField
                         {...register("personalData.fullName")}
                         label="Nome completo*"
@@ -103,8 +103,8 @@ const SecondSourceDataStep = ({
                         placeholder="Qual a sua profissão?"
                         errorMessage={errors.personalData?.job?.message}
                     />
-                    <Form.Field name="birthDate" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="birthDate" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Data de nascimento*
                         </Form.Label>
                         <Flatpicker
@@ -113,7 +113,8 @@ const SecondSourceDataStep = ({
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
                             options={{
-                                maxDate: "today",
+                                dateFormat: "d/m/Y",
+                                maxDate: minDate,
                             }}
                         />
                         {errors.personalData?.birthDate?.message && (
@@ -171,15 +172,23 @@ const SecondSourceDataStep = ({
                         errorMessage={errors.personalData?.street?.message}
                     />
                 </div>
-                <Flex align={"center"} justify={"center"} className="gap-6 mt-5">
-                    <Button size="Medium" type="button" onClick={onSaveAndExit} className="" title={"Salvar e sair"} color={"primary"}>
-                        
+                <div className="flex justify-center gap-6 mt-6">
+                    <Button
+                        size="Medium"
+                        onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                     >
                     </Button>
-                    <Form.Submit asChild>
-                        <Button size="Medium"
-                        className="" title={"Salvar e Continuar"} color={"primary"}></Button>
-                    </Form.Submit>
-                </Flex>
+
+                    <Button
+                        size="Medium"
+                        className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                        title={"Salvar e Continuar"}
+                        color={`${isValid ? "green" : "gray"}`}
+                        type="submit"
+                        disabled={!isValid}
+                    />
+
+                </div>
+
             </Form.Root>
         </div>
     );

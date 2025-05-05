@@ -2,13 +2,13 @@ import * as Form from "@radix-ui/react-form";
 import noImage from "../../../../assets/no-image.jpg";
 import { RegisterValues } from "../../../../schemas/registerSchema";
 import { ChangeEvent, FormEvent, useState } from "react";
+import { Button } from "../../../../components/Button/Button";
 
 interface ProfilePhotoProps {
     handleOnSubmit: () => void;
     handleOnClickPreviousStep: () => void;
     setStepData: (stepData: RegisterValues) => void;
     currentData: RegisterValues;
-    hidden: boolean;
 }
 
 const ProfilePhotoForm = ({
@@ -16,7 +16,6 @@ const ProfilePhotoForm = ({
     handleOnClickPreviousStep,
     setStepData,
     currentData,
-    hidden,
 }: ProfilePhotoProps) => {
     const [photoUploaded, setPhotoUploaded] = useState<File>();
     const [errorMessage, setErrorMessage] = useState("");
@@ -48,22 +47,21 @@ const ProfilePhotoForm = ({
     return (
         <Form.Root
             about="Form to provide a profile photo."
-            hidden={hidden}
             onSubmit={onSubmit}
-            className="m-auto w-10/12"
+            className="m-auto"
         >
             <h1>Criar uma conta</h1>
             <h3>Foto de perfil (opcional)</h3>
-            <div className="my-16 text-center sm:flex">
+            <div className="text-center flex flex-col">
                 <div className="m-auto">
                     <img
-                        className="mx-auto h-64 w-64 rounded-full"
+                        className="mx-auto h-64 w-64 rounded-full mb-5 object-cover"
                         src={photoUploaded ? URL.createObjectURL(photoUploaded) : noImage}
                     ></img>
                 </div>
                 <Form.Field name="personalData.profilePhoto" className="m-auto h-full">
                     <Form.Label asChild>
-                        <label className="button-neutral-dark block">Carregar foto</label>
+                        <label className="button-neutral-dark block cursor-pointer">Carregar foto</label>
                     </Form.Label>
                     <Form.Control
                         className="hidden"
@@ -74,11 +72,11 @@ const ProfilePhotoForm = ({
                     {errorMessage && <Form.Message className="error-message">{errorMessage}</Form.Message>}
                 </Form.Field>
             </div>
-            <div className="mt-8 flex gap-x-2">
-                <button onClick={handleOnClickPreviousStep} type="button" className="button-neutral-light w-full ">
-                    Voltar
-                </button>
-                <button className="button-neutral-dark w-full ">Continuar</button>
+            <div className="mt-8 flex gap-x-2 ">
+                <Button onClick={handleOnClickPreviousStep} type="button" className="w-full" title={"Voltar"} color={"gray"} size={"Large"}>
+
+                </Button>
+                <Button className="w-full" title={"Continuar"} color={"primary"} size={"Large"}></Button>
             </div>
         </Form.Root>
     );

@@ -5,13 +5,13 @@ import isEmail from "validator/lib/isEmail";
 import { DeepPartial } from "react-hook-form";
 import { IParticipant } from "../../interfaces/participant.interface";
 import { postAddParticipants } from "../../api/sample.api";
-import { IconButton, Table } from "@radix-ui/themes";
+import { DataList, IconButton, Separator, Table } from "@radix-ui/themes";
 import * as  Icon from "@phosphor-icons/react";
 import { Button } from "../Button/Button";
 
 
 interface ParticipantsIndicationFormProps {
-    setNotificationData: (data: { title: string; description: string; type: String }) => void;
+    setNotificationData: (data: { title: string; description: string; type: string }) => void;
     onFinish: (participants: IParticipant[]) => void;
     sampleId: string;
 }
@@ -68,19 +68,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
             addressData: {
                 state: "bahia",
             },
-            // giftdnessIndicatorsByResearcher: false,
-            // knowledgeAreasIndicatedByResearcher: [
-            //     "teste",
-            //     "teste2",
-            // ],
-            // evaluateAutobiography: {
-            //     id: 1,
-            //     text: "teste",
-            //     comment: "string",
-            //     mark: "string",
-            //     start: 0,
-            //     end: 1,
-            // }
+
         });
 
         setFullName("");
@@ -88,7 +76,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
         setNotificationData({
             title: "Pessoa indicada com sucesso!",
             description: "Ao clicar no botão FINALIZAR, a pessoa receberá um e-mail informativo.",
-            type: "ok"
+            type: "success"
         });
     };
 
@@ -98,7 +86,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
         setNotificationData({
             title: "Pessoa removida!",
             description: "A pessoa foi removida das indicações.",
-            type: "ok"
+            type: "success"
         });
     };
 
@@ -109,7 +97,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                 setNotificationData({
                     title: "Indicações concluídas.",
                     description: "As indicações foram registradas e os e-mails foram enviados.",
-                    type: "ok"
+                    type: "success"
                 });
                 onFinish(participants as IParticipant[]);
             }
@@ -125,9 +113,8 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
 
     return (
         <>
-
             <Form.Root onSubmit={handleAddPeople}>
-                <div className="md:flex">
+                <div className="md:flex gap-2">
                     <InputField
                         name="fullName"
                         value={fullName}
@@ -145,50 +132,81 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                     />
                 </div>
                 {(participants?.length || 0) > 0 && (
-                    <Table.Root variant="surface" className="w-full mt-3">
-                        <Table.Header className="text-[16px]">
-                            <Table.Row align="center" className="text-center">
-                                <Table.ColumnHeaderCell className="border-l">Nome</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">E-mail</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">Remover indicação</Table.ColumnHeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Body>
-                            {participants?.map((people) => (
-                                <Table.Row align="center">
-                                    <Table.Cell justify="center">{people?.personalData?.fullName}</Table.Cell>
-                                    <Table.Cell justify="center">{people?.personalData?.email}</Table.Cell>
-                                    <Table.Cell justify="center">
-                                        <IconButton
-                                            onClick={() => handleDeleteParticipantIndicated(people?.personalData?.email as string)}
-                                            color="red"
-                                            size="2"
-                                            className="hover:cursor-pointer"
-                                            variant="soft"
-                                            radius="full">
-                                            <Icon.Trash
-                                                size={20}
-                                                weight="bold"
-                                            />
-
-                                        </IconButton>
-
-                                    </Table.Cell>
+                    <>
+                        <Table.Root variant="surface" className="w-full mt-3 desktop">
+                            <Table.Header className="text-[16px]">
+                                <Table.Row align="center" className="text-center">
+                                    <Table.ColumnHeaderCell className="border-l">Nome</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell className="border-l">E-mail</Table.ColumnHeaderCell>
+                                    <Table.ColumnHeaderCell className="border-l">Remover indicação</Table.ColumnHeaderCell>
                                 </Table.Row>
+                            </Table.Header>
+                            <Table.Body>
+                                {participants?.map((people) => (
+                                    <Table.Row align="center">
+                                        <Table.Cell justify="center">{people?.personalData?.fullName}</Table.Cell>
+                                        <Table.Cell justify="center">{people?.personalData?.email}</Table.Cell>
+                                        <Table.Cell justify="center">
+                                            <IconButton
+                                                onClick={() => handleDeleteParticipantIndicated(people?.personalData?.email as string)}
+                                                color="red"
+                                                size="2"
+                                                className="hover:cursor-pointer"
+                                                variant="soft"
+                                                radius="full">
+                                                <Icon.Trash
+                                                    size={20}
+                                                    weight="bold"
+                                                />
 
-                            ))}
-                        </Table.Body>
-                    </Table.Root>
+                                            </IconButton>
+
+                                        </Table.Cell>
+                                    </Table.Row>
+
+                                ))}
+                            </Table.Body>
+                        </Table.Root>
+                        <div className="mobo ">
+                            <DataList.Root orientation={"vertical"} className="!font-roboto"  >
+                                <DataList.Item >
+                                    <p className="text-[16px] font-bold text-center  border-b-black mt-5">Informações do participante</p>
+                                    {participants?.map((participant) => (
+                                        <div className="w-full p-2 rounded-lg mb-5 border-2 card-container" key={participant._id}>
+
+                                            <DataList.Label minWidth="88px" >Nome</DataList.Label>
+
+                                            <DataList.Value >{participant?.personalData?.fullName}</DataList.Value>
+                                            <Separator size={"4"} className="mb-2 mt-2" />
+
+                                            <DataList.Label minWidth="88px">E-mail</DataList.Label>
+
+                                            <DataList.Value >
+                                                {participant?.personalData?.email}
+                                            </DataList.Value>
+                                            <Separator size={"4"} className="mb-2 mt-2" />
+
+                                            <DataList.Label color="red"
+                                                onClick={() => handleDeleteParticipantIndicated(participant?.personalData?.email as string)} minWidth="88px" className="flex justify-center mb-2 border border-red-300 cursor-pointer hover:bg-red-100">Remover</DataList.Label>
+
+                                        </div>
+                                    ))}
+                                </DataList.Item>
+
+                            </DataList.Root>
+                        </div>
+                    </>
                 )}
-                <div className="flex justify-between mt-5 ">
+                <div className="flex justify-between mt-5">
                     <Form.Submit asChild>
-                        <Button size="Extra Small" className="hover:cursor-pointer" title={`Adicionar`} color={"gray"}></Button>
+                        <Button size="Extra Small" className="hover:cursor-pointer" title={`Adicionar`} color={"primary"}></Button>
                     </Form.Submit>
                     <Button
                         size="Extra Small"
-                        color={participants.length ? "green" : ""}
-                        disabled={!participants.length}                        
-                        onClick={onSubmit} 
+                        className={`disabled:hover:cursor-not-allowed`}
+                        color={participants.length ? "green" : "white"}
+                        disabled={!participants.length}
+                        onClick={onSubmit}
                         title={"Finalizar"}                    >
 
                     </Button>

@@ -26,7 +26,7 @@ const MultipleSelect = ({ options, values, onChange, placeholder }: MultipleSele
     };
 
     return (
-        <div className="mx-auto sm:w-1/3">
+        <div className="mx-auto w-[50%] max-lg:w-full">
             <Select
                 className="mt-3 text-black"
                 isMulti

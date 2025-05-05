@@ -1,17 +1,15 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Header } from '../../components/Header/Header';
 import * as Icon from '@phosphor-icons/react';
 import { IParticipant } from '../../interfaces/participant.interface';
 import { useLocation } from "react-router-dom";
-import { Box, Flex, Text, HoverCard, Separator, Tooltip, Popover, TextArea } from '@radix-ui/themes';
+import { Flex, Text, HoverCard, Separator, Tooltip, Popover, TextArea, Box } from '@radix-ui/themes';
 import Notify from '../../components/Notify/Notify';
 import { Button } from "../../components/Button/Button"
 import { Alert } from '../../components/Alert/Alert';
 import { getParticipantDataBio, patchSaveEvalueAutobiography } from '../../api/participant.api';
 import { ISample } from '../../interfaces/sample.interface';
 import IBio from '../../interfaces/evaluateAutobiography.interface';
-
-
+import BackToTop from '../../components/BackToTop/BackToTop';
 
 interface MarkedText {
     id: number;
@@ -34,18 +32,32 @@ const EvaluateAutobiography: React.FC = () => {
     const [selectedText, setSelectedText] = useState<string | null>(null);
     const [selectionRange, setSelectionRange] = useState<{ start: number, end: number } | null>(null);
     const commentInputRef = useRef<HTMLTextAreaElement>(null);
-    const [notificationTitle, setNotificationTitle] = useState("");
-    const [notificationDescription, setNotificationDescription] = useState("");
-    const [notificationIcon, setNotificationIcon] = useState<React.ReactNode>();
-    const [notificationClass, setNotificationClass] = useState("");
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+        type: "",
+    });
     const [limit, setLimit] = useState<boolean>(false);
     const [open, setOpen] = useState<boolean>(false);
+    const [openMarks, setOpenMarks] = useState<boolean>(false);
     const [error, setError] = useState();
 
     const location = useLocation();
     const { participant, sample } = location.state as LocationState;
+    const [isDesktop, setIsDesktop] = useState(false);
 
-    console.log(markedTextsBack)
+
+
+
+    useEffect(() => {
+        const checkScreen = () => {
+            setIsDesktop(window.innerWidth >= 1020);
+        };
+
+        checkScreen();
+        window.addEventListener("resize", checkScreen);
+        return () => window.removeEventListener("resize", checkScreen);
+    }, []);
 
     useEffect(() => {
         const fetchData = async () => {
@@ -56,13 +68,13 @@ const EvaluateAutobiography: React.FC = () => {
                 });
 
                 const transformedData = data.evaluateAutobiography.map((item: IBio) => ({
-                    id: item.id,
-                    text: item.text,
-                    comment: item.comment,
-                    mark: item.mark,
-                    start: item.start,
-                    end: item.end,
-                    background: item.background,
+                    id: item.id ?? 0,
+                    text: item.text ?? "",
+                    comment: item.comment ?? "",
+                    mark: item.mark ?? "",
+                    start: item.start ?? 0,
+                    end: item.end ?? 0,
+                    background: item.background ?? "",
                 }));
 
                 if (Array.isArray(transformedData)) {
@@ -71,7 +83,6 @@ const EvaluateAutobiography: React.FC = () => {
                     console.error("Expected evaluateAutobiography to be an array", transformedData);
                 }
 
-                console.log(transformedData);
             } catch (error: any) {
                 setError(error);
             }
@@ -84,12 +95,18 @@ const EvaluateAutobiography: React.FC = () => {
 
 
 
+    const handleOpenBox = () => {
+        setOpen(!open)
+    }
+
     const handleSaveEvalueAutobiography = async (submitForm?: boolean) => {
         if (submitForm && markedTexts.length === 0) {
-            setNotificationTitle("Preencha pelo menos um campo");
-            setNotificationDescription("Para salvar, é obrigatório adicionar um comentário.");
-            setNotificationIcon(<Icon.WarningCircle size={30} color="white" weight="bold" />)
-            setNotificationClass("bg-yellow-400");
+            setNotificationData({
+                title: "Preencha pelo menos um campo!",
+                description: "Para salvar, é obrigatório adicionar um comentário.",
+                type: "aviso"
+            });
+
             return;
         }
 
@@ -113,22 +130,25 @@ const EvaluateAutobiography: React.FC = () => {
             const success = responses.every(response => response === true);
 
             if (success) {
-                setNotificationTitle("Comentários Salvos!");
-                setNotificationDescription("Os comentários foram salvos com sucesso!");
-                setNotificationIcon(<Icon.CheckCircle size={30} color="white" weight="bold" />);
-                setNotificationClass("bg-green-500")
+                setNotificationData({
+                    title: "Comentários salvos com sucesso!",
+                    description: "Os comentários foram salvos com sucesso!",
+                    type: "success"
+                });
                 window.location.reload()
             } else {
-                setNotificationTitle("Erro ao salvar os comentários!");
-                setNotificationDescription("Houve um erro ao salvar os comentários!");
-                setNotificationIcon(<Icon.XCircle size={30} color="white" weight="bold" />);
-                setNotificationClass("bg-red-500")
+                setNotificationData({
+                    title: "Erro ao salvar os comentários!",
+                    description: "Houve um erro ao salvar os comentários!",
+                    type: "erro"
+                });
             }
         } catch (error) {
-            setNotificationTitle("Erro ao salvar os comentários!");
-            setNotificationDescription("Houve um erro ao salvar os comentários!");
-            setNotificationIcon(<Icon.XCircle size={30} color="white" weight="bold" />);
-            setNotificationClass("bg-red-500")
+            setNotificationData({
+                title: "Erro ao salvar os comentários!",
+                description: "Houve um erro ao salvar os comentários!",
+                type: "erro"
+            });
             console.error(error);
         }
     };
@@ -156,56 +176,52 @@ const EvaluateAutobiography: React.FC = () => {
                         setSelectionRange({ start, end });
                         selection.removeAllRanges();
                         setLimit(false);
-                        console.log(selectedText);
                     } else {
-                        setNotificationTitle("Limite de caracteres atingido.");
-                        setNotificationDescription("Selecione menos caracteres para a marcação!");
-                        setLimit(true);
-                        setNotificationIcon(<Icon.WarningCircle size={30} color="white" weight="bold" />);
-                        setNotificationClass("bg-yellow-400");
+                        setNotificationData({
+                            title: "Seleção fora do limite permitido!",
+                            description: "Por favor, selecione o texto dentro da autobiografia.",
+                            type: "aviso"
+                        });
                     }
                 } else {
-                    setNotificationTitle("Seleção fora do limite permitido!");
-                    setNotificationDescription("Por favor, selecione o texto dentro da autobiografia.");
-                    setLimit(true);
-                    setNotificationIcon(<Icon.WarningCircle size={30} color="white" weight="bold" />);
-                    setNotificationClass("bg-yellow-400");
+                    setNotificationData({
+                        title: "Seleção fora do limite permitido!",
+                        description: "Por favor, selecione o texto dentro da autobiografia.",
+                        type: "aviso"
+                    });
+
                 }
             } else {
-                setNotificationTitle("Nenhum texto selecionado!");
-                setNotificationDescription("Selecione o texto para fazer a marcação!");
-                setLimit(true);
-                setNotificationIcon(<Icon.WarningCircle size={30} color="white" weight="bold" />);
-                setNotificationClass("bg-yellow-400");
+                setNotificationData({
+                    title: "Nenhum texto selecionado!",
+                    description: "Selecione o texto para fazer a marcação!",
+                    type: "aviso"
+                });
+
             }
         }
     };
 
     const handleRemoveComment = (id: number) => {
         setMarkedTexts(prev => prev.filter(markedText => markedText.id !== id));
-        setNotificationTitle("Comentário Excluído")
-        setNotificationDescription("O comentário e a marcação foram excluídos com sucesso!")
-        setNotificationIcon(<Icon.CheckCircle size={30} color="white" />)
-        setNotificationClass("bg-green-500")
+        setNotificationData({
+            title: "Comentário Excluído",
+            description: "O comentário e a marcação foram excluídos com sucesso!",
+            type: "success"
+        });
     };
 
     const handleRemoveCommentBack = (id: number) => {
         setMarkedTextsBack(prev => prev.filter(markedTextsBack => markedTextsBack.id !== id));
-        setNotificationTitle("Comentário Excluído")
-        setNotificationDescription("O comentário e a marcação foram excluídos com sucesso!")
-        setNotificationIcon(<Icon.CheckCircle size={30} color="white" />)
-        setNotificationClass("bg-green-500") 
+        setNotificationData({
+            title: "Comentário Excluído",
+            description: "O comentário e a marcação foram excluídos com sucesso!",
+            type: "success"
+        });
+
     }
 
-    // const handleOpenBox = () => {
-    //     if (open === false) {
-    //         setOpen(true)
-    //     } else {
-    //         setOpen(false)
-    //     }
-
-    // }
-    const handleAddComment = (title: string, bg: string) => {
+    const handleAddComment = (title: string, bg: string,) => {
         if (selectedText && commentInputRef.current && selectionRange) {
             const comment = commentInputRef.current.value;
             if (comment) {
@@ -235,7 +251,7 @@ const EvaluateAutobiography: React.FC = () => {
     };
 
     const Marks = [
-        { title: "Criatividade", gradienteBG: `bg-gradient-to-r from-red-400 to-red-500`, bg: "bg-red-400", borderColor: "border-red-500" },
+        { title: "Criatividade", gradienteBG: `bg-gradient-to-r from-red-400 to-red-500`, bg: "bg-red-400", borderColor: `border-red-500` },
         { title: "Liderança", gradienteBG: `bg-gradient-to-r from-amber-400 to-amber-500`, bg: "bg-amber-400", borderColor: "border-amber-500" },
         { title: "Características Gerais", gradienteBG: `bg-gradient-to-r from-lime-400 to-lime-500`, bg: "bg-lime-400", borderColor: "border-lime-500" },
         { title: "Habilidades acima da média", gradienteBG: `bg-gradient-to-r from-sky-400 to-sky-500`, bg: "bg-sky-400", borderColor: "border-sky-500" },
@@ -261,11 +277,16 @@ const EvaluateAutobiography: React.FC = () => {
                                 {marked}
                             </span>
                         </HoverCard.Trigger>
-                        <HoverCard.Content size="3">
+                        <HoverCard.Content size="3" className={`!p-3 drop-shadow-xl ${markedText.mark === "Criatividade" ? "bg-gradient-to-tl from-red-50 to-red-400 " :
+                            markedText.mark === "Liderança" ? "bg-gradient-to-tl from-amber-50 to-amber-400" :
+                                markedText.mark === "Características Gerais" ? "bg-gradient-to-tl from-lime-50 to-lime-400" :
+                                    markedText.mark === "Habilidades acima da média" ? "bg-gradient-to-tl from-sky-50 to-sky-400" :
+                                        markedText.mark === "Comprometimento com a tarefa" ? "bg-gradient-to-tl from-violet-50 to-violet-400" :
+                                            markedText.mark === "Atividades artísticas e esportivas" ? "bg-gradient-to-tl from-pink-50 to-pink-400" : ""} 
+                                    }  `} >
                             <Flex gap="4" direction="column">
-
                                 <Box>
-                                    <Text as="div" size="3" color="gray" mb="2" className='font-bold'>
+                                    <Text as="p" size="3" mb="2" className='font-bold'>
                                         Comentário
                                     </Text>
                                     <Text size="2" as="p" className='text-justufy'>
@@ -274,13 +295,12 @@ const EvaluateAutobiography: React.FC = () => {
 
                                 </Box>
                                 <Flex direction="column" align="center">
-                                    <Separator size="4"></Separator>
-
+                                    <Separator size="4" className="my-2" />
                                     <Alert
                                         trigger={
                                             <Box>
                                                 <Tooltip content={"Excluir marcação"}>
-                                                    <Button size='Medium' color="red" title={''} children={<Icon.Trash />} />
+                                                    <Button className='w-full' size='Extra Small' color="red" title={''} children={<Icon.Trash />} />
                                                 </Tooltip>
                                             </Box>}
 
@@ -312,11 +332,17 @@ const EvaluateAutobiography: React.FC = () => {
                                 {marked}
                             </span>
                         </HoverCard.Trigger>
-                        <HoverCard.Content size="3" >
+                        <HoverCard.Content size="3" className={`!p-3 drop-shadow-xl ${markedTextBack.mark === "Criatividade" ? "bg-gradient-to-tl from-red-50 to-red-400 " :
+                            markedTextBack.mark === "Liderança" ? "bg-gradient-to-tl from-amber-50 to-amber-400" :
+                                markedTextBack.mark === "Características Gerais" ? "bg-gradient-to-tl from-lime-50 to-lime-400" :
+                                    markedTextBack.mark === "Habilidades acima da média" ? "bg-gradient-to-tl from-sky-50 to-sky-400" :
+                                        markedTextBack.mark === "Comprometimento com a tarefa" ? "bg-gradient-to-tl from-violet-50 to-violet-400" :
+                                            markedTextBack.mark === "Atividades artísticas e esportivas" ? "bg-gradient-to-tl from-pink-50 to-pink-400" : ""} 
+                                    }  `} >
                             <Flex gap="4" direction="column">
 
                                 <Box>
-                                    <Text as="div" size="3" color="gray" mb="2" className='font-bold'>
+                                    <Text as="p" size="3" mb="2" className='font-bold'>
                                         Comentário
                                     </Text>
                                     <Text size="2" as="p" className='text-justufy'>
@@ -324,14 +350,14 @@ const EvaluateAutobiography: React.FC = () => {
                                     </Text>
 
                                 </Box>
-                                <Flex direction="column" align="center">
-                                    <Separator size="4"></Separator>
+                                <Flex direction="column" align="center" gap="2">
+                                    <Separator size="4" />
 
                                     <Alert
                                         trigger={
-                                            <Box>
+                                            <Box >
                                                 <Tooltip content={"Excluir marcação"}>
-                                                    <Button size='Medium' color="red" title={''} children={<Icon.Trash />} />
+                                                    <Button size='Extra Small' color="red" title={''} children={<Icon.Trash />} />
                                                 </Tooltip>
                                             </Box>}
 
@@ -339,7 +365,7 @@ const EvaluateAutobiography: React.FC = () => {
                                         description={'Tem certeza que deseja excluir a marcação e o comentário?'}
                                         buttoncancel={<Button color="gray" title={'Cancelar'} size={'Small'}>
                                         </Button>}
-                                        buttonAction={<Button onClick={() => handleRemoveCommentBack(markedTextBack.id)} title={'Sim, Excluir'} color="red" size={'Small'}>
+                                        buttonAction={<Button onClick={() => handleRemoveCommentBack(markedTextBack.id)} title={'Sim, Excluir'} color="red" size={'Small'} >
                                         </Button>} />
                                 </Flex>
                             </Flex>
@@ -356,104 +382,263 @@ const EvaluateAutobiography: React.FC = () => {
     return (
 
         <Notify
-            open={!!notificationTitle}
-            onOpenChange={() => setNotificationTitle("")}
-            title={notificationTitle}
-            description={notificationDescription}
-            icon={notificationIcon}
-            className={notificationClass}
+            open={!!notificationData.title}
+            onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
+            title={notificationData.title}
+            description={notificationData.description}
+            icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
+            className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
-            <Header title="Avaliar Autobiografia" icon={<Icon.Books size={24} />} />
-            <Box>
-                <Flex direction="row" justify="center" align="center" gap="2" className='mb-5'>
-                    <Icon.User weight="bold" size={30} />
-                    <Text as="label" size="8">{participant.personalData.fullName}   </Text>
-                </Flex>
-            </Box>
-            <Flex gap="6" className='w-full h-[450px] mt-5'>
-                <Box className='bg-violet-300 rounded-xl '>
-                    <Flex align="center" direction="column" >
-                        <Flex gap="3" direction="row" className="mt-3">
-                            <Text as="label" size="5" className="font-bold mb-5 text-white">
-                                Marcadores
-                            </Text>
-                            <Icon.Highlighter size={25} color='white' weight="bold" />
+            <div className=" min-h-screen px-4 max-xl:p-2">
+                {/* Cabeçalho */}
+                <header className="mb-2 max-xl:mb-4 text-center">
+                    <Flex align="center" justify="center" gap="3" className="mb-4">
+                        <Icon.User weight="bold" size={32} className="text-violet-600" />
+                        <h1 className="heading-1">{participant.personalData.fullName}</h1>
+                    </Flex>
+                    <Text size="5" className="text-neutral-600">
+                        Análise de Autobiografia
+                    </Text>
+                </header>
+
+                {/* Corpo Principal */}
+                <main className="max-w-7xl mx-auto">
+                    <Flex direction={isDesktop ? "row" : "column"} gap="6">
+                        {/* Coluna de Marcadores */}
+                        <Box className={`desktop card-container w-full ${isDesktop ? 'max-w-[25%]' : ''}`}>
+                            <Flex direction="column" p="4" gap="4">
+                                <Flex align="center" gap="3" className="mb-2 ">
+                                    <Icon.Highlighter size={24} className="text-violet-600" />
+                                    <h2 className="heading-2">Marcadores</h2>
+                                </Flex>
+
+                                {Marks.map((mark, index) => (
+                                    <Popover.Root key={index}>
+                                        <Popover.Trigger>
+                                            <button
+                                                className={`btn-primary w-full p-3 text-left rounded-lg ${mark.gradienteBG} text-white font-medium hover:shadow-md`}
+                                                onClick={handleTextSelection}
+                                            >
+                                                {mark.title}
+                                            </button>
+                                        </Popover.Trigger>
+                                        <Popover.Content className={`${limit ? "invisible" : ""} ${mark.gradienteBG}`} width="360px">
+                                            <Flex gap="3">
+                                                <Box flexGrow="1">
+                                                    <TextArea
+                                                        className="bg-white"
+                                                        placeholder="Escreva um comentário..."
+                                                        style={{ height: 80 }}
+                                                        ref={commentInputRef}
+                                                    />
+                                                    <Flex gap="3" mt="3" justify="between">
+                                                        <Popover.Close>
+                                                            <Button
+                                                                onClick={() => handleAddComment(mark.title, mark.bg)}
+                                                                title={"Inserir Comentário"}
+                                                                className="w-full"
+                                                                color="green"
+                                                                size={"Medium"}
+                                                            />
+                                                        </Popover.Close>
+                                                    </Flex>
+                                                </Box>
+                                            </Flex>
+                                        </Popover.Content>
+                                    </Popover.Root>
+                                ))}
+                            </Flex>
+                        </Box>
+                        <Flex
+                            className={`w-full mobo card-container overflow-x-auto flex gap-2  rounded-xl transition-all duration-300`}
+
+                        >
+                            <Flex p="4" gap="3" align="center" justify={'start'} className="mb-3 border-b border-neutral-100">
+                                <Flex gap="3" align="center" className="">
+                                    <Icon.Highlighter size={24} className="text-violet-600" />
+                                    <Text as="label" size="5" className="font-bold heading-2">
+                                        Marcadores
+                                    </Text>
+
+                                </Flex>
+                                <Icon.CaretDown
+                                    onClick={() => setOpenMarks(!openMarks)}
+                                    size={25}
+                                    className={`heading-2 cursor-pointer transform transition-transform duration-300 ease-in-out ${openMarks ? "rotate-180" : ""
+                                        }`}
+                                />
+                            </Flex>
+                            <div className={`mb-2 transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden flex flex-wrap gap-3 max-sm:gap-1 justify-center ${!openMarks
+                                ? "opacity-100 max-h-[500px] translate-y-0"
+                                : "opacity-0 max-h-0 -translate-y-2"
+                                }`}>
+                                {Marks.map((mark, index) => (
+                                    <Popover.Root key={index}>
+                                        <Popover.Trigger>
+                                            <div className=" rounded group group/item" children={<button
+                                                className={` btn-primary-mobo flex-shrink-0 w-10 h-10 text-sm font-semibold text-white rounded-full ${mark.gradienteBG} active:scale-95 transition-transform border border-white`}
+                                                onClick={handleTextSelection}
+                                            >
+                                            </button>} >
+
+                                            </div>
+                                        </Popover.Trigger>
+                                        <Popover.Content sideOffset={5} align="start" className={`z-50 bg-white p-4 rounded shadow-lg w-[90vw] ${mark.gradienteBG} max-w-sm ${limit ? "invisible" : ""}`}>
+                                            <Text className={`text-sm font-semibold  text-white rounded-full px-2 py-1`}>
+                                                {mark.title}
+                                            </Text>
+                                            <TextArea
+                                                className={`w-full`}
+                                                placeholder="Escreva um comentário...."
+                                                style={{ height: 80 }}
+                                                ref={commentInputRef}
+                                            />
+                                            <Flex gap="3" mt="3" justify="between">
+                                                <Popover.Close>
+                                                    <Button
+                                                        onClick={() => handleAddComment(mark.title, mark.bg)}
+                                                        title="Inserir Comentário"
+                                                        className="w-full"
+                                                        color="green"
+                                                        size="Small"
+                                                    />
+                                                </Popover.Close>
+                                            </Flex>
+                                        </Popover.Content>
+                                    </Popover.Root>
+                                ))}
+                            </div>
+
+                            <div className={`transition-all duration-300 ease-[cubic-bezier(0.4,0,0.2,1)] overflow-hidden  ${openMarks
+                                ? "opacity-100 max-h-[500px] translate-y-0"
+                                : "opacity-0 max-h-0 -translate-y-2"
+                                }`}>
+                                {Marks.map((mark, index) => (
+                                    <Popover.Root key={index}>
+                                        <Popover.Trigger>
+                                            <button
+                                                className={`btn-primary-mobo w-[80%] py-3 px-2 text-left rounded-lg ${mark.gradienteBG} text-white font-medium hover:shadow-md mb-2`}
+                                                onClick={handleTextSelection}
+                                            >
+                                                {mark.title}
+                                            </button>
+                                        </Popover.Trigger>
+                                        <Popover.Content className={limit ? "invisible" : ""} width="360px">
+                                            <Flex gap="3">
+                                                <Box flexGrow="1">
+                                                    <TextArea
+                                                        className="bg-white"
+                                                        placeholder="Escreva um comentário..."
+                                                        style={{ height: 80 }}
+                                                        ref={commentInputRef}
+                                                    />
+                                                    <Flex gap="3" mt="3" justify="between">
+                                                        <Popover.Close>
+                                                            <Button
+                                                                onClick={() => handleAddComment(mark.title, mark.bg)}
+                                                                title={"Inserir Comentário"}
+                                                                className="w-full"
+                                                                color="green"
+                                                                size={"Medium"}
+                                                            />
+                                                        </Popover.Close>
+                                                    </Flex>
+                                                </Box>
+                                            </Flex>
+                                        </Popover.Content>
+                                    </Popover.Root>
+                                ))}
+                            </div>
+
                         </Flex>
 
-                        {Marks.map((mark, index) => (
-                            <Flex key={index} justify="center" className="w-full mb-3 rounded group group/item">
-                                <Popover.Root>
-                                    <Popover.Trigger>
-                                        <Flex align="center" className="relative  group/edit group-hover/item:drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] group-active:translate-x-5 ">
-                                            <button
-                                                className={`relative z-10 m-auto w-[200px] h-[50px] px-5 rounded-none text-[14px] text-white font-semibold ${mark.gradienteBG}`}
-                                                onClick={handleTextSelection}>
-                                                {mark.title}
-                                                <div className={`absolute top-0 right-[-40px] w-0 h-0 border-t-[25px] border-t-transparent border-b-[25px] border-b-transparent border-l-[40px] 
-                                                ${mark.borderColor}`}></div>
-                                            </button>
-
-                                        </Flex>
-                                    </Popover.Trigger>
-                                    <Popover.Content className={limit ? "invisible" : ""} width="360px">
-                                        <Flex gap="3">
-                                            <Box flexGrow="1">
-                                                <TextArea
-                                                    className='bg-white'
-                                                    placeholder="Escreva um comentário..."
-                                                    style={{ height: 80 }}
-                                                    ref={commentInputRef}
-                                                />
-                                                <Flex gap="3" mt="3" justify="between">
-                                                    <Popover.Close>
-                                                        <Button onClick={() => handleAddComment(mark.title, mark.bg)} title={'Salvar Comentário'} className={`w-full`} color="green" size={''} />
-                                                    </Popover.Close>
-                                                </Flex>
-                                            </Box>
-                                        </Flex>
-                                    </Popover.Content>
-                                </Popover.Root>
-                            </Flex>
-                        ))}
-                    </Flex>
-                </Box>
-                <Flex className='w-full overflow-auto border-2 rounded-lg  bg-white'>
-                    <p id="autobiography" className="p-10 text-justify h-[450px] ">
-                        {renderMarkedTexts(participant?.autobiography?.text || "")}
-                    </p>
-                </Flex>
-                {/* <Button
-                    color={'primary'}
-                    size='Extra Small'
-                    className={`absolute top-40 right-10 `}
-                    title={`${open === false ? "Mostrar" : "Ocultar"} marcações`}
-                    onClick={() => handleOpenBox()}
-
-                ></Button> */}
-                <Box className={`${!open ? "scale-0" : "scale-100 w-[50%]"} bg-white`}>
-                    <Flex direction="column" className={`p-2 border-2 rounded-lg h-[450px] overflow-auto origin-right ${!open ? "scale-0" : "scale-100"} duration-500 `}>
-                        {markedTexts.map((marked, index) => (
-                            <Box className={`${!open ? "scale-0" : "transition-opacity opacity-100"} border-b-2 mb-1 p-2 '}`}>
-                                <Box>
-                                    <p>Marcação:</p>
-                                    <p key={index} className={`${marked.background} mb-1 text-justify rounded-sm px-1`}>
-                                        {marked.text}
-                                    </p>
-                                    <p>Comentário:</p>
-                                    <p className='font-semibold  text-justify'>
-                                        {marked.comment}
+                        {/* Área de Texto */}
+                        <Box className="card-container  w-[70%] max-xl:w-full">
+                            <Flex direction="column" className="h-full">
+                                <Flex p="4" align="center" gap="3" className="border-b border-neutral-100">
+                                    <Icon.Notebook size={24} className="text-violet-600" />
+                                    <h2 className="heading-2">Autobiografia</h2>
+                                </Flex>
+                                <Box className="p-6 overflow-auto h-[60vh]">
+                                    <p id="autobiography" className="text-justify leading-relaxed text-neutral-700">
+                                        {renderMarkedTexts(participant?.autobiography?.text || "")}
                                     </p>
                                 </Box>
-                            </Box>
-                        ))}
+                            </Flex>
+                        </Box>
+
+                        {/* Painel de Comentários */}
+                        <Box
+                            id="comments-panel"
+                            className={`card-container ${isDesktop ? 'w-[350px]' : 'w-full'}
+                            transition-all duration-300 ease-in-out overflow-hidden ${open ? "opacity-100 scale-100 max-xl:max-h-[1000px]" : "opacity-0 scale-95 translate-x-4 !w-0 max-xl:max-h-0"}`}
+                        >
+                            <Flex direction="column" className="h-full">
+                                <Flex p="4" align="center" gap="3" className="border-b border-neutral-100">
+                                    <Icon.ChatCircleText size={24} className="text-violet-600" />
+                                    <h2 className="heading-2">Comentários</h2>
+                                </Flex>
+                                <Box className={`p-4 overflow-auto h-[50vh] `} >
+                                    {markedTexts.map((marked, index) => (
+                                        <Box key={index} className={`mb-4 last:mb-0 p-3  rounded-lg ${marked.background} text-left`}>
+                                            <Text size="2" className="font-medium text-neutral-700 mb-1 ">
+                                                {marked.mark}: &nbsp;
+                                            </Text>
+                                            <Text size="1" className="text-neutral-500 mb-2">
+                                                "{marked.text}"
+                                            </Text>
+                                            <br></br>
+                                            <Text size="2" className="text-neutral-700 font-medium ">
+                                                Comentário: &nbsp;
+                                            </Text>
+                                            <Text size="1" className="text-neutral-500 mb-2">
+                                                {marked.comment}
+                                            </Text>
+                                        </Box>
+                                    ))}
+                                    {markedTextsBack.map((marked, index) => (
+                                        <Box key={index} className={`mb-4 last:mb-0 p-3  rounded-lg ${marked.background} text-left`}>
+                                            <Text size="2" className="font-medium text-neutral-700 mb-1 ">
+                                                {marked.mark}: &nbsp;
+                                            </Text>
+                                            <Text size="1" className="text-neutral-500 mb-2">
+                                                "{marked.text}"
+                                            </Text>
+                                            <br></br>
+                                            <Text size="2" className="text-neutral-700 font-medium ">
+                                                Comentário: &nbsp;
+                                            </Text>
+                                            <Text size="1" className="text-neutral-500 mb-2">
+                                                {marked.comment}
+                                            </Text>
+                                        </Box>
+                                    ))}
+                                </Box>
+                            </Flex>
+                        </Box>
                     </Flex>
-                </Box>
-            </Flex>
-            <Box className='w-[200px] m-auto'>
-                <Button onClick={() => handleSaveEvalueAutobiography(true)} size='Medium' title={'Salvar'} className='w-full' color={'green'} />
 
+                    {/* Ações */}
+                    <Flex justify="center" gap="4" className="mt-8">
+                        <Button
+                            onClick={() => handleSaveEvalueAutobiography(true)}
+                            size="Medium"
+                            title="Salvar Análise"
+                            className="btn-primary px-8"
+                            color="green"
+                        />
+                        <Button
+                            color="primary"
+                            size="Medium"
+                            title={`${open ? "Ocultar" : "Mostrar"} Comentários`}
+                            onClick={() => handleOpenBox()}
 
-            </Box>
+                        />
+                    </Flex>
+                </main>
+
+                <BackToTop />
+            </div>
         </Notify>
     );
 };

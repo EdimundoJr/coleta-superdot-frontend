@@ -2,7 +2,9 @@ const CardAction = ({ children, disabled, ...rest }: React.ButtonHTMLAttributes<
     return (
         <button
             disabled={disabled}
-            className={`h-8 rounded-md ${disabled ? "bg-gray-300 hover:cursor-not-allowed" : "bg-primary hover:bg-secondary houver:text-white border 2px "} px-2 py-1 text-white  w-[200px]`}
+            className={`h-10 !w-[200px] rounded-md px-4 py-2 text-white transition-all focus:outline-none 
+                ${disabled ? "bg-gray-300 cursor-not-allowed" : "bg-primary hover:bg-secondary border-2"} 
+                w-full sm:w-auto`}
             {...rest}
         >
             {children}

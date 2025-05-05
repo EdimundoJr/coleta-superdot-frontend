@@ -7,6 +7,7 @@ import { TextAreaField } from "../../TextAreaField/TextAreaField";
 import { setUserRole } from "../../../api/auth.api";
 import { USER_ROLE, USER_ROLES_ARRAY } from "../../../utils/consts.utils";
 import { Button } from "../../Button/Button";
+import { Flex } from "@radix-ui/themes";
 
 
 interface ChangeRoleFormProps {
@@ -38,7 +39,6 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
                 onFinish(data.newRole);
                 return;
             }
-            console.log(response);
         } catch (e) {
             console.error(e);
         }
@@ -46,25 +46,28 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
 
     return (
         <Form.Root onSubmit={onSubmit}>
-            <SelectField
-                defaultValue={currentUserRole}
-                errorMessage={errors?.newRole?.message}
-                label="Perfil"
-                {...register("newRole")}
-            >
-                
-                <option>Pesquisador</option>
-                <option>Revisor</option>
-                <option>Administrador</option>
-            </SelectField>
-            <TextAreaField
-                errorMessage={errors?.emailMessage?.message}
-                label="Mensagem (será enviada ao e-mail do usuário)"
-                {...register("emailMessage")}
-            />
-            <Form.Submit asChild>
-                <Button  title={"Salvar"} color={"green"} size={"Medium"} />
-            </Form.Submit>
+            <Flex direction={"column"} gap={"3"}>
+                <SelectField
+                    defaultValue={currentUserRole}
+                    errorMessage={errors?.newRole?.message}
+                    label="Perfil"
+                    {...register("newRole")}
+                >
+
+                    <option>Pesquisador</option>
+                    <option>Revisor</option>
+                    <option>Administrador</option>
+                </SelectField>
+                <TextAreaField
+                    errorMessage={errors?.emailMessage?.message}
+                    label="Mensagem (será enviada ao e-mail do usuário)"
+                    {...register("emailMessage")}
+                    className="border-2 border-gray-300"
+                />
+                <Form.Submit asChild>
+                    <Button title={"Salvar"} color={"green"} size={"Medium"} />
+                </Form.Submit>
+            </Flex>
         </Form.Root>
     );
 };

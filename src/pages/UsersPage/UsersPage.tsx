@@ -12,9 +12,9 @@ import Notify from "../../components/Notify/Notify";
 import { usersPageSearchFormSchema } from "../../schemas/usersPage.schema";
 import { USER_ROLE } from "../../utils/consts.utils";
 import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
-import { Header } from "../../components/Header/Header";
 import { Button } from "../../components/Button/Button";
 import * as Icon from "@phosphor-icons/react";
+import { AnimatePresence, motion } from "framer-motion";
 
 const UsersPage = () => {
     const {
@@ -30,8 +30,21 @@ const UsersPage = () => {
     const [currentUserRole, setCurrentUserRole] = useState<USER_ROLE>("Pesquisador");
     const [loading, setLoading] = useState(true)
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
+    const [showSearch, setShowSearch] = useState(false);
+    const [isDesktop, setIsDesktop] = useState(false);
 
     const [modalOpen, setModalOpen] = useState(false);
+    const showFilters = isDesktop || showSearch;
+
+    useEffect(() => {
+        const checkScreen = () => {
+            setIsDesktop(window.innerWidth >= 1020);
+        };
+
+        checkScreen();
+        window.addEventListener("resize", checkScreen);
+        return () => window.removeEventListener("resize", checkScreen);
+    }, []);
 
     useEffect(() => {
         const getPage = async () => {
@@ -82,13 +95,13 @@ const UsersPage = () => {
                 icon={<Icon.CheckCircle size={30} color="white" />}
                 className="bg-green-400"
             >
-                <Header title="Usuários" icon={<Icon.UserGear size={24} />}></Header>
-                <Box className="w-full pt-10 pb-10">
+
+                {/* <Box className="w-full pt-10 pb-10 ">
                     <Form.Root
                         onSubmit={handleSubmit((data) => setFilters(data))}
                         className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-1 ">
                         <Form.Submit asChild>
-                            <Button className="items-center w-[200px]" title="Filtrar" children={<Icon.Funnel size={20} color="white" />} color="primary">
+                            <Button className="items-center w-[200px]" title="Filtrar" children={<Icon.Funnel size={20} color="white" />} color="primary" size={"Large"}>
 
                             </Button>
                         </Form.Submit>
@@ -110,14 +123,97 @@ const UsersPage = () => {
                         />
                         <Button onClick={() => setFilters({})}
                             title="Limpar Filtro"
-                            color="primary" />
+                            color="primary" size={"Large"} />
 
                         <Flex >
                         </Flex>
                     </Form.Root>
+                </Box> */}
+                <Box className="w-full  pt-10 pb-10 max-xl:pt-2 max-xl:pb-2">
+                    <Form.Root
+                        onSubmit={handleSubmit((data) => {
+                            setFilters({
+                                ...data,
+                            });
+                        })}
+                        className="flex flex-col items-center gap-4 xl:flex-row xl:justify-between p-4 pt-0 pb-1"
+                    >
+                        {!isDesktop && (
+                            <Button
+                                type="button"
+                                onClick={() => setShowSearch(!showSearch)}
+                                className="block xl:hidden"
+                                title={`${showSearch ? "Fechar Filtros" : "Mostrar Filtros"}`}
+                                color="primary"
+                                size="Medium"
+                            >
+                                {showSearch ? <Icon.X size={20} /> : <Icon.Funnel size={20} />}
+                            </Button>
+                        )}
+
+                        <AnimatePresence>
+                            {showFilters && (
+                                <motion.div
+                                    initial={{ opacity: 0, height: 0 }}
+                                    animate={{ opacity: 1, height: "auto" }}
+                                    exit={{ opacity: 0, height: 0 }}
+                                    transition={{ duration: 0.3 }}
+                                    className="flex flex-col xl:flex-row xl:items-center gap-3 w-full overflow-hidden"
+                                >
+                                    <Form.Submit asChild className="hidden xl:block">
+                                        <Button
+                                            size="Large"
+                                            className="items-center w-full xl:w-[300px] xl:mt-2"
+                                            title="Filtrar"
+                                            color="primary"
+                                        >
+                                            <Icon.Funnel size={20} color="white" />
+                                        </Button>
+                                    </Form.Submit>
+                                    <InputField
+                                        label="Pesquisar Pelo Nome do Usuário"
+                                        icon={<Icon.MagnifyingGlass />}
+                                        placeholder="Digite o e-mail do usuário"
+                                        errorMessage={errors.userName?.message}
+                                        {...register("userName")}
+                                    />
+                                    <InputField
+                                        label="Pesquisar pelo E-mail do Usuário"
+                                        icon={<Icon.MagnifyingGlass />}
+                                        placeholder="Digite o e-mail do usuário"
+                                        errorMessage={errors.userName?.message}
+                                        {...register("userEmail")}
+                                    />
+                                    <Form.Submit asChild className="block xl:hidden">
+                                        <Button
+                                            size="Large"
+                                            className="items-center w-full xl:w-[300px]"
+                                            title="Filtrar"
+                                            color="primary"
+                                        >
+                                            <Icon.Funnel size={20} color="white" />
+                                        </Button>
+                                    </Form.Submit>
+
+                                    <Button
+                                        size="Large"
+                                        onClick={() => setFilters({})}
+                                        type="reset"
+                                        className="items-center w-full xl:w-[300px] xl:mt-2"
+                                        color="primary"
+                                        title="Limpar Filtro"
+                                    >
+                                    </Button>
+
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+                        <Flex />
+                    </Form.Root>
                 </Box>
+
                 <Skeleton loading={loading}>
-                    <Container className="mb-8">
+                    <Container className="mb-8 p-4">
 
                         <UsersTable
                             onClickPencil={onUserSelected}

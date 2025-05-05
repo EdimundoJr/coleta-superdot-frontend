@@ -3,10 +3,8 @@ import { SampleGroup, findAllSampleGroups } from "../../api/sampleGroup.api";
 import { Card } from "../../components/Card/Card";
 import { useNavigate } from "react-router-dom";
 import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
-import * as Icon from "@phosphor-icons/react"
-import { Header } from "../../components/Header/Header";
+
 import { GridComponent } from "../../components/Grid/Grid";
-import Notify from "../../components/Notify/Notify";
 
 const ChooseSampleGroupPage = () => {
     const [sampleGroups, setSampleGroups] = useState<SampleGroup[]>();
@@ -31,27 +29,23 @@ const ChooseSampleGroupPage = () => {
 
     return (
 
-       <>
-            {/* <Notify
-                open={!!notificationTitle}
-                onOpenChange={() => setNotificationTitle("")}
-                title={notificationTitle}
-                description={notificationDescription}
-                icon={<Icon.XCircle size={20} color="red" />}
-                className="border-red-400"
-            ></Notify> */}
-            <Header title="Identificação de Grupo" icon={<Icon.FolderSimplePlus size={24} />}></Header>
-            <Flex direction="column" className="mb-4">
-                <h3>Selecione um grupo para criar uma amostra.</h3>
-            </Flex>
-            <Container className="mb-4">
-                <GridComponent children={
+        <>
+
+
+
+            <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
+                <h2 className="heading-2 font-semibold text-gray-900">
+                    Selecione um grupo para criar uma amostra.
+                </h2>
+            </header>
+            <Container className="mb-4 p-4">
+                <GridComponent columns={2} children={
                     <>
                         {sampleGroups?.map((group, index) => {
                             return (
                                 <Skeleton loading={loading}>
                                     <Box>
-                                        <Card.Root key={index}>
+                                        <Card.Root key={index} className={`${group.available ? "!border-confirm" : ""}`}>
                                             <Card.Header>{group.title}</Card.Header>
                                             <Card.Content>
                                                 <ul>
@@ -60,16 +54,18 @@ const ChooseSampleGroupPage = () => {
                                                     ))}
                                                 </ul>
                                             </Card.Content>
-                                            <Card.Actions className="justify-end">
+                                            <Card.Actions className={`justify-end `}>
                                                 <Card.Action
                                                     disabled={!group.available}
-                                                    onClick={() =>
+                                                    onClick={() => {
                                                         navigate("/app/create-sample", {
                                                             state: {
                                                                 groupSelected: group.title,
                                                             },
-                                                        })
-                                                    }
+                                                        });
+                                                        window.scrollTo(0, 0);
+                                                    }}
+
                                                 >
                                                     {group.available ? "Selecionar" : "Em construção"}
 
@@ -84,11 +80,14 @@ const ChooseSampleGroupPage = () => {
                             );
                         })}
                     </>
-                } columns={2} className="gap-8">
+                } className="gap-8 "
+
+                >
                 </GridComponent>
 
+
             </Container>
-            </>
+        </>
     );
 };
 

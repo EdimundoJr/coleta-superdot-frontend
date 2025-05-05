@@ -17,17 +17,26 @@ import { IParticipant } from "../../../interfaces/participant.interface";
 import { AxiosResponse } from "axios";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
 import { Button } from "../../../components/Button/Button";
+import { Badge, Box, Card, Flex, Inset, Strong } from "@radix-ui/themes";
+import Modal from "../../../components/Modal/Modal";
+import Criatividade from "../../../assets/Criatividade.png"
+import Lideranca from "../../../assets/lideranca.png"
+import Comprometimento from "../../../assets/comprometimento.png"
+import Gerais from "../../../assets/gerais.png"
+import Habilidades from "../../../assets/Habilidades.png"
+import Atividade from "../../../assets/Atividades.png"
+
 
 interface FormGroupsStepProps {
     formData: IParticipant | ISecondSource;
     setFormData: (data: IParticipant | ISecondSource) => void;
     sourceForm: EAdultFormSource;
     currentStep: EAdultFormSteps;
-    nextStep: () => void;
-    setNotificationData: (data: { title: string; description: string; type: String }) => void;
+    setNotificationData: (data: { title: string; description: string; type: string }) => void;
     sampleId: string;
-    saveAndExit: () => void;
-    previousStep: () => void;
+    completed?: boolean;
+    onCompletionChange?: (isCompleted: boolean) => void;
+
 }
 
 /*
@@ -41,13 +50,52 @@ const FormGroupsStep = ({
     setFormData,
     sourceForm,
     currentStep,
-    nextStep,
     setNotificationData,
     sampleId,
-    saveAndExit,
-    previousStep,
+    completed,
+    onCompletionChange,
+
+
 }: FormGroupsStepProps) => {
     const [currentGroup, setCurrentGroup] = useState<IQuestionsGroup>({} as IQuestionsGroup);
+    const [openModal, setOpenModal] = useState(false);
+    const [completQuestions, setCompletQuestions] = useState(false);
+
+    const handleShowQuestions = () => {
+        setOpenModal(true)
+        return;
+    }
+
+    useEffect(() => {
+        const validateInitialCompletion = () => {
+            if (currentGroup.questions) {
+                const isCompleted = allQuestionsHaveAnswers(currentGroup.questions);
+                setCompletQuestions(isCompleted);
+                if (onCompletionChange) {
+                    onCompletionChange(isCompleted);
+                }
+            }
+        };
+
+        validateInitialCompletion();
+    }, [currentGroup]);
+
+    useEffect(() => {
+        if (onCompletionChange) {
+            onCompletionChange(completQuestions);
+        }
+    }, [completQuestions, onCompletionChange]);
+
+    /**
+        * Atualiza o estado de completude sempre que as perguntas forem alteradas.
+    */
+    useEffect(() => {
+        if (allQuestionsHaveAnswers(currentGroup.questions)) {
+            setCompletQuestions(true);
+        } else {
+            setCompletQuestions(false);
+        }
+    }, [currentGroup.questions]); // Monitora mudanças nas perguntas
 
     useEffect(() => {
         const getQuestions = async () => {
@@ -68,6 +116,7 @@ const FormGroupsStep = ({
         };
 
         getQuestions();
+
     }, [sampleId, currentStep]);
 
     /**
@@ -76,6 +125,7 @@ const FormGroupsStep = ({
      * @returns The function `allQuestionsHaveAnswers` returns a boolean value.
      */
     const allQuestionsHaveAnswers = (questions: IQuestion[]) => {
+        if (!Array.isArray(questions)) return false;
         return questions.every((question) => {
             /* This code block is checking if a question has a parent question and if the parent
             question's answer matches the required value specified in the child question's
@@ -99,12 +149,10 @@ const FormGroupsStep = ({
                     break;
                 case EQuestionType.FOUR_INPUT || EQuestionType.FOUR_SELECT:
                     if (question.answer.length !== 4) return false;
-                    if ((question.answer as string[]).some((answer) => !answer.length)) return false;
                     break;
                 case EQuestionType.MULTIPLE_SELECT:
                     if (!Array.isArray(question.answer)) return false;
             }
-
             return true;
         });
     };
@@ -153,19 +201,18 @@ const FormGroupsStep = ({
             setNotificationData({
                 title: "Questionário finalizado!",
                 description: "Todos os grupos foram respondidos, parabéns!",
-                type: "ok"
+                type: "success"
             });
-            nextStep();
+            setOpenModal(false);
         } else {
             setNotificationData({
                 title: "Grupo finalizado!",
                 description: "Parabéns, você finalizou um grupo de perguntas. Continue!",
-                type: "ok"
+                type: "success"
             });
-            setCurrentGroup(response.data);
-            nextStep();
-            // Scroll screen to top
-            document.getElementById("bg-div")?.scroll(0, 0);
+            setOpenModal(false);
+
+            document.getElementById("#bg-div")?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
         }
     };
 
@@ -181,7 +228,7 @@ const FormGroupsStep = ({
         const newAnswersByGroup = formData.adultForm?.answersByGroup?.map((group) => {
             if (group.sequence === currentGroup.sequence) {
                 groupExistsInFormData++;
-                return currentGroup; // Update the group with the current answers
+                return currentGroup;
             } else return group;
         });
 
@@ -208,7 +255,7 @@ const FormGroupsStep = ({
     const handlerSaveAndContinue = async () => {
         if (!allQuestionsHaveAnswers(currentGroup.questions)) {
             setNotificationData({
-                title: "Perguntas em aberto.    ",
+                title: "Perguntas em aberto.",
                 description: "Para proseguir, respoda todas as perguntas",
                 type: "erro"
             })
@@ -227,28 +274,16 @@ const FormGroupsStep = ({
             });
             return;
         }
-
+        document.getElementById("bg-div")?.scrollTo({ top: 0, left: 0, behavior: "smooth" });
         saveQuestionsInFormDataCacheToContinue(currentGroup);
+
     };
 
     /**
      * The function `handlerSaveAndExit` sends questions to the backend, saves and exits if
      * successful, otherwise it displays an error notification.
      */
-    const handlerSaveAndExit = async () => {
-        try {
-            await sendQuestionsToBackend(currentGroup);
-            saveAndExit();
-        } catch (e) {
-            console.error(e);
-            setNotificationData({
-                title: "Erro no servidor!",
-                description: "Não foi possível efetuar a comunicação com o servidor. Tente novamente.",
-                type: "erro"
-            });
-            return;
-        }
-    };
+
 
     const handleOnChangeQuestions = (questions: IQuestion[]) => {
         setCurrentGroup({
@@ -257,39 +292,53 @@ const FormGroupsStep = ({
         });
     };
 
+
     return (
-        <div className="grid gap-y-10">
-            <header>
-                <h1>Formulário - Adulto {sourceForm === EAdultFormSource.SECOND_SOURCE && "(Segunda Fonte)"}</h1>
-                <h3>{currentGroup?.groupName}</h3>
-            </header>
+        <>
 
-            <RenderQuestions questions={currentGroup?.questions} setQuestions={handleOnChangeQuestions} />
+            <Modal
+                open={openModal}
+                setOpen={setOpenModal}
+                className="!p-4"
+                title={currentGroup.groupName}
+                accessibleDescription={""} children={
+                    <RenderQuestions
+                        key={currentGroup.groupName}
+                        questions={currentGroup.questions}
+                        setQuestions={handleOnChangeQuestions}
+                        handlerSaveAndContinue={handlerSaveAndContinue}
+                    />
+                } />
 
+            <Box maxWidth="" >
+                <Card size="1" className={`card-container-variante-border group group/item transition-all pt-4 ${completQuestions ? "hidden" : "btn-primary"} px-5`}>
+                    <Inset clip="padding-box" side="top" pb="current">
+                        <img
+                            src={currentGroup?.groupName === "Características Gerais" ? Gerais : currentGroup?.groupName === "Criatividade" ? Criatividade : currentGroup?.groupName === "Liderança" ? Lideranca : currentGroup?.groupName === "Comprometimento da Tarefa" ? Comprometimento : currentGroup?.groupName === "Habilidade Acima da Média" ? Habilidades : Atividade}
+                            alt="Bold typography"
+                            style={{
+                                display: "block",
+                                objectFit: "cover",
+                                width: "100%",
+                                height: 140,
+                                backgroundColor: "var(--gray-5)",
+                            }}
+                        />
+                    </Inset>
+                    <Flex direction="column" gap="1">
+                        <p className="">
+                            <Strong>{currentGroup?.groupName}</Strong>
+                        </p>
+                        {completQuestions ?
+                            <Badge size="1" color="green" variant="solid" className={`${completed ? "" : "invisible"} w-full justify-center h-[20px] absolute top-0 left-0 right-0 `}>
+                                Concluído!
+                            </Badge> : <></>}
 
-            <div className="flex justify-center gap-6">
-                <Button onClick={previousStep}
-                    size="Medium"
-                    title={"Voltar"}
-                    color={"primary"}>
-
-                </Button>
-                <Button
-                size="Medium"
-                onClick={handlerSaveAndExit}
-                    title={"Salvar e Sair"}
-                    color={"primary"}>
-
-                </Button>
-                <Button
-                 size="Medium"
-                    onClick={handlerSaveAndContinue}
-                    title={"Salvar e Continuar"}
-                    color={"primary"}                    >
-
-                </Button>
-            </div>
-        </div>
+                        <Button color={`${completed ? "yellow" : "primary"}`} title={`${completed ? "À Revisar" : "Responder"}`} size={"Extra Small"} onClick={() => handleShowQuestions()} />
+                    </Flex>
+                </Card>
+            </Box>
+        </>
     );
 };
 

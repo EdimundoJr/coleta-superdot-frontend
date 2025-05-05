@@ -1,7 +1,6 @@
-import { Badge, Box, Flex, Skeleton, Table, Tooltip } from "@radix-ui/themes"
+import { Box, DataList, Flex, Separator, Table, Tooltip } from "@radix-ui/themes"
 import { useLocation } from "react-router-dom";
 import { IParticipant } from "../../interfaces/participant.interface";
-import { Header } from "../../components/Header/Header";
 import * as  Icon from "@phosphor-icons/react";
 import Accordeon from "../../components/Accordeon/Accordeon";
 import { GridComponent } from "../../components/Grid/Grid";
@@ -10,6 +9,7 @@ import ApexChart from "react-apexcharts";
 import { SelectField } from "../../components/SelectField/SelectField";
 import { useState } from "react";
 import * as Form from "@radix-ui/react-form";
+import { Button } from "../../components/Button/Button";
 
 interface LocationState {
   selectedParticipants: IParticipant[];
@@ -21,8 +21,8 @@ const CompareParticipantsSelected = () => {
   const location = useLocation();
   const state = location.state as LocationState;
   const { selectedParticipants } = state || { selectedParticipants: [] };
-  
 
+  const [expandedParticipants, setExpandedParticipants] = useState<Record<string, boolean>>({});
   const [selectedBlockIndex, setSelectedBlockIndex] = useState(0);
 
   const handleAge = (birthDate: Date): number => {
@@ -173,52 +173,125 @@ const CompareParticipantsSelected = () => {
 
   return (
     <>
-      <Header title="Comparação dos Participantes Selecionados" icon={<Icon.Books size={24}></Icon.Books>}></Header>
+      {/* <Header title="Comparação dos Participantes Selecionados" icon={<Icon.Books size={24}></Icon.Books>}></Header> */}
       <Box className="w-[90%] m-auto">
         <Accordeon
-          title="Informações do Participante(s) Selecionados"
+          title="Informações do(s) Participante(s) Selecionado(s)"
           content={
-            <Table.Root variant="surface" className="w-full">
-              <Table.Header className="text-[18px]">
-                <Table.Row>
-                  <Table.ColumnHeaderCell colSpan={5} className="border-r"></Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell colSpan={2} className="border-r text-center">Indicadores de AH/SD de acordo com o :</Table.ColumnHeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Header className="text-[16px]">
-                <Table.Row align="center" className="text-center">
-                  <Table.ColumnHeaderCell className="border-l">Identificação</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="border-l">Nome do Avaliado</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="border-l">Pontuação</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="border-l">Idade</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="border-l">Gênero</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
-                  <Table.ColumnHeaderCell className="border-l">Pesquisador</Table.ColumnHeaderCell>
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                {selectedParticipants.map((participant, index) => (
-                  <Table.Row key={index} align="center">
-                    <Table.Cell justify="center">
-                      <Tooltip content={`Avaliado - ${index + 1}`}>
-                        <Box>
-                          A-{index + 1}
-                        </Box>
-                      </Tooltip>
-
-                    </Table.Cell>
-                    <Table.Cell justify="center">{participant.personalData.fullName}</Table.Cell>
-                    <Table.Cell justify="center">{participant.adultForm?.totalPunctuation}</Table.Cell>
-                    <Table.Cell justify="center">{handleAge(participant.personalData.birthDate)}</Table.Cell>
-                    <Table.Cell justify="center">{participant.personalData.gender}</Table.Cell>
-                    <Table.Cell justify="center">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
-                    <Table.Cell justify="center">
-                      {participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}
-                    </Table.Cell>
+            <>
+              <Table.Root variant="surface" className="w-full desktop">
+                <Table.Header className="text-[18px]">
+                  <Table.Row>
+                    <Table.ColumnHeaderCell colSpan={5} className="border-r"></Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell colSpan={2} className="border-r text-center">Indicadores de AH/SD de acordo com o :</Table.ColumnHeaderCell>
                   </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
+                </Table.Header>
+                <Table.Header className="text-[16px]">
+                  <Table.Row align="center" className="text-center">
+                    <Table.ColumnHeaderCell className="border-l">Identificação</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell className="border-l">Nome do Avaliado</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell className="border-l">Pontuação</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell className="border-l">Idade</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell className="border-l">Gênero</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell className="border-l">Pesquisador</Table.ColumnHeaderCell>
+                  </Table.Row>
+                </Table.Header>
+                <Table.Body>
+                  {selectedParticipants.map((participant, index) => (
+                    <Table.Row key={index} align="center">
+                      <Table.Cell justify="center">
+                        <Tooltip content={`Avaliado - ${index + 1}`}>
+                          <Box>
+                            A-{index + 1}
+                          </Box>
+                        </Tooltip>
+
+                      </Table.Cell>
+                      <Table.Cell justify="center">{participant.personalData.fullName}</Table.Cell>
+                      <Table.Cell justify="center">{participant.adultForm?.totalPunctuation}</Table.Cell>
+                      <Table.Cell justify="center">{handleAge(participant.personalData.birthDate)}</Table.Cell>
+                      <Table.Cell justify="center">{participant.personalData.gender}</Table.Cell>
+                      <Table.Cell justify="center">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
+                      <Table.Cell justify="center">
+                        {participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+              <div className="mobo">
+                <DataList.Root orientation="vertical" className="!font-roboto">
+                  {selectedParticipants.map((participant, index) => (
+                    <DataList.Item
+                      key={index}
+                      className={`w-full p-3 rounded-lg mb-5 card-container transition-all duration-300 ease-in-out 
+          ${expandedParticipants[participant._id] ? 'max-h-[1000px]' : 'max-h-[300px]'}`}
+                    >
+
+                      {/* Informações Básicas */}
+                      <p className="text-[16px] font-bold text-center">Informações do participante</p>
+                      <Separator size="4" className="mt-2" />
+
+                      <DataList.Label>Nome:</DataList.Label>
+                      <DataList.Value>{participant.personalData.fullName}</DataList.Value>
+                      <Separator size="4" />
+
+                      <DataList.Label>Pontuação do questionário:</DataList.Label>
+                      <DataList.Value>{participant.adultForm?.totalPunctuation}</DataList.Value>
+                      <Separator size="4" />
+
+                      <DataList.Label>Quantidade de 2ªs Fontes:</DataList.Label>
+                      <DataList.Value>{participant.secondSources?.length}</DataList.Value>
+                      <Separator size="4" className="mb-2" />
+
+                      {participant?._id && expandedParticipants[participant._id] && (
+                        <>
+                          <p className="text-[16px] font-bold text-center">Indicadores de AH/SD:</p>
+                          <Separator size="4" className="mt-2" />
+
+                          <DataList.Label>Pelo Questionário:</DataList.Label>
+                          <DataList.Value className="gap-2">
+                            {participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
+                          </DataList.Value>
+                          <Separator size="4" />
+
+                          <DataList.Label>Pelo Pesquisador:</DataList.Label>
+                          <DataList.Value className="gap-2">
+                            {participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}
+                          </DataList.Value>
+                        </>
+                      )}
+
+                      <Button
+                        size="Small"
+                        className="justify-end flex mt-2"
+                        onClick={() =>
+                          setExpandedParticipants((prev) => ({
+                            ...prev,
+                            [String(participant._id)]: !prev[String(participant._id)],
+                          }))
+                        }
+                        title={
+                          participant._id && expandedParticipants[participant._id]
+                            ? "Veja menos"
+                            : "Ver mais"
+                        }
+                        color={""}
+                      >
+                        <Icon.CaretDown
+                          size={15}
+                          className={`transition-all duration-300 ${participant._id && expandedParticipants[participant._id]
+                            ? "rotate-180"
+                            : ""
+                            }`}
+                        />
+                      </Button>
+                    </DataList.Item>
+                  ))}
+                </DataList.Root>
+              </div>
+            </>
           }
           className="mb-2"
           defaultValue="item-1"
@@ -226,39 +299,39 @@ const CompareParticipantsSelected = () => {
 
 
         <GridComponent className="gap-5 m-auto mt-2 " columns={2}>
-          
-            <Box>
-              <Table.Root variant="surface" className=" text-black rounded rounded-b-lg w-full  font-roboto overflow-auto">
-                <Table.Header className="text-[14px] text-black bg-violet-200">
-                  <Table.ColumnHeaderCell align="center" colSpan={8}>Detalhes de cada bloco</Table.ColumnHeaderCell>
-                </Table.Header>
-                <Table.Header className="text-[12px] bg-violet-200">
-                  <Table.Row align="center" className="text-center">
-                    <Table.ColumnHeaderCell className="border-l">Nº das perguntas do questionário</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell className="border-l">Nº de bloco</Table.ColumnHeaderCell>
-                    <Table.ColumnHeaderCell className="border-l">Nome do bloco</Table.ColumnHeaderCell>
+
+          <Box>
+            <Table.Root variant="surface" className=" text-black rounded rounded-b-lg w-full  font-roboto overflow-auto">
+              <Table.Header className="text-[14px] text-black bg-violet-200">
+                <Table.ColumnHeaderCell align="center" colSpan={8}>Detalhes de cada bloco</Table.ColumnHeaderCell>
+              </Table.Header>
+              <Table.Header className="text-[12px] bg-violet-200">
+                <Table.Row align="center" className="text-center">
+                  <Table.ColumnHeaderCell className="border-l">Nº das perguntas do questionário</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell className="border-l">Nº de bloco</Table.ColumnHeaderCell>
+                  <Table.ColumnHeaderCell className="border-l">Nome do bloco</Table.ColumnHeaderCell>
+                </Table.Row>
+              </Table.Header>
+              <Table.Body>
+                {detailBlocks.map((detail, index) => (
+                  <Table.Row align="center" key={index}>
+                    <Table.Cell justify="center">{detail.numbersOfquestions}</Table.Cell>
+                    <Table.Cell justify="center">{detail.numberBlocks}</Table.Cell>
+                    <Table.Cell justify="center">{detail.title}</Table.Cell>
                   </Table.Row>
-                </Table.Header>
-                <Table.Body>
-                  {detailBlocks.map((detail, index) => (
-                    <Table.Row align="center" key={index}>
-                      <Table.Cell justify="center">{detail.numbersOfquestions}</Table.Cell>
-                      <Table.Cell justify="center">{detail.numberBlocks}</Table.Cell>
-                      <Table.Cell justify="center">{detail.title}</Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
-              </Table.Root>
-            </Box>
-         
-          
-            <Box className="rounded overflow-hidden bg-white rounded-b-lg w-full pt-4  font-roboto border-2 p-2">
-              <ApexChart options={options2} series={options2.series} type="bar" height={300} />
-            </Box>
-        
+                ))}
+              </Table.Body>
+            </Table.Root>
+          </Box>
+
+
+          <Box className="rounded overflow-hidden bg-white rounded-b-lg w-full pt-4  font-roboto border-2 p-2">
+            <ApexChart options={options2} series={options2.series} type="bar" height={300} />
+          </Box>
+
         </GridComponent>
         <Box className="w-full ">
-          <Form.Root className="flex flex-row items-center ">
+          <Form.Root className="flex flex-row items-center justify-center truncate mb-2">
             <Flex>
               <SelectField label="FILTRAR PERGUNTAS POR BLOCO" className="" name="blocks" onChange={handleSelectChange}>
                 {detailBlocks.map((detail, index) => (
@@ -272,57 +345,136 @@ const CompareParticipantsSelected = () => {
         </Box>
         <Accordeon
           title="Comparação:"
+          className="mb-10"
           content={
-            <Table.Root variant="surface" className="h-[500px] overflow">
-              <Table.Header className="text-[16px]">
-                <Table.Row align="center" className="text-center">
-                  <Table.ColumnHeaderCell className="border-l">Perguntas</Table.ColumnHeaderCell>
-                  {selectedParticipants?.map((participant, index) => (
-                    <Table.ColumnHeaderCell key={index} className="border-l">{participant.personalData?.fullName}</Table.ColumnHeaderCell>
-                  ))}
-                </Table.Row>
-              </Table.Header>
-              <Table.Body>
-                <Table.Row align="center">
-                  <Table.Cell>Pontuação:</Table.Cell>
-                  {selectedParticipants?.map((participant, index) => (
-                    <Table.Cell align="center" key={index} className="border-l">{participant.adultForm?.totalPunctuation} </Table.Cell>
-                  ))}
-                </Table.Row>
-                {selectedQuestions.map((question, questionIndex) => (
-                  <Table.Row align="center" key={questionIndex}>
-                    <Table.Cell className="text-wrap">{question.statement}</Table.Cell>
-                    {selectedParticipants.map((participant, participantIndex) => {
-                      const answers = participant.adultForm?.answersByGroup?.[selectedBlockIndex]?.questions
-                        ?.filter(q => q.statement === question.statement)
-                        ?.map(q => {
-                          if (typeof q.answer === 'string') {
-                            return q.answer.trim();
-                          } else if (Array.isArray(q.answer)) {
-                            return q.answer.map(a => (typeof a === 'string' ? a.trim() : '')).join(', ');
-                          } else {
-                            return '';
-                          }
-                        })
-                        ?.join(', ');
-
-                      return (
-                        <Table.Cell key={participantIndex} align="center" className="border-l">
-                          <p className={` rounded py-1   
-                          ${answers === "Sempre" ? "bg-green-400 text-white w-[200px] text-center font-semibold " :
-                              answers === "Frequentemente" ? "bg-green-400 text-white  w-[200px] text-center font-semibold " :
-                                answers === "Ás vezes" ? "bg-red-400 text-white  w-[200px] text-center font-semibold " :
-                                  answers === "Raramente" ? "bg-red-400 text-white w-[200px] text-center font-semibold " :
-                                    answers === "Nunca" ? "bg-red-400 text-white w-[200px] text-center font-semibold " : " "
-                            }}`}
-                          >{answers}</p>
-                        </Table.Cell>
-                      );
-                    })}
+            <>
+              <Table.Root variant="surface" className="h-[500px] overflow desktop">
+                <Table.Header className="text-[16px]">
+                  <Table.Row align="center" className="text-center">
+                    <Table.ColumnHeaderCell className="border-l">Perguntas</Table.ColumnHeaderCell>
+                    {selectedParticipants?.map((participant, index) => (
+                      <Table.ColumnHeaderCell key={index} className="border-l">{participant.personalData?.fullName}</Table.ColumnHeaderCell>
+                    ))}
                   </Table.Row>
-                ))}
-              </Table.Body>
-            </Table.Root>
+                </Table.Header>
+                <Table.Body>
+                  <Table.Row align="center">
+                    <Table.Cell>Pontuação:</Table.Cell>
+                    {selectedParticipants?.map((participant, index) => (
+                      <Table.Cell align="center" key={index} className="border-l">{participant.adultForm?.totalPunctuation} </Table.Cell>
+                    ))}
+                  </Table.Row>
+                  {selectedQuestions.map((question, questionIndex) => (
+                    <Table.Row align="center" key={questionIndex}>
+                      <Table.Cell className="text-wrap">{question.statement}</Table.Cell>
+                      {selectedParticipants.map((participant, participantIndex) => {
+                        const answers = participant.adultForm?.answersByGroup?.[selectedBlockIndex]?.questions
+                          ?.filter(q => q.statement === question.statement)
+                          ?.map(q => {
+                            if (typeof q.answer === 'string') {
+                              return q.answer.trim();
+                            } else if (Array.isArray(q.answer)) {
+                              return q.answer.map(a => (typeof a === 'string' ? a.trim() : '')).join(', ');
+                            } else {
+                              return '';
+                            }
+                          })
+                          ?.join(', ');
+
+                        return (
+                          <Table.Cell key={participantIndex} align="center" className="border-l">
+                            <p className={` rounded py-1   
+                          ${answers === "Sempre" ? "bg-green-400 text-white w-[200px] text-center font-semibold " :
+                                answers === "Frequentemente" ? "bg-green-400 text-white  w-[200px] text-center font-semibold " :
+                                  answers === "Ás vezes" ? "bg-red-400 text-white  w-[200px] text-center font-semibold " :
+                                    answers === "Raramente" ? "bg-red-400 text-white w-[200px] text-center font-semibold " :
+                                      answers === "Nunca" ? "bg-red-400 text-white w-[200px] text-center font-semibold " : " "
+                              }}`}
+                            >{answers}</p>
+                          </Table.Cell>
+                        );
+                      })}
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table.Root>
+              <div className="mobo">
+                <DataList.Root orientation="vertical" className="!font-roboto">
+                  {/* Pontuação geral por participante */}
+                  <DataList.Item className="w-full p-3 rounded-lg mb-1 card-container ">
+                    <p className="text-[16px] font-bold text-center mb-4 text-black">Pontuação Geral do(s) Participante(s):</p>
+                    {selectedParticipants.map((participant, index) => (
+                      <div key={index} className="mb-2">
+                        <DataList.Label className="font-semibold italic">{participant.personalData.fullName}:</DataList.Label>
+                        <DataList.Value>{participant.adultForm?.totalPunctuation}</DataList.Value>
+                      </div>
+                    ))}
+                  </DataList.Item>
+                  <Separator size="4" className="my-2" />
+
+                  {/* Perguntas e respostas */}
+                  <DataList.Item
+
+                    className="w-full p-3 rounded-lg mb-1 card-container"
+                  >
+                    <p className="text-[16px] font-bold text-center mb-4 text-black">Questionário:</p>
+                    {selectedQuestions.map((question, questionIndex) => (
+                      <div key={questionIndex} className="mb-2">
+                        <p className="text-[16px] font-bold mb-4 text-black">{question.statement}</p>
+                        {selectedParticipants.map((participant, participantIndex) => {
+                          const answers = participant.adultForm?.answersByGroup?.[selectedBlockIndex]?.questions
+                            ?.filter(q => q.statement === question.statement)
+                            ?.map(q => {
+                              if (typeof q.answer === 'string') {
+                                return q.answer.trim();
+                              } else if (Array.isArray(q.answer)) {
+                                return q.answer.map(a => (typeof a === 'string' ? a.trim() : '')).join(', ');
+                              } else {
+                                return '';
+                              }
+                            })
+                            ?.join(', ');
+
+                          const answerStyle = () => {
+                            switch (answers) {
+                              case "Sempre":
+                              case "Frequentemente":
+                                return "bg-green-400 text-white font-semibold text-center px-2 py-1 rounded justify-center";
+                              case "Ás vezes":
+                              case "Raramente":
+                              case "Nunca":
+                                return "bg-red-400 text-white font-semibold text-center px-2 py-1 rounded justify-center";
+                              default:
+                                return "gap-2";
+                            }
+                          };
+
+                          return (
+                            <div key={participantIndex} >
+
+                              <DataList.Label className="font-semibold italic">{participant.personalData.fullName}:</DataList.Label>
+                              <DataList.Value className={`${answerStyle()}  !mb-5 `} >
+                                {answers === "" ? (
+                                  <p className="text-red-500">Nenhuma resposta encontrada.</p>
+                                ) : (
+                                  <>
+                                    {answers}
+                                  </>
+                                )}
+                              </DataList.Value>
+                            </div>
+                          );
+                        })}
+                        <Separator size="4" className="my-2" />
+                      </div>
+
+
+                    ))}
+                  </DataList.Item>
+                </DataList.Root>
+              </div>
+
+            </>
           }
           defaultValue={""}
         />

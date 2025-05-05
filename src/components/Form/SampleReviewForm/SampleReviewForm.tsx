@@ -8,6 +8,8 @@ import { createReview } from "../../../api/sampleReview.api";
 import { InputField } from "../../InputField/InputField";
 import { SAMPLE_STATUS_ARRAY } from "../../../utils/consts.utils";
 import { SampleSummary } from "../../../api/sample.api";
+import { Button } from "../../Button/Button";
+import { Flex } from "@radix-ui/themes";
 
 interface SampleReviewFormProps {
     sample?: SampleSummary;
@@ -51,7 +53,6 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
                 onFinish();
                 return;
             }
-            console.log(response);
         } catch (e) {
             console.error(e);
         }
@@ -59,7 +60,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
 
     return (
         <Form.Root onSubmit={onSubmit}>
-            <div className="gap-x-2 lg:flex">
+            <Flex direction="column" className="gap-3">
                 <SelectField
                     defaultValue={sample?.currentStatus}
                     errorMessage={errors?.nextStatus?.message}
@@ -77,14 +78,16 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
                     type="number"
                     {...register("qttParticipantsAuthorized")}
                 />
-            </div>
-            <TextAreaField
-                errorMessage={errors?.reviewMessage?.message}
-                label="MENSAGEM (essa mensagem será enviada para o e-mail do pesquisador)"
-                {...register("reviewMessage")}
-            />
+                <TextAreaField
+                    className="border-2 border-stone-200"
+                    errorMessage={errors?.reviewMessage?.message}
+                    label="MENSAGEM (essa mensagem será enviada para o e-mail do pesquisador)"
+                    {...register("reviewMessage")}
+                />
+            </Flex>
+
             <Form.Submit asChild>
-                <button className="button-primary float-right mr-3">Salvar</button>
+                <Button className="" title={"Salvar"} color={"green"} size={"Medium"}></Button>
             </Form.Submit>
         </Form.Root>
     );

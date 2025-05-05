@@ -1,4 +1,4 @@
-export default interface IBio { 
+export default interface IBio {
     id?: number;
     text?: string;
     comment?: string;

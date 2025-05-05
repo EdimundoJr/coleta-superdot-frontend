@@ -1,5 +1,6 @@
 import * as Icon from "@phosphor-icons/react";
-import { AlertDialog, Button, Flex, Text } from "@radix-ui/themes";
+import { AlertDialog, Flex, Text } from "@radix-ui/themes";
+import { Button } from "../Button/Button";
 
 interface ModalProps extends React.PropsWithChildren {
     open: boolean;
@@ -7,37 +8,56 @@ interface ModalProps extends React.PropsWithChildren {
     title: string;
     accessibleDescription: string;
     accessibleDescription2?: string;
+    className?: string;
 }
 
-const Modal = ({ title, accessibleDescription, accessibleDescription2, open, setOpen, children }: ModalProps) => {
+const Modal = ({
+    title,
+    accessibleDescription,
+    accessibleDescription2,
+    open,
+    setOpen,
+    children,
+    className,
+}: ModalProps) => {
     return (
-
         <AlertDialog.Root open={open} onOpenChange={setOpen}>
-            <AlertDialog.Content className="">
-                <Flex className="absolute top-[10px] right-2">
-                    <AlertDialog.Cancel >
-                        <Button size="1" color="red" className="hover:cursor-pointer hover:bg-red-600 active:bg-red-700" >
-                            <Icon.X size={20} weight="bold"></Icon.X>
-                        </Button>
-                    </AlertDialog.Cancel>
-                </Flex>
 
-                <AlertDialog.Title>{title}</AlertDialog.Title>
+            <AlertDialog.Content
+                className={`relative bg-white rounded-md  p-6 z-50 ${className}`}
 
-                <AlertDialog.Description size="2" className="mb-4">
-                    <Flex direction="column">
-                        <Text as="label">
+            >
+                {/* Close Button */}
+
+                <AlertDialog.Cancel className="absolute top-2 right-2">
+                    <Button
+                        className="hover:cursor-pointer "
+                        aria-label="Close modal" title={""} color={"red"} size={"Small"}>
+                        <Icon.X size={20} weight="bold" />
+                    </Button>
+                </AlertDialog.Cancel>
+
+
+                {/* Title */}
+                <AlertDialog.Title className="text-xl font-bold mb-4 max-sm:!text-[18px]">{title}</AlertDialog.Title>
+
+                {/* Description */}
+                <AlertDialog.Description>
+                    <Flex direction="column" gap="2" className="mb-4">
+                        <Text as="p" className="text-sm">
                             {accessibleDescription}
                         </Text>
-                        <Text as="label">
-                            {accessibleDescription2}
-                        </Text>
+                        {accessibleDescription2 && (
+                            <Text as="p" className="text-sm">
+                                {accessibleDescription2}
+                            </Text>
+                        )}
                     </Flex>
                 </AlertDialog.Description>
-                {children}
 
+                {/* Children */}
+                <div>{children}</div>
             </AlertDialog.Content>
-
         </AlertDialog.Root>
     );
 };

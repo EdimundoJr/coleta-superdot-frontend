@@ -1,13 +1,19 @@
 import type { Config } from "tailwindcss";
 const { mauve, violet, red, blackA } = require('@radix-ui/colors');
 
-
 export default {
     content: ["./src/**/*.{html,ts,tsx}"],
     theme: {
         extend: {
+            width: {
+                'wrapper': '100%',
+            },
             fontFamily: {
                 roboto: ['Roboto', 'sans-serif'],
+            },
+            screens: {
+                'xl': '1020px',
+                'md': '1019px',
             },
             colors: {
                 primary: "#6e56cf",
@@ -27,6 +33,7 @@ export default {
             },
             backgroundImage: {
                 "default-bg": "url('/default-bg.png')",
+                'default-bg-mobo': "url('/default-bg-mobo.png')",
             },
             keyframes: {
                 overlayShow: {
@@ -56,6 +63,33 @@ export default {
                     from: { height: 'var(--radix-accordion-content-height)' },
                     to: { height: '0px' },
                 },
+                gradient: {
+                    '0%': { backgroundPosition: '0% 50%' },
+                    '50%': { backgroundPosition: '100% 50%' },
+                    '100%': { backgroundPosition: '0% 50%' },
+                },
+                fadeIn: {
+                    '0%': { opacity: '0' },
+                    '100%': { opacity: '1' },
+                },
+                growWidth: {
+                    '0%': { width: '0' },
+                    '100%': { width: '100%' },
+                },
+                bounceIn: {
+                    '0%': {
+                        opacity: '0',
+                        transform: 'scale(0.8)',
+                    },
+                    '50%': {
+                        transform: 'scale(1.05)',
+                    },
+                    '100%': {
+                        opacity: '1',
+                        transform: 'scale(1)',
+                    },
+                },
+
             },
 
         },
@@ -67,8 +101,29 @@ export default {
             contentShow: "contentShow 150ms cubic-bezier(0.16, 1, 0.3, 1)",
             slideDown: 'slideDown 300ms cubic-bezier(0.87, 0, 0.13, 1)',
             slideUp: 'slideUp 300ms cubic-bezier(0.87, 0, 0.13, 1)',
+            gradient: 'gradient 8s linear infinite',
+            'fade-in': 'fadeIn 0.5s ease-out',
+            'grow-width': 'growWidth 0.6s ease-in-out',
+            'bounce-in': 'bounceIn 0.6s ease-out',
+        },
+        transitionProperty: {
+            'transform': 'transform',
+            'all': 'all',
         },
     },
 
-    plugins: [],
+    plugins: [
+        function ({ addComponents }) {
+            addComponents({
+                '.wrapper': {
+                    width: '100%',
+                    '@screen sm': { width: '100%' },
+                    '@screen md': { width: '75%' },
+                    '@screen lg': { width: '50%' },
+                    '@screen xl': { width: '90%' },
+                    "@screen 2xl": { width: '70%' },
+                }
+            })
+        }
+    ],
 } satisfies Config;

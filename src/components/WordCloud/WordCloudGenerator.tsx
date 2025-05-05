@@ -1,13 +1,57 @@
-import React from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import ReactWordcloud from 'react-wordcloud';
 
 interface WordCloudGeneratorProps {
-  texts?: string[];
+  textBio?: string[];
 }
 
-const WordCloudGenerator: React.FC<WordCloudGeneratorProps> = ({  texts = [] }) => {
+const WordCloudGenerator: React.FC<WordCloudGeneratorProps> = ({ textBio = [] }) => {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const [isFullScreen, setIsFullScreen] = useState(false);
 
-  const getWordCounts = (texts: string[]) => {
+  const handleFullScreen = () => {
+    const elem = containerRef.current;
+
+    if (elem) {
+      // Define altura em tela cheia
+      elem.style.height = '100vh';
+
+      if (elem.requestFullscreen) {
+        elem.requestFullscreen();
+      } else if ((elem as any).webkitRequestFullscreen) {
+        (elem as any).webkitRequestFullscreen();
+      } else if ((elem as any).msRequestFullscreen) {
+        (elem as any).msRequestFullscreen();
+      }
+    }
+  };
+
+  const exitFullScreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen?.();
+    } else if ((document as any).webkitExitFullscreen) {
+      (document as any).webkitExitFullscreen();
+    } else if ((document as any).msExitFullscreen) {
+      (document as any).msExitFullscreen();
+    }
+  };
+
+  useEffect(() => {
+    const handleChange = () => {
+      const isNowFullScreen = !!document.fullscreenElement;
+      setIsFullScreen(isNowFullScreen);
+
+      // Resetar altura ao sair do fullscreen
+      if (!isNowFullScreen && containerRef.current) {
+        containerRef.current.style.height = '300px';
+      }
+    };
+
+    document.addEventListener('fullscreenchange', handleChange);
+    return () => document.removeEventListener('fullscreenchange', handleChange);
+  }, []);
+
+  const getWordCounts = (textBio: string[]) => {
 
     const stopWords = [
       'de', 'a', 'o', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'é', 'com', 'não', 'uma', 'os', 'no', 'se', 'na',
@@ -29,15 +73,15 @@ const WordCloudGenerator: React.FC<WordCloudGeneratorProps> = ({  texts = [] }) 
       'tenham', 'tivesse', 'tivéssemos', 'tivessem', 'tiver', 'tivermos', 'tiverem', 'terei', 'terá', 'teremos', 'terão',
       'teria', 'teríamos', 'teriam', 'tu',
     ];
-   
 
-    const combinedText = texts.join(' ');
+
+    const combinedText = textBio.join(' ');
 
     // Limpeza e contagem das palavras
     const wordsArray = combinedText.split(/\s+/);
     const wordCounts: { [word: string]: number } = {};
     wordsArray.forEach(word => {
-      const cleanedWord = word.replace(/[.,\/#!$%\^&\*;:{}=\-_`~()"]/g, '').toLowerCase();
+      const cleanedWord = word.normalize('NFD').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()"]/g, '').toLowerCase();
       if (cleanedWord && !stopWords.includes(cleanedWord)) {
         wordCounts[cleanedWord] = (wordCounts[cleanedWord] || 0) + 1;
       }
@@ -50,17 +94,43 @@ const WordCloudGenerator: React.FC<WordCloudGeneratorProps> = ({  texts = [] }) 
     enableTooltip: false,
     deterministic: true,
     fontFamily: 'roboto',
-    fontSizes: [20, 60],
+    fontSizes: [20, 60] as [number, number],
     padding: 0,
     rotations: 3,
     transitionDuration: 1000,
   };
 
-  const words = getWordCounts(texts);
+  const words = getWordCounts(textBio);
 
   return (
-    <div style={{ height: '500px', width: '100%' }}>
+    <div
+      ref={containerRef}
+      className="relative "
+      style={{ height: '300px', width: '300px', cursor: 'pointer', background: 'white', }}
+      onClick={!isFullScreen ? handleFullScreen : undefined}
+    >
       <ReactWordcloud words={words} options={options} />
+
+      {isFullScreen && (
+        <button
+          onClick={exitFullScreen}
+          style={{
+            position: 'absolute',
+            top: 10,
+            right: 10,
+            zIndex: 10,
+            background: 'rgba(0,0,0,0.6)',
+            color: 'white',
+            padding: '8px 12px',
+            borderRadius: '8px',
+            border: 'none',
+            cursor: 'pointer',
+          }}
+        >
+          Fechar
+        </button>
+      )}
+      <p className='text-[14px] text-gray-500'>*Clique na imagem para ver em tela cheia.</p>
     </div>
   );
 };
