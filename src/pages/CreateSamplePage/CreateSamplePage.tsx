@@ -160,7 +160,7 @@ const CreateSamplePage = () => {
                                 placeholder="Digite o título da pesquisa"
                                 errorMessage={errors.researchTitle?.message}
                                 {...register("researchTitle")}
-                                className="transition-transform duration-300 hover:scale-[101%]"
+
                             />
                         </div>
 
@@ -170,7 +170,6 @@ const CreateSamplePage = () => {
                                 placeholder="Digite o título da amostra"
                                 errorMessage={errors.sampleTitle?.message}
                                 {...register("sampleTitle")}
-                                className="transition-transform duration-300 hover:scale-[101%]"
                             />
                         </div>
 
@@ -180,7 +179,7 @@ const CreateSamplePage = () => {
                                 placeholder="Digite o código fornecido pelo Comitê de Ética em Pesquisa"
                                 errorMessage={errors.researchCep?.cepCode?.message}
                                 {...register("researchCep.cepCode")}
-                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                                className="flex-1 "
                             />
                             <InputField
                                 label="QUANTIDADE TOTAL DE PARTICIPANTES*"
@@ -188,7 +187,7 @@ const CreateSamplePage = () => {
                                 errorMessage={errors.qttParticipantsRequested?.message}
                                 type="number"
                                 {...register("qttParticipantsRequested")}
-                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                                className="flex-1 "
                             />
                         </div>
 
@@ -197,7 +196,7 @@ const CreateSamplePage = () => {
                                 label="REGIÃO DA AMOSTRA*"
                                 errorMessage={errors.countryRegion?.message}
                                 {...register("countryRegion")}
-                                className="md:flex-1 w-full md:w-auto transition-transform duration-300 hover:scale-[101%]"
+                                className="md:flex-1 w-full md:w-auto "
                             >
                                 <option value="Norte">Norte</option>
                                 <option value="Nordeste">Nordeste</option>
@@ -211,7 +210,7 @@ const CreateSamplePage = () => {
                                 placeholder="Digite o estado dos participantes da amostra"
                                 errorMessage={errors.countryState?.message}
                                 {...register("countryState")}
-                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                                className="flex-1 "
                             />
 
                             <InputField
@@ -219,7 +218,7 @@ const CreateSamplePage = () => {
                                 placeholder="Digite a cidade dos participantes da amostra"
                                 errorMessage={errors.countryCity?.message}
                                 {...register("countryCity")}
-                                className="flex-1 transition-transform duration-300 hover:scale-[101%]"
+                                className="flex-1"
                             />
                         </div>
                     </div>
@@ -234,14 +233,12 @@ const CreateSamplePage = () => {
                                 label="NOME*"
                                 errorMessage={errors.instituition?.name?.message}
                                 {...register("instituition.name")}
-                                className="transition-transform duration-300 hover:scale-[101%]"
                             />
 
                             <SelectField
                                 label="TIPO*"
                                 errorMessage={errors.instituition?.instType?.message}
                                 {...register("instituition.instType")}
-                                className="transition-transform duration-300 hover:scale-[101%]"
                             >
                                 <option>Pública</option>
                                 <option>Particular</option>

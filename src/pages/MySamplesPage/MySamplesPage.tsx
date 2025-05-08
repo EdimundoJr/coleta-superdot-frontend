@@ -250,110 +250,110 @@ const MySamplesPage = () => {
                         :
 
                         <GridComponent columns={2} className="gap-5">
+
                             {pageData?.data?.map((sample, index) => (
-                                <Skeleton key={index} loading={loading}>
-                                    <Card.Root
-                                        className={`${sample.status === "Autorizado" ? "!border-confirm" : sample.status === "Pendente" ? "!border-yellow-500" : "!border-red-500"} rounded-lg shadow-lg transition-all hover:drop-shadow-md`}>
-                                        <Card.Header>
-                                            <Flex justify="between" className="space-x-4">
-                                                {sample.status !== "Autorizado" && (
-                                                    <Tooltip content="Editar Amostra">
-                                                        <IconButton color="amber" radius="full" variant="outline">
-                                                            <Icon.Pencil
-                                                                onClick={() => handleNavigateToEditSample(sample)}
-                                                                className="cursor-pointer"
-                                                                size={20}
-                                                            />
-                                                        </IconButton>
-                                                    </Tooltip>
+                                <Card.Root
+                                    loading={loading}
+                                    className={`${sample.status === "Autorizado" ? "!border-confirm" : sample.status === "Pendente" ? "!border-yellow-500" : "!border-red-500"} rounded-lg shadow-lg transition-all hover:drop-shadow-md`}>
+                                    <Card.Header>
+                                        <Flex justify="between" className="space-x-4">
+                                            {sample.status !== "Autorizado" && (
+                                                <Tooltip content="Editar Amostra">
+                                                    <IconButton color="amber" radius="full" variant="outline">
+                                                        <Icon.Pencil
+                                                            onClick={() => handleNavigateToEditSample(sample)}
+                                                            className="cursor-pointer"
+                                                            size={20}
+                                                        />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                            <Text as="label" className="text-xl font-medium text-gray-800">{sample.sampleGroup}
+
+                                            </Text>
+
+                                            {sample.status !== "Autorizado" && (
+                                                <Tooltip content="Excluir Amostra">
+                                                    <IconButton color="red" radius="full" variant="outline">
+                                                        <Icon.Trash
+                                                            className="cursor-pointer"
+                                                            onClick={() => handleNavigateToDeleteSample(sample._id)}
+                                                            size={20}
+                                                        />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            )}
+                                        </Flex>
+                                    </Card.Header>
+
+                                    <Card.Content>
+                                        <div className="space-y-4">
+                                            <Separator size={"4"} ></Separator>
+
+                                            <ul className="space-y-2 text-gray-700 text-sm">
+                                                <li>
+                                                    <span className="font-medium text-gray-900">Amostra:</span> {sample.sampleTitle}
+                                                </li>
+                                                <li>
+                                                    <span className="font-medium text-gray-900">Pesquisa:</span> {sample.researchTitle}
+                                                </li>
+                                                {sample.qttParticipantsAuthorized && (
+                                                    <li>
+                                                        <span className="font-medium text-gray-900">Limite de participantes:</span> {sample.qttParticipantsAuthorized}
+                                                    </li>
                                                 )}
-                                                <Text as="label" className="text-xl font-medium text-gray-800">{sample.sampleGroup}
-
-                                                </Text>
-
-                                                {sample.status !== "Autorizado" && (
-                                                    <Tooltip content="Excluir Amostra">
-                                                        <IconButton color="red" radius="full" variant="outline">
-                                                            <Icon.Trash
-                                                                className="cursor-pointer"
-                                                                onClick={() => handleNavigateToDeleteSample(sample._id)}
-                                                                size={20}
-                                                            />
-                                                        </IconButton>
-                                                    </Tooltip>
+                                                {sample.participants && (
+                                                    <li>
+                                                        <span className="font-medium text-gray-900">Participantes cadastrados:</span> {sample.participants.length}
+                                                    </li>
                                                 )}
-                                            </Flex>
-                                        </Card.Header>
-
-                                        <Card.Content>
-                                            <div className="space-y-4">
-                                                <Separator size={"4"} ></Separator>
-
-                                                <ul className="space-y-2 text-gray-700 text-sm">
-                                                    <li>
-                                                        <span className="font-medium text-gray-900">Amostra:</span> {sample.sampleTitle}
-                                                    </li>
-                                                    <li>
-                                                        <span className="font-medium text-gray-900">Pesquisa:</span> {sample.researchTitle}
-                                                    </li>
-                                                    {sample.qttParticipantsAuthorized && (
-                                                        <li>
-                                                            <span className="font-medium text-gray-900">Limite de participantes:</span> {sample.qttParticipantsAuthorized}
-                                                        </li>
+                                                <li>
+                                                    <span className="font-medium text-gray-900">Código do Comitê de Ética:</span> {sample.researchCep.cepCode}
+                                                </li>
+                                                <li>
+                                                    <span className="font-medium text-gray-900">Data da Solicitação da amostra:</span>{" "}
+                                                    {sample.createdAt && DateTime.fromISO(sample.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                                </li>
+                                                <li>
+                                                    <span className="font-medium text-gray-900">Data da última atualização:</span>{" "}
+                                                    {sample.updatedAt && DateTime.fromISO(sample.updatedAt).toFormat("dd/LL/yyyy - HH:mm")}
+                                                </li>
+                                                <li className="flex items-center gap-2">
+                                                    <span className="font-medium text-gray-900">Status da amostra:</span>
+                                                    {sample.status === "Autorizado" ? (
+                                                        <Badge color="green" className="rounded-full px-2 py-0.5 text-xs">Autorizado</Badge>
+                                                    ) : sample.status === "Pendente" ? (
+                                                        <Badge color="orange" className="rounded-full px-2 py-0.5 text-xs">Pendente</Badge>
+                                                    ) : (
+                                                        <Badge color="red" className="rounded-full px-2 py-0.5 text-xs">{sample.status}</Badge>
                                                     )}
-                                                    {sample.participants && (
-                                                        <li>
-                                                            <span className="font-medium text-gray-900">Participantes cadastrados:</span> {sample.participants.length}
-                                                        </li>
-                                                    )}
-                                                    <li>
-                                                        <span className="font-medium text-gray-900">Código do Comitê de Ética:</span> {sample.researchCep.cepCode}
-                                                    </li>
-                                                    <li>
-                                                        <span className="font-medium text-gray-900">Data da Solicitação da amostra:</span>{" "}
-                                                        {sample.createdAt && DateTime.fromISO(sample.createdAt).toFormat("dd/LL/yyyy - HH:mm")}
-                                                    </li>
-                                                    <li>
-                                                        <span className="font-medium text-gray-900">Data da última atualização:</span>{" "}
-                                                        {sample.updatedAt && DateTime.fromISO(sample.updatedAt).toFormat("dd/LL/yyyy - HH:mm")}
-                                                    </li>
-                                                    <li className="flex items-center gap-2">
-                                                        <span className="font-medium text-gray-900">Status da amostra:</span>
-                                                        {sample.status === "Autorizado" ? (
-                                                            <Badge color="green" className="rounded-full px-2 py-0.5 text-xs">Autorizado</Badge>
-                                                        ) : sample.status === "Pendente" ? (
-                                                            <Badge color="orange" className="rounded-full px-2 py-0.5 text-xs">Pendente</Badge>
-                                                        ) : (
-                                                            <Badge color="red" className="rounded-full px-2 py-0.5 text-xs">{sample.status}</Badge>
-                                                        )}
-                                                    </li>
-                                                </ul>
-                                            </div>
-                                        </Card.Content>
+                                                </li>
+                                            </ul>
+                                        </div>
+                                    </Card.Content>
 
-                                        <Card.Actions className="flex gap-4 justify-between max-sm:flex-col">
-                                            <Card.Action
-                                                disabled={
-                                                    sample.status !== "Autorizado" ||
-                                                    sample.qttParticipantsAuthorized === sample.participants?.length
-                                                }
-                                                onClick={() => handleRegisterPeople(sample._id as string)}
-                                            >
-                                                Cadastrar Pessoas
-                                            </Card.Action>
-                                            <Card.Action
-                                                disabled={
-                                                    sample.status !== "Autorizado" ||
-                                                    sample.participants?.filter(p => p.adultForm?.totalPunctuation != null).length === 0
-                                                }
-                                                onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
-                                            >
-                                                Avaliar Pessoas
-                                            </Card.Action>
-                                        </Card.Actions>
-                                    </Card.Root>
+                                    <Card.Actions className="flex gap-4 justify-between max-sm:flex-col">
+                                        <Card.Action
+                                            disabled={
+                                                sample.status !== "Autorizado" ||
+                                                sample.qttParticipantsAuthorized === sample.participants?.length
+                                            }
+                                            onClick={() => handleRegisterPeople(sample._id as string)}
+                                        >
+                                            Cadastrar Pessoas
+                                        </Card.Action>
+                                        <Card.Action
+                                            disabled={
+                                                sample.status !== "Autorizado" ||
+                                                sample.participants?.filter(p => p.adultForm?.totalPunctuation != null).length === 0
+                                            }
+                                            onClick={() => handleClickToAnalyzeSampleParticipantes(sample)}
+                                        >
+                                            Avaliar Pessoas
+                                        </Card.Action>
+                                    </Card.Actions>
+                                </Card.Root>
 
-                                </Skeleton>
 
                             ))}
                         </GridComponent>
