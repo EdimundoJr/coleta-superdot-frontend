@@ -121,7 +121,7 @@ const ParticipantsRegistration = () => {
     const urlParticipantForm = `${import.meta.env.VITE_FRONTEND_URL}/formulario-adulto/${sample?._id}`;
 
     const StatItem = ({ icon, label, value, background }: { icon?: ReactNode; label: string; value: ReactNode; background?: string }) => (
-        <Flex align="center" gap="2" className={`${background} p-3 rounded-lg`} >
+        <Flex align="center" gap="2" className={`${background} p-2 rounded-lg`} >
             {icon && <span className="text-primary-600">{icon}</span>}
             <Text size="2" weight="medium" className="text-gray-600">{label}:</Text>
             <Text size="2" weight="bold" className="text-gray-900">{value}</Text>

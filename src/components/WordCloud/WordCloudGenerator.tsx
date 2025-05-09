@@ -1,59 +1,35 @@
-import React, { useEffect, useRef, useState } from 'react';
-import ReactWordcloud from 'react-wordcloud';
+import React, { useState, useEffect, useRef } from 'react';
+import { Text } from '@visx/text';
+import { scaleLog } from '@visx/scale';
+import Wordcloud from '@visx/wordcloud/lib/Wordcloud';
+import * as Switch from '@radix-ui/react-switch';
 
 interface WordCloudGeneratorProps {
   textBio?: string[];
 }
 
+interface CustomWord {
+  text: string;
+  value: number;
+  color: string;
+}
+
+const colors = ['#143059', '#2F6B9A', '#82a6c2', '#FF6B6B', '#4ECDC4', '#FFD700'];
+
 const WordCloudGenerator: React.FC<WordCloudGeneratorProps> = ({ textBio = [] }) => {
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
   const [isFullScreen, setIsFullScreen] = useState(false);
+  const [dimensions, setDimensions] = useState({ width: 300, height: 300 });
+  const [spiralType, setSpiralType] = useState<'archimedean' | 'rectangular'>('archimedean');
+  const [withRotation, setWithRotation] = useState(false);
 
-  const handleFullScreen = () => {
-    const elem = containerRef.current;
-
-    if (elem) {
-      // Define altura em tela cheia
-      elem.style.height = '100vh';
-
-      if (elem.requestFullscreen) {
-        elem.requestFullscreen();
-      } else if ((elem as any).webkitRequestFullscreen) {
-        (elem as any).webkitRequestFullscreen();
-      } else if ((elem as any).msRequestFullscreen) {
-        (elem as any).msRequestFullscreen();
-      }
-    }
+  const getRotationDegree = () => {
+    const rand = Math.random();
+    return rand > 0.5 ? 60 : -60;
   };
 
-  const exitFullScreen = () => {
-    if (document.fullscreenElement) {
-      document.exitFullscreen?.();
-    } else if ((document as any).webkitExitFullscreen) {
-      (document as any).webkitExitFullscreen();
-    } else if ((document as any).msExitFullscreen) {
-      (document as any).msExitFullscreen();
-    }
-  };
-
-  useEffect(() => {
-    const handleChange = () => {
-      const isNowFullScreen = !!document.fullscreenElement;
-      setIsFullScreen(isNowFullScreen);
-
-      // Resetar altura ao sair do fullscreen
-      if (!isNowFullScreen && containerRef.current) {
-        containerRef.current.style.height = '300px';
-      }
-    };
-
-    document.addEventListener('fullscreenchange', handleChange);
-    return () => document.removeEventListener('fullscreenchange', handleChange);
-  }, []);
-
-  const getWordCounts = (textBio: string[]) => {
-
-    const stopWords = [
+  const wordFreq = (texts: string[]): CustomWord[] => {
+    const stopWords = new Set([
       'de', 'a', 'o', 'que', 'e', 'do', 'da', 'em', 'um', 'para', 'é', 'com', 'não', 'uma', 'os', 'no', 'se', 'na',
       'por', 'mais', 'as', 'dos', 'como', 'mas', 'foi', 'ao', 'ele', 'das', 'tem', 'à', 'seu', 'sua', 'ou', 'ser',
       'quando', 'muito', 'há', 'nos', 'já', 'está', 'eu', 'também', 'só', 'pelo', 'pela', 'até', 'isso', 'ela', 'entre',
@@ -72,68 +48,157 @@ const WordCloudGenerator: React.FC<WordCloudGeneratorProps> = ({ textBio = [] })
       'tém', 'tinha', 'tínhamos', 'tinham', 'tive', 'teve', 'tivemos', 'tiveram', 'tivera', 'tivéramos', 'tenha', 'tenhamos',
       'tenham', 'tivesse', 'tivéssemos', 'tivessem', 'tiver', 'tivermos', 'tiverem', 'terei', 'terá', 'teremos', 'terão',
       'teria', 'teríamos', 'teriam', 'tu',
-    ];
+    ]);
 
+    const wordCounts: Record<string, number> = {};
+    const allText = texts.join(' ').normalize('NFD').replace(/[^\w\s]/gi, '').toLowerCase();
 
-    const combinedText = textBio.join(' ');
-
-    // Limpeza e contagem das palavras
-    const wordsArray = combinedText.split(/\s+/);
-    const wordCounts: { [word: string]: number } = {};
-    wordsArray.forEach(word => {
-      const cleanedWord = word.normalize('NFD').replace(/[.,\/#!$%\^&\*;:{}=\-_`~()"]/g, '').toLowerCase();
-      if (cleanedWord && !stopWords.includes(cleanedWord)) {
-        wordCounts[cleanedWord] = (wordCounts[cleanedWord] || 0) + 1;
+    allText.split(/\s+/).forEach((word) => {
+      const cleaned = word.replace(/[.,\/#!$%^&*;:{}=\-_`~()]/g, '');
+      if (cleaned && !stopWords.has(cleaned)) {
+        wordCounts[cleaned] = (wordCounts[cleaned] || 0) + 1;
       }
     });
 
-    return Object.entries(wordCounts).map(([text, value]) => ({ text, value }));
+    const maxValue = Math.max(...Object.values(wordCounts), 1);
+    return Object.entries(wordCounts).map(([text, value]) => ({
+      text,
+      value,
+      color: colors[Math.floor((value / maxValue) * (colors.length - 1))],
+    }));
   };
 
-  const options = {
-    enableTooltip: false,
-    deterministic: true,
-    fontFamily: 'roboto',
-    fontSizes: [20, 60] as [number, number],
-    padding: 0,
-    rotations: 3,
-    transitionDuration: 1000,
+  const words = wordFreq(textBio);
+
+  const fontScale = scaleLog({
+    domain: [Math.min(...words.map((w) => w.value)), Math.max(...words.map((w) => w.value))],
+    range: [10, 100],
+  });
+
+  const handleFullScreen = () => {
+    if (containerRef.current) {
+      setDimensions({
+        width: window.innerWidth,
+        height: window.innerHeight
+      });
+      containerRef.current.requestFullscreen();
+    }
+    setIsFullScreen(true)
   };
 
-  const words = getWordCounts(textBio);
+  const exitFullScreen = () => {
+    if (document.fullscreenElement) {
+      document.exitFullscreen();
+      setDimensions({ width: 300, height: 300 });
+
+    }
+    setIsFullScreen(false)
+
+  };
+
+  useEffect(() => {
+    const handleResize = () => {
+      if (!document.fullscreenElement && containerRef.current) {
+        setDimensions({ width: 300, height: 300 });
+        containerRef.current.style.width = '300px';
+        containerRef.current.style.height = '300px';
+      }
+    };
+    setIsFullScreen(false)
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+
+  }, []);
 
   return (
-    <div
-      ref={containerRef}
-      className="relative "
-      style={{ height: '300px', width: '300px', cursor: 'pointer', background: 'white', }}
-      onClick={!isFullScreen ? handleFullScreen : undefined}
+    <div ref={containerRef}
+      style={{
+        width: `${dimensions.width}px`,
+        height: `${dimensions.height}px`,
+        position: 'relative',
+        background: 'white',
+        cursor: 'pointer'
+      }}
+      className='m-auto'
     >
-      <ReactWordcloud words={words} options={options} />
+      <div className="  card-container p-3">
+        <div className="flex max-xl:flex-col items-center gap-4">
+          {/* Controle do tipo de espiral */}
+          <div className="flex flex-col space-y-1">
+            <label className="text-sm font-medium text-gray-700 mb-1">
+              Tipo de Espiral
+            </label>
+            <select
+              value={spiralType}
+              onChange={(e) => setSpiralType(e.target.value as 'archimedean' | 'rectangular')}
+              className="px-3 py-2 border rounded-md text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all"
+            >
+              <option value="archimedean">Arquimediana</option>
+              <option value="rectangular">Retangular</option>
+            </select>
+          </div>
 
+          {/* Controle de rotação */}
+          <div className="flex flex-col items-center gap-2">
+            <label className="text-sm font-medium text-gray-700">
+              Rotação Automática
+            </label>
+            <Switch.Root
+              className="w-11 h-6 rounded-full relative data-[state=checked]:bg-primary bg-gray-300 transition-colors duration-200"
+              checked={withRotation}
+              onCheckedChange={setWithRotation}
+            >
+              <Switch.Thumb className="block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 translate-x-0.5 data-[state=checked]:translate-x-[26px]" />
+            </Switch.Root>
+          </div>
+        </div>
+      </div>
+      <div
+        onClick={!isFullScreen ? handleFullScreen : undefined}
+      >
+        <Wordcloud
+          words={words}
+          width={dimensions.width}
+          height={dimensions.height}
+          fontSize={(w) => fontScale(w.value)}
+          padding={2}
+          spiral={spiralType}
+          rotate={withRotation ? getRotationDegree : 0}
+          random={() => 0.5}
+          fontStyle={""}
+        >
+          {(cloudWords) => cloudWords.map((w, i) => (
+            <Text
+              key={w.text}
+              fill={colors[i % colors.length]}
+              textAnchor="middle"
+              transform={`translate(${w.x}, ${w.y}) rotate(${w.rotate})`}
+              fontSize={w.size}
+              fontFamily={w.font}
+            >
+              {w.text}
+            </Text>
+          ))}
+        </Wordcloud>
+      </div>
       {isFullScreen && (
         <button
           onClick={exitFullScreen}
-          style={{
-            position: 'absolute',
-            top: 10,
-            right: 10,
-            zIndex: 10,
-            background: 'rgba(0,0,0,0.6)',
-            color: 'white',
-            padding: '8px 12px',
-            borderRadius: '8px',
-            border: 'none',
-            cursor: 'pointer',
-          }}
+          className='overlay-message'
         >
-          Fechar
+          Fechar Tela Cheia
         </button>
       )}
-      <p className='text-[14px] text-gray-500'>*Clique na imagem para ver em tela cheia.</p>
+
+
+      {!isFullScreen && (
+        <div className={`overlay-message`}>
+          *Clique para tela cheia
+        </div>
+      )}
     </div>
   );
 };
-
 
 export default WordCloudGenerator;

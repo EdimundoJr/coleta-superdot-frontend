@@ -23,6 +23,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { MySamplesFilters, mySamplesFiltersSchema } from "../../schemas/mySample.schema";
+import * as Switch from '@radix-ui/react-switch';
+
 
 const AnalysisPage = () => {
     const navigate = useNavigate();
@@ -699,16 +701,24 @@ const AnalysisPage = () => {
                                     title={"Selecione as fontes de palavras:"}
                                     accessibleDescription={""}
                                 >
-                                    <Flex justify={isDesktop ? "between" : "center"} direction={isDesktop ? "row" : "column"} className="gap-8 xl:gap-0 xl:pt-4 pb-4 ">
+                                    <Flex justify={isDesktop ? "between" : "center"} direction={isDesktop ? "column" : "column"} className="gap-3  xl:pt-4 pb-4 ">
                                         {CloudWord.map((itens, index) => (
                                             <Text as="label" size="3" >
-                                                <Flex gap="2" className="p-1 " direction={isDesktop ? "row" : "row"}>
-                                                    <Checkbox
-                                                        className="hover:cursor-pointer"
+                                                <Flex gap="2" className={`card-container p-2`} direction={isDesktop ? "row" : "row"}>
+                                                    <Switch.Root
+                                                        className="w-11 h-6 rounded-full relative data-[state=checked]:bg-primary bg-gray-300 transition-colors duration-200"
+                                                        checked={isCheckedWC[index]}
                                                         onCheckedChange={() => handleChangeWC(index)}
+                                                        value={itens.value}
+                                                    >
+                                                        <Switch.Thumb className="block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 translate-x-0.5 data-[state=checked]:translate-x-[26px]" />
+                                                    </Switch.Root>
+                                                    {/* <Checkbox
+                                                        className="hover:cursor-pointer"
+                                                        
                                                         checked={isCheckedWC[index]}
                                                         value={itens.value}
-                                                    />
+                                                    /> */}
                                                     {itens.title}
                                                 </Flex>
                                             </Text>
@@ -730,7 +740,7 @@ const AnalysisPage = () => {
                                                     switch (item.value) {
                                                         case "RES-SUB":
                                                             return (
-                                                                <Box key={index} className="xl:w-[50%]  m-auto">
+                                                                <Box key={index} className="xl:w-full  m-auto">
                                                                     <p className="text-lg font-bold text-center mb-4">
                                                                         Respostas Subjetivas / Quantidade de Avaliados: {selectedParticipants.length}
                                                                     </p>
@@ -751,7 +761,7 @@ const AnalysisPage = () => {
                                                             );
                                                         case "AUT-BIO":
                                                             return (
-                                                                <Box key={index} className="xl:w-[50%]  m-auto">
+                                                                <Box key={index} className="xl:w-full m-auto">
                                                                     <p className="text-lg font-bold text-center mb-4">
                                                                         Autobiografia / Quantidade de Avaliados: {selectedParticipants.length}
                                                                     </p>
@@ -762,7 +772,7 @@ const AnalysisPage = () => {
                                                             );
                                                         case "ARE-SAB":
                                                             return (
-                                                                <Box key={index} className="xl:w-[50%]  m-auto">
+                                                                <Box key={index} className="xl:w-full  m-auto">
                                                                     <p className="text-lg font-bold text-center mb-4">
                                                                         Áreas do Saber / Quantidade de Avaliados: {selectedParticipants.length}
                                                                     </p>

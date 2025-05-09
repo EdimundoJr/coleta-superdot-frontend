@@ -13,8 +13,7 @@ import { useLocation, useNavigate } from "react-router-dom";
 import { stateWithNotification } from "../../validators/navigationStateValidators";
 import { DateTime } from "luxon";
 import { ISample } from "../../interfaces/sample.interface";
-import { Badge, Box, Container, Flex, IconButton, Separator, Skeleton, Text, Tooltip } from "@radix-ui/themes";
-import { Header } from "../../components/Header/Header";
+import { Badge, Box, Container, Flex, IconButton, Separator, Text, Tooltip } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
 import { GridComponent } from "../../components/Grid/Grid";
 import { Button } from "../../components/Button/Button";
@@ -38,10 +37,11 @@ const MySamplesPage = () => {
     //const [sampleSelecteds, setSampleSelecteds] = useState();
 
     /* STATES TO SHOW NOTIFICATION */
-    const [notificationTitle, setNotificationTitle] = useState<string>();
-    const [notificationDescription, setNotificationDescription] = useState<string>();
-    const [notificationIcon, setNotificationIcon] = useState<React.ReactNode>();
-    const [notificationClass, setNotificationClass] = useState("");
+    const [notificationData, setNotificationData] = useState({
+        title: "",
+        description: "",
+        type: "",
+    });
 
     /* STATES TO DELETE SAMPLE REQUEST*/
     const [openModalDelete, setOpenModalDelete] = useState(false);
@@ -49,10 +49,11 @@ const MySamplesPage = () => {
 
     useEffect(() => {
         if (stateWithNotification(location.state)) {
-            setNotificationTitle(location.state.notification.title);
-            setNotificationDescription(location.state.notification.description);
-            setNotificationIcon(<Icon.CheckCircle size={30} color="white" />);
-            setNotificationClass(location.state.notification.class);
+            setNotificationData({
+                title: "Link inválido!",
+                description: "Verifique se está utilizando o código que foi enviado para o seu e-mail.",
+                type: "erro"
+            });
         }
     }, [location.state]);
 
@@ -84,10 +85,7 @@ const MySamplesPage = () => {
 
     const showFilters = isDesktop || showSearch;
 
-    const handleCleanNotification = () => {
-        setNotificationTitle("");
-        setNotificationDescription("");
-    };
+
 
     /* HANDLERS TO DELETE SAMPLE REQUEST*/
     const handleNavigateToDeleteSample = (sampleId?: string) => {
@@ -120,11 +118,18 @@ const MySamplesPage = () => {
                 setPageData(newPageData);
                 setOpenModalDelete(false);
             }
-            setNotificationTitle("Solicitação apagada!");
-            setNotificationDescription("A solicitação foi apagada com sucesso!");
+            setNotificationData({
+                title: "Solicitação apagada!",
+                description: "A solicitação foi apagada com sucesso!",
+                type: "success"
+            });
+
         } catch (e) {
-            setNotificationTitle("Erro ao apagar solicitação");
-            setNotificationDescription("Não foi possível apagar a solicitação. Tente novamente mais tarde.");
+            setNotificationData({
+                title: "Erro ao apagar solicitação!",
+                description: "Não foi possível apagar a solicitação. Tente novamente mais tarde.",
+                type: "erro"
+            });
             console.error(e);
         }
     };
@@ -148,12 +153,12 @@ const MySamplesPage = () => {
     return (
         <>
             <Notify
-                open={!!notificationTitle}
-                onOpenChange={handleCleanNotification}
-                title={notificationTitle}
-                description={notificationDescription}
-                icon={notificationIcon}
-                className={notificationClass}
+                open={!!notificationData.title}
+                onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
+                title={notificationData.title}
+                description={notificationData.description}
+                icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
+                className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
             >
 
 
@@ -240,7 +245,7 @@ const MySamplesPage = () => {
                     </Form.Root>
                 </Box>
 
-                <Container className="mb-4 p-4">
+                <Container className="mb-4 p-4 max-lg:p-0">
                     {pageData?.data?.length === 0 ? <Text size="4" as="label" className="font-semibold">
                         <Flex direction="column" justify="center" className="mt-10">
                             <Icon.FileX size={100} weight="thin" className="opacity-20 m-auto  " />
