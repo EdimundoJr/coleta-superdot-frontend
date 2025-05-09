@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { SampleGroup, findAllSampleGroups } from "../../api/sampleGroup.api";
 import { Card } from "../../components/Card/Card";
 import { useNavigate } from "react-router-dom";
-import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
+import { Box, Container } from "@radix-ui/themes";
 
 import { GridComponent } from "../../components/Grid/Grid";
 
@@ -18,10 +18,11 @@ const ChooseSampleGroupPage = () => {
             const response = await findAllSampleGroups();
             if (response.status === 200) {
                 setSampleGroups(response.data);
-                setLoading(true)
+                setLoading(false)
             }
         };
         getSampleGroups();
+
     }, []);
 
     return (
