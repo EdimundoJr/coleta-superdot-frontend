@@ -13,18 +13,15 @@ const ChooseSampleGroupPage = () => {
 
 
     useEffect(() => {
-        const timeoutId = setTimeout(() => {
-            setLoading(false);
-        }, 1000);
 
         const getSampleGroups = async () => {
             const response = await findAllSampleGroups();
             if (response.status === 200) {
                 setSampleGroups(response.data);
+                setLoading(true)
             }
         };
         getSampleGroups();
-        return () => clearTimeout(timeoutId);
     }, []);
 
     return (
@@ -43,39 +40,38 @@ const ChooseSampleGroupPage = () => {
                     <>
                         {sampleGroups?.map((group, index) => {
                             return (
-                                <Skeleton loading={loading}>
-                                    <Box>
-                                        <Card.Root key={index} className={`${group.available ? "!border-confirm" : ""}`}>
-                                            <Card.Header>{group.title}</Card.Header>
-                                            <Card.Content>
-                                                <ul>
-                                                    {group.forms.map((form, index) => (
-                                                        <li key={index}>{form}</li>
-                                                    ))}
-                                                </ul>
-                                            </Card.Content>
-                                            <Card.Actions className={`justify-end `}>
-                                                <Card.Action
-                                                    disabled={!group.available}
-                                                    onClick={() => {
-                                                        navigate("/app/create-sample", {
-                                                            state: {
-                                                                groupSelected: group.title,
-                                                            },
-                                                        });
-                                                        window.scrollTo(0, 0);
-                                                    }}
 
-                                                >
-                                                    {group.available ? "Selecionar" : "Em construção"}
+                                <Box>
+                                    <Card.Root loading={loading} key={index} className={`${group.available ? "!border-confirm" : ""}`}>
+                                        <Card.Header>{group.title}</Card.Header>
+                                        <Card.Content>
+                                            <ul>
+                                                {group.forms.map((form, index) => (
+                                                    <li key={index}>{form}</li>
+                                                ))}
+                                            </ul>
+                                        </Card.Content>
+                                        <Card.Actions className={`justify-end `}>
+                                            <Card.Action
+                                                disabled={!group.available}
+                                                onClick={() => {
+                                                    navigate("/app/create-sample", {
+                                                        state: {
+                                                            groupSelected: group.title,
+                                                        },
+                                                    });
+                                                    window.scrollTo(0, 0);
+                                                }}
 
-                                                </Card.Action>
+                                            >
+                                                {group.available ? "Selecionar" : "Em construção"}
 
-                                            </Card.Actions>
+                                            </Card.Action>
 
-                                        </Card.Root>
-                                    </Box>
-                                </Skeleton>
+                                        </Card.Actions>
+
+                                    </Card.Root>
+                                </Box>
 
                             );
                         })}
