@@ -1,4 +1,4 @@
-import { Navigate, Outlet, RouterProvider, createBrowserRouter, useLocation } from "react-router-dom";
+import { Outlet, RouterProvider, createBrowserRouter, useLocation } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
@@ -25,6 +25,7 @@ import * as Icon from "@phosphor-icons/react";
 import { MenuProvider, useMenu } from "./components/UseMenu/UseMenu ";
 import BackToTop from "./components/BackToTop/BackToTop";
 import { PageContainer } from "./components/PageContainer/PageContainer";
+import NotFoundPage from "./components/NotFoundPage/NotFoundPage";
 
 
 
@@ -141,7 +142,11 @@ const router = createBrowserRouter([
             },
             {
                 path: "*",
-                element: <Navigate to="/" replace />
+                element: (
+                    <GuardRoute scope="OUTER" publicRoute>
+                        <NotFoundPage />
+                    </GuardRoute>
+                )
             }
         ],
     },

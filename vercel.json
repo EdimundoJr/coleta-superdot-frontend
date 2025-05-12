@@ -1,0 +1,27 @@
+{
+  "rewrites": [
+    {
+      "source": "/_next/static/(.*)",
+      "destination": "/_next/static/$1"
+    },
+    {
+      "source": "/static/(.*)",
+      "destination": "/static/$1"
+    },
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        {
+          "key": "Cache-Control",
+          "value": "public, max-age=0, must-revalidate"
+        }
+      ]
+    }
+  ]
+}
