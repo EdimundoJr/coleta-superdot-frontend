@@ -1,4 +1,4 @@
-import { Outlet, RouterProvider, createBrowserRouter, useLocation } from "react-router-dom";
+import { Navigate, Outlet, RouterProvider, createBrowserRouter, useLocation } from "react-router-dom";
 import RegisterPage from "./pages/RegisterPage/RegisterPage";
 import { LoginPage } from "./pages/LoginPage/LoginPage";
 import UsersPage from "./pages/UsersPage/UsersPage";
@@ -19,7 +19,7 @@ import SecondsSourceCompare from "./pages/SecondsSourceCompare/SecondsSourceComp
 import CompareParticipantsSelected from "./pages/CompareParticipantsSelected/CompareParticipantsSelected";
 import EvaluateAutobiography from "./pages/EvaluateAutobiography/EvaluateAutobiography";
 import { Box, Flex } from "@radix-ui/themes";
-import GuardRoute from "./components/GuardRoute/GuardRoute";
+import { GuardRoute } from "./components/GuardRoute/GuardRoute";
 import { Header } from "./components/Header/Header";
 import * as Icon from "@phosphor-icons/react";
 import { MenuProvider, useMenu } from "./components/UseMenu/UseMenu ";
@@ -31,7 +31,7 @@ import { PageContainer } from "./components/PageContainer/PageContainer";
 function OuterLayout() {
     return (
         <Flex className="h-full w-full font-roboto bg-off-white">
-            <GuardRoute scope="OUTER">
+            <GuardRoute scope="OUTER" publicRoute={true}>
                 <Outlet />
             </GuardRoute>
         </Flex>
@@ -68,7 +68,7 @@ function InnerLayout() {
 
     return (
 
-        <Flex className="bg-background font-roboto min-h-screen">
+        <Flex className="bg-background font-roboto min-h-screen w-full">
             <Box className={`max-xl:!w-0 ${isMobileMenuOpen ? 'w-64' : 'w-16'}`}>
                 <SideBar userRole={userRole} />
             </Box>
@@ -91,6 +91,7 @@ function InnerLayout() {
     );
 }
 
+
 const router = createBrowserRouter([
     {
         path: "/",
@@ -98,91 +99,54 @@ const router = createBrowserRouter([
         children: [
             { index: true, Component: LoginPage },
             { path: "register", Component: RegisterPage },
+            {
+                path: "formulario-adulto/:sampleId/:participantId/:verificationCode",
+                Component: AdultForm
+            },
+            {
+                path: "formulario-adulto/:sampleId",
+                Component: AdultForm
+            },
+            {
+                path: "formulario-adulto-segunda-fonte/:sampleId/:participantId/:secondSourceId/:verificationCode",
+                Component: AdultFormSecondSourcePage
+            },
+            {
+                path: "formulario-adulto-segunda-fonte/:sampleId/:participantId",
+                Component: AdultFormSecondSourcePage
+            },
+            {
+                path: "app",
+                Component: InnerLayout,
+                children: [
+                    { path: "home", Component: DashBoardPage },
+                    { path: "choose-sample-group", Component: ChooseSampleGroupPage },
+                    { path: "my-samples", Component: MySamplesPage },
+                    { path: "create-sample", Component: CreateSamplePage },
+                    { path: "edit-sample", Component: EditSamplePage },
+                    {
+                        path: "my-samples",
+                        children: [
+                            { path: "participants-registration", Component: ParticipantsRegistration },
+                            { path: "analyze-sample", Component: AnalysisPage },
+                            { path: "seconds-source-compare", Component: SecondsSourceCompare },
+                            { path: "compare-participants-selected", Component: CompareParticipantsSelected },
+                            { path: "evaluate-autobiography", Component: EvaluateAutobiography },
+                        ]
+                    },
+                    { path: "users", Component: UsersPage },
+                    { path: "review-requests", Component: SampleReviewPage },
+                    { path: "logout", Component: LogoutPage },
+                ],
+            },
+            {
+                path: "*",
+                element: <Navigate to="/" replace />
+            }
         ],
-    },
-    {
-        path: "/formulario-adulto/:sampleId",
-        Component: OuterLayout,
-        children: [{ index: true, Component: AdultForm }],
-    },
-    {
-        path: "/formulario-adulto/:sampleId/:participantId/:verificationCode",
-        Component: OuterLayout,
-        children: [{ index: true, Component: AdultForm }],
-    },
-    {
-        path: "/formulario-adulto-segunda-fonte/:sampleId/:participantId",
-        Component: OuterLayout,
-        children: [{ index: true, Component: AdultFormSecondSourcePage }],
-    },
-    {
-        path: "/formulario-adulto-segunda-fonte/:sampleId/:participantId/:secondSourceId/:verificationCode",
-        Component: OuterLayout,
-        children: [{ index: true, Component: AdultFormSecondSourcePage }],
-    },
-    {
-        path: "app",
-        Component: InnerLayout,
-        children: [
-            {
-                path: "home",
-                Component: DashBoardPage,
-            },
-            {
-                path: "choose-sample-group",
-                Component: ChooseSampleGroupPage,
-            },
-            {
-                path: "my-samples",
-                Component: MySamplesPage,
-            },
-            {
-                path: "create-sample",
-                Component: CreateSamplePage,
-            },
-            {
-                path: "edit-sample",
-                Component: EditSamplePage,
-            },
-            {
-                path: "my-samples/participants-registration",
-                Component: ParticipantsRegistration,
-            },
-            {
-                path: "my-samples/analyze-sample",
-                Component: AnalysisPage,
-            },
-            {
-                path: "users",
-                Component: UsersPage,
-            },
-            {
-                path: "review-requests",
-                Component: SampleReviewPage,
-            },
-            {
-                path: "logout",
-                Component: LogoutPage,
-            },
-            {
-                path: "my-samples/seconds-source-compare",
-                Component: SecondsSourceCompare,
-            },
-            {
-                path: "my-samples/compare-participants-selected",
-                Component: CompareParticipantsSelected,
-            },
-            {
-                path: "my-samples/evaluate-autobiography",
-                Component: EvaluateAutobiography,
-            },
-        ],
-    },
-    {
-        path: "/*",
-        Component: OuterLayout,
     },
 ]);
+
 
 export default function App() {
     return (
