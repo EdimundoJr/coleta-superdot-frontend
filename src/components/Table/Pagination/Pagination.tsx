@@ -44,9 +44,8 @@ const Pagination = ({ currentPage, totalCount, siblingCount = 1, pageSize, onPag
             <ul className="inline-flex -space-x-px text-sm">
                 <li
                     onClick={onPrevious}
-                    className={`${
-                        currentPage === 1 ? "hidden" : ""
-                    } flex h-8 cursor-pointer items-center rounded-l-lg border border-gray-300 px-3 leading-tight text-white hover:bg-gray-100 hover:text-gray-700`}
+                    className={`${currentPage === 1 ? "hidden" : ""
+                        } flex h-8 cursor-pointer items-center rounded-l-lg border border-gray-300 px-3 leading-tight text-white hover:bg-gray-100 hover:text-gray-700`}
                 >
                     <ArrowLeftIcon />
                 </li>
@@ -58,9 +57,8 @@ const Pagination = ({ currentPage, totalCount, siblingCount = 1, pageSize, onPag
                     return (
                         <li
                             onClick={() => onPageChange(Number(pageNumber))}
-                            className={`${
-                                currentPage === pageNumber ? "bg-blue-600" : ""
-                            } flex h-8 cursor-pointer items-center border border-gray-300 px-3 leading-tight text-white hover:bg-gray-100 hover:text-gray-700`}
+                            className={`${currentPage === pageNumber ? "bg-blue-600" : ""
+                                } flex h-8 cursor-pointer items-center border border-gray-300 px-3 leading-tight text-white hover:bg-gray-100 hover:text-gray-700`}
                         >
                             {pageNumber}
                         </li>
@@ -68,9 +66,8 @@ const Pagination = ({ currentPage, totalCount, siblingCount = 1, pageSize, onPag
                 })}
                 <li
                     onClick={onNext}
-                    className={`${
-                        currentPage === lastPage ? "hidden" : ""
-                    } flex h-8 cursor-pointer items-center rounded-r-lg border border-gray-300 px-3 leading-tight text-white hover:bg-gray-100 hover:text-gray-700`}
+                    className={`${currentPage === lastPage ? "hidden" : ""
+                        } flex h-8 cursor-pointer items-center rounded-r-lg border border-gray-300 px-3 leading-tight text-white hover:bg-gray-100 hover:text-gray-700`}
                 >
                     <ArrowRightIcon />
                 </li>

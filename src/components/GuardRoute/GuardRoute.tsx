@@ -31,6 +31,9 @@ export const GuardRoute = ({
     if (userLogged && scope === "OUTER") {
         return <Navigate to="/app/home" replace />;
     }
+    if (location.pathname.startsWith('/formulario-adulto')) {
+        return <>{children}</>;
+    }
 
     return <>{children}</>;
 };

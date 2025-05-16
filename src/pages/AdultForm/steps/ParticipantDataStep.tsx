@@ -67,6 +67,14 @@ const ParticipantDataStep = ({
             });
         }
     };
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
 
     const onSubmit = handleSubmit(async (participantData: ParticipantDataDTO) => {
         try {
@@ -81,7 +89,7 @@ const ParticipantDataStep = ({
                     setFormData(participantData);
                 }
                 nextStep();
-                window.scrollTo(0, 0);
+                scrollToTop();
             }
         } catch (e: any) {
             console.error(e);

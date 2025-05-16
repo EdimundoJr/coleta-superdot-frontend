@@ -134,9 +134,16 @@ const AdultFormSecondSourcePage = () => {
 
 
     const allStepsCompleted = Object.values(completedSteps).every(Boolean);
+    const scrollToTop = () => {
 
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
     const handleNextStep = () => {
-        window.scrollTo(0, 0);
+        scrollToTop();
         if (currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS) {
             setNotificationData({
                 title: "Questionário finalizado!",
@@ -171,7 +178,7 @@ const AdultFormSecondSourcePage = () => {
     };
 
     const handlePreviousStep = () => {
-        window.scrollTo(0, 0);
+        scrollToTop();
         if (currentStep === EAdultFormSteps.INTRODUCTION) {
             return;
         }

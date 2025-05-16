@@ -22,6 +22,7 @@ import { Button } from "../../components/Button/Button";
 const CreateSamplePage = () => {
     const [sampleFiles, setSampleFiles] = useState<SampleFile[]>(FILES_AVAILABLE_TO_CREATE_SAMPLE);
     const [sampleFileError, setSampleFileError] = useState("");
+    const [loading, setLoading] = useState(false);
 
     /* NOTIFY */
     const [notificationData, setNotificationData] = useState({
@@ -36,11 +37,21 @@ const CreateSamplePage = () => {
     const location = useLocation();
     const navigate = useNavigate();
 
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
+
     useEffect(() => {
         if (stateWithGroupSample(location.state)) {
             setGroupSelected(location.state.groupSelected);
         } else {
             navigate("/app/choose-sample-group");
+            scrollToTop();
         }
     }, [location.state]);
 
@@ -52,6 +63,7 @@ const CreateSamplePage = () => {
     } = useForm({ resolver: yupResolver(sampleSchema) });
 
     const onSubmit = handleSubmit(async (data) => {
+        setLoading(true);
         try {
             validateFiles(sampleFiles);
         } catch (e: any) {
@@ -62,7 +74,7 @@ const CreateSamplePage = () => {
                     type: "erro"
                 });
                 setSampleFileError(e.message);
-
+                setLoading(false);
             }
             return;
         }
@@ -107,10 +119,11 @@ const CreateSamplePage = () => {
                         notification: {
                             title: "Operação realizada.",
                             description: "A amostra foi cadastrada com sucesso!",
-                            class: "bg-green-500"
+                            type: "success"
                         },
                     },
                 });
+                scrollToTop();
             }
         } catch (error) {
             console.error(error);
@@ -119,13 +132,14 @@ const CreateSamplePage = () => {
                 description: "Não foi possível cadastrar a amostra com as informações fornecidas.",
                 type: "erro"
             });
+        } finally {
+            setLoading(false);
         }
     });
 
     return (
         <>
 
-            {/* <Header title="Definição da Amostra" icon={<Icon.FolderSimplePlus size={24} />} /> */}
             <Notify
                 open={!!notificationData.title}
                 onOpenChange={() => setNotificationData({ title: "", description: "", type: "" })}
@@ -253,11 +267,12 @@ const CreateSamplePage = () => {
                         setSampleFiles={setSampleFiles}
                     />
 
-                    <Form.Submit asChild className="mt-10 animate-bounce-in">
+                    <Form.Submit asChild className="mt-10 ">
                         <Button
                             size="Medium"
+                            loading={loading}
                             className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed mx-auto 
-        transition-transform duration-300 hover:scale-105 active:scale-95`}
+        btn-primary `}
                             color={`${isValid ? "green" : "gray"}`}
                             disabled={!isValid}
                             title={"Enviar Solicitação"}

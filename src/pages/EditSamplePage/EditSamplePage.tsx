@@ -16,7 +16,6 @@ import { stateWithSample } from "../../validators/navigationStateValidators";
 import { CustomFileError } from "../../errors/fileErrors";
 import { validateFiles } from "../../validators/fileValidator";
 import * as Icon from "@phosphor-icons/react";
-import { Header } from "../../components/Header/Header";
 import { Button } from "../../components/Button/Button";
 
 
@@ -32,12 +31,30 @@ const EditSamplePage = () => {
     });
     const navigate = useNavigate();
     const location = useLocation();
+    const scrollToTop = () => {
 
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
+
+
+
+    /* FORM HANDLER */
+    const {
+        register,
+        handleSubmit,
+        formState: { errors },
+        reset,
+    } = useForm({ resolver: yupResolver(sampleSchema) });
     useEffect(() => {
         if (stateWithSample(location.state)) {
             const sample = location.state.sample;
             sampleId.current = sample._id;
             setSample(sample);
+            reset(sample);
             // When the uploadedFile is defined in a object inside the sampleFiles state, the file is displayed as "uploaded".
             setSampleFiles(
                 sampleFiles.map((sampleFile) => {
@@ -55,15 +72,9 @@ const EditSamplePage = () => {
             );
         } else {
             navigate("/app/my-samples");
+            scrollToTop();
         }
-    }, [navigate, location]);
-
-    /* FORM HANDLER */
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({ resolver: yupResolver(sampleSchema), defaultValues: sample });
+    }, [navigate, location, reset]);
 
     const onSubmit = handleSubmit(async (data) => {
         if (!sampleId.current) return;
@@ -141,6 +152,7 @@ const EditSamplePage = () => {
                         },
                     },
                 });
+                scrollToTop();
             }
         } catch (error) {
             console.error(error);
@@ -164,54 +176,61 @@ const EditSamplePage = () => {
                 className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
             >
 
+                <Form.Root
+                    onSubmit={onSubmit}
+                    className="mx-auto mb-6 mt-11 max-sm:mt-5 w-11/12 opacity-0 animate-fade-in animate-delay-100 animate-fill-forwards"
+                >
+                    <h3 className="text-left text-primary animate-fade-in animate-delay-200">
+                        Detalhes da amostra
+                    </h3>
 
-                <Form.Root onSubmit={onSubmit} className="mx-auto mb-6  max-sm:mt-5 w-11/12">
-                    <h3 className="text-left text-primary">Detalhes da amostra</h3>
-                    <Separator.Root className="my-6 h-px w-full bg-black" />
+                    <Separator.Root className="my-6 h-px w-full bg-black animate-grow-width animate-delay-300" />
 
                     {/* CONTAINER TO INPUT SAMPLE DETAILS */}
-                    <div className=" grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                        <div className="col-span-3 mb-2">
+                    <div className=" gap-4 ">
+                        <div className="col-span-3 animate-fade-in animate-delay-300">
                             <InputField
                                 label="TÍTULO DA PESQUISA*"
-                                defaultValue={sample.researchTitle}
+                                // defaultValue={sample.researchTitle}
                                 errorMessage={errors.researchTitle?.message}
                                 {...register("researchTitle")}
-
-                            ></InputField>
+                            />
                         </div>
 
-                        <div className="col-span-3 mb-2">
+                        <div className="col-span-3 animate-fade-in animate-delay-400">
                             <InputField
                                 label="TÍTULO DA AMOSTRA*"
-                                defaultValue={sample.sampleTitle}
+                                // defaultValue={sample.sampleTitle}
                                 errorMessage={errors.sampleTitle?.message}
                                 {...register("sampleTitle")}
-                            ></InputField>
+                            />
                         </div>
 
-                        <div className="col-span-3 md:flex mb-2 gap-2">
+                        <div className="col-span-3 md:flex gap-2 animate-fade-in animate-delay-500">
                             <InputField
                                 label="Código do Comitê de Ética*"
-                                defaultValue={sample.researchCep?.cepCode}
+                                // defaultValue={sample.researchCep?.cepCode}
                                 errorMessage={errors.researchCep?.cepCode?.message}
                                 {...register("researchCep.cepCode")}
-                            ></InputField>
+                                className="flex-1 "
+                            />
                             <InputField
                                 label="QUANTIDADE TOTAL DE PARTICIPANTES*"
-                                defaultValue={sample.qttParticipantsRequested}
+                                // defaultValue={sample.qttParticipantsRequested}
                                 errorMessage={errors.qttParticipantsRequested?.message}
                                 type="number"
                                 {...register("qttParticipantsRequested")}
-                            ></InputField>
+                                className="flex-1 "
+                            />
                         </div>
 
-                        <div className="md:col-span-2 md:flex lg:col-span-3 mb-12 gap-2">
+                        <div className="md:col-span-2 md:flex lg:col-span-3 mb-12 gap-2 animate-fade-in animate-delay-600">
                             <SelectField
                                 label="REGIÃO DA AMOSTRA*"
-                                defaultValue={sample.countryRegion}
+                                // defaultValue={sample.countryRegion}
                                 errorMessage={errors.countryRegion?.message}
                                 {...register("countryRegion")}
+                                className="md:flex-1 w-full md:w-auto "
                             >
                                 <option value="Norte">Norte</option>
                                 <option value="Nordeste">Nordeste</option>
@@ -220,46 +239,45 @@ const EditSamplePage = () => {
                                 <option value="Sul">Sul</option>
                             </SelectField>
 
-
                             <InputField
                                 label="ESTADO DA AMOSTRA*"
-                                defaultValue={sample.countryState}
+                                // defaultValue={sample.countryState}
                                 errorMessage={errors.countryState?.message}
                                 {...register("countryState")}
-                            ></InputField>
+                                className="flex-1 "
+                            />
 
                             <InputField
                                 label="CIDADE DA AMOSTRA*"
-                                defaultValue={sample.countryCity}
+                                // defaultValue={sample.countryCity}
                                 errorMessage={errors.countryCity?.message}
                                 {...register("countryCity")}
-                            ></InputField>
+                                className="flex-1 "
+                            />
                         </div>
                     </div>
 
                     {/* CONTAINER TO INPUT INSTITUITION DATA */}
-                    <div className="col-span-3 gap-2">
+                    <div className="col-span-3 gap-2 animate-fade-in animate-delay-700">
                         <h3 className="text-left text-primary">Instituição da Amostra</h3>
-                        <Separator.Root className="my-6 h-px w-full bg-black" />
-                        <div className="flex justify-center">
+                        <Separator.Root className="my-6 h-px w-full bg-black animate-grow-width" />
+
+                        <div className="flex justify-center gap-2 max-lg:flex-col">
                             <InputField
                                 label="NOME*"
-                                defaultValue={sample.instituition?.name}
+                                // defaultValue={sample.instituition?.name}
                                 errorMessage={errors.instituition?.name?.message}
                                 {...register("instituition.name")}
-                            ></InputField>
-
+                            />
 
                             <SelectField
                                 label="TIPO*"
                                 errorMessage={errors.instituition?.instType?.message}
-                                defaultValue={sample.instituition?.instType}
+                                // defaultValue={sample.instituition?.instType}
                                 {...register("instituition.instType")}
                             >
-                                <option value="Particular" selected={sample.instituition?.instType === 'Particular' ? true : false}>Particular</option>
-                                <option value="Pública" selected={sample.instituition?.instType === 'Pública' ? true : false}>Pública</option>
-
-
+                                <option>Pública</option>
+                                <option>Particular</option>
                             </SelectField>
                         </div>
                     </div>
@@ -271,14 +289,13 @@ const EditSamplePage = () => {
                         notifyFileChange={fileChangeRef}
                     />
 
-                    <div className="mt-10 flex justify-center gap-2">
-                        <Form.Submit asChild>
-                            <Button color="green" title={"Salvar alterações"} size={"Medium"}></Button>
-                        </Form.Submit>
-                        <Button color="gray" onClick={() => navigate("/app/my-samples")} title={"Cancelar"} size={"Medium"}>
-
-                        </Button>
-                    </div>
+                    <Form.Submit asChild className="mt-10 animate-bounce-in">
+                        <Button
+                            size="Medium"
+                            color={`green`}
+                            title={"Salvar e Enviar Solicitação"}
+                        />
+                    </Form.Submit>
                 </Form.Root>
             </Notify>
         </>

@@ -93,7 +93,7 @@ span.error-message {
   }
   
   .btn-primary {
-    @apply transition-all duration-200 hover:scale-105 active:scale-95;
+    @apply transition-all duration-200  active:scale-95;
   }
   
   .btn-primary-mobo {
@@ -107,6 +107,18 @@ span.error-message {
   .animate-fade-in {
     animation: fadeIn 0.5s ease-out forwards;
   }
+  @keyframes spin {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-spin {
+  animation: spin 1s linear infinite;
+}
   
 .bg-glass {       
     background: rgba(255, 255, 255, 0.15); 
@@ -121,6 +133,11 @@ span.error-message {
     box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3); 
     backdrop-filter: blur(20px); 
     -webkit-backdrop-filter: blur(20px);
+}
+.centralizado {
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
 }
  
 /** Background animate **/
@@ -199,7 +216,13 @@ span.error-message {
             .desktop {
                 display: block !important;
             }
+            .desktop-flex {
+                display: flex !important;
+            }
             .mobo {
+                display: none !important;
+            }
+            .mobo-flex {
                 display: none !important;
             }
             
@@ -208,8 +231,14 @@ span.error-message {
             .desktop {
                 display: none !important;
             }
+            .desktop-flex {
+                display: none !important;
+            }
             .mobo {
                 display: block !important;
+            }
+            .mobo-flex {
+                display: flex !important;
             }
             .mobo-only {
                 margin-top: 40px;

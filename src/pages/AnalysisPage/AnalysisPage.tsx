@@ -24,6 +24,11 @@ import { useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { MySamplesFilters, mySamplesFiltersSchema } from "../../schemas/mySample.schema";
 import * as Switch from '@radix-ui/react-switch';
+import EmptyState from "../../components/EmptyState/EmptyState";
+import SkeletonDataList from "../../components/Skeletons/SkeletonDataList";
+import ActionButtonExplain from "../../components/ActionButtonExplain/ActionButtonExplain";
+import SkeletonTableBody from "../../components/Skeletons/SkeletonTableBody";
+import SkeletonHeader from "../../components/Skeletons/SkeletonHeader";
 
 
 const AnalysisPage = () => {
@@ -255,6 +260,14 @@ const AnalysisPage = () => {
             navigate("/app/my-samples");
         }
     }, [location, navigate]);
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
 
     const handleCompareSource = (participant: IParticipant) => {
         if (!participant.secondSources?.length) {
@@ -274,6 +287,7 @@ const AnalysisPage = () => {
                 participant,
             },
         });
+        scrollToTop();
     };
 
 
@@ -284,6 +298,7 @@ const AnalysisPage = () => {
                 participant,
             },
         });
+        scrollToTop();
     };
 
     useEffect(() => {
@@ -324,6 +339,7 @@ const AnalysisPage = () => {
                 selectedParticipants,
             },
         });
+        scrollToTop();
     };
 
     const handleShowPunctuation = () => {
@@ -449,482 +465,426 @@ const AnalysisPage = () => {
             className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
 
-            <AnimatePresence>
-                <motion.div
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    exit={{ opacity: 0 }}
-                    transition={{ duration: 0.1 }}
-                    className="xl:ml-20"
-                >
-
-                    <Skeleton loading={loading} >
-                        <Box className="px-4 md:px-8 lg:px-0 max-w-7xl mx-auto">
-                            {/* Header Section */}
-                            <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
-                                <h2 className="heading-2 font-semibold text-gray-900">
-                                    {sample.sampleGroup} - Total de {sample.participants?.length} Avaliado(s)
-                                </h2>
-                            </header>
-
-                            <Box className="hidden lg:grid grid-cols-4 gap-4">
-                                <Form.Root
-                                    onSubmit={handleSubmit((data) => {
-                                        setFilters({ ...data });
-                                    })}
-                                    className="flex flex-col items-center xl:flex-row xl:justify-between xl:p-0 pt-0 pb-1"
-                                >
-                                    {!isDesktop && (
-                                        <Button
-                                            type="button"
-                                            onClick={() => setShowSearch(!showSearch)}
-                                            className="block xl:hidden mb-5"
-                                            title={showSearch ? "Fechar Filtros" : "Mostrar Filtros"}
-                                            color="primary"
-                                            size="Medium"
-                                        >
-                                            {showSearch ? <Icon.X size={20} /> : <Icon.Funnel size={20} />}
-                                        </Button>
-                                    )}
-                                    <AnimatePresence>
-                                        {showFilters && (
-                                            <motion.div
-                                                initial={{ opacity: 0, height: 0 }}
-                                                animate={{ opacity: 1, height: "auto" }}
-                                                exit={{ opacity: 0, height: 0 }}
-                                                transition={{ duration: 0.3 }}
-                                                className="flex flex-col xl:flex-row xl:items-end gap-3 w-full overflow-hidden"
-                                            >
-                                                <Form.Submit asChild className="hidden xl:block">
-                                                    <Button
-                                                        size="Large"
-                                                        className="items-center w-full xl:w-[300px]"
-                                                        title="Filtrar"
-                                                        color="primary"
-                                                    >
-                                                        <Icon.Funnel size={20} color="white" />
-                                                    </Button>
-                                                </Form.Submit>
-                                                <InputField
-                                                    className=""
-                                                    icon={<Icon.MagnifyingGlass />}
-                                                    placeholder="Pesquisar pelo nome do avaliado..."
-                                                    name="participant-name"
-                                                    {...register("participant-name")}
-                                                />
-                                                <Flex align="center" className="gap-2 flex-col xl:flex-row w-full xl:w-auto">
-                                                    <SelectField
-                                                        label="Área do Saber"
-                                                        name="knowledge-area"
-                                                        defaultValue=""
-                                                        className="p-2 w-full xl:w-auto truncate"
-                                                    >
-                                                        {selectItensKA.map(option => (
-                                                            <option key={option.label} value={option.label}>
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </SelectField>
-                                                    <SelectField
-                                                        label="Pontuação Mínima"
-                                                        name="min-punctuation"
-                                                        className="w-full xl:w-auto truncate"
-                                                    >
-                                                        {selectItensPM.map(option => (
-                                                            <option key={option.value} value={option.value}>
-                                                                {option.label}
-                                                            </option>
-                                                        ))}
-                                                    </SelectField>
-                                                </Flex>
-                                                <Form.Submit asChild className="block xl:hidden">
-                                                    <Button
-                                                        size="Large"
-                                                        className="items-center w-full xl:w-[300px]"
-                                                        title="Filtrar"
-                                                        color="primary"
-                                                    >
-                                                        <Icon.Funnel size={20} color="white" />
-                                                    </Button>
-                                                </Form.Submit>
-                                                <Button
-                                                    size="Large"
-                                                    onClick={() => setFilters({})}
-                                                    type="reset"
-                                                    className="items-center w-full xl:w-[300px]"
-                                                    color="primary"
-                                                    title="Limpar Filtro"
-                                                />
-                                            </motion.div>
-                                        )}
-                                    </AnimatePresence>
-                                    <Flex />
-                                </Form.Root>
-                            </Box>
-
-                            <Flex
-                                direction={isDesktop ? "row" : "column"}
-
-                                justify="between"
-                                className="gap-4 m-auto w-[90%] max-w-4xl mt-5 px-4"
-                            >
-                                <Modal
-                                    open={openModalCompare}
-                                    setOpen={setOpenModalCompare}
-                                    title={"Você não selecionou nenhum participante."}
-                                    accessibleDescription={"Para comparar as respostas entre os avaliados ou gerar a nuvem de palavras, você deve selecionar pelo menos um participante."} />
-
+            {loading ? (
+                <>
+                    <SkeletonHeader buttons={true} filter={true} />
+                </>
+            ) : (
+                <>
+                    <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
+                        <h2 className="heading-2 font-semibold text-gray-900">
+                            {sample.sampleGroup} - Total de {sample.participants?.length} Avaliado(s)
+                        </h2>
+                    </header>
+                    <Box className="hidden lg:grid grid-cols-4 gap-4">
+                        <Form.Root
+                            onSubmit={handleSubmit((data) => {
+                                setFilters({ ...data });
+                            })}
+                            className="flex flex-col items-center xl:flex-row xl:justify-between xl:p-0 pt-0 pb-1"
+                        >
+                            {!isDesktop && (
                                 <Button
+                                    type="button"
+                                    onClick={() => setShowSearch(!showSearch)}
+                                    className="block xl:hidden mb-5"
+                                    title={showSearch ? "Fechar Filtros" : "Mostrar Filtros"}
+                                    color="primary"
                                     size="Medium"
-                                    title={"Comparar Selecionados"}
-                                    color={"primary"}
-                                    onClick={() => handleCompareSelected()}
-                                    children={<Icon.ChartBar size={20} color="white" weight="bold" />}
-                                    className="btn-primary"
                                 >
-
+                                    {showSearch ? <Icon.X size={20} /> : <Icon.Funnel size={20} />}
                                 </Button>
-                                <Modal
-                                    open={openModal}
-                                    setOpen={setOpenModal}
-                                    title={"Pontuação:"}
-                                    accessibleDescription={""}
-                                    children={
-                                        <Table.Root variant="ghost" className="w-full mt-3">
-                                            <Table.Header className="text-[16px]">
-                                                <Table.Row align="center" className="text-center">
-                                                    <Table.ColumnHeaderCell colSpan={2} className="border-l">Nº da pergunta do Questionário</Table.ColumnHeaderCell>
-                                                    <Table.ColumnHeaderCell colSpan={5} className="border-l"></Table.ColumnHeaderCell>
-                                                </Table.Row>
-                                            </Table.Header>
-                                            <Table.Header className="text-[16px]">
-                                                <Table.Row align="center" className="text-center">
-                                                    <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto</Table.ColumnHeaderCell>
-                                                    <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto -
-                                                        2ª Fonte</Table.ColumnHeaderCell>
-                                                    <Table.ColumnHeaderCell className="border-l">Respostas comuns</Table.ColumnHeaderCell>
-                                                    <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
-                                                    <Table.ColumnHeaderCell className="border-l">Respostas não comuns</Table.ColumnHeaderCell>
-                                                    <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
-                                                </Table.Row>
-                                            </Table.Header>
-                                            <Table.Body>
-                                                <Table.Row align="center">
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                    <Table.Cell justify="center">1</Table.Cell>
-                                                    <Table.Cell justify="center">Sim</Table.Cell>
-                                                    <Table.Cell justify="center">2</Table.Cell>
-                                                    <Table.Cell justify="center">Não</Table.Cell>
-                                                    <Table.Cell justify="center">0</Table.Cell>
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                            <Table.Body>
-                                                <Table.Row align="center">
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                    <Table.Cell justify="center">1</Table.Cell>
-                                                    <Table.Cell justify="center">Sim</Table.Cell>
-                                                    <Table.Cell justify="center">2</Table.Cell>
-                                                    <Table.Cell justify="center">Não</Table.Cell>
-                                                    <Table.Cell justify="center">0</Table.Cell>
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                            <Table.Body>
-                                                <Table.Row align="center">
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                    <Table.Cell justify="center">1</Table.Cell>
-                                                    <Table.Cell justify="center">Sim</Table.Cell>
-                                                    <Table.Cell justify="center">2</Table.Cell>
-                                                    <Table.Cell justify="center">Não</Table.Cell>
-                                                    <Table.Cell justify="center">0</Table.Cell>
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                            <Table.Body>
-                                                <Table.Row align="center">
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                    <Table.Cell justify="center">1</Table.Cell>
-                                                    <Table.Cell justify="center">Sim</Table.Cell>
-                                                    <Table.Cell justify="center">2</Table.Cell>
-                                                    <Table.Cell justify="center">Não</Table.Cell>
-                                                    <Table.Cell justify="center">0</Table.Cell>
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                            <Table.Body>
-                                                <Table.Row align="center">
-                                                    <Table.Cell justify="center">5</Table.Cell>
-                                                    <Table.Cell justify="center">1</Table.Cell>
-                                                    <Table.Cell justify="center">Sim</Table.Cell>
-                                                    <Table.Cell justify="center">2</Table.Cell>
-                                                    <Table.Cell justify="center">Não</Table.Cell>
-                                                    <Table.Cell justify="center">0</Table.Cell>
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                            <Table.Body>
-                                                <Table.Row align="center">
-                                                    <Table.Cell justify="center">6</Table.Cell>
-                                                    <Table.Cell justify="center">1</Table.Cell>
-                                                    <Table.Cell justify="center">Sim</Table.Cell>
-                                                    <Table.Cell justify="center">2</Table.Cell>
-                                                    <Table.Cell justify="center">Não</Table.Cell>
-                                                    <Table.Cell justify="center">0</Table.Cell>
-                                                    <Table.Cell justify="center">-</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                            <Table.Body>
-                                                <Table.Row align="center">
-                                                    <Table.Cell justify="center">1</Table.Cell>
-                                                    <Table.Cell justify="center">2</Table.Cell>
-                                                    <Table.Cell justify="center">3</Table.Cell>
-                                                    <Table.Cell justify="center">4</Table.Cell>
-                                                    <Table.Cell justify="center">5</Table.Cell>
-                                                    <Table.Cell justify="center">6</Table.Cell>
-                                                    <Table.Cell justify="center">7</Table.Cell>
-                                                </Table.Row>
-                                            </Table.Body>
-                                        </Table.Root>
-                                    } />
-                                <Button
-                                    size="Medium"
-                                    onClick={() => handleShowPunctuation()}
-                                    title={"Pontuação do Questionário"}
-                                    color={"primary"}
-                                    children={<Icon.Trophy size={20} color="white" weight="bold" />}
-                                    className="btn-primary"
-                                />
-                                <Modal
-                                    open={openModalCloud}
-                                    setOpen={setOpenModalCloud}
-                                    title={"Selecione as fontes de palavras:"}
-                                    accessibleDescription={""}
-                                >
-                                    <Flex justify={isDesktop ? "between" : "center"} direction={isDesktop ? "column" : "column"} className="gap-3  xl:pt-4 pb-4 ">
-                                        {CloudWord.map((itens, index) => (
-                                            <Text as="label" size="3" >
-                                                <Flex gap="2" className={`card-container p-2`} direction={isDesktop ? "row" : "row"}>
-                                                    <Switch.Root
-                                                        className="w-11 h-6 rounded-full relative data-[state=checked]:bg-primary bg-gray-300 transition-colors duration-200"
-                                                        checked={isCheckedWC[index]}
-                                                        onCheckedChange={() => handleChangeWC(index)}
-                                                        value={itens.value}
-                                                    >
-                                                        <Switch.Thumb className="block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 translate-x-0.5 data-[state=checked]:translate-x-[26px]" />
-                                                    </Switch.Root>
-                                                    {/* <Checkbox
+                            )}
+                            <AnimatePresence>
+                                {showFilters && (
+                                    <motion.div
+                                        initial={{ opacity: 0, height: 0 }}
+                                        animate={{ opacity: 1, height: "auto" }}
+                                        exit={{ opacity: 0, height: 0 }}
+                                        transition={{ duration: 0.3 }}
+                                        className="flex flex-col xl:flex-row xl:items-end gap-3 w-full overflow-hidden"
+                                    >
+                                        <Form.Submit asChild className="hidden xl:block">
+                                            <Button
+                                                size="Large"
+                                                className="items-center w-full xl:w-[300px]"
+                                                title="Filtrar"
+                                                color="primary"
+                                            >
+                                                <Icon.Funnel size={20} color="white" />
+                                            </Button>
+                                        </Form.Submit>
+                                        <InputField
+                                            className=""
+                                            icon={<Icon.MagnifyingGlass />}
+                                            placeholder="Pesquisar pelo nome do avaliado..."
+                                            name="participant-name"
+                                            {...register("participant-name")}
+                                        />
+                                        <Flex align="center" className="gap-2 flex-col xl:flex-row w-full xl:w-auto">
+                                            <SelectField
+                                                label="Área do Saber"
+                                                name="knowledge-area"
+                                                defaultValue=""
+                                                className="p-2 w-full xl:w-auto truncate"
+                                            >
+                                                {selectItensKA.map(option => (
+                                                    <option key={option.label} value={option.label}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </SelectField>
+                                            <SelectField
+                                                label="Pontuação Mínima"
+                                                name="min-punctuation"
+                                                className="w-full xl:w-auto truncate"
+                                            >
+                                                {selectItensPM.map(option => (
+                                                    <option key={option.value} value={option.value}>
+                                                        {option.label}
+                                                    </option>
+                                                ))}
+                                            </SelectField>
+                                        </Flex>
+                                        <Form.Submit asChild className="block xl:hidden">
+                                            <Button
+                                                size="Large"
+                                                className="items-center w-full xl:w-[300px]"
+                                                title="Filtrar"
+                                                color="primary"
+                                            >
+                                                <Icon.Funnel size={20} color="white" />
+                                            </Button>
+                                        </Form.Submit>
+                                        <Button
+                                            size="Large"
+                                            onClick={() => setFilters({})}
+                                            type="reset"
+                                            className="items-center w-full xl:w-[300px]"
+                                            color="primary"
+                                            title="Limpar Filtro"
+                                        />
+                                    </motion.div>
+                                )}
+                            </AnimatePresence>
+                            <Flex />
+                        </Form.Root>
+                    </Box>
+                    < Flex
+                        direction={isDesktop ? "row" : "column"}
+                        justify="between"
+                        className="gap-4 m-auto w-[90%] max-w-4xl mt-5 px-4"
+                    >
+                        <Modal
+                            open={openModalCompare}
+                            setOpen={setOpenModalCompare}
+                            title={""}
+                            accessibleDescription={""} >
+                            <EmptyState
+                                icon={<Icon.UserGear size={40} />}
+                                title="Você não selecionou nenhum participante."
+                                description="Para comparar as respostas entre os avaliados ou gerar a nuvem de palavras, você deve selecionar pelo menos um participante."
+                            />
+                        </Modal>
+
+
+                        <Button
+                            size="Medium"
+                            title={"Comparar Selecionados"}
+                            color={"primary"}
+                            onClick={() => handleCompareSelected()}
+                            children={<Icon.ChartBar size={20} color="white" weight="bold" />}
+                            className="btn-primary"
+                        >
+
+                        </Button>
+                        <Modal
+                            open={openModal}
+                            setOpen={setOpenModal}
+                            title={"Pontuação:"}
+                            accessibleDescription={""}
+                            children={
+                                <Table.Root variant="ghost" className="w-full mt-3">
+                                    <Table.Header className="text-[16px]">
+                                        <Table.Row align="center" className="text-center">
+                                            <Table.ColumnHeaderCell colSpan={2} className="border-l">Nº da pergunta do Questionário</Table.ColumnHeaderCell>
+                                            <Table.ColumnHeaderCell colSpan={5} className="border-l"></Table.ColumnHeaderCell>
+                                        </Table.Row>
+                                    </Table.Header>
+                                    <Table.Header className="text-[16px]">
+                                        <Table.Row align="center" className="text-center">
+                                            <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto</Table.ColumnHeaderCell>
+                                            <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto -
+                                                2ª Fonte</Table.ColumnHeaderCell>
+                                            <Table.ColumnHeaderCell className="border-l">Respostas comuns</Table.ColumnHeaderCell>
+                                            <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
+                                            <Table.ColumnHeaderCell className="border-l">Respostas não comuns</Table.ColumnHeaderCell>
+                                            <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
+                                        </Table.Row>
+                                    </Table.Header>
+                                    <Table.Body>
+                                        <Table.Row align="center">
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                            <Table.Cell justify="center">1</Table.Cell>
+                                            <Table.Cell justify="center">Sim</Table.Cell>
+                                            <Table.Cell justify="center">2</Table.Cell>
+                                            <Table.Cell justify="center">Não</Table.Cell>
+                                            <Table.Cell justify="center">0</Table.Cell>
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                        </Table.Row>
+                                    </Table.Body>
+                                    <Table.Body>
+                                        <Table.Row align="center">
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                            <Table.Cell justify="center">1</Table.Cell>
+                                            <Table.Cell justify="center">Sim</Table.Cell>
+                                            <Table.Cell justify="center">2</Table.Cell>
+                                            <Table.Cell justify="center">Não</Table.Cell>
+                                            <Table.Cell justify="center">0</Table.Cell>
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                        </Table.Row>
+                                    </Table.Body>
+                                    <Table.Body>
+                                        <Table.Row align="center">
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                            <Table.Cell justify="center">1</Table.Cell>
+                                            <Table.Cell justify="center">Sim</Table.Cell>
+                                            <Table.Cell justify="center">2</Table.Cell>
+                                            <Table.Cell justify="center">Não</Table.Cell>
+                                            <Table.Cell justify="center">0</Table.Cell>
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                        </Table.Row>
+                                    </Table.Body>
+                                    <Table.Body>
+                                        <Table.Row align="center">
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                            <Table.Cell justify="center">1</Table.Cell>
+                                            <Table.Cell justify="center">Sim</Table.Cell>
+                                            <Table.Cell justify="center">2</Table.Cell>
+                                            <Table.Cell justify="center">Não</Table.Cell>
+                                            <Table.Cell justify="center">0</Table.Cell>
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                        </Table.Row>
+                                    </Table.Body>
+                                    <Table.Body>
+                                        <Table.Row align="center">
+                                            <Table.Cell justify="center">5</Table.Cell>
+                                            <Table.Cell justify="center">1</Table.Cell>
+                                            <Table.Cell justify="center">Sim</Table.Cell>
+                                            <Table.Cell justify="center">2</Table.Cell>
+                                            <Table.Cell justify="center">Não</Table.Cell>
+                                            <Table.Cell justify="center">0</Table.Cell>
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                        </Table.Row>
+                                    </Table.Body>
+                                    <Table.Body>
+                                        <Table.Row align="center">
+                                            <Table.Cell justify="center">6</Table.Cell>
+                                            <Table.Cell justify="center">1</Table.Cell>
+                                            <Table.Cell justify="center">Sim</Table.Cell>
+                                            <Table.Cell justify="center">2</Table.Cell>
+                                            <Table.Cell justify="center">Não</Table.Cell>
+                                            <Table.Cell justify="center">0</Table.Cell>
+                                            <Table.Cell justify="center">-</Table.Cell>
+                                        </Table.Row>
+                                    </Table.Body>
+                                    <Table.Body>
+                                        <Table.Row align="center">
+                                            <Table.Cell justify="center">1</Table.Cell>
+                                            <Table.Cell justify="center">2</Table.Cell>
+                                            <Table.Cell justify="center">3</Table.Cell>
+                                            <Table.Cell justify="center">4</Table.Cell>
+                                            <Table.Cell justify="center">5</Table.Cell>
+                                            <Table.Cell justify="center">6</Table.Cell>
+                                            <Table.Cell justify="center">7</Table.Cell>
+                                        </Table.Row>
+                                    </Table.Body>
+                                </Table.Root>
+                            } />
+                        <Button
+                            size="Medium"
+                            onClick={() => handleShowPunctuation()}
+                            title={"Pontuação do Questionário"}
+                            color={"primary"}
+                            children={<Icon.Trophy size={20} color="white" weight="bold" />}
+                            className="btn-primary"
+                        />
+                        <Modal
+                            open={openModalCloud}
+                            setOpen={setOpenModalCloud}
+                            title={"Selecione as fontes de palavras:"}
+                            accessibleDescription={""}
+                        >
+                            <Flex justify={isDesktop ? "between" : "center"} direction={isDesktop ? "column" : "column"} className="gap-3  xl:pt-4 pb-4 ">
+                                {CloudWord.map((itens, index) => (
+                                    <Text as="label" size="3" >
+                                        <Flex gap="2" className={`card-container p-2`} direction={isDesktop ? "row" : "row"}>
+                                            <Switch.Root
+                                                className="w-11 h-6 rounded-full relative data-[state=checked]:bg-primary bg-gray-300 transition-colors duration-200"
+                                                checked={isCheckedWC[index]}
+                                                onCheckedChange={() => handleChangeWC(index)}
+                                                value={itens.value}
+                                            >
+                                                <Switch.Thumb className="block w-4 h-4 bg-white rounded-full shadow-sm transition-transform duration-200 translate-x-0.5 data-[state=checked]:translate-x-[26px]" />
+                                            </Switch.Root>
+                                            {/* <Checkbox
                                                         className="hover:cursor-pointer"
                                                         
                                                         checked={isCheckedWC[index]}
                                                         value={itens.value}
                                                     /> */}
-                                                    {itens.title}
-                                                </Flex>
-                                            </Text>
-                                        ))}
-                                    </Flex>
-                                    <Flex justify="end">
-                                        <Button
-                                            onClick={cloudWords}
-                                            className={`${showNewComponent ? 'hidden' : ''} items-end`}
-                                            color="green"
-                                            title={"Confirmar"}
-                                            size={"Medium"}
-                                        />
-                                    </Flex>
-                                    {showNewComponent && (
-                                        <>
-                                            {CloudWord.map((item, index) => {
-                                                if (isCheckedWC[index]) {
-                                                    switch (item.value) {
-                                                        case "RES-SUB":
-                                                            return (
-                                                                <Box key={index} className="xl:w-full  m-auto">
-                                                                    <p className="text-lg font-bold text-center mb-4">
-                                                                        Respostas Subjetivas / Quantidade de Avaliados: {selectedParticipants.length}
-                                                                    </p>
-                                                                    <WordCloudGenerator
-                                                                        textBio={selectedParticipants.map((participant) => {
-                                                                            const combinedSubjective = [
-                                                                                ...Array.from({ length: 8 }, (_, i) =>
-                                                                                    participant.adultForm?.answersByGroup?.[0]?.questions[i]?.answer || []
-                                                                                ).flat(),
-                                                                                ...Array.from({ length: 5 }, (_, i) =>
-                                                                                    participant.adultForm?.answersByGroup?.[5]?.questions[i]?.answer || []
-                                                                                ).flat(),
-                                                                            ];
-                                                                            return combinedSubjective.join(', ') || '';
-                                                                        })}
-                                                                    />
-                                                                </Box>
-                                                            );
-                                                        case "AUT-BIO":
-                                                            return (
-                                                                <Box key={index} className="xl:w-full m-auto">
-                                                                    <p className="text-lg font-bold text-center mb-4">
-                                                                        Autobiografia / Quantidade de Avaliados: {selectedParticipants.length}
-                                                                    </p>
-                                                                    <WordCloudGenerator
-                                                                        textBio={selectedParticipants.map((participant) => participant.autobiography?.text || '')}
-                                                                    />
-                                                                </Box>
-                                                            );
-                                                        case "ARE-SAB":
-                                                            return (
-                                                                <Box key={index} className="xl:w-full  m-auto">
-                                                                    <p className="text-lg font-bold text-center mb-4">
-                                                                        Áreas do Saber / Quantidade de Avaliados: {selectedParticipants.length}
-                                                                    </p>
-                                                                    <WordCloudGenerator
-                                                                        textBio={selectedParticipants.map((participant) => {
-                                                                            const combinedAreas = [
-                                                                                ...(participant.knowledgeAreasIndicatedByResearcher?.general || []),
-                                                                                ...(participant.knowledgeAreasIndicatedByResearcher?.specific || []),
-                                                                                ...(participant.adultForm?.knowledgeAreas || []),
-                                                                            ];
-                                                                            return combinedAreas.join(', ') || '';
-                                                                        })}
-                                                                    />
-                                                                </Box>
-                                                            );
-                                                        default:
-                                                            return (
-                                                                <Box key={index}>
-                                                                    <p className="text-lg font-bold text-center mb-4">
-                                                                        Valor não reconhecido: {item.title}
-                                                                    </p>
-                                                                </Box>
-                                                            );
-                                                    }
-                                                }
-                                                return null;
-                                            })}
-                                        </>
-                                    )}
-                                </Modal>
+                                            {itens.title}
+                                        </Flex>
+                                    </Text>
+                                ))}
+                            </Flex>
+                            <Flex justify="end">
                                 <Button
-                                    size="Medium"
-                                    onClick={handleShowCloud}
-                                    title={"Gerar Nuvem de Palavras"}
-                                    color={"primary"}
-                                    children={<Icon.Cloud size={20} color="white" weight="bold" />}
-                                    className="btn-primary"
+                                    onClick={cloudWords}
+                                    className={`${showNewComponent ? 'hidden' : ''} items-end`}
+                                    color="green"
+                                    title={"Confirmar"}
+                                    size={"Medium"}
                                 />
                             </Flex>
-                        </Box >
-                    </Skeleton>
-                </motion.div >
-            </AnimatePresence >
-            <Box className="w-full m-auto ">
-                <Skeleton loading={loading} >
-                    <Table.Root variant="surface" className="desktop card-container" >
-                        <Table.Header className="text-[14px] bg-gray-200">
-                            <Table.Row className="" >
-                                <Table.ColumnHeaderCell colSpan={4} className="border-l border-none" align="center">Informações do participante</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell colSpan={2} className="border-l" align="center">Indicadores de AH/SD</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell colSpan={3} className="border-l" align="center">Áreas do saber</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l"></Table.ColumnHeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Header className="text-[14px] bg-gray-200">
-                            <Table.Row>
-                                <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r" >
-                                    {isCheckedAll ? "Desmarcar Todos" : "Selecionar Todos "}
-                                </Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell colSpan={3} className="border-r" ></Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell colSpan={2} className="border-r text-center" >De acordo com o :</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell colSpan={1} className="border-r text-center" >Indicadas pelo avaliado</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell colSpan={2} className="text-center  border-r ">Indicadas pelo pesquisador</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell colSpan={1} ></Table.ColumnHeaderCell>
-                            </Table.Row>
-                        </Table.Header>
-                        <Table.Header className="text-[14px] bg-gray-200">
-                            <Table.Row align={"center"} className="text-center">
-                                <Table.ColumnHeaderCell colSpan={1}  >
-                                    <Checkbox className="hover:cursor-pointer" onClick={handleCheckAll} color="violet" />
-                                </Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l "> Nome do Avaliado </Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l ">Pontuação</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l ">Quant. 2ªs fontes</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">Pesquisador</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">Áreas gerais</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">Áreas específicas</Table.ColumnHeaderCell>
-                                <Table.ColumnHeaderCell className="border-l">
-                                    <Flex gap="3" align="center" justify="center">
-                                        <Text>Ações</Text>
-                                        <AlertDialog.Root>
-                                            <AlertDialog.Trigger>
-                                                <Box>
-                                                    <Tooltip content={"Visualizar Ações"}>
-                                                        <IconButton size="1" variant="surface" radius="full" className="hover:cursor-pointer">
-                                                            <Icon.QuestionMark size={15} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                </Box>
-                                            </AlertDialog.Trigger>
-                                            <AlertDialog.Content>
-                                                <AlertDialog.Title className="mb-3">Tipos de Ação:</AlertDialog.Title>
-                                                <AlertDialog.Description className="flex gap-2 mb-2">
-                                                    <Tooltip content="Visualizar Informações completas do Participante">
-                                                        <IconButton size="2" color="lime" radius="full" variant="outline" className="">
-                                                            <Icon.IdentificationCard size={20} />
-                                                        </IconButton>
-                                                    </Tooltip>
-                                                    <Text>
-                                                        <Strong>
-                                                            Visualizar Informações completas do Participante
-                                                        </Strong>
-                                                        <br></br>
-                                                        Esta seção permite visualizar todas as informações detalhadas do participante, incluindo os dados pessoais. É uma ferramenta útil para ter acesso completo ao perfil do participante, facilitando a consulta e o acompanhamento de suas informações.
-                                                    </Text>
-                                                </AlertDialog.Description>
-                                                <AlertDialog.Description className="flex gap-2 mb-2">
-                                                    <IconButton color="cyan" radius="full" variant="outline" >
-                                                        <Icon.ClipboardText size={20} />
-                                                    </IconButton>
-                                                    <Text>
-                                                        <Strong>
-                                                            Comparar as respostas do avaliado com as respostas das 2ª fontes
-                                                        </Strong>
-                                                        <br></br>
-                                                        Esta funcionalidade permite comparar as respostas fornecidas pelo avaliado com aquelas provenientes das segunda fontes, facilitando a análise das divergências e semelhanças. É uma ferramenta útil para garantir a precisão e consistência das informações, ajudando na avaliação mais completa do participante..
-                                                    </Text>
-                                                </AlertDialog.Description>
-                                                <AlertDialog.Description className="flex gap-2">
-                                                    <IconButton color="bronze" radius="full" variant="outline" >
-                                                        <Icon.IdentificationBadge size={20} />
-                                                    </IconButton>
-                                                    <Text>
-                                                        <Strong>
-                                                            Visualizar Autobiografia
-                                                        </Strong>
-                                                        <br></br>
-                                                        Esta opção permite acessar a autobiografia do participante, onde ele compartilha sua trajetória pessoal e experiências. É uma maneira de conhecer mais sobre sua história, valores e motivações, oferecendo um panorama completo de sua vida e visão.
-                                                    </Text>
-                                                </AlertDialog.Description>
-                                                <AlertDialog.Action>
-                                                    <Flex gap="3" mt="4" justify="end">
-                                                        <AlertDialog.Cancel>
-                                                            <Button
-                                                                color="red"
-                                                                title={"Voltar"} size={""}
+                            {showNewComponent && (
+                                <>
+                                    {CloudWord.map((item, index) => {
+                                        if (isCheckedWC[index]) {
+                                            switch (item.value) {
+                                                case "RES-SUB":
+                                                    return (
+                                                        <Box key={index} className="xl:w-full  m-auto">
+                                                            <p className="text-lg font-bold text-center mb-4">
+                                                                Respostas Subjetivas / Quantidade de Avaliados: {selectedParticipants.length}
+                                                            </p>
+                                                            <WordCloudGenerator
+                                                                textBio={selectedParticipants.map((participant) => {
+                                                                    const combinedSubjective = [
+                                                                        ...Array.from({ length: 8 }, (_, i) =>
+                                                                            participant.adultForm?.answersByGroup?.[0]?.questions[i]?.answer || []
+                                                                        ).flat(),
+                                                                        ...Array.from({ length: 5 }, (_, i) =>
+                                                                            participant.adultForm?.answersByGroup?.[5]?.questions[i]?.answer || []
+                                                                        ).flat(),
+                                                                    ];
+                                                                    return combinedSubjective.join(', ') || '';
+                                                                })}
                                                             />
-                                                        </AlertDialog.Cancel>
-                                                    </Flex>
-                                                </AlertDialog.Action>
-                                            </AlertDialog.Content>
-                                        </AlertDialog.Root>
-                                    </Flex>
-                                </Table.ColumnHeaderCell>
-                            </Table.Row>
-                        </Table.Header>
+                                                        </Box>
+                                                    );
+                                                case "AUT-BIO":
+                                                    return (
+                                                        <Box key={index} className="xl:w-full m-auto">
+                                                            <p className="text-lg font-bold text-center mb-4">
+                                                                Autobiografia / Quantidade de Avaliados: {selectedParticipants.length}
+                                                            </p>
+                                                            <WordCloudGenerator
+                                                                textBio={selectedParticipants.map((participant) => participant.autobiography?.text || '')}
+                                                            />
+                                                        </Box>
+                                                    );
+                                                case "ARE-SAB":
+                                                    return (
+                                                        <Box key={index} className="xl:w-full  m-auto">
+                                                            <p className="text-lg font-bold text-center mb-4">
+                                                                Áreas do Saber / Quantidade de Avaliados: {selectedParticipants.length}
+                                                            </p>
+                                                            <WordCloudGenerator
+                                                                textBio={selectedParticipants.map((participant) => {
+                                                                    const combinedAreas = [
+                                                                        ...(participant.knowledgeAreasIndicatedByResearcher?.general || []),
+                                                                        ...(participant.knowledgeAreasIndicatedByResearcher?.specific || []),
+                                                                        ...(participant.adultForm?.knowledgeAreas || []),
+                                                                    ];
+                                                                    return combinedAreas.join(', ') || '';
+                                                                })}
+                                                            />
+                                                        </Box>
+                                                    );
+                                                default:
+                                                    return (
+                                                        <Box key={index}>
+                                                            <p className="text-lg font-bold text-center mb-4">
+                                                                Valor não reconhecido: {item.title}
+                                                            </p>
+                                                        </Box>
+                                                    );
+                                            }
+                                        }
+                                        return null;
+                                    })}
+                                </>
+                            )}
+                        </Modal>
+                        <Button
+                            size="Medium"
+                            onClick={handleShowCloud}
+                            title={"Gerar Nuvem de Palavras"}
+                            color={"primary"}
+                            children={<Icon.Cloud size={20} color="white" weight="bold" />}
+                            className="btn-primary"
+                        />
+                    </Flex>
+                </>
+            )}
+
+
+
+
+
+            <Box className="w-full m-auto ">
+
+                <Table.Root variant="surface" className="desktop card-container" >
+                    <Table.Header className="text-[14px] bg-violet-200">
+                        <Table.Row className="" >
+                            <Table.ColumnHeaderCell colSpan={4} className="border-l border-none" align="center">Informações do participante</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell colSpan={2} className="border-l" align="center">Indicadores de AH/SD</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell colSpan={3} className="border-l" align="center">Áreas do saber</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l"></Table.ColumnHeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Header className="text-[14px] bg-violet-200">
+                        <Table.Row>
+                            <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r" >
+                                {isCheckedAll ? "Desmarcar Todos" : "Selecionar Todos "}
+                            </Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell colSpan={3} className="border-r" ></Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell colSpan={2} className="border-r text-center" >De acordo com o :</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell colSpan={1} className="border-r text-center" >Indicadas pelo avaliado</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell colSpan={2} className="text-center  border-r ">Indicadas pelo pesquisador</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell colSpan={1} ></Table.ColumnHeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+                    <Table.Header className="text-[14px] bg-violet-200">
+                        <Table.Row align={"center"} className="text-center">
+                            <Table.ColumnHeaderCell colSpan={1}  >
+                                <Checkbox className="hover:cursor-pointer" onClick={handleCheckAll} color="violet" />
+                            </Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l "> Nome do Avaliado </Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l ">Pontuação</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l ">Quant. 2ªs fontes</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l">Pesquisador</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l">Questionário</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l">Áreas gerais</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l">Áreas específicas</Table.ColumnHeaderCell>
+                            <Table.ColumnHeaderCell className="border-l">
+                                <Flex gap="3" align="center" justify="center">
+                                    <Text>Ações</Text>
+                                    <ActionButtonExplain />
+                                </Flex>
+                            </Table.ColumnHeaderCell>
+                        </Table.Row>
+                    </Table.Header>
+
+                    {loading ? (
+                        <SkeletonTableBody itens={5} columns={10} />
+                    ) : (
                         <Table.Body className="text-[14px]">
                             {sample.participants?.slice(startIndex, endIndex).filter(participant => participant.adultForm?.totalPunctuation !== undefined).map((participant, idx) => (
                                 <Table.Row align={"center"}
-                                    className={isChecked[startIndex + idx] ? 'bg-violet-100' : ''}
+                                    className={isChecked[startIndex + idx] ? 'bg-violet-50' : ''}
                                     key={startIndex + idx}>
                                     <Table.Cell justify="center">
                                         <Checkbox
@@ -1219,15 +1179,20 @@ const AnalysisPage = () => {
                                                     </Box>
                                                 </AlertDialog.Trigger>
                                                 <AlertDialog.Content >
-                                                    <AlertDialog.Title> Nenhuma pessoa foi identificada como segunda fonte desse avaliado. </AlertDialog.Title>
-                                                    <AlertDialog.Description size="2">
-                                                        Para mostrar as respostas do avaliado com as da(s) segunda(s) fonte(s), é necessário a finalização do questionário de uma pessoa adicional, atuando como a segunda fonte.
-                                                    </AlertDialog.Description>
+
+                                                    <EmptyState
+                                                        icon={<Icon.Users size={40} />}
+                                                        title="Aguardando resposta da 2ª fonte."
+                                                        description="A comparação só será exibida após a 2ª fonte concluir o questionário. Assim que a resposta for registrada, você poderá visualizar as diferenças e semelhanças entre as percepções."
+                                                    />
+
                                                     <Flex gap="3" mt="4" justify="end">
-                                                        <AlertDialog.Cancel>
-                                                            <Theme.Button variant="soft" color="red" className="hover:cursor-pointer">
-                                                                Voltar
-                                                            </Theme.Button>
+                                                        <AlertDialog.Cancel className="absolute top-2 right-2">
+                                                            <Button
+                                                                className="hover:cursor-pointer"
+                                                                aria-label="Close modal" title={""} color={"red"} size={"Small"}>
+                                                                <Icon.X size={20} weight="bold" />
+                                                            </Button>
                                                         </AlertDialog.Cancel>
                                                     </Flex>
                                                 </AlertDialog.Content>
@@ -1244,12 +1209,15 @@ const AnalysisPage = () => {
                                 </Table.Row>
                             ))}
                         </Table.Body>
-                    </Table.Root>
-                </Skeleton>
-                <Skeleton loading={loading} >
-                    <div className="mobo">
-                        <DataList.Root orientation="vertical" className="!font-roboto" >
-                            {sample.participants?.slice(startIndex, endIndex)
+                    )}
+
+                </Table.Root>
+                <div className="mobo">
+                    <DataList.Root orientation="vertical" className="!font-roboto" >
+                        {loading ? (
+                            <SkeletonDataList itens={3} titles={1} columns={3} actionButton={true} />
+                        ) : (
+                            sample.participants?.slice(startIndex, endIndex)
                                 .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
                                 .map((participant, idx) => (
                                     //adicionar a datalist o onCheckedChange={() => handleChange(startIndex + idx)} para selecionar os participantes no mobo sem clicar no checkbox
@@ -1294,9 +1262,9 @@ const AnalysisPage = () => {
                                                 </DataList.Value>
                                                 <Separator size="4" className="my-2" />
                                                 <p className="text-[16px] font-bold text-center">Áreas do saber:</p>
-                                                <Flex direction="column" gap="2">
+                                                <Flex direction="column" gap="2" >
                                                     <DataList.Label>Indicadas pelo Questionário:</DataList.Label>
-                                                    <DataList.Value className="gap-[1px]">{participant.adultForm?.knowledgeAreas?.map((area, index) => (
+                                                    <DataList.Value className="gap-[1px] flex-wrap">{participant.adultForm?.knowledgeAreas?.map((area, index) => (
                                                         <span key={index}>
                                                             {area}
                                                             {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
@@ -1306,14 +1274,26 @@ const AnalysisPage = () => {
                                                     <Separator size="4" className="my-2" />
                                                     <DataList.Label>Indicadas pelo Pesquisador:</DataList.Label>
                                                     <DataList.Label>Áreas Gerais</DataList.Label>
-                                                    <DataList.Value className="gap-2">{participant.knowledgeAreasIndicatedByResearcher?.general[0]}...
+                                                    <DataList.Value className="gap-2 flex-wrap">
+                                                        {participant.knowledgeAreasIndicatedByResearcher?.general?.map((area, index) => (
+                                                            <span key={index}>
+                                                                {area}
+                                                                {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
+                                                            </span>
+                                                        ))}
                                                         <IconButton size="1" variant="surface" radius="full" onClick={() => participant._id && handleShowKAG(participant._id)}>
                                                             <Icon.Pencil size={15} />
                                                         </IconButton>
                                                     </DataList.Value>
                                                     <Separator size="4" className="" />
                                                     <DataList.Label>Áreas Específicas</DataList.Label>
-                                                    <DataList.Value className="gap-2">{participant.knowledgeAreasIndicatedByResearcher?.specific[0]}...
+                                                    <DataList.Value className="gap-2">{participant.knowledgeAreasIndicatedByResearcher?.specific?.map((area, index) => (
+                                                        <span key={index}>
+                                                            {area}
+                                                            {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
+                                                        </span>
+                                                    ))}
+
                                                         <IconButton size="1" variant="surface" radius="full" onClick={() => participant._id && handleShowKAE(participant._id)}>
                                                             <Icon.Pencil size={15} />
                                                         </IconButton>
@@ -1323,70 +1303,7 @@ const AnalysisPage = () => {
                                                 {/* Ações */}
                                                 <Flex gap={"2"} direction="row" align="center" className="mt-2 mb-0">
                                                     <p className="text-[16px] font-bold text-center">Ações </p>
-                                                    <AlertDialog.Root>
-                                                        <AlertDialog.Trigger>
-                                                            <Box>
-                                                                <Tooltip content={"Visualizar Ações"}>
-                                                                    <IconButton size="1" variant="surface" radius="full" className="hover:cursor-pointer">
-                                                                        <Icon.QuestionMark size={15} />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                            </Box>
-                                                        </AlertDialog.Trigger>
-                                                        <AlertDialog.Content>
-                                                            <AlertDialog.Title className="mb-2">Tipos de Ação:</AlertDialog.Title>
-                                                            <AlertDialog.Description className="flex gap-2 mb-2">
-                                                                <Tooltip content="Visualizar Informações completas do Participante">
-                                                                    <IconButton size="2" color="lime" radius="full" variant="outline" className="">
-                                                                        <Icon.IdentificationCard size={20} />
-                                                                    </IconButton>
-                                                                </Tooltip>
-                                                                <Text>
-                                                                    <Strong>
-                                                                        Visualizar Informações completas do Participante
-                                                                    </Strong>
-                                                                    <br></br>
-                                                                    Esta seção permite visualizar todas as informações detalhadas do participante, incluindo os dados pessoais. É uma ferramenta útil para ter acesso completo ao perfil do participante, facilitando a consulta e o acompanhamento de suas informações.
-                                                                </Text>
-                                                            </AlertDialog.Description>
-                                                            <AlertDialog.Description className="flex gap-2 mb-2">
-                                                                <IconButton color="cyan" radius="full" variant="outline" >
-                                                                    <Icon.ClipboardText size={20} />
-                                                                </IconButton>
-                                                                <Text>
-                                                                    <Strong>
-                                                                        Comparar as respostas do avaliado com as respostas das 2ª fontes
-                                                                    </Strong>
-                                                                    <br></br>
-                                                                    Esta funcionalidade permite comparar as respostas fornecidas pelo avaliado com aquelas provenientes das segunda fontes, facilitando a análise das divergências e semelhanças. É uma ferramenta útil para garantir a precisão e consistência das informações, ajudando na avaliação mais completa do participante..
-                                                                </Text>
-                                                            </AlertDialog.Description>
-                                                            <AlertDialog.Description className="flex gap-2">
-                                                                <IconButton color="bronze" radius="full" variant="outline" >
-                                                                    <Icon.IdentificationBadge size={20} />
-                                                                </IconButton>
-                                                                <Text>
-                                                                    <Strong>
-                                                                        Visualizar Autobiografia
-                                                                    </Strong>
-                                                                    <br></br>
-                                                                    Esta opção permite acessar a autobiografia do participante, onde ele compartilha sua trajetória pessoal e experiências. É uma maneira de conhecer mais sobre sua história, valores e motivações, oferecendo um panorama completo de sua vida e visão.
-                                                                </Text>
-                                                            </AlertDialog.Description>
-                                                            <AlertDialog.Action>
-                                                                <Flex gap="3" mt="4" justify="end">
-                                                                    <AlertDialog.Cancel>
-                                                                        <Button
-                                                                            color="red"
-                                                                            title={"Voltar"} size={"Small"}
-                                                                        >
-
-                                                                        </Button>
-                                                                    </AlertDialog.Cancel>
-                                                                </Flex>
-                                                            </AlertDialog.Action>
-                                                        </AlertDialog.Content>
-                                                    </AlertDialog.Root>
+                                                    <ActionButtonExplain />
                                                     <Flex align="center" gap={"3"} className="!justify-end w-full">
                                                         <Tooltip content="Informações completas">
                                                             <IconButton variant="outline" color="lime" onClick={() => handleCompareSource(participant)}>
@@ -1436,10 +1353,10 @@ const AnalysisPage = () => {
                                         </button>
 
                                     </DataList.Item>
-                                ))}
-                        </DataList.Root>
-                    </div>
-                </Skeleton>
+                                )))
+                        }
+                    </DataList.Root>
+                </div>
             </Box>
             <Flex gap="2" mt="4" justify="center" align="center">
                 <Theme.Button className="hover:cursor-pointer" variant="surface" onClick={() => handlePageChange(currentPage - 1)}>{`<`}</Theme.Button>

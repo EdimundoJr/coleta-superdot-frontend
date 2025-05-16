@@ -54,6 +54,14 @@ const SecondSourceDataStep = ({
     };
     const today = new Date();
     const minDate = new Date(today.getFullYear() - 8, today.getMonth(), today.getDate());
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
 
     const onSubmit = handleSubmit(async (secondSourceData: SecondSourceDTO) => {
         try {
@@ -68,7 +76,7 @@ const SecondSourceDataStep = ({
                     setFormData(secondSourceData);
                 }
                 nextStep();
-                window.scrollTo(0, 0);
+                scrollToTop();
             }
         } catch (e: any) {
             console.error(e);

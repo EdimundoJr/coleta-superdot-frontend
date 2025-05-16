@@ -27,11 +27,14 @@ export const LoginPage = () => {
         description: "",
         type: "",
     });
+    const [loading, setLoading] = useState(false)
 
     const onSubmit = handleSubmit(async (data) => {
+        setLoading(true);
         try {
             const response = await loginResearcher(data);
             if (response.status === 200) {
+                setLoading(false)
                 saveTokens(response.data);
                 navigate("/app/home");
             }
@@ -42,7 +45,13 @@ export const LoginPage = () => {
                 description: "O email ou a senha estão incorretos.",
                 type: "erro",
             });
+
+
+        } finally {
+            setLoading(false);
         }
+
+
     });
 
     return (
@@ -55,10 +64,9 @@ export const LoginPage = () => {
             icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
             className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
-            <Flex className="h-screen w-full ">
-                <Flex className="bg-default-bg h-auto w-full align-middle desktop">
+            <Flex className="h-screen w-full desktop-flex">
+                <Flex className="bg-default-bg h-auto w-full align-middle">
                 </Flex>
-
                 <Flex direction="column" className="w-full text-[#4F4F4F] m-auto">
                     <Form.Root onSubmit={onSubmit} className="m-auto w-[70%] max-md:w-[80%] ">
                         <Box className="mb-10">
@@ -79,8 +87,10 @@ export const LoginPage = () => {
                             )}></InputField>
                         </Box>
                         <Box>
-                            <Form.Submit asChild>
-                                <Button size="Large" className="w-full mb-8 mt-4" title={"Entrar"} color={"primary"} ></Button>
+                            <Form.Submit asChild >
+                                <Button loading={loading} size="Large" className="w-full mb-8 mt-4" title={"Entrar"} color={"primary"} >
+
+                                </Button>
                             </Form.Submit>
 
                             <p className="text-sm text-left">
@@ -94,6 +104,50 @@ export const LoginPage = () => {
 
                 </Flex>
             </Flex>
+            <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover mobo h-screen">
+                <Flex direction={"column"} className="w-[80%] max-sm:w-full bg-glass relative card-container-border-variant sm:top-1/2 sm:left-1/2 sm:transform sm:-translate-x-1/2 sm:-translate-y-1/2 py-3 max-sm:border-none  max-sm:rounded-none  max-sm:h-screen">
+
+
+                    <Flex direction="column" className="w-full text-[#4F4F4F] m-auto">
+                        <Form.Root onSubmit={onSubmit} className="m-auto w-auto max-sm:w-[80%]">
+                            <Box className="mb-10">
+                                <img className="m-auto w-40" src={logo}></img>
+                            </Box>
+                            <Box className="text-left mb-10 w-[70%] max-sm:w-[100%]">
+                                <h1 className="mb-4 text-[30px] text-white leading-none">Acesse a plataforma</h1>
+                                <p className=" text-[16px] text-white">Faça login ou registre-se para começar a sua pesquisa ainda hoje.</p>
+                            </Box>
+                            <Box className="mb-4 bg-off-white rounded-lg">
+                                <InputField label={""} type="email" placeholder="E-mail" icon={<Icon.Envelope color="gray" />}  {...register("email")} errorMessage={errors?.email && (
+                                    <Form.Message className="error-message">{errors.email.message}</Form.Message>
+                                )}></InputField>
+                            </Box>
+                            <Box className="mb-4 bg-off-white rounded-lg">
+                                <InputField label={""} type="password" placeholder="Senha" icon={<Icon.Key color="gray" />}  {...register("password")} errorMessage={errors?.password && (
+                                    <Form.Message className="error-message">{errors.password.message}</Form.Message>
+                                )}></InputField>
+                            </Box>
+                            <Box>
+                                <Form.Submit asChild >
+                                    <Button loading={loading} size="Large" className="w-full mb-8 mt-4" title={"Entrar"} color={"primary"} >
+
+                                    </Button>
+                                </Form.Submit>
+
+                                <p className="text-sm text-left text-black">
+                                    Ainda não tem uma conta? <Link to="/register">
+                                        <Strong className="text-primary bold">Inscreva-se</Strong>
+                                    </Link>
+                                </p>
+                            </Box>
+
+                        </Form.Root>
+
+                    </Flex>
+                </Flex>
+            </div>
+
+
         </Notify>
 
     );

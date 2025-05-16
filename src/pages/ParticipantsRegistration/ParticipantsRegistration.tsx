@@ -11,9 +11,12 @@ import { ISecondSource } from "../../interfaces/secondSource.interface";
 import { DeepPartial } from "react-hook-form";
 import ParticipantsIndicationForm from "../../components/ParticipantsIndicationForm/ParticipantsIndicationForm";
 import { getSampleById } from "../../api/sample.api";
-import { DataList, Flex, IconButton, Separator, Strong, Table, Text, Tooltip } from "@radix-ui/themes";
+import { Box, DataList, Flex, IconButton, Separator, Skeleton, Strong, Table, Text, Tooltip } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
 import { Button } from "../../components/Button/Button";
+import EmptyState from "../../components/EmptyState/EmptyState";
+import SkeletonURLCard from "../../components/Skeletons/SkeletonURLCard";
+import SkeletonHeader from "../../components/Skeletons/SkeletonHeader";
 
 const ParticipantsRegistration = () => {
     const [sample, setSample] = useState<ISample>({} as ISample);
@@ -121,7 +124,7 @@ const ParticipantsRegistration = () => {
     const urlParticipantForm = `${import.meta.env.VITE_FRONTEND_URL}/formulario-adulto/${sample?._id}`;
 
     const StatItem = ({ icon, label, value, background }: { icon?: ReactNode; label: string; value: ReactNode; background?: string }) => (
-        <Flex align="center" gap="2" className={`${background} p-2 rounded-lg`} >
+        <Flex align="center" gap="2" className={`${background} p-2 px-4 rounded-lg`} >
             {icon && <span className="text-primary-600">{icon}</span>}
             <Text size="2" weight="medium" className="text-gray-600">{label}:</Text>
             <Text size="2" weight="bold" className="text-gray-900">{value}</Text>
@@ -129,13 +132,7 @@ const ParticipantsRegistration = () => {
     );
 
 
-    const EmptyState = ({ icon, title, description }: { icon: ReactNode; title: string; description: string }) => (
-        <Flex direction="column" align="center" gap="4" className="py-12">
-            <div className="text-primary-600">{icon}</div>
-            <Text size="4" weight="bold">{title}</Text>
-            <Text size="2" className="text-gray-600 text-center">{description}</Text>
-        </Flex>
-    );
+
 
     return (
         <>
@@ -149,92 +146,99 @@ const ParticipantsRegistration = () => {
             >
 
 
-                {/* Header Reestruturado */}
-                <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
-                    <h2 className="heading-2 font-semibold text-gray-900">
-                        Gerenciamento de Participantes
-                    </h2>
-                    <p className="text-lg text-gray-600">
-                        Amostra: <Strong className="text-primary-600">{sample?.sampleGroup}</Strong>
-                    </p>
-                </header>
+                {loading ? (
+                    <SkeletonHeader />
+                ) : (
+                    <>
+                        <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
+                            <h2 className="heading-2 font-semibold text-gray-900">
+                                Gerenciamento de Participantes
+                            </h2>
+                            <p className="text-lg text-gray-600">
+                                Amostra: <Strong className="text-primary-600">{sample?.sampleGroup}</Strong>
+                            </p>
+                        </header>
+                    </>)
+                }
 
-
-                {/* Seção de URL Modernizada */}
                 <div className="card-container p-5 ">
-                    <Flex direction="column" gap="4">
-                        <Flex align="center" gap="2">
-                            <Icon.Info size={24} className="text-primary-600" />
-                            <Text size="5" weight="bold">URL de Cadastro</Text>
+                    {loading ? (
+                        <SkeletonURLCard />
+                    ) : (
+                        <Flex direction="column" gap="4">
+                            <Flex align="center" gap="2">
+                                <Icon.Info size={24} className="text-primary-600" />
+                                <Text size="5" weight="bold">URL de Cadastro</Text>
+                            </Flex>
+
+                            <Flex align="center" gap="3" className={`${copied ? "bg-confirm" : "bg-violet-200"} p-3 rounded`}>
+                                <Text className="text-ellipsis overflow-hidden whitespace-nowrap flex-1 bg-gray-50 rounded p-2">
+                                    {urlParticipantForm}
+                                </Text>
+                                <Tooltip content="Copiar URL">
+                                    <IconButton
+                                        variant="soft"
+                                        onClick={() => {
+                                            handleCopy();
+                                            handleSendTextToClipBoard(urlParticipantForm)
+                                        }}
+                                        className="transition-transform duration-150 active:scale-90"
+                                    >
+                                        <div className="relative w-[20px] h-[20px]">
+                                            <Icon.Copy
+                                                className={`absolute inset-0 transition-opacity duration-300 ${copied ? "opacity-0" : "opacity-100"}`}
+                                                width={20}
+                                                height={20}
+                                            />
+
+                                            {/* Ícone de check */}
+                                            <Icon.Check
+                                                className={`absolute inset-0  transition-opacity duration-300 ${copied ? "opacity-100" : "opacity-0"}`}
+                                                width={20}
+                                                height={20}
+                                            />
+                                        </div>
+                                    </IconButton>
+                                </Tooltip>
+                            </Flex>
+
+                            <Separator size="4" />
+
+                            {/* Estatísticas com Layout Grid */}
+                            <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+                                <StatItem
+                                    icon={<Icon.Users size={20} />}
+                                    label="Total Permitido"
+                                    value={sample?.qttParticipantsAuthorized}
+                                    background={"bg-violet-200"}
+                                />
+                                <StatItem
+                                    icon={<Icon.UserPlus size={20} />}
+                                    label="Cadastrados"
+                                    value={sample?.participants?.length}
+                                    background={"bg-green-200"}
+                                />
+                                <StatItem
+                                    icon={<Icon.Clock size={20} />}
+                                    label="Pendentes"
+                                    value={(sample?.qttParticipantsAuthorized || 0) - (sample?.participants?.length || 0)} background={"bg-amber-200"} />
+                                {sample?.participants?.length !== sample?.qttParticipantsAuthorized && (
+                                    <Button
+
+                                        size="Large"
+
+                                        className="w-full md:w-auto bg-am"
+                                        children={<Icon.PlusCircle size={20} />}
+                                        onClick={() => setModalIndicateParticipantsOpen(true)} title={"Adicionar Participantes"} color={"green"}                                >
+
+
+                                    </Button>
+                                )}
+                            </div>
+
+
                         </Flex>
-
-                        <Flex align="center" gap="3" className={`${copied ? "bg-confirm" : "bg-gray-100"} p-3 rounded`}>
-                            <Text className="text-ellipsis overflow-hidden whitespace-nowrap flex-1">
-                                {urlParticipantForm}
-                            </Text>
-                            <Tooltip content="Copiar URL">
-                                <IconButton
-                                    variant="soft"
-                                    onClick={() => {
-                                        handleCopy();
-                                        handleSendTextToClipBoard(urlParticipantForm)
-                                    }}
-                                    className="transition-transform duration-150 active:scale-90"
-                                >
-                                    <div className="relative w-[20px] h-[20px]">
-                                        <Icon.Copy
-                                            className={`absolute inset-0 transition-opacity duration-300 ${copied ? "opacity-0" : "opacity-100"}`}
-                                            width={20}
-                                            height={20}
-                                        />
-
-                                        {/* Ícone de check */}
-                                        <Icon.Check
-                                            className={`absolute inset-0  transition-opacity duration-300 ${copied ? "opacity-100" : "opacity-0"}`}
-                                            width={20}
-                                            height={20}
-                                        />
-                                    </div>
-                                </IconButton>
-                            </Tooltip>
-                        </Flex>
-
-                        <Separator size="4" />
-
-                        {/* Estatísticas com Layout Grid */}
-                        <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                            <StatItem
-                                icon={<Icon.Users size={20} />}
-                                label="Total Permitido"
-                                value={sample?.qttParticipantsAuthorized}
-                                background={"bg-violet-200"}
-                            />
-                            <StatItem
-                                icon={<Icon.UserPlus size={20} />}
-                                label="Cadastrados"
-                                value={sample?.participants?.length}
-                                background={"bg-green-200"}
-                            />
-                            <StatItem
-                                icon={<Icon.Clock size={20} />}
-                                label="Pendentes"
-                                value={(sample?.qttParticipantsAuthorized || 0) - (sample?.participants?.length || 0)} background={"bg-amber-200"} />
-                            {sample?.participants?.length !== sample?.qttParticipantsAuthorized && (
-                                <Button
-
-                                    size="Large"
-
-                                    className="w-full md:w-auto bg-am"
-                                    children={<Icon.PlusCircle size={20} />}
-                                    onClick={() => setModalIndicateParticipantsOpen(true)} title={"Adicionar Participantes"} color={"green"}                                >
-
-
-                                </Button>
-                            )}
-                        </div>
-
-
-                    </Flex>
+                    )}
                 </div>
 
                 <div className="card-container-border-variante">
@@ -348,8 +352,8 @@ const ParticipantsRegistration = () => {
                     ) : (
                         <EmptyState
                             icon={<Icon.UserGear size={40} />}
-                            title="Nenhuma segunda fonte encontrada"
-                            description="Adicione segundas fontes através do formulário do participante"
+                            title="Nenhuma segunda fonte encontrada!"
+                            description="Adicione segundas fontes através do formulário do participante."
                         />
                     )}
                 </Modal>

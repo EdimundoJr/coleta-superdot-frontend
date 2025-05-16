@@ -3,8 +3,11 @@ import { ISample } from "../../../interfaces/sample.interface";
 import { TFormFillStatus } from "../../../utils/consts.utils";
 import { IParticipant } from "../../../interfaces/participant.interface";
 import Accordeon from "../../Accordeon/Accordeon";
-import { DataList, Flex, IconButton, Separator, Table } from "@radix-ui/themes";
+import { DataList, Flex, IconButton, Separator, Skeleton, Table } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
+import { useEffect, useState } from "react";
+import SkeletonTableBody from "../../Skeletons/SkeletonTableBody";
+import SkeletonDataList from "../../Skeletons/SkeletonDataList";
 
 interface ParticipantsRegistrationTableProps {
     sampleId: string;
@@ -23,6 +26,13 @@ const ParticipantsRegistrationTable = ({
     onClickToViewSecondSources,
     onClickToCopySecondSourceURL,
 }: ParticipantsRegistrationTableProps) => {
+    const [loading, setLoading] = useState(true);
+
+    useEffect(() => {
+        if (data) {
+            setLoading(false);
+        }
+    }, [data]);
     const getParticipantProgress = (participant: IParticipant): TFormFillStatus => {
         if (!participant.adultForm?.startFillFormAt) {
             return "Não iniciado";
@@ -43,6 +53,9 @@ const ParticipantsRegistrationTable = ({
         return "Finalizado";
     };
     const getFirstAndLastName = (fullName: string) => {
+        if (typeof fullName !== 'string') {
+            return '';
+        }
         const names = fullName.split(' ');
         if (names.length > 1) {
             return `${names[0]} ${names[names.length - 1]}`;
@@ -57,6 +70,7 @@ const ParticipantsRegistrationTable = ({
                 title="Informações do(s) Participante(s):"
                 content={
                     <>
+
                         <Table.Root variant="surface" className="w-full desktop">
                             <Table.Header className="text-[16px]">
                                 <Table.Row align="center" className="text-center">
@@ -69,147 +83,156 @@ const ParticipantsRegistrationTable = ({
                                     <Table.ColumnHeaderCell className="border-l">URL 2ª fonte</Table.ColumnHeaderCell>
                                 </Table.Row>
                             </Table.Header>
-                            <Table.Body>
-                                {data?.map((participant) => (
-                                    <Table.Row key={participant._id} align="center">
-                                        <Table.Cell justify="center">{getFirstAndLastName(participant.personalData.fullName)}</Table.Cell>
-                                        <Table.Cell justify="center">{getParticipantProgress(participant)}</Table.Cell>
-                                        <Table.Cell justify="center">
-                                            <IconButton
-                                                onClick={() => onClickToViewSecondSources(participant)}
-                                                size="3"
-                                                className="hover:cursor-pointer"
-                                                variant="ghost"
-                                                radius="large">
-                                                <Flex gap="1" align="center">
-                                                    {participant.secondSources?.length}
-                                                    <Icon.MagnifyingGlass
-                                                        className="cursor-pointer"
+                            {loading ? (
+                                <SkeletonTableBody itens={5} columns={7} />
+                            ) : (
+                                <Table.Body>
+                                    {data?.map((participant) => (
+                                        <Table.Row key={participant._id} align="center">
+                                            <Table.Cell justify="center">{getFirstAndLastName(participant.personalData.fullName)}</Table.Cell>
+                                            <Table.Cell justify="center">{getParticipantProgress(participant)}</Table.Cell>
+                                            <Table.Cell justify="center">
+                                                <IconButton
+                                                    onClick={() => onClickToViewSecondSources(participant)}
+                                                    size="3"
+                                                    className="hover:cursor-pointer"
+                                                    variant="ghost"
+                                                    radius="large">
+                                                    <Flex gap="1" align="center">
+                                                        {participant.secondSources?.length}
+                                                        <Icon.MagnifyingGlass
+                                                            className="cursor-pointer"
 
-                                                    />
-                                                </Flex>
-                                            </IconButton>
+                                                        />
+                                                    </Flex>
+                                                </IconButton>
 
-                                        </Table.Cell>
-                                        <Table.Cell justify="center">{participant.adultForm?.startFillFormAt
-                                            ? DateTime.fromISO(participant.adultForm.startFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
-                                            : "Não iniciado"}</Table.Cell>
-                                        <Table.Cell justify="center">{participant.adultForm?.endFillFormAt && getParticipantProgress(participant) === "Finalizado"
-                                            ? DateTime.fromISO(participant.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
-                                            : "Não Finalizado"}</Table.Cell>
-                                        <Table.Cell justify="center">
-                                            {participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
-                                        </Table.Cell>
-                                        <Table.Cell justify="center">
-                                            <IconButton
-                                                onClick={() =>
-                                                    onClickToCopySecondSourceURL(
-                                                        `${import.meta.env.VITE_FRONTEND_URL
-                                                        }/formulario-adulto-segunda-fonte/${sampleId}/${participant._id}`
-                                                    )}
-                                                size="3"
-                                                className="hover:cursor-pointer"
-                                                variant="ghost"
-                                                radius="large">
-                                                <Flex gap="2" align="center">
-                                                    Copiar
-                                                    <Icon.Copy
-                                                        className="cursor-pointer"
+                                            </Table.Cell>
+                                            <Table.Cell justify="center">{participant.adultForm?.startFillFormAt
+                                                ? DateTime.fromISO(participant.adultForm.startFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                : "Não iniciado"}</Table.Cell>
+                                            <Table.Cell justify="center">{participant.adultForm?.endFillFormAt && getParticipantProgress(participant) === "Finalizado"
+                                                ? DateTime.fromISO(participant.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                : "Não Finalizado"}</Table.Cell>
+                                            <Table.Cell justify="center">
+                                                {participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
+                                            </Table.Cell>
+                                            <Table.Cell justify="center">
+                                                <IconButton
+                                                    onClick={() =>
+                                                        onClickToCopySecondSourceURL(
+                                                            `${import.meta.env.VITE_FRONTEND_URL
+                                                            }/formulario-adulto-segunda-fonte/${sampleId}/${participant._id}`
+                                                        )}
+                                                    size="3"
+                                                    className="hover:cursor-pointer"
+                                                    variant="ghost"
+                                                    radius="large">
+                                                    <Flex gap="2" align="center">
+                                                        Copiar
+                                                        <Icon.Copy
+                                                            className="cursor-pointer"
 
-                                                    />
-                                                </Flex>
-                                            </IconButton>
-                                        </Table.Cell>
-                                    </Table.Row>
-                                ))}
-                            </Table.Body>
+                                                        />
+                                                    </Flex>
+                                                </IconButton>
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    ))}
+                                </Table.Body>
+                            )}
                         </Table.Root>
                         <div className="mobo m-4">
-                            <DataList.Root orientation={"vertical"} className="!font-roboto" >
-                                <DataList.Item >
-                                    {data?.map((participant) => (
-                                        <div className="w-full p-2  mb-5 card-container" key={participant._id}>
-                                            <p className="text-[16px] font-bold text-center  border-b-black">{getFirstAndLastName(participant.personalData.fullName)}</p>
+                            {loading ? (
+                                <SkeletonDataList itens={3} columns={6} titles={1} />
+                            ) : (
+                                <DataList.Root orientation={"vertical"} className="!font-roboto" >
+                                    <DataList.Item >
+                                        {data?.map((participant) => (
+                                            <div className="w-full p-2  mb-5 card-container" key={participant._id}>
+                                                <p className="text-[16px] font-bold text-center  border-b-black">{getFirstAndLastName(participant.personalData.fullName)}</p>
 
 
 
-                                            <Separator size={"4"} className="mb-2 mt-2" />
+                                                <Separator size={"4"} className="mb-2 mt-2" />
 
-                                            <DataList.Label minWidth="88px">Andamento</DataList.Label>
+                                                <DataList.Label minWidth="88px">Andamento</DataList.Label>
 
-                                            <DataList.Value >{getParticipantProgress(participant)}
-                                            </DataList.Value>
+                                                <DataList.Value >{getParticipantProgress(participant)}
+                                                </DataList.Value>
 
-                                            <Separator size={"4"} className="mb-2 mt-2" />
+                                                <Separator size={"4"} className="mb-2 mt-2" />
 
 
-                                            <DataList.Label minWidth="88px">2ªs Fontes</DataList.Label>
+                                                <DataList.Label minWidth="88px">2ªs Fontes</DataList.Label>
 
-                                            <DataList.Value ><IconButton
-                                                onClick={() => onClickToViewSecondSources(participant)}
-                                                size="3"
-                                                className="hover:cursor-pointer"
-                                                variant="ghost"
-                                                radius="large">
-                                                <Flex gap="1" align="center">
-                                                    {participant.secondSources?.length} Participantes
-                                                    <Icon.MagnifyingGlass
-                                                        className="cursor-pointer"
+                                                <DataList.Value ><IconButton
+                                                    onClick={() => onClickToViewSecondSources(participant)}
+                                                    size="3"
+                                                    className="hover:cursor-pointer"
+                                                    variant="ghost"
+                                                    radius="large">
+                                                    <Flex gap="1" align="center">
+                                                        {participant.secondSources?.length} Participantes
+                                                        <Icon.MagnifyingGlass
+                                                            className="cursor-pointer"
 
-                                                    />
-                                                </Flex>
-                                            </IconButton></DataList.Value>
-                                            <Separator size={"4"} className="mb-2 mt-2" />
+                                                        />
+                                                    </Flex>
+                                                </IconButton></DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
 
-                                            <DataList.Label minWidth="88px">Data de início</DataList.Label>
+                                                <DataList.Label minWidth="88px">Data de início</DataList.Label>
 
-                                            <DataList.Value >{participant.adultForm?.startFillFormAt
-                                                ? DateTime.fromISO(participant.adultForm.startFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
-                                                : "Não iniciado"}
-                                            </DataList.Value>
-                                            <Separator size={"4"} className="mb-2 mt-2" />
+                                                <DataList.Value >{participant.adultForm?.startFillFormAt
+                                                    ? DateTime.fromISO(participant.adultForm.startFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                    : "Não iniciado"}
+                                                </DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
 
-                                            <DataList.Label minWidth="88px">Data de Finalização</DataList.Label>
+                                                <DataList.Label minWidth="88px">Data de Finalização</DataList.Label>
 
-                                            <DataList.Value >{participant.adultForm?.endFillFormAt && getParticipantProgress(participant) === "Finalizado"
-                                                ? DateTime.fromISO(participant.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
-                                                : "Não Finalizado"}
-                                            </DataList.Value>
-                                            <Separator size={"4"} className="mb-2 mt-2" />
+                                                <DataList.Value >{participant.adultForm?.endFillFormAt && getParticipantProgress(participant) === "Finalizado"
+                                                    ? DateTime.fromISO(participant.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                    : "Não Finalizado"}
+                                                </DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
 
-                                            <DataList.Label minWidth="88px">Indicadores de AH/SD</DataList.Label>
+                                                <DataList.Label minWidth="88px">Indicadores de AH/SD</DataList.Label>
 
-                                            <DataList.Value >{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</DataList.Value>
-                                            <Separator size={"4"} className="mb-2 mt-2" />
+                                                <DataList.Value >{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</DataList.Value>
+                                                <Separator size={"4"} className="mb-2 mt-2" />
 
-                                            <DataList.Label minWidth="88px">URL 2ª fonte</DataList.Label>
+                                                <DataList.Label minWidth="88px">URL 2ª fonte</DataList.Label>
 
-                                            <DataList.Value ><IconButton
-                                                onClick={() =>
-                                                    onClickToCopySecondSourceURL(
-                                                        `${import.meta.env.VITE_FRONTEND_URL
-                                                        }/formulario-adulto-segunda-fonte/${sampleId}/${participant._id}`
-                                                    )}
-                                                size="3"
-                                                className="hover:cursor-pointer"
-                                                variant="ghost"
-                                                radius="large">
-                                                <Flex gap="2" align="center">
-                                                    Copiar
-                                                    <Icon.Copy
-                                                        className="cursor-pointer"
+                                                <DataList.Value ><IconButton
+                                                    onClick={() =>
+                                                        onClickToCopySecondSourceURL(
+                                                            `${import.meta.env.VITE_FRONTEND_URL
+                                                            }/formulario-adulto-segunda-fonte/${sampleId}/${participant._id}`
+                                                        )}
+                                                    size="3"
+                                                    className="hover:cursor-pointer"
+                                                    variant="ghost"
+                                                    radius="large">
+                                                    <Flex gap="2" align="center">
+                                                        Copiar
+                                                        <Icon.Copy
+                                                            className="cursor-pointer"
 
-                                                    />
-                                                </Flex>
-                                            </IconButton></DataList.Value>
+                                                        />
+                                                    </Flex>
+                                                </IconButton></DataList.Value>
 
-                                        </div>
+                                            </div>
 
-                                    ))}
-                                </DataList.Item>
+                                        ))}
+                                    </DataList.Item>
 
-                            </DataList.Root>
+                                </DataList.Root>
+                            )}
                         </div>
+
                     </>
                 }
                 className="mb-2"

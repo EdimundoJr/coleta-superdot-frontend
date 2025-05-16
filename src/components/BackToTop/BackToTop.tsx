@@ -35,7 +35,7 @@ const BackToTop = () => {
       onClick={scrollToTop}
       aria-label="Voltar ao topo"
       className={`
-        fixed bottom-6 right-6 z-50 p-3 w-12 h-12 rounded-full bg-primary text-white shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 active:scale-95 hover:bg-secondary
+        fixed bottom-6 right-6 z-30 p-3 w-12 h-12 rounded-full bg-primary text-white shadow-lg transition-all duration-300 ease-in-out transform hover:scale-110 active:scale-95 hover:bg-secondary
         ${showButton ? 'opacity-100 translate-y-0 pointer-events-auto' : 'opacity-0 translate-y-10 pointer-events-auto'}
         md:bottom-8 md:right-8 
         touch-pan-x select-none 

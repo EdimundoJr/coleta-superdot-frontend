@@ -1,13 +1,14 @@
 // src/pages/NotFoundPage/NotFoundPage.tsx
-import { Button, Heading, Text } from "@radix-ui/themes";
+import { Heading, Text } from "@radix-ui/themes";
 import { useNavigate } from "react-router-dom";
 import { ArrowLeft } from "@phosphor-icons/react";
+import { Button } from "../Button/Button";
 
 export const NotFoundPage = () => {
   const navigate = useNavigate();
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-off-white to-white">
+    <div className=" flex flex-col items-center justify-center p-4 bg-gradient-to-b from-off-white to-white w-full">
       <div className="max-w-md w-full text-center space-y-6">
         <Heading size="8" className="text-primary-500">
           404
@@ -22,23 +23,10 @@ export const NotFoundPage = () => {
         </Text>
 
         <Button
-          size="3"
-          className="mt-6 mx-auto"
-          onClick={() => navigate(-1)}
-        >
-          <ArrowLeft size={18} weight="bold" />
-          Voltar para página anterior
-        </Button>
 
-        <div className="mt-8">
-          <Button
-            variant="ghost"
-            onClick={() => navigate("/")}
-            className="text-white hover:bg-primary"
-          >
-            Ir para página inicial →
-          </Button>
-        </div>
+          size="Medium"
+          className="mt-6 mx-auto"
+          onClick={() => navigate(-1)} title={"Voltar para página anterior"} children={<ArrowLeft size={20} weight="bold" />} />
       </div>
     </div>
   );

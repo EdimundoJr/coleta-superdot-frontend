@@ -115,6 +115,14 @@ const AdultForm = () => {
         }
     }, [sampleId]);
 
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
 
 
     /* It is used to validate the URL (receive in the user email) by making an asynchronous request to a server endpoint. */
@@ -169,7 +177,7 @@ const AdultForm = () => {
     // };
 
     const handleNextStep = () => {
-        window.scrollTo(0, 0);
+        scrollToTop();
         if (currentStep === EAdultFormSteps.AUTOBIOGRAPHY) {
             setCurrentStep(EAdultFormSteps.INTRODUCTION);
             stepperRef.current?.handleNext();
@@ -185,7 +193,7 @@ const AdultForm = () => {
     };
 
     const handlePreviousStep = () => {
-        window.scrollTo(0, 0);
+        scrollToTop();
         if (currentStep === EAdultFormSteps.INTRODUCTION) {
             return;
         }

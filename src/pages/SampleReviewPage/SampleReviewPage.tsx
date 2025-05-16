@@ -10,7 +10,6 @@ import { SampleSummary } from "../../api/sample.api";
 import { SampleStatus } from "../../utils/consts.utils";
 import Notify from "../../components/Notify/Notify";
 import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
-import { Header } from "../../components/Header/Header";
 import { Button } from "../../components/Button/Button";
 import * as Icon from "@phosphor-icons/react"
 

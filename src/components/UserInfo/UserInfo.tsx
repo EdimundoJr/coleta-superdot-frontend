@@ -15,7 +15,6 @@ interface UserInfoProps {
   sampleFile?: SampleFile;
   className?: string;
   variant?: 'compact' | 'full';
-
 }
 
 
@@ -33,18 +32,19 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
       try {
         const data = await getUser();
         setUserData(data);
-        setLoading(false);
       } catch (error: any) {
         setError(error);
+      } finally {
         setLoading(false);
       }
     };
 
-    if (!userData && loading) {
-      fetchData();
-    }
-  }, [userData, loading]);
+    fetchData();
+  }, []);
   const getFirstAndLastName = (fullName: string) => {
+    if (typeof fullName !== 'string') {
+      return '';
+    }
     const names = fullName.split(' ');
     if (names.length > 1) {
       return `${names[0]} ${names[names.length - 1]}`;
@@ -61,9 +61,9 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
         try {
           const url = await seeAttachmentImage(`${userData?.researcher.profilePhoto}`);
           setImageUrl(url);
-          setLoading(false);
         } catch (error) {
           console.error("Erro ao recuperar a imagem:", error);
+        } finally {
           setLoading(false);
         }
       }
@@ -79,22 +79,29 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
   };
 
   return (
-    <Box className={`flex items-center gap-3  ${className} `}>
-      <Skeleton loading={loading}>
+    <>
+      <Box className={`flex items-center gap-3  ${className} `}>
+
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger>
+          <DropdownMenu.Trigger className='desktop'>
             <button>
               <Card variant='ghost'>
                 <Flex gap="3" align="center">
-                  <Avatar size="4" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={getFirstAndLastName(`${userData?.researcher.fullName}`)} />
+                  <Skeleton loading={loading} className="w-10 h-10">
+                    <Avatar size="4" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={userData?.researcher.profilePhoto ? userData?.researcher.profilePhoto : NoImg} />
+                  </Skeleton>
                   <Box>
-                    <Text as="div" size="2" weight="bold" className='max-sm:hidden'>
-                      {getFirstAndLastName(`${userData?.researcher.fullName}`)}
-                    </Text>
-                    <Text as="div" size="2" color="gray"
-                      className='max-sm:hidden'>
-                      {userData?.role}
-                    </Text>
+                    <Skeleton loading={loading} className="mb-1">
+                      <Text as="div" size="2" weight="bold" className='max-sm:hidden'>
+                        {userData?.researcher.fullName}
+                      </Text>
+                    </Skeleton>
+
+                    <Skeleton loading={loading} className="w-20 h-3">
+                      <Text as="div" size="2" color="gray" className='max-sm:hidden'>
+                        {userData?.role || ' '}
+                      </Text>
+                    </Skeleton>
                   </Box>
                   <Icon.CaretDown className='desktop' />
                 </Flex>
@@ -107,7 +114,7 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
             <Alert
               trigger={<Button size='' className='w-[200px]' color='red' title={''}>
 
-                <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer hover:bg-red-500 active:bg-red-600'>Sair</DropdownMenu.Item>
+                <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer hover:bg-red-600 active:bg-red-700'>Sair</DropdownMenu.Item>
 
               </Button>}
               title={'Tem certeza que deseja sair da plataforma?'} description={''}
@@ -117,8 +124,41 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
                 title={'Sim, desejo sair.'} />} />
           </DropdownMenu.Content>
         </DropdownMenu.Root>
-      </Skeleton>
-    </Box>
+
+      </Box >
+      <Flex direction={'row'} align="center" className={`gap-3 !justify-between w-full ${className} mobo-flex`}>
+        <Card variant='ghost' >
+          <Flex gap="3" align="center">
+            <Skeleton loading={loading} className="w-10 h-10">
+              <Avatar size="2" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={userData?.researcher.profilePhoto ? userData?.researcher.profilePhoto : NoImg} />
+            </Skeleton>
+            <Box>
+              <Skeleton loading={loading} className="mb-1">
+                <Text as="div" size="2" weight="bold" className='max-sm:!text-[12px]'>
+                  {userData?.researcher.fullName}
+                </Text>
+              </Skeleton>
+
+              <Skeleton loading={loading} className="w-20 h-3">
+                <Text as="div" size="2" color="gray" className='max-sm:!text-[12px]'>
+                  {userData?.role || ' '}
+                </Text>
+              </Skeleton>
+            </Box>
+            <Icon.CaretDown className='desktop' />
+          </Flex>
+        </Card>
+        <Alert
+          trigger={<Icon.SignOut size={30} />}
+          title={'Tem certeza que deseja sair da plataforma?'} description={''}
+          buttoncancel={<Button size='Small' color="gray" title={'Cancelar'} />}
+          buttonAction={<Button size='Small' onClick={logout}
+            color="red"
+            title={'Sim, desejo sair.'} />} />
+
+      </Flex>
+
+    </>
   );
 };
 

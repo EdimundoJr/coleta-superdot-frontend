@@ -230,10 +230,10 @@ const CompareParticipantsSelected = () => {
                     >
 
                       {/* Informações Básicas */}
-                      <p className="text-[16px] font-bold text-center">Informações do participante</p>
+                      <p className="text-[16px] font-bold text-center mb-4 text-black">Informações do participante</p>
                       <Separator size="4" className="mt-2" />
 
-                      <DataList.Label>Nome:</DataList.Label>
+                      <DataList.Label >Nome:</DataList.Label>
                       <DataList.Value>{participant.personalData.fullName}</DataList.Value>
                       <Separator size="4" />
 
@@ -401,7 +401,7 @@ const CompareParticipantsSelected = () => {
               <div className="mobo">
                 <DataList.Root orientation="vertical" className="!font-roboto">
                   {/* Pontuação geral por participante */}
-                  <DataList.Item className="w-full p-3 rounded-lg mb-1 card-container ">
+                  <DataList.Item className="w-full p-3 rounded-lg mb-1 card-container">
                     <p className="text-[16px] font-bold text-center mb-4 text-black">Pontuação Geral do(s) Participante(s):</p>
                     {selectedParticipants.map((participant, index) => (
                       <div key={index} className="mb-2">

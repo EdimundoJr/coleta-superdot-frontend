@@ -12,7 +12,6 @@ import { IParticipant } from "../../../interfaces/participant.interface";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
 import { Button } from "../../../components/Button/Button";
 import { Flex } from "@radix-ui/themes";
-import StepperProps from "../../../components/NewStepper/NewStteper"
 interface ReadAndAcceptDocsStepProps {
     sourceForm: EAdultFormSource;
     nextStep: () => void;
@@ -121,6 +120,15 @@ const ReadAndAcceptDocsStep = ({
         initializeDocs(sampleId);
     }, [sampleId]);
 
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
+
     const handleAcceptDocument = () => {
         if (!accepted) return;
 
@@ -136,7 +144,7 @@ const ReadAndAcceptDocsStep = ({
         if (nextIndex !== -1) {
             setCurrentDocIndex(nextIndex);
             setAccepted(false);
-            window.scrollTo(0, 0);
+            scrollToTop();
         } else {
             submitAllAcceptances();
         }
@@ -229,7 +237,8 @@ const ReadAndAcceptDocsStep = ({
                     </div>
                 )}
 
-                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.6.172/build/pdf.worker.min.js">
+                <Worker workerUrl="https://unpkg.com/pdfjs-dist@3.11.174/build/pdf.worker.min.js">
+
                     {docsToAccept.current[currentDocIndex] && (
                         <Viewer
                             fileUrl={`${import.meta.env.VITE_BACKEND_HOST}/api/sample/attachment/${docsToAccept.current[currentDocIndex].backendFileName

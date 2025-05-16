@@ -155,6 +155,14 @@ const IndicateSecondSourceStep = ({
             type: "success"
         });
     };
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
 
     /**
      * The `onSubmit` function is an asynchronous function that handles the submission of second
@@ -176,7 +184,7 @@ const IndicateSecondSourceStep = ({
                     saveAndExit();
                 } else {
                     nextStep();
-                    window.scrollTo(0, 0);
+                    scrollToTop();
                 }
             }
         } catch (err: any) {

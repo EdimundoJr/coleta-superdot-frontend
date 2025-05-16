@@ -278,10 +278,8 @@ const SecondsSourceCompare = () => {
                             </Table.Root>
                             <div className="mobo">
                                 <DataList.Root orientation="vertical" className="!font-roboto">
-
                                     <DataList.Item
-
-                                        className={`w-full p-3 rounded-lg mb-5 border-2 border-[#baa7ff] bg-[#f9f6ffcc] transition-all duration-300 ease-in-out 
+                                        className={`w-full p-3 rounded-lg mb-5  transition-all duration-300 ease-in-out card-container
                   ${expandedParticipants ? 'max-h-[1000px]' : 'max-h-[300px]'}`}
                                     >
 
@@ -321,7 +319,7 @@ const SecondsSourceCompare = () => {
 
                                         <Button
                                             size="Small"
-                                            className="justify-end flex mt-2"
+                                            className="!justify-end flex mt-2"
                                             onClick={() =>
                                                 setExpandedParticipants(!expandedParticipants)
                                             }
@@ -391,7 +389,7 @@ const SecondsSourceCompare = () => {
                                     {participant?.secondSources?.map((secondSource, index) => (
                                         <DataList.Item
                                             key={index}
-                                            className={`w-full p-3 rounded-lg mb-5 border-2 border-[#baa7ff] bg-[#f9f6ffcc] transition-all duration-300 ease-in-out 
+                                            className={`w-full p-3 rounded-lg mb-5 card-container transition-all duration-300 ease-in-out 
                                       ${secondSource._id && expandedSS[secondSource._id] ? 'max-h-[1000px]' : 'max-h-[300px]'}`}
                                         >
 
@@ -445,7 +443,7 @@ const SecondsSourceCompare = () => {
 
                                             <Button
                                                 size="Small"
-                                                className="justify-end flex mt-2"
+                                                className="!justify-end flex mt-2"
                                                 onClick={() =>
                                                     setExpandedSS((prev) => ({
                                                         ...prev,
@@ -583,9 +581,8 @@ const SecondsSourceCompare = () => {
                             <div className="mobo">
                                 <DataList.Root orientation="vertical" className="!font-roboto">
                                     {/* Pontuação das Segundas Fontes */}
-                                    <DataList.Item className="w-full p-3 rounded-lg mb-5 border-2 border-[#baa7ff] bg-[#f9f6ffcc]">
+                                    <DataList.Item className="w-full p-3 rounded-lg mb-5 card-container ">
                                         <p className="text-[16px] font-bold text-center mb-4 text-black">Pontuação das 2ªs Fontes</p>
-                                        <Separator size="4" className="mb-2" />
 
                                         {participant?.secondSources?.map((secondSource, index) => (
                                             <div key={index} className="mb-4">
@@ -594,16 +591,11 @@ const SecondsSourceCompare = () => {
                                             </div>
                                         ))}
                                     </DataList.Item>
-                                    <DataList.Item
-
-                                        className="w-full p-3 rounded-lg mb-5 border-2 border-[#baa7ff] bg-[#f9f6ffcc]"
-                                    >
-
+                                    <DataList.Item className="w-full p-3 rounded-lg mb-1 card-container">
+                                        <p className="text-[16px] font-bold text-center mb-4 text-black">Questionário:</p>
                                         {selectedQuestions?.map((question, questionIndex) => (
                                             <div key={questionIndex}>
-
                                                 <p className="text-[16px] font-bold mb-4 text-black">{question.statement}</p>
-
                                                 {secondSources.map((secondSource, secondSourceIndex) => {
                                                     const answers = secondSource.adultForm?.answersByGroup?.[selectedBlockIndex]?.questions
                                                         ?.filter(q => q.statement === question.statement)

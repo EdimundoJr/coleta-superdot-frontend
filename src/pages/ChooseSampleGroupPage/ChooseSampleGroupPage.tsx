@@ -2,9 +2,10 @@ import { useEffect, useState } from "react";
 import { SampleGroup, findAllSampleGroups } from "../../api/sampleGroup.api";
 import { Card } from "../../components/Card/Card";
 import { useNavigate } from "react-router-dom";
-import { Box, Container } from "@radix-ui/themes";
+import { Box, Container, Skeleton } from "@radix-ui/themes";
 
 import { GridComponent } from "../../components/Grid/Grid";
+import SkeletonDataList from "../../components/Skeletons/SkeletonDataList";
 
 const ChooseSampleGroupPage = () => {
     const [sampleGroups, setSampleGroups] = useState<SampleGroup[]>();
@@ -25,6 +26,15 @@ const ChooseSampleGroupPage = () => {
 
     }, []);
 
+    const scrollToTop = () => {
+
+        try {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
+        }
+    };
+
     return (
 
         <>
@@ -38,52 +48,51 @@ const ChooseSampleGroupPage = () => {
             </header>
             <Container className="mb-4 p-4">
                 <GridComponent columns={2} children={
-                    <>
-                        {sampleGroups?.map((group, index) => {
-                            return (
 
-                                <Box>
-                                    <Card.Root loading={loading} key={index} className={`${group.available ? "!border-confirm" : ""}`}>
-                                        <Card.Header>{group.title}</Card.Header>
-                                        <Card.Content>
-                                            <ul>
-                                                {group.forms.map((form, index) => (
-                                                    <li key={index}>{form}</li>
-                                                ))}
-                                            </ul>
-                                        </Card.Content>
-                                        <Card.Actions className={`justify-end `}>
-                                            <Card.Action
-                                                disabled={!group.available}
-                                                onClick={() => {
-                                                    navigate("/app/create-sample", {
-                                                        state: {
-                                                            groupSelected: group.title,
-                                                        },
-                                                    });
-                                                    window.scrollTo(0, 0);
-                                                }}
+                    loading
+                        ? (
+                            <SkeletonDataList itens={2} titles={1} columns={4} />
+                        )
+                        :
+                        sampleGroups?.map((group, index) => (
 
-                                            >
-                                                {group.available ? "Selecionar" : "Em construção"}
+                            <Card.Root key={index} className={`${group.available ? "!border-confirm" : ""} min-h-[300px]`}>
+                                <Card.Header>{group.title}</Card.Header>
+                                <Card.Content>
+                                    <ul>
+                                        {group.forms.map((form, index) => (
+                                            <li key={index}>{form}</li>
+                                        ))}
+                                    </ul>
+                                </Card.Content>
+                                <Card.Actions className={`justify-end `}>
+                                    <Card.Action
+                                        disabled={!group.available}
+                                        onClick={() => {
+                                            navigate("/app/create-sample", {
+                                                state: {
+                                                    groupSelected: group.title,
+                                                },
+                                            });
+                                            scrollToTop();
+                                        }}
 
-                                            </Card.Action>
+                                    >
+                                        {group.available ? "Selecionar" : "Em construção"}
 
-                                        </Card.Actions>
+                                    </Card.Action>
 
-                                    </Card.Root>
-                                </Box>
+                                </Card.Actions>
 
-                            );
-                        })}
-                    </>
-                } className="gap-8 "
+                            </Card.Root>
 
-                >
-                </GridComponent>
+                        ))}
+
+                    className="gap-8 " >
+                </GridComponent >
 
 
-            </Container>
+            </Container >
         </>
     );
 };

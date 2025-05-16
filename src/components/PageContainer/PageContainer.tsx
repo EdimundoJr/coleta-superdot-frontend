@@ -10,7 +10,7 @@ export const PageContainer = ({ children, className }: PageContainerProps) => {
   return (
     <Flex
       direction="column"
-      className={`pt-20 px-4 md:px-8 lg:px-12 min-h-screen ${className} max-xl:pt-28 m-auto w-full bg-off-white`}
+      className={`pt-20 px-4  lg:px-12 md:!pl-[100px] min-h-screen  ${className} max-xl:pt-28 m-auto w-full bg-off-white`}
       gap="5"
     >
       {children}

@@ -31,7 +31,7 @@ const Modal = ({
 
                 <AlertDialog.Cancel className="absolute top-2 right-2">
                     <Button
-                        className="hover:cursor-pointer "
+                        className="hover:cursor-pointer"
                         aria-label="Close modal" title={""} color={"red"} size={"Small"}>
                         <Icon.X size={20} weight="bold" />
                     </Button>
@@ -39,7 +39,7 @@ const Modal = ({
 
 
                 {/* Title */}
-                <AlertDialog.Title className="text-xl font-bold mb-4 max-sm:!text-[18px]">{title}</AlertDialog.Title>
+                <AlertDialog.Title className={"text-xl font-bold mb-4 max-sm:!text-[18px]"}>{title}</AlertDialog.Title>
 
                 {/* Description */}
                 <AlertDialog.Description>

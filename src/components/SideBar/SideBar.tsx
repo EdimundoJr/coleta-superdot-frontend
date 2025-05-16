@@ -95,6 +95,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                         <Link
                             key={idx}
                             to={menu.link}
+                            onClick={() => setExpanded(false)}
                             className={`group flex truncate items-center ${expanded ? "!justify-start" : "justify-center"} gap-4 p-3 rounded-md transition-all duration-300 hover:bg-secondary text-white ${isActive(menu.link) ? "bg-secondary" : ""
                                 } ${expanded ? "pl-4" : "pl-3"}`}
                         >
@@ -116,6 +117,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                     {userRole?.match(/Revisor|Administrador/) && (
                         <Link
                             to="/app/review-requests"
+                            onClick={() => setExpanded(false)}
                             className={`group flex items-center ${expanded ? "!justify-start" : "justify-center"} truncate gap-4 p-3 rounded-md transition-all duration-300 hover:bg-secondary text-white ${isActive("/app/review-requests") ? "bg-secondary" : ""
                                 } ${expanded ? "pl-4" : "pl-3"}`}
                         >
@@ -133,6 +135,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                     {userRole === "Administrador" && (
                         <Link
                             to="/app/users"
+                            onClick={() => setExpanded(false)}
                             className={`group flex items-center truncate ${expanded ? "!justify-start" : "justify-center"} gap-4 p-3 rounded-md transition-all duration-300 hover:bg-secondary text-white ${isActive("/app/users") ? "bg-secondary" : ""
                                 } ${expanded ? "pl-4" : "pl-3"}`}
                         >
@@ -194,7 +197,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                     )}
                 </div>
 
-                <Flex className="absolute bottom-0 w-full p-4 bg-secondary">
+                <Flex className="absolute bottom-0 w-full p-4 max-xl:p-2 bg-secondary">
                     <UserInfo className="text-white" />
                 </Flex>
             </div>

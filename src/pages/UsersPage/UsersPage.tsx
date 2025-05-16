@@ -212,30 +212,28 @@ const UsersPage = () => {
                     </Form.Root>
                 </Box>
 
-                <Skeleton loading={loading}>
-                    <Container className="mb-8 p-4">
+                <Container className="mb-8 p-4">
 
-                        <UsersTable
-                            onClickPencil={onUserSelected}
-                            currentPage={currentTablePage}
-                            setCurrentPage={setCurrentTablePage}
-                            data={tablePageData}
-                        />
+                    <UsersTable
+                        onClickPencil={onUserSelected}
+                        currentPage={currentTablePage}
+                        setCurrentPage={setCurrentTablePage}
+                        data={tablePageData}
+                    />
 
-                    </Container>
-                    <Modal
-                        accessibleDescription="Selecione um novo perfil para o usuário escolhido."
-                        title="Alterando Perfil"
-                        open={modalOpen}
-                        setOpen={setModalOpen}
-                    >
-                        <ChangeRoleForm
-                            currentUserRole={currentUserRole}
-                            onFinish={onUpdateUserRole}
-                            userId={userSelected || ""}
-                        />
-                    </Modal>
-                </Skeleton>
+                </Container>
+                <Modal
+                    accessibleDescription="Selecione um novo perfil para o usuário escolhido."
+                    title="Alterando Perfil"
+                    open={modalOpen}
+                    setOpen={setModalOpen}
+                >
+                    <ChangeRoleForm
+                        currentUserRole={currentUserRole}
+                        onFinish={onUpdateUserRole}
+                        userId={userSelected || ""}
+                    />
+                </Modal>
             </Notify>
         </>
     );
