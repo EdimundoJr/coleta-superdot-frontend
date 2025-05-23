@@ -155,7 +155,7 @@ const ParticipantsRegistration = () => {
                                 Gerenciamento de Participantes
                             </h2>
                             <p className="text-lg text-gray-600">
-                                Amostra: <Strong className="text-primary-600">{sample?.sampleGroup}</Strong>
+                                Amostra: <Strong className="text-primary-600 !font-roboto">{sample?.sampleGroup}</Strong>
                             </p>
                         </header>
                     </>)

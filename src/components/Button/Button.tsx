@@ -1,7 +1,7 @@
 import { Flex } from '@radix-ui/themes';
 import { ReactNode, ButtonHTMLAttributes, forwardRef } from 'react';
 
-const SIZE_TYPES = ["Large", "Medium", "Small", "Extra Small", ""] as const;
+const SIZE_TYPES = ["Large", "Medium", "Small", "Extra Small", "Full", ""] as const;
 const COLOR_TYPES = ['primary', 'red', 'green', 'gray', 'secondary', 'white', 'yellow'] as const;
 
 type size = typeof SIZE_TYPES[number];
@@ -22,6 +22,7 @@ const sizeClasses = {
   Medium: 'h-8 px-4 text-sm',
   Small: 'h-7 px-3 text-sm',
   'Extra Small': 'h-6 px-2 text-xs',
+  Full: 'w-full py-1 text-base',
   '': ''
 } satisfies Record<size, string>;
 

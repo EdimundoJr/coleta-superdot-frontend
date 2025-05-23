@@ -1,5 +1,4 @@
 import { useEffect, useRef, useState } from "react";
-import { StepStateType } from "../../components/Stepper/StepperStep";
 import Notify from "../../components/Notify/Notify";
 import { useParams } from "react-router-dom";
 import { EAdultFormSource, EAdultFormSteps } from "../../utils/consts.utils";
@@ -12,13 +11,15 @@ import { clearTokens, saveParticipantToken } from "../../utils/tokensHandler";
 import ReadAndAcceptDocsStep from "../AdultForm/steps/ReadAndAcceptDocsStep";
 import FormGroupsStep from "../AdultForm/steps/FormGroupsStep";
 import { IParticipant } from "../../interfaces/participant.interface";
-import ReactLoading from "react-loading";
 import * as Icon from "@phosphor-icons/react";
-import { Box, Flex } from "@radix-ui/themes";
-import Waves from "../../components/WavesBG/Waves";
+import { Flex } from "@radix-ui/themes";
 import { Button } from "../../components/Button/Button";
 import Stepper, { Step } from "../../components/NewStepper/NewStteper";
 import logo from "../../assets/Logo-GRUPAC.png"
+import QuestionnaireCompleted from "../../components/QuestionnaireCompleted/QuestionnaireCompleted";
+import { PageLoader } from "../../components/Loading/Loading";
+import React from "react";
+
 
 const stepsInfo = [
     {
@@ -69,6 +70,8 @@ const AdultFormSecondSourcePage = () => {
     }>(null);
     const [formData, setFormData] = useState({} as ISecondSource);
     const [loading, setLoading] = useState(true);
+    const [isPageLoading, setIsPageLoading] = useState(true);
+
 
     const [notificationData, setNotificationData] = useState({
         title: "",
@@ -117,6 +120,9 @@ const AdultFormSecondSourcePage = () => {
                     });
                 })
                 .finally(() => {
+                    setTimeout(() => {
+                        setIsPageLoading(false);
+                    }, 2000);
                     setLoading(false);
                 });
         };
@@ -124,6 +130,7 @@ const AdultFormSecondSourcePage = () => {
         // If the link haven't a verification code, ignore and continue
         if (!verificationCode) {
             setLoading(false);
+            setIsPageLoading(false);
             return;
         }
 
@@ -150,7 +157,7 @@ const AdultFormSecondSourcePage = () => {
                 description: "Agradecemos pelas respostas. Em breve o pesquisador entrará em contato.",
                 type: "success"
             });
-            setCurrentStep(EAdultFormSteps.INTRODUCTION);
+            setCurrentStep(EAdultFormSteps.FINISHED);
             return;
         }
 
@@ -210,185 +217,273 @@ const AdultFormSecondSourcePage = () => {
             icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
             className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
+            {isPageLoading && (
+                <PageLoader />
+            )}
+
+            {!isPageLoading && (
+                <>
+                    {currentStep != EAdultFormSteps.INTRODUCTION && (
+                        <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover">
+                            <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
+
+                                <header className="z-10 ml-7 mr-8 max-xl:ml-5 max-xl:mr-6 mt-4 rounded-md card-container-border-variant bg-off-white">
+                                    <Flex
+                                        direction={"row"}
+                                        justify={"center"}
+                                        align={"center"}
+                                        className="max-w-3xl m-auto px-4 py-4 gap-4"
+                                    >
+                                        {/* Logo reduzida */}
+                                        <img
+                                            className="w-24 h-auto flex-shrink-0"
+                                            src={logo}
+                                            alt="Logo"
+                                        />
 
 
-            {currentStep != EAdultFormSteps.INTRODUCTION && (
+                                        <div className="h-8 w-px bg-gray-200 mx-2" />
 
-                <Flex direction={"column"} className="w-full m-auto ">
-                    <div className="absolute w-full h-full">
 
-                    </div>
+                                        <div className="flex items-center gap-3 max-sm:flex-col">
+                                            {stepsInfo[currentStep - 1]?.icon && (
+                                                <div className="text-primary flex-shrink-0">
+                                                    {React.cloneElement(stepsInfo[currentStep - 1]?.icon, {
+                                                        className: "w-6 h-6"
+                                                    })}
 
-                    <img className="relative m-auto w-36 mb-[10px]" src={logo} alt="Logo"></img>
-                    <Stepper ref={stepperRef}
-                        className="w-[80%] max-sm:w-full m-auto"
-                        initialStep={1}
-                        footerClassName="hidden"
-                        disableStepIndicators
-                        onStepChange={(step) => {
-                            if (step === EAdultFormSteps.INDICATE_SECOND_SOURCE) {
-                                setCurrentStep(EAdultFormSteps.GENERAL_CHARACTERISTICS);
-                            } else {
-                                setCurrentStep(step as EAdultFormSteps);
-                            }
-                        }}
+                                                </div>
+                                            )}
 
-                    >
-                        {stepsInfo.map((stepInfo) => (
+                                            {currentStep === 10 && (
+                                                <div className="text-primary flex-shrink-0">
 
-                            <Step key={stepInfo.step}>
-                                <header className="text-primary">
-                                    <Flex direction={"column"} justify={"center"} align={"center"} className="">
-                                        {stepInfo.icon}
-                                        <Flex direction={"column"}>
-                                            <h1> {stepInfo.title} </h1>
-                                            <h2>{stepInfo.stepDescription}</h2>
-                                        </Flex>
+                                                    {React.cloneElement(stepsInfo[4].icon, { className: "w-6 h-6" })
+                                                    }
+
+                                                </div>)
+                                            }
+
+                                            <div className="flex flex-col gap-0.5">
+                                                <h1 className="text-lg font-semibold text-gray-900 leading-tight">
+                                                    {stepsInfo[currentStep - 1]?.title}
+                                                    {currentStep === 10 ? stepsInfo[4].title : ""}
+                                                </h1>
+
+                                            </div>
+                                        </div>
+                                    </Flex>
+                                </header>
+                            </Flex>
+                        </div>
+                    )}
+
+                    {currentStep != EAdultFormSteps.INTRODUCTION && (
+                        <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover">
+                            <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
+
+                                <header className="z-10 ml-7 mr-8 max-xl:ml-5 max-xl:mr-6 mt-4 rounded-md card-container-border-variant bg-off-white">
+                                    <Flex
+                                        direction={"row"}
+                                        justify={"center"}
+                                        align={"center"}
+                                        className="max-w-3xl m-auto px-4 py-4 gap-4"
+                                    >
+                                        {/* Logo reduzida */}
+                                        <img
+                                            className="w-24 h-auto flex-shrink-0"
+                                            src={logo}
+                                            alt="Logo"
+                                        />
+
+
+                                        <div className="h-8 w-px bg-gray-200 mx-2" />
+
+
+                                        <div className="flex items-center gap-3 max-sm:flex-col">
+                                            {stepsInfo[currentStep - 1]?.icon && (
+                                                <div className="text-primary flex-shrink-0">
+                                                    {React.cloneElement(stepsInfo[currentStep - 1]?.icon, {
+                                                        className: "w-6 h-6"
+                                                    })}
+
+                                                </div>
+                                            )}
+
+                                            {currentStep === 10 && (
+                                                <div className="text-primary flex-shrink-0">
+
+                                                    {React.cloneElement(stepsInfo[4].icon, { className: "w-6 h-6" })
+                                                    }
+
+                                                </div>)
+                                            }
+
+                                            <div className="flex flex-col gap-0.5">
+                                                <h1 className="text-lg font-semibold text-gray-900 leading-tight">
+                                                    {stepsInfo[currentStep - 1]?.title}
+                                                    {currentStep === 10 ? stepsInfo[4].title : ""}
+                                                </h1>
+
+                                            </div>
+                                        </div>
                                     </Flex>
                                 </header>
 
-                                <Flex id="bg-div" className="bg-primary font-roboto w-full">
-                                    <Flex direction="column" className={`w-full bg-off-white p-5 pb-5 max-sm:p-1`}>
+                                <div className="flex-1 overflow-y-auto z-10 mt-2">
+                                    <Stepper ref={stepperRef}
+                                        className="w-[100%] max-sm:w-full m-auto "
+                                        initialStep={1}
+                                        footerClassName="hidden"
+                                        disableStepIndicators
+                                        onStepChange={(step) => {
+                                            if (step === EAdultFormSteps.INDICATE_SECOND_SOURCE) {
+                                                setCurrentStep(EAdultFormSteps.GENERAL_CHARACTERISTICS);
+                                            } else {
+                                                setCurrentStep(step as EAdultFormSteps);
+                                            }
+                                        }}
 
-                                        {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
-                                            <SecondSourceDataStep
-                                                formData={formData}
-                                                setFormData={setFormData}
-                                                nextStep={handleNextStep}
-                                                sampleId={sampleId}
-                                                setNotificationData={setNotificationData}
-                                                saveAndExit={saveAndExit}
-                                            />
+                                    >
+                                        {stepsInfo.map((stepInfo) => (
+                                            <Step key={stepInfo.step}>
+
+                                                <Flex className="w-full card-container-variante-border  font-roboto rounded-lg mb-5  mt-2">
+                                                    <Flex direction="column" className={`w-full p-6 max-sm:p-4 space-y-4 bg-glass`}>
+
+                                                        {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
+                                                            <SecondSourceDataStep
+                                                                header={stepsInfo[currentStep - 1]?.stepDescription}
+                                                                setFormData={setFormData}
+                                                                nextStep={handleNextStep}
+                                                                sampleId={sampleId}
+                                                                setNotificationData={setNotificationData}
+                                                                saveAndExit={saveAndExit} />
+                                                        )}
+                                                        {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
+
+                                                            <ReadAndAcceptDocsStep
+                                                                formData={formData}
+                                                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+                                                                // @ts-ignore DONT WORRY TYPESCRIPT, KEEP CALM OK?
+                                                                setFormData={setFormData}
+                                                                sourceForm={EAdultFormSource.SECOND_SOURCE}
+                                                                setNotificationData={setNotificationData}
+                                                                nextStep={handleNextStep}
+                                                                previousStep={handlePreviousStep}
+                                                                sampleId={sampleId}
+                                                                saveAndExit={saveAndExit}
+                                                            />
+                                                        )}
+                                                        {currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS && (
+                                                            <Flex direction="column" className="bg-off-white p-5 font-roboto text-slate-950 rounded-2xl w-[100%] gap-y-5 m-auto max-sm:p-0">
+                                                                <header className="text-primary">
+                                                                    <h3 className="text-xl max-sm:text-lg md:text-xl lg:text-2xl font-bold">
+                                                                        {stepsInfo[2]?.stepDescription}
+                                                                    </h3>
+
+                                                                </header>
+                                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 mb-5">
+                                                                    {[
+                                                                        EAdultFormSteps.GENERAL_CHARACTERISTICS,
+                                                                        EAdultFormSteps.HIGH_ABILITIES,
+                                                                        EAdultFormSteps.CREATIVITY,
+                                                                        EAdultFormSteps.TASK_COMMITMENT,
+                                                                        EAdultFormSteps.LEADERSHIP,
+                                                                        EAdultFormSteps.ARTISTIC_ACTIVITIES
+                                                                    ].map((step) => (
+                                                                        <FormGroupsStep
+                                                                            key={step}
+                                                                            formData={formData}
+                                                                            setFormData={setFormData as (data: ISecondSource | IParticipant) => void}
+                                                                            sourceForm={EAdultFormSource.SECOND_SOURCE}
+                                                                            sampleId={sampleId}
+                                                                            currentStep={step}
+                                                                            completed={completedSteps[step as FormGroupSteps]}
+                                                                            onCompletionChange={(isCompleted) =>
+                                                                                handleStepCompletion(step as FormGroupSteps, isCompleted)
+                                                                            }
+                                                                            setNotificationData={setNotificationData}
+                                                                        />
+                                                                    ))}
+                                                                </div>
+                                                                <div className="flex justify-center gap-6 max-sm:flex-col">
+                                                                    <Button
+                                                                        onClick={handlePreviousStep}
+                                                                        size="Full"
+                                                                        title="Voltar"
+                                                                        color="gray"
+                                                                    />
+                                                                    <Button
+                                                                        size="Full"
+                                                                        onClick={saveAndExit}
+                                                                        title="Salvar e Sair"
+                                                                        color="primary"
+                                                                    />
+                                                                    <Button
+                                                                        size="Full"
+                                                                        className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                                                                        onClick={handleNextStep}
+                                                                        title="Salvar e Continuar"
+                                                                        color={`${!allStepsCompleted ? "gray" : "green"}`}
+                                                                        disabled={!allStepsCompleted}
+                                                                    />
+                                                                </div>
+                                                            </Flex>
+                                                        )}
+                                                    </Flex>
+                                                </Flex>
+                                            </Step>
+                                        )
                                         )}
-
-                                        {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
-
-                                            <ReadAndAcceptDocsStep
-                                                formData={formData}
-                                                // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                                                // @ts-ignore DONT WORRY TYPESCRIPT, KEEP CALM OK?
-                                                setFormData={setFormData}
-                                                sourceForm={EAdultFormSource.SECOND_SOURCE}
-                                                setNotificationData={setNotificationData}
-                                                nextStep={handleNextStep}
-                                                previousStep={handlePreviousStep}
-                                                sampleId={sampleId}
-                                                saveAndExit={saveAndExit}
-                                            />
-                                        )}
-
-                                        {currentStep === EAdultFormSteps.HIGH_ABILITIES && (<div> aqui </div>)}
-
-                                        {currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS && (
-                                            <Flex direction="column" className="m-auto">
-                                                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-5">
-                                                    {[
-                                                        EAdultFormSteps.GENERAL_CHARACTERISTICS,
-                                                        EAdultFormSteps.HIGH_ABILITIES,
-                                                        EAdultFormSteps.CREATIVITY,
-                                                        EAdultFormSteps.TASK_COMMITMENT,
-                                                        EAdultFormSteps.LEADERSHIP,
-                                                        EAdultFormSteps.ARTISTIC_ACTIVITIES
-                                                    ].map((step) => (
-                                                        <FormGroupsStep
-                                                            key={step}
-                                                            formData={formData}
-                                                            setFormData={setFormData as (data: ISecondSource | IParticipant) => void}
-                                                            sourceForm={EAdultFormSource.SECOND_SOURCE}
-                                                            sampleId={sampleId}
-                                                            currentStep={step}
-                                                            completed={completedSteps[step as FormGroupSteps]}
-                                                            onCompletionChange={(isCompleted) =>
-                                                                handleStepCompletion(step as FormGroupSteps, isCompleted)
-                                                            }
-                                                            setNotificationData={setNotificationData}
-                                                        />
-                                                    ))}
-                                                </div>
-                                                <div className="flex justify-center gap-6">
-                                                    <Button
-                                                        onClick={handlePreviousStep}
-                                                        size="Medium"
-                                                        title="Voltar"
-                                                        color="primary"
-                                                    />
-                                                    <Button
-                                                        size="Medium"
-                                                        onClick={saveAndExit}
-                                                        title="Salvar e Sair"
-                                                        color="primary"
-                                                    />
-                                                    <Button
-                                                        size="Medium"
-                                                        className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
-                                                        onClick={handleNextStep}
-                                                        title="Salvar e Continuar"
-                                                        color={`${!allStepsCompleted ? "gray" : "green"}`}
-                                                        disabled={!allStepsCompleted}
-                                                    />
-                                                </div>
-                                            </Flex>
-                                        )}
+                                    </Stepper>
+                                </div>
+                            </Flex>
 
 
-                                    </Flex>
-                                </Flex>
+                        </div>
 
-                            </Step>
+                    )}
 
+
+                    {currentStep === EAdultFormSteps.INTRODUCTION && (
+                        <Flex
+                            direction={"column"}
+                            className="relative h-full lg:h-full max-sm:h-fit md:h-auto sm:h-auto pb-4 w-full overflow-hidden"
+                        >
+                            <div className="absolute inset-0 bg-default-bg max-sm:bg-default-bg-mobo bg-center bg-no-repeat bg-cover animate-forward-expand"></div>
+
+                            <Flex
+                                align={"center"}
+                                id="bg-div"
+                                className={`font-roboto text-white m-auto relative z-10`}
+                            >
+                                <IntroductionStep
+                                    participantName={researchData.participantName}
+                                    researcherName={researchData.researcherName}
+                                    participantId={participantId}
+                                    sourceForm={EAdultFormSource.SECOND_SOURCE}
+                                    sampleId={sampleId}
+                                    setNotificationData={setNotificationData}
+                                />
+                            </Flex>
+                        </Flex>
+
+                    )}
+
+                    {
+
+                        currentStep === EAdultFormSteps.FINISHED && (
+                            <Flex
+                                align={"center"}
+                                id="bg-div"
+                                className={`font-roboto w-full text-white m-auto relative z-10`}
+                            >
+                                <QuestionnaireCompleted />
+                            </Flex>
                         )
-                        )}
-
-                    </Stepper>
-                    {/* {showFooter && <footer className="bg-primary h-10 "></footer>} */}
-
-
-                </Flex>
-
-            )}
-
-
-
-            {loading && (
-
-                <Flex direction="column-reverse" className="absolute overflow-hidden h-screen w-full bg-white m-auto">
-                    <h1 className="text-primary m-auto">Aguarde...
-                        <ReactLoading color="#6e56cf" className="m-auto" type="spinningBubbles"></ReactLoading>
-                    </h1>
-                    <Waves
-                        lineColor="#6e56cf"
-                        backgroundColor="rgba(255, 255, 255, 0)"
-                        waveSpeedX={0.02}
-                        waveSpeedY={0.01}
-                        waveAmpX={40}
-                        waveAmpY={20}
-                        friction={0.9}
-                        tension={0.01}
-                        maxCursorMove={120}
-                        xGap={12}
-                        yGap={36}
-                    />
-
-                </Flex>
-            )}
-
-
-            {currentStep === EAdultFormSteps.INTRODUCTION && (
-                <Flex direction={"column"} className="relative h-full lg:h-full max-sm:h-fit   md:h-auto sm:h-auto pb-4 w-full bg-default-bg max-sm:bg-default-bg-mobo bg-center bg-no-repeat bg-cover">
-                    <Flex align={"center"} id="bg-div" className={`font-roboto text-white   m-auto`}>
-                        <IntroductionStep
-                            participantName={researchData.participantName}
-                            researcherName={researchData.researcherName}
-                            participantId={participantId}
-                            sourceForm={EAdultFormSource.SECOND_SOURCE}
-                            sampleId={sampleId}
-                            setNotificationData={setNotificationData}
-                        />
-                    </Flex>
-                </Flex>
-
-            )}
-
+                    }
+                </>)}
         </Notify >
     );
 };

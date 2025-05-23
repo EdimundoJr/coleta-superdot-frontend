@@ -17,7 +17,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                 <Form.Label className={`block text-left text-xs font-bold uppercase tracking-wide `}>
                     {label}
                 </Form.Label>
-                <Flex justify="center" align="center" className={`border rounded-md`}>
+                <Flex justify="center" align="center" className={`border rounded-md bg-white`}>
                     {icon && <Flex className="p-2">{icon}</Flex>}
                     <Form.Control asChild className={`h-10 w-full`}>
 

@@ -30,6 +30,7 @@ const IntroductionStep = ({
     setNotificationData,
 }: IntroductionStepProps) => {
     const [participantEmail, setParticipantEmail] = useState<string>("");
+    const [loading, setLoading] = useState(false);
 
     /**
      * The function `handleOnRequestVerificationCode` sends a verification code to a participant's
@@ -37,6 +38,7 @@ const IntroductionStep = ({
      * @returns nothing (undefined) if the `participantEmail` is empty.
      */
     const handleOnRequestVerificationCode = async () => {
+        setLoading(true);
         if (!participantEmail.length) {
             return setNotificationData({
                 title: "Insira um email.",
@@ -81,7 +83,7 @@ const IntroductionStep = ({
                         break;
                     case 401:
                         setNotificationData({
-                            title: "Preenchimento finalizado!",
+                            title: "Questionário finalizado!",
                             description:
                                 "Você já finalizou o preencimento do formulário, não é possível alterar as informações.",
                             type: "success"
@@ -110,6 +112,8 @@ const IntroductionStep = ({
                         });
                 }
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -169,7 +173,7 @@ const IntroductionStep = ({
                         </p>
                         <Flex justify={"center"} align={"center"} direction="row" className="m-auto w-2/4 max-sm:w-[80%] gap-2">
                             <input id="participantEmail" placeholder="Insira seu e-mail aqui..." type="email" className="h-10" onChange={(e) => setParticipantEmail(e.target.value)} />
-                            <Button type="button" className="button-primary" onClick={handleOnRequestVerificationCode} color={"primary"} title={"Enviar"} size={"Large"} />
+                            <Button loading={loading} type="button" className="button-primary" onClick={handleOnRequestVerificationCode} color={"primary"} title={"Enviar"} size={"Large"} />
                         </Flex>
                     </div>
                 </Box>

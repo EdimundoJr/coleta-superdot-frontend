@@ -9,7 +9,7 @@ import ReviewCard from "../../components/ReviewCard/ReviewCard";
 import { SampleSummary } from "../../api/sample.api";
 import { SampleStatus } from "../../utils/consts.utils";
 import Notify from "../../components/Notify/Notify";
-import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
+import { Container, Flex, Skeleton } from "@radix-ui/themes";
 import { Button } from "../../components/Button/Button";
 import * as Icon from "@phosphor-icons/react"
 
@@ -112,7 +112,7 @@ const SampleReviewPage = () => {
                             currentPage={currentTablePage}
                             setCurrentPage={setCurrentTablePage}
                             page={tablePageData}
-                        />
+                            loading={loading} />
                     </Container>
 
                     <Modal

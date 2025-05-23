@@ -12,6 +12,7 @@ interface LoginInfoProps {
     handleOnClickPreviousStep: () => void;
     setStepData: (stepData: RegisterValues) => void;
     currentData: RegisterValues;
+    loading: boolean;
 }
 
 const LoginInfoForm = ({
@@ -19,14 +20,19 @@ const LoginInfoForm = ({
     handleOnClickPreviousStep,
     setStepData,
     currentData,
+    loading,
 }: LoginInfoProps) => {
     const {
         register,
         handleSubmit,
         formState: { errors, isValid },
-    } = useForm({ resolver: yupResolver(loginInfoSchema) });
+    } = useForm({
+        resolver: yupResolver(loginInfoSchema),
+        mode: "onChange",
+    });
     const [errorUseTerm, setErrorUseTerm] = useState("");
     const [useTermChecked, setUseTermChecked] = useState(false);
+
 
     const onSubmit = handleSubmit((stepData) => {
         setErrorUseTerm("");
@@ -121,6 +127,7 @@ const LoginInfoForm = ({
                         title={"Concluir"}
                         color={`${isValid ? "green" : "gray"}`}
                         disabled={!isValid}
+                        loading={loading}
                     />
                 </div>
                 <div className="text-red-600">* Campos obrigatórios</div>

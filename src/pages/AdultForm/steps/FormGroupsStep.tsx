@@ -311,23 +311,24 @@ const FormGroupsStep = ({
                 } />
 
             <Box maxWidth="" >
-                <Card size="1" className={`card-container-variante-border group group/item transition-all pt-4 ${completQuestions ? "hidden" : "btn-primary"} px-5`}>
+                <Card size="1" className={`card-container-variante-border group group/item transition-all pt-4  px-5`}>
                     <Inset clip="padding-box" side="top" pb="current">
                         <img
                             src={currentGroup?.groupName === "Características Gerais" ? Gerais : currentGroup?.groupName === "Criatividade" ? Criatividade : currentGroup?.groupName === "Liderança" ? Lideranca : currentGroup?.groupName === "Comprometimento da Tarefa" ? Comprometimento : currentGroup?.groupName === "Habilidade Acima da Média" ? Habilidades : Atividade}
                             alt="Bold typography"
+                            className={`${completQuestions ? "hidden" : "hover:scale-110 transition-all duration-200"}`}
                             style={{
                                 display: "block",
                                 objectFit: "cover",
                                 width: "100%",
-                                height: 140,
+                                height: 240,
                                 backgroundColor: "var(--gray-5)",
                             }}
                         />
                     </Inset>
-                    <Flex direction="column" gap="1">
+                    <Flex direction="column" gap="1" className="">
                         <p className="">
-                            <Strong>{currentGroup?.groupName}</Strong>
+                            <Strong className="!font-roboto">{currentGroup?.groupName}</Strong>
                         </p>
                         {completQuestions ?
                             <Badge size="1" color="green" variant="solid" className={`${completed ? "" : "invisible"} w-full justify-center h-[20px] absolute top-0 left-0 right-0 `}>

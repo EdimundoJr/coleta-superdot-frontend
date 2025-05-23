@@ -23,7 +23,7 @@
 
 body,
 html {
-    @apply m-0 h-full  overflow-x-auto sm:overflow-x-clip;
+    @apply m-0 h-full  overflow-x-auto max-sm:overflow-x-clip;
 }
 
 * DEFAULT ELEMENTS * h1,
@@ -54,7 +54,7 @@ thead.multi-rows th {
 /** CUSTOM ELEMENTS **/
 
 span.error-message {
-    @apply block px-2 text-left text-sm text-rose-500;
+    @apply block px-2 text-left text-sm text-red-500;
 }
 
 /** BACKGROUNDS, COLORS AND GRADIENTS **/
@@ -71,7 +71,7 @@ span.error-message {
     border-radius: 4px;
   }
   
-.bg-professional {
+  .bg-professional {
     @apply bg-neutral-50;
   }
   .shadow-bottom-lg {

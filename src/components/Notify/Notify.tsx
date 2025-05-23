@@ -31,7 +31,7 @@ const Notify: React.FC<NotifyProps> = ({
                     <Flex align="center" className={`w-[50px] p-2 ${className} rounded-tl-md rounded-bl-md`}>
                         {icon}
                     </Flex>
-                    <Flex direction="column" className="p-[15px] ">
+                    <Flex direction="column" justify={"center"} align={"center"} className="p-[15px] w-full">
                         {title && (
                             <Toast.Title className="[grid-area:_title] mb-[5px] font-medium text-slate12 text-[15px]">
                                 {title}

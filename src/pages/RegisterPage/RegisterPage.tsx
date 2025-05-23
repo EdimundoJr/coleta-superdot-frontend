@@ -37,7 +37,11 @@ const RegisterPage = () => {
         description: "",
         type: "",
     });
+
+    const [loading, setLoading] = useState(false);
     const handleSubmit = async (data: RegisterValues) => {
+        setLoading(true);
+
         const formData = new FormData();
 
         for (const key in data) {
@@ -63,7 +67,11 @@ const RegisterPage = () => {
             const result = await registerResearcher(formData);
             if (result.status === 200) {
                 saveTokens(result.data);
-                navigate("/app/home");
+                navigate("/app/home", {
+                    state: { isNewUser: true }
+                });
+                setLoading(false);
+
             }
         } catch (error) {
             console.error(error);
@@ -72,6 +80,8 @@ const RegisterPage = () => {
                 description: "Por favor, confira as informações fornecidas e tente novamente.",
                 type: "erro",
             });
+        } finally {
+            setLoading(false);
         }
     };
     const stepperRef = useRef<{
@@ -127,6 +137,7 @@ const RegisterPage = () => {
                                 handleOnClickPreviousStep={handlePreviousStep}
                                 setStepData={setCurrentData}
                                 currentData={registerData}
+                                loading={loading}
                             />
                         </Step>
                     </Stepper>

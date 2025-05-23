@@ -1,4 +1,3 @@
-import { Cross2Icon } from "@radix-ui/react-icons";
 import * as Form from "@radix-ui/react-form";
 import { InputField } from "../../../components/InputField/InputField";
 import { FormEvent, useState } from "react";
@@ -7,8 +6,9 @@ import isEmail from "validator/lib/isEmail";
 import { AxiosError } from "axios";
 import { putSaveSecondSources } from "../../../api/participant.api";
 import { IParticipant } from "../../../interfaces/participant.interface";
-import { DataList, Flex, Separator, Table, Text } from "@radix-ui/themes";
+import { DataList, Flex, Separator } from "@radix-ui/themes";
 import { Button } from "../../../components/Button/Button";
+import * as Icon from "@phosphor-icons/react";
 
 interface IndicateSecondSourceStepProps {
     formData: IParticipant;
@@ -39,6 +39,7 @@ const IndicateSecondSourceStep = ({
     const [fullName, setFullName] = useState("");
     const [email, setEmail] = useState("");
     const [teacherSubject, setTeacherSubject] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const validateFields = () => {
         if (!fullName.length || !email.length) {
@@ -170,6 +171,7 @@ const IndicateSecondSourceStep = ({
      * @returns The function `onSubmit` returns nothing.
      */
     const onSubmit = async (exit?: boolean) => {
+        setLoading(true);
         if (!formData.secondSources?.length) return;
 
         try {
@@ -205,6 +207,8 @@ const IndicateSecondSourceStep = ({
                     });
                 }
             }
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -279,7 +283,7 @@ const IndicateSecondSourceStep = ({
                     </div>
 
                     <Form.Submit asChild className="mt-5">
-                        <Button size="Extra Small" title={"Adicionar"} color={"green"} className="m-auto" />
+                        <Button size="Extra Small" title={"Adicionar"} color={"green"} className="m-auto" children={<Icon.PlusCircle size={20} className="text-white" />} />
                     </Form.Submit>
                 </Form.Root>
                 {(formData.secondSources?.length || 0) > 0 && (
@@ -354,16 +358,17 @@ const IndicateSecondSourceStep = ({
                 )}
             </section>
 
-            <Flex align={"center"} justify={"center"} className="gap-6 max-sm:gap-2">
-                <Button size="Medium" onClick={previousStep} title={"Voltar"} color={"primary"}>
+            <Flex align={"center"} justify={"center"} className="gap-6 max-sm:gap-2 max-sm:flex-col">
+                <Button size="Full" onClick={previousStep} title={"Voltar"} color={"gray"}>
 
                 </Button>
                 <Button
-                    size="Medium" onClick={() => onSubmit(true)} title={"Salvar e Sair"} color={"primary"}>
+                    size="Full" onClick={() => onSubmit(true)} title={"Salvar e Sair"} color={"primary"}>
 
                 </Button>
                 <Button
-                    size="Medium"
+                    loading={loading}
+                    size="Full"
                     className=" disabled:bg-neutral-dark disabled:hover:cursor-not-allowed"
                     disabled={!formData.secondSources?.length}
                     onClick={() => onSubmit()} title={"Salvar e Continuar"} color={!formData.secondSources?.length ? "gray" : "green"}                    >

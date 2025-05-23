@@ -184,7 +184,7 @@ const WordCloudGenerator: React.FC<WordCloudGeneratorProps> = ({ textBio = [] })
       </div>
 
       {!isFullScreen && (
-        <div className={`overlay-message`}>
+        <div className={`overlay-message max-sm:w-[80%]`}>
           *Clique para tela cheia
         </div>
       )}

@@ -1,5 +1,4 @@
 import * as Icon from "@phosphor-icons/react";
-import { Skeleton } from "@radix-ui/themes";
 import { useEffect, useState } from "react";
 import { DashboardInfo, getinfoDashboard } from "../../api/sample.api";
 import Dcard from "../../components/DashboardCard/DCard";
@@ -7,6 +6,8 @@ import ApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
 import Notify from "../../components/Notify/Notify";
 import ChartContainer from "../../components/Charts/GenderChart";
+import NewUser from "../../components/NewUser/NewUser";
+import { useLocation } from "react-router-dom";
 
 function DashBoardPage() {
     const [dados, setDados] = useState<null | DashboardInfo>(null);
@@ -17,6 +18,14 @@ function DashBoardPage() {
         description: "",
         type: "",
     });
+    const location = useLocation();
+    const isNewUser = location.state?.isNewUser || false;
+    const [isWelcomeOpen, setIsWelcomeOpen] = useState(false);
+
+    useEffect(() => {
+        const shouldOpen = isNewUser && !localStorage.getItem('dontShowWelcome');
+        setIsWelcomeOpen(shouldOpen);
+    }, [isNewUser]);
 
     useEffect(() => {
         const fetchDados = async () => {
@@ -86,6 +95,16 @@ function DashBoardPage() {
                 icon={notificationData.type === "erro" ? <Icon.XCircle size={30} color="white" weight="bold" /> : notificationData.type === "aviso" ? <Icon.WarningCircle size={30} color="white" weight="bold" /> : <Icon.CheckCircle size={30} color="white" weight="bold" />}
                 className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
             />
+            {isNewUser ? (
+                <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-10">
+                    <NewUser
+                        open={isWelcomeOpen}
+                        setOpen={setIsWelcomeOpen}
+                        isNewUser={isNewUser}
+                        username="Nome do Usuário" />
+                </div>
+            ) : null}
+
 
             {/* Top Cards Section */}
             <div className="grid grid-cols-1 xl:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">

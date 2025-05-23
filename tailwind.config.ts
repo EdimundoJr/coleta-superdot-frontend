@@ -36,6 +36,24 @@ export default {
                 'default-bg-mobo': "url('/default-bg-mobo.png')",
             },
             keyframes: {
+                float: {
+                    '0%, 100%': { transform: 'translateY(0)' },
+                    '50%': { transform: 'translateY(-20px)' },
+                },
+                floatXY: {
+                    '0%, 100%': {
+                        transform: 'translateX(0px) translateY(0px)',
+                    },
+                    '50%': {
+                        transform: 'translateX(-10px) translateY(-20px)',
+                    },
+
+
+                },
+                pulse: {
+                    '0%, 100%': { opacity: "1" },
+                    '50%': { opacity: "0.5" },
+                },
                 overlayShow: {
                     from: { opacity: "0" },
                     to: { opacity: "1" },
@@ -94,6 +112,10 @@ export default {
 
         },
         animation: {
+            float: 'float 6s ease-in-out infinite',
+            floatXY: 'floatXY 6s ease-in-out infinite',
+            'float-delayed': 'float 6s ease-in-out 2s infinite',
+            pulse: 'pulse 4s cubic-bezier(0.4, 0, 0.6, 1) infinite',
             hide: "hide 100ms ease-in",
             slideIn: "slideIn 150ms cubic-bezier(0.16, 1, 0.3, 1)",
             swipeOut: "swipeOut 100ms ease-out",

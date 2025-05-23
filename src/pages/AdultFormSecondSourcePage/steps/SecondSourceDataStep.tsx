@@ -9,8 +9,11 @@ import { useForm } from "react-hook-form";
 import { SecondSourceDTO, secondSourceDataSchema } from "../../../schemas/adultForm/secondSourceData.schema";
 import { putSaveSecondSourceData, putSubmitSecondSourceData } from "../../../api/secondSource.api";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
+import { Portuguese } from "flatpickr/dist/l10n/pt.js";
+
 
 import { Button } from "../../../components/Button/Button";
+import { useState } from "react";
 
 interface SecondSourceDataStepProps {
     formData?: ISecondSource;
@@ -19,6 +22,7 @@ interface SecondSourceDataStepProps {
     setNotificationData: (data: { title: string; description: string, type: string }) => void;
     sampleId: string;
     saveAndExit: () => void;
+    header: string;
 }
 
 const SecondSourceDataStep = ({
@@ -28,6 +32,7 @@ const SecondSourceDataStep = ({
     setNotificationData,
     sampleId,
     saveAndExit,
+    header
 }: SecondSourceDataStepProps) => {
     const {
         register,
@@ -35,8 +40,12 @@ const SecondSourceDataStep = ({
         formState: { errors, isValid },
         setValue,
         watch,
-    } = useForm({ resolver: yupResolver(secondSourceDataSchema), defaultValues: formData });
-
+    } = useForm({
+        resolver: yupResolver(secondSourceDataSchema),
+        defaultValues: formData,
+        mode: "onChange",
+    });
+    const [loading, setLoading] = useState(false);
     const onSaveAndExit = async () => {
         try {
             const response = await putSaveSecondSourceData({ sampleId, secondSourceData: watch() });
@@ -64,6 +73,7 @@ const SecondSourceDataStep = ({
     };
 
     const onSubmit = handleSubmit(async (secondSourceData: SecondSourceDTO) => {
+        setLoading(true);
         try {
             const response = await putSubmitSecondSourceData({ sampleId, secondSourceData });
             if (response.status === 200) {
@@ -85,14 +95,21 @@ const SecondSourceDataStep = ({
                 description: "Preencha todos os campos corretamente.",
                 type: "erro"
             });
+        } finally {
+            setLoading(false);
         }
     });
 
     return (
-        <div className="max-lg:grid max-lg:gap-y-5 relative w-[100%] xl:w-[100%] m-auto rounded-2xl p-5 max-lg:p-2">
+        <div className="rt-Flex rt-r-fd-column bg-white gap-y-5  max-sm:p-0  relative w-[100%]  m-auto rounded-2xl p-5">
+            <header className="text-primary">
+                <h3 className="text-xl max-sm:text-lg md:text-xl lg:text-2xl font-bold">
+                    {header}
+                </h3>
 
+            </header>
             <Form.Root onSubmit={onSubmit} className="w-full">
-                <div className="grid grid-cols-3 gap-y-5  gap-3 max-lg:grid-cols-1 max-lg:grid">
+                <div className="grid grid-cols-1 gap-y-5  gap-3 ">
                     <InputField
                         {...register("personalData.fullName")}
                         label="Nome completo*"
@@ -119,10 +136,11 @@ const SecondSourceDataStep = ({
                             className="h-[35px] w-full rounded-[4px] px-4 text-sm"
                             placeholder="Informe sua data de nascimento"
                             multiple={false}
-                            onChange={([date]) => setValue("personalData.birthDate", date)}
+                            onChange={([date]) => setValue("personalData.birthDate", date, { shouldValidate: true })}
                             options={{
                                 dateFormat: "d/m/Y",
                                 maxDate: minDate,
+                                locale: Portuguese,
                             }}
                         />
                         {errors.personalData?.birthDate?.message && (
@@ -185,18 +203,18 @@ const SecondSourceDataStep = ({
                         size="Medium"
                         onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                     >
                     </Button>
-
-                    <Button
-                        size="Medium"
-                        className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
-                        title={"Salvar e Continuar"}
-                        color={`${isValid ? "green" : "gray"}`}
-                        type="submit"
-                        disabled={!isValid}
-                    />
-
+                    <Form.Submit asChild>
+                        <Button
+                            loading={loading}
+                            size="Medium"
+                            className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                            title={"Salvar e Continuar"}
+                            color={`${isValid ? "green" : "gray"}`}
+                            type="submit"
+                            disabled={!isValid}
+                        />
+                    </Form.Submit>
                 </div>
-
             </Form.Root>
         </div>
     );

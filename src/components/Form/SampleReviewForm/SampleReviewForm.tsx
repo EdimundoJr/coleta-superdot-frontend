@@ -10,6 +10,7 @@ import { SAMPLE_STATUS_ARRAY } from "../../../utils/consts.utils";
 import { SampleSummary } from "../../../api/sample.api";
 import { Button } from "../../Button/Button";
 import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
 
 interface SampleReviewFormProps {
     sample?: SampleSummary;
@@ -17,6 +18,8 @@ interface SampleReviewFormProps {
 }
 
 const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
+    const [loading, setLoading] = useState(false);
+
     if (!sample) return null;
 
     const sampleReviewFormSchema = yup.object({
@@ -44,6 +47,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
     const watchStatusChange = watch("nextStatus");
 
     const onSubmit = handleSubmit(async (data) => {
+        setLoading(true);
         try {
             const response = await createReview({
                 ...data,
@@ -55,6 +59,8 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             }
         } catch (e) {
             console.error(e);
+        } finally {
+            setLoading(false);
         }
     });
 
@@ -87,7 +93,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             </Flex>
 
             <Form.Submit asChild>
-                <Button className="" title={"Salvar"} color={"green"} size={"Medium"}></Button>
+                <Button loading={loading} className="w-full" title={"Salvar"} color={"green"} size={"Medium"}></Button>
             </Form.Submit>
         </Form.Root>
     );

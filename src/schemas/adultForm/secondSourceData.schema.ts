@@ -3,7 +3,7 @@ import { EDUCATION_LEVEL_ARRAY, RELATIONSHIPS_ARRAY, RELATIONSHIP_TIME_ARRAY } f
 
 export const secondSourceDataSchema = object({
     personalData: object({
-        email: string().required(),
+        email: string(),
         fullName: string().required("Nome completo é um campo obrigatório."),
         birthDate: date().typeError("Insira uma data válida!").required("Data de nascimento é um campo obrigatório."),
         relationship: string()

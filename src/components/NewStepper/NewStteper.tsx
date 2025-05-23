@@ -13,6 +13,7 @@ import { Button } from "../Button/Button";
 
 interface StepperProps extends HTMLAttributes<HTMLDivElement> {
   children: ReactNode;
+  completedStepContent?: ReactNode;
   initialStep?: number;
   onStepChange?: (step: number) => void;
   onFinalStepCompleted?: () => void;
@@ -36,6 +37,7 @@ interface StepperProps extends HTMLAttributes<HTMLDivElement> {
 export default forwardRef(function Stepper(
   {
     children,
+    completedStepContent,
     initialStep = 1,
     onStepChange = () => { },
     onFinalStepCompleted = () => { },
@@ -97,6 +99,7 @@ export default forwardRef(function Stepper(
       className="flex w-full flex-1 flex-col items-center justify-center  sm:aspect-[4/3] md:aspect-[2/1]"
       {...rest}
     >
+      {isCompleted && completedStepContent}
       <div
         className={`mx-auto w-full  ${stepCircleContainerClassName}`}
       >
@@ -135,6 +138,7 @@ export default forwardRef(function Stepper(
               </React.Fragment>
             );
           })}
+
         </div>
 
         <StepContentWrapper
@@ -174,6 +178,8 @@ export default forwardRef(function Stepper(
             </div>
           </div>
         )}
+
+
       </div>
     </div>
   );
@@ -185,6 +191,7 @@ interface StepContentWrapperProps {
   direction: number;
   children: ReactNode;
   className?: string;
+
 }
 
 function StepContentWrapper({

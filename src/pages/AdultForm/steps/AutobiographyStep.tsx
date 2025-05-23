@@ -23,8 +23,10 @@ const AutobiographyStep = ({
 }: AutobiographyStepProps) => {
     const [autobiographyText, setAutobiographyText] = useState(formData.autobiography?.text ?? "");
     const [autobiographyVideo, setAutobiographyVideo] = useState(formData.autobiography?.videoUrl ?? "");
+    const [loading, setLoading] = useState(false);
 
     const handleSaveAutobiography = async (submitForm?: boolean) => {
+        setLoading(true);
         if (submitForm && !autobiographyText && !autobiographyVideo) {
             setNotificationData({
                 title: "Preencha pelo menos um campo",
@@ -59,11 +61,13 @@ const AutobiographyStep = ({
                 type: "erro",
             });
             console.error(e);
+        } finally {
+            setLoading(false);
         }
     };
 
     return (
-        <Flex direction={"column"} className=" gap-y-5 w-full h-full">
+        <Flex direction={"column"} className=" gap-y-5 w-full h-full m-auto">
             <header className="text-primary">
                 <h3 className="text-xl max-sm:text-lg md:text-xl lg:text-2xl font-bold">
                     {header}
@@ -75,13 +79,13 @@ const AutobiographyStep = ({
                 Conte um pouco sobre você. Você pode escrever sua própria biografia ou, caso prefira, pode gravar um
                 vídeo falando sobre si.
             </p>
-            <div className="mx-auto">
+            <Flex direction={"column"} align={"center"} className="m-auto w-full">
                 <textarea
                     onChange={(e) => setAutobiographyText(e.target.value)}
                     value={autobiographyText}
                     rows={20}
                     id="autobiographyText"
-                    className="mb-5 p-4 w-full text-black card-container  !border-gray-300 text-justify"
+                    className="mb-5 p-4 w-full text-black card-container  !border-gray-300 text-justify "
 
                 ></textarea>
                 <label htmlFor="autobiographyVideo" >
@@ -95,27 +99,28 @@ const AutobiographyStep = ({
                 ></input>
 
 
-                <div className="flex justify-end gap-4 pt-4 border-t border-gray-100">
+                <Flex className=" justify-end gap-4 pt-4 border-t border-gray-100 max-sm:flex-col w-full">
                     <Button
                         onClick={previousStep}
-                        size="Medium"
+                        size="Full"
                         title="Voltar"
                         color="gray"
                         className="hover:bg-gray-50 border border-gray-200"
                     />
                     <Button
-                        size="Medium"
+                        size="Full"
                         onClick={() => handleSaveAutobiography(false)} title={"Salvar e Sair"} color={"primary"}
                     />
                     <Button
-                        size="Medium"
+                        loading={loading}
+                        size="Full"
                         onClick={() => handleSaveAutobiography(true)}
                         className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
                         title="Salvar e Continuar"
                         color={!autobiographyText && !autobiographyVideo ? "gray" : "green"}
                         disabled={!autobiographyText && !autobiographyVideo ? true : false} />
-                </div>
-            </div>
+                </Flex>
+            </Flex>
         </Flex>
     );
 };

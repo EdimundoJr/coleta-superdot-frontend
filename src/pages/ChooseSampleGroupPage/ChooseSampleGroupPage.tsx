@@ -36,11 +36,7 @@ const ChooseSampleGroupPage = () => {
     };
 
     return (
-
         <>
-
-
-
             <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
                 <h2 className="heading-2 font-semibold text-gray-900">
                     Selecione um grupo para criar uma amostra.
@@ -76,22 +72,16 @@ const ChooseSampleGroupPage = () => {
                                             });
                                             scrollToTop();
                                         }}
-
                                     >
                                         {group.available ? "Selecionar" : "Em construção"}
-
                                     </Card.Action>
-
                                 </Card.Actions>
-
                             </Card.Root>
 
                         ))}
 
                     className="gap-8 " >
                 </GridComponent >
-
-
             </Container >
         </>
     );

@@ -8,7 +8,7 @@ import IndicateSecondSourceStep from "./steps/IndicateSecondSourceStep";
 import AutobiographyStep from "./steps/AutobiographyStep";
 import { EAdultFormSource, EAdultFormSteps } from "../../utils/consts.utils";
 import { IParticipant } from "../../interfaces/participant.interface";
-import { clearTokens, saveParticipantToken } from "../../utils/tokensHandler";
+import { saveParticipantToken } from "../../utils/tokensHandler";
 import { patchValidateVerificationCode } from "../../api/participant.api";
 import { getResearcherNameBySampleId } from "../../api/researchers.api";
 import FormGroupsStep from "./steps/FormGroupsStep";
@@ -20,6 +20,7 @@ import { Button } from "../../components/Button/Button";
 import logo from "../../assets/Logo-GRUPAC.png"
 import React from "react";
 import { PageLoader } from "../../components/Loading/Loading";
+import QuestionnaireCompleted from "../../components/QuestionnaireCompleted/QuestionnaireCompleted";
 
 const stepsInfo = [
     {
@@ -101,6 +102,13 @@ const AdultForm = () => {
 
     const allStepsCompleted = Object.values(completedSteps).every(Boolean);
 
+    useEffect(() => {
+        const savedStep = localStorage.getItem(`adult-form-step-${participantId}`);
+        if (savedStep) {
+            setCurrentStep(Number(savedStep));
+        }
+    }, [participantId]);
+
     /* It is used to fetch the researcher name based on a sample ID. */
     useEffect(() => {
         const getResearcherName = async (sampleId: string) => {
@@ -125,6 +133,8 @@ const AdultForm = () => {
     };
 
 
+
+
     /* It is used to validate the URL (receive in the user email) by making an asynchronous request to a server endpoint. */
     useEffect(() => {
         const validateURL = async (participantId: string, sampleId: string, verificationCode: string) => {
@@ -133,8 +143,15 @@ const AdultForm = () => {
                 if (res.status === 200) {
                     setFormData(res.data.participant);
                     saveParticipantToken(res.data.token);
-                    setCurrentStep(EAdultFormSteps.READ_AND_ACCEPT_DOCS);
                     setResearcherName(res.data.researcherName);
+
+                    const savedStep = localStorage.getItem(`adult-form-step-${participantId}`);
+                    const restoredStep = savedStep ? Number(savedStep) : EAdultFormSteps.READ_AND_ACCEPT_DOCS;
+                    if (restoredStep === EAdultFormSteps.AUTOBIOGRAPHY) {
+                        setCurrentStep(4);
+                    } else {
+                        setCurrentStep(restoredStep);
+                    }
                 }
             } catch (err) {
                 console.error(err);
@@ -144,10 +161,9 @@ const AdultForm = () => {
                     type: "erro"
                 });
             } finally {
-                // Simula um tempo mínimo de carregamento mesmo se a rede for rápida
                 setTimeout(() => {
                     setIsPageLoading(false);
-                }, 2000); // 2 segundos de loading mínimo
+                }, 2000);
             }
         };
 
@@ -178,17 +194,15 @@ const AdultForm = () => {
 
     const handleNextStep = () => {
         scrollToTop();
-        if (currentStep === EAdultFormSteps.AUTOBIOGRAPHY) {
-            setCurrentStep(EAdultFormSteps.INTRODUCTION);
-            stepperRef.current?.handleNext();
-            return;
-        }
-        if (currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS) {
-            setCurrentStep(EAdultFormSteps.AUTOBIOGRAPHY);
-            stepperRef.current?.handleNext();
-            return;
-        }
-        setCurrentStep(currentStep + 1);
+        const nextStep =
+            currentStep === EAdultFormSteps.AUTOBIOGRAPHY
+                ? EAdultFormSteps.FINISHED
+                : currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS
+                    ? EAdultFormSteps.AUTOBIOGRAPHY
+                    : currentStep + 1;
+
+        localStorage.setItem(`adult-form-step-${participantId}`, nextStep.toString());
+        setCurrentStep(nextStep);
         stepperRef.current?.handleNext();
     };
 
@@ -207,9 +221,10 @@ const AdultForm = () => {
     };
 
     const saveAndExit = () => {
-        clearTokens();
+        localStorage.setItem(`adult-form-step-${participantId}`, currentStep.toString());
         setCurrentStep(EAdultFormSteps.INTRODUCTION);
     };
+
 
 
     return (
@@ -229,8 +244,6 @@ const AdultForm = () => {
 
             {!isPageLoading && (
                 <>
-
-
                     {currentStep != EAdultFormSteps.INTRODUCTION && (
                         <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover">
                             <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
@@ -253,7 +266,7 @@ const AdultForm = () => {
                                         <div className="h-8 w-px bg-gray-200 mx-2" />
 
 
-                                        <div className="flex items-center gap-3">
+                                        <div className="flex items-center gap-3 max-sm:flex-col">
                                             {stepsInfo[currentStep - 1]?.icon && (
                                                 <div className="text-primary flex-shrink-0">
                                                     {React.cloneElement(stepsInfo[currentStep - 1]?.icon, {
@@ -287,7 +300,7 @@ const AdultForm = () => {
                                     <Stepper
                                         ref={stepperRef}
                                         className="w-[100%] max-sm:w-full m-auto "
-                                        initialStep={1}
+                                        initialStep={currentStep}
                                         footerClassName="hidden"
                                         disableStepIndicators
                                         onStepChange={(step) => {
@@ -301,11 +314,8 @@ const AdultForm = () => {
 
                                         {stepsInfo.map((stepInfo) => (
                                             <Step key={stepInfo.step}>
-
                                                 <Flex className="w-full card-container-variante-border  font-roboto rounded-lg mb-5  mt-2">
                                                     <Flex direction="column" className={`w-full p-6 max-sm:p-4 space-y-4 bg-glass`}>
-
-
                                                         {currentStep === EAdultFormSteps.PARTICIPANT_DATA && (
                                                             <ParticipantData
                                                                 header={stepsInfo[currentStep - 1]?.stepDescription}
@@ -379,23 +389,24 @@ const AdultForm = () => {
                                                                         />
                                                                     ))}
                                                                 </div>
-                                                                <div className="flex justify-end gap-4 pt-4 border-t border-gray-100">
+                                                                <div className="flex justify-end gap-4 pt-4 border-t border-gray-100 max-sm:flex-col ">
                                                                     <Button
                                                                         onClick={handlePreviousStep}
-                                                                        size="Medium"
+                                                                        size="Full"
                                                                         title="Voltar"
                                                                         color="gray"
                                                                         className="hover:bg-gray-50 border border-gray-200"
                                                                     />
                                                                     <Button
-                                                                        size="Medium"
+                                                                        size="Full"
                                                                         onClick={saveAndExit}
                                                                         title="Salvar e Sair"
                                                                         color="primary"
                                                                         className="hover:bg-gray-50 border border-gray-200"
                                                                     />
                                                                     <Button
-                                                                        size="Medium"
+                                                                        // loading={loading}
+                                                                        size="Full"
                                                                         onClick={handleNextStep}
                                                                         className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
                                                                         title="Salvar e Continuar"
@@ -421,13 +432,12 @@ const AdultForm = () => {
                                         )}
 
                                     </Stepper>
-                                    {/* {showFooter && <footer className="bg-primary h-10 "></footer>} */}
+
                                 </div>
 
                             </Flex>
                         </div>
                     )}
-
                     {
                         currentStep === EAdultFormSteps.INTRODUCTION && (
 
@@ -449,6 +459,18 @@ const AdultForm = () => {
                                         setNotificationData={setNotificationData}
                                     />
                                 </Flex>
+                            </Flex>
+                        )
+                    }
+                    {
+
+                        currentStep === EAdultFormSteps.FINISHED && (
+                            <Flex
+                                align={"center"}
+                                id="bg-div"
+                                className={`font-roboto w-full text-white m-auto relative z-10`}
+                            >
+                                <QuestionnaireCompleted />
                             </Flex>
                         )
                     }

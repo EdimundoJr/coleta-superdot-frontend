@@ -18,6 +18,8 @@ import Select from "react-select";
 import { IParticipant } from "../../../interfaces/participant.interface";
 import { Button } from "../../../components/Button/Button";
 import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
+import { Portuguese } from "flatpickr/dist/l10n/pt.js";
 
 interface ParticipantDataStepProps {
     nextStep: () => void;
@@ -42,7 +44,7 @@ const ParticipantDataStep = ({
     const {
         register,
         handleSubmit,
-        formState: { errors, isValid },
+        formState: { errors },
         watch,
         setValue,
         formState,
@@ -52,9 +54,12 @@ const ParticipantDataStep = ({
         mode: "onChange",
     });
 
+    const [loading, setLoading] = useState(false);
+    const [loadingSE, setLoadingSE] = useState(false);
     const onSaveAndExit = async () => {
+        setLoadingSE(true);
         try {
-            const response = await putSaveParticipantData({ sampleId, participantData: watch() }); // watch?
+            const response = await putSaveParticipantData({ sampleId, participantData: watch() });
             if (response.status === 200) {
                 saveAndExit();
             }
@@ -65,6 +70,8 @@ const ParticipantDataStep = ({
                 description: "Preencha todos os campos corretamente.",
                 type: "erro"
             });
+        } finally {
+            setLoadingSE(false);
         }
     };
     const scrollToTop = () => {
@@ -77,6 +84,7 @@ const ParticipantDataStep = ({
     };
 
     const onSubmit = handleSubmit(async (participantData: ParticipantDataDTO) => {
+        setLoading(true);
         try {
             const response = await putSubmitParticipantData({ sampleId, participantData });
             if (response.status === 200) {
@@ -98,6 +106,8 @@ const ParticipantDataStep = ({
                 description: "Preencha todos os campos corretamente.",
                 type: "erro"
             });
+        } finally {
+            setLoading(false);
         }
     });
 
@@ -174,6 +184,7 @@ const ParticipantDataStep = ({
                             options={{
                                 dateFormat: "d/m/Y",
                                 maxDate: minDate,
+                                locale: Portuguese,
                             }}
                         />
                         {errors.personalData?.birthDate?.message && (
@@ -325,10 +336,12 @@ const ParticipantDataStep = ({
                 </div>
                 <div className="flex justify-center gap-6 mt-6">
                     <Button
+                        loading={loadingSE}
                         size="Medium"
                         onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                     >
                     </Button>
                     <Button
+                        loading={loading}
                         size="Medium"
                         className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
                         title={"Salvar e Continuar"}

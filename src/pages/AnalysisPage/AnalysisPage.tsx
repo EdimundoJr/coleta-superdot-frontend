@@ -30,7 +30,19 @@ import ActionButtonExplain from "../../components/ActionButtonExplain/ActionButt
 import SkeletonTableBody from "../../components/Skeletons/SkeletonTableBody";
 import SkeletonHeader from "../../components/Skeletons/SkeletonHeader";
 
+interface Filters {
+    searchName?: string;
+    knowledgeArea?: string;
+    minPunctuation?: number;
+}
 
+interface Participant {
+    name: string;
+    knowledgeArea?: string;
+    adultForm?: {
+        totalPunctuation: number;
+    };
+}
 const AnalysisPage = () => {
     const navigate = useNavigate();
     const location = useLocation();
@@ -39,11 +51,7 @@ const AnalysisPage = () => {
         description: "",
         type: "",
     });
-    const {
-        register,
-        handleSubmit,
-        formState: { errors },
-    } = useForm({ resolver: yupResolver(mySamplesFiltersSchema) });
+    const [filters, setFilters] = useState<Filters>({});
     const [sample, setSample] = useState({} as ISample);
     const [isCheckedAll, setIsCheckedAll] = useState(false);
     const [isChecked, setIsChecked] = useState<boolean[]>([]);
@@ -60,14 +68,22 @@ const AnalysisPage = () => {
     const [openModalKAE, setOpenModalKAE] = useState(false);
     const [openModalIAH, setOpenModalIAH] = useState(false);
     const [selectedOption, setSelectedOption] = useState<string | null>(null);
-    const [isSavingGift, setIsSavingGift] = useState(false);
+    const [isSavingItem, setIsSavingItem] = useState(false);
     const [selectedItems, setSelectedItems] = useState<{ value: string }[]>([]);
     const [showSearch, setShowSearch] = useState(false);
     const [isDesktop, setIsDesktop] = useState(false);
-    const [filters, setFilters] = useState<MySamplesFilters>();
     const [expandedParticipants, setExpandedParticipants] = useState<Record<string, boolean>>({});
     const [loading, setLoading] = useState(true);
+    const { register, handleSubmit, reset } = useForm<Filters>();
 
+
+    const onSubmit = (data: Filters) => {
+        setFilters(data);
+    };
+    const clearFilters = () => {
+        setFilters({});
+        reset();
+    };
 
 
     const itemsPerPage = 10;
@@ -111,6 +127,7 @@ const AnalysisPage = () => {
     };
 
     const handleSubmitKA = async (type: string) => {
+        setIsSavingItem(true);
         try {
             const participantID = selectedParticipants[0];
             if (type === "KAG") {
@@ -156,6 +173,7 @@ const AnalysisPage = () => {
                 type: "erro"
             });
         } finally {
+            setIsSavingItem(false);
             setOpenModalKAE(false);
             setOpenModalKAG(false);
             await fetchSample();
@@ -164,13 +182,13 @@ const AnalysisPage = () => {
     };
 
     const handleSaveGift = async () => {
+        setIsSavingItem(true);
         if (!selectedOption) {
             alert("Selecione uma opção antes de salvar.");
             return;
         }
 
         try {
-            setIsSavingGift(true);
             const giftdnessIndicatorsByResearcher = selectedOption === "sim";
             const participantID = selectedParticipants[0];
 
@@ -198,7 +216,7 @@ const AnalysisPage = () => {
             });
             console.error("Erro ao salvar os dados:", error);
         } finally {
-            setIsSavingGift(false);
+            setIsSavingItem(false);
             setOpenModalIAH(false);
             await fetchSample();
         }
@@ -404,17 +422,20 @@ const AnalysisPage = () => {
     };
 
     const selectItensPM = [
-        { value: "100", label: "100% (219 a 242 pontos)" },
-        { value: "90", label: "90% (195 a 218 pontos)" },
-        { value: "80", label: "80% (170 a 194 pontos)" },
-        { value: "70", label: "70% (146 a 169 pontos)" },
-        { value: "60", label: "60% (122 a 145 pontos)" },
-        { value: "50", label: "50% (98 a 121 pontos)" },
-        { value: "40", label: "40% (73 a 97 pontos)" },
-        { value: "30", label: "30% (49 a 73 pontos)" },
-        { value: "20", label: "20% (25 a 48 pontos)" },
-        { value: "10", label: "10% (0 a 24 pontos)" }
+        { value: 100, label: "(219 a 242 pontos)", min: 219, max: 242 },
+        { value: 90, label: "(195 a 218 pontos)", min: 195, max: 218 },
+        { value: 80, label: "(170 a 194 pontos)", min: 170, max: 194 },
+        { value: 70, label: "(146 a 169 pontos)", min: 146, max: 169 },
+        { value: 60, label: "(122 a 145 pontos)", min: 122, max: 145 },
+        { value: 50, label: "(98 a 121 pontos)", min: 98, max: 121 },
+        { value: 40, label: "(73 a 97 pontos)", min: 73, max: 97 },
+        { value: 30, label: "(49 a 73 pontos)", min: 49, max: 73 },
+        { value: 20, label: "(25 a 48 pontos)", min: 25, max: 48 },
+        { value: 10, label: "(0 a 24 pontos)", min: 0, max: 24 }
     ];
+    function getRangeForPercentage(percentage: number) {
+        return selectItensPM.find(item => item.value === percentage);
+    }
 
     const selectItensKA = [
         { label: "Memória", value: "Memória" },
@@ -473,14 +494,15 @@ const AnalysisPage = () => {
                 <>
                     <header className="pt-8 pb-6 border-b border-gray-200 mb-8">
                         <h2 className="heading-2 font-semibold text-gray-900">
-                            {sample.sampleGroup} - Total de {sample.participants?.length} Avaliado(s)
+                            Análise de Participantes
                         </h2>
+                        <p className="text-lg text-gray-600">
+                            Amostra: <Strong className="text-primary-600 !font-roboto">{sample?.sampleGroup}</Strong>
+                        </p>
                     </header>
                     <Box className="hidden lg:grid grid-cols-4 gap-4">
                         <Form.Root
-                            onSubmit={handleSubmit((data) => {
-                                setFilters({ ...data });
-                            })}
+                            onSubmit={handleSubmit(onSubmit)}
                             className="flex flex-col items-center xl:flex-row xl:justify-between xl:p-0 pt-0 pb-1"
                         >
                             {!isDesktop && (
@@ -515,19 +537,20 @@ const AnalysisPage = () => {
                                             </Button>
                                         </Form.Submit>
                                         <InputField
-                                            className=""
                                             icon={<Icon.MagnifyingGlass />}
                                             placeholder="Pesquisar pelo nome do avaliado..."
-                                            name="participant-name"
-                                            {...register("participant-name")}
+                                            {...register("searchName")}
                                         />
                                         <Flex align="center" className="gap-2 flex-col xl:flex-row w-full xl:w-auto">
                                             <SelectField
                                                 label="Área do Saber"
-                                                name="knowledge-area"
-                                                defaultValue=""
+                                                {...register("knowledgeArea")}
+                                                defaultValue="default"
                                                 className="p-2 w-full xl:w-auto truncate"
                                             >
+                                                <option value='default'>
+                                                    Selecionar
+                                                </option>
                                                 {selectItensKA.map(option => (
                                                     <option key={option.label} value={option.label}>
                                                         {option.label}
@@ -536,9 +559,11 @@ const AnalysisPage = () => {
                                             </SelectField>
                                             <SelectField
                                                 label="Pontuação Mínima"
-                                                name="min-punctuation"
+                                                {...register("minPunctuation", { valueAsNumber: true })}
                                                 className="w-full xl:w-auto truncate"
+                                                defaultValue={99}
                                             >
+                                                <option value={99} className="text-gray-99">Selecionar</option>
                                                 {selectItensPM.map(option => (
                                                     <option key={option.value} value={option.value}>
                                                         {option.label}
@@ -558,16 +583,16 @@ const AnalysisPage = () => {
                                         </Form.Submit>
                                         <Button
                                             size="Large"
-                                            onClick={() => setFilters({})}
-                                            type="reset"
+                                            onClick={clearFilters}
+                                            type="button"
                                             className="items-center w-full xl:w-[300px]"
                                             color="primary"
                                             title="Limpar Filtro"
-                                        />
+                                        >
+                                        </Button>
                                     </motion.div>
                                 )}
                             </AnimatePresence>
-                            <Flex />
                         </Form.Root>
                     </Box>
                     < Flex
@@ -882,332 +907,388 @@ const AnalysisPage = () => {
                         <SkeletonTableBody itens={5} columns={10} />
                     ) : (
                         <Table.Body className="text-[14px]">
-                            {sample.participants?.slice(startIndex, endIndex).filter(participant => participant.adultForm?.totalPunctuation !== undefined).map((participant, idx) => (
-                                <Table.Row align={"center"}
-                                    className={isChecked[startIndex + idx] ? 'bg-violet-50' : ''}
-                                    key={startIndex + idx}>
-                                    <Table.Cell justify="center">
-                                        <Checkbox
-                                            className="hover:cursor-pointer"
-                                            checked={isChecked[startIndex + idx] ?? false}
-                                            onCheckedChange={() => handleChange(startIndex + idx)}
-                                            color="violet" />
-                                    </Table.Cell>
-                                    <Table.Cell justify="center"> {getFirstAndLastName(participant.personalData.fullName)}</Table.Cell>
-                                    <Table.Cell justify="center" >{participant.adultForm?.totalPunctuation}</Table.Cell>
-                                    <Table.Cell justify="center">{participant.secondSources?.length}</Table.Cell>
-                                    <Table.Cell justify="center">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
-                                    <Table.Cell justify="center">
-                                        <Modal
-                                            open={openModalIAH}
-                                            setOpen={setOpenModalIAH}
-                                            title={"Indicadores de AH/SD"}
-                                            accessibleDescription={"Essa área é destinada a identificar se a pessoa apresenta características de Altas Habilidades/Superdotação (AH/SD), com base nos critérios estabelecidos pelo pesquisador."}>
-                                            <Flex direction="column" gap="2">
+                            {sample.participants
+                                ?.slice(startIndex, endIndex)
+                                .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
+                                .filter(participant => {
+                                    // Filtro por nome
+                                    const hasValidPunctuation = participant.adultForm?.totalPunctuation !== undefined;
+                                    if (!hasValidPunctuation) return false;
 
-                                                <Flex align="center" gap="2" className="text-[20px]">
-                                                    <Checkbox
-                                                        checked={selectedOption === "sim"}
-                                                        onCheckedChange={() => handleCheckboxChange("sim")}
-                                                        className="hover:cursor-pointer"
-                                                    >
-                                                    </Checkbox>
-                                                    Sim
-                                                </Flex>
-                                                <Flex align="center" gap="2" className="text-[20px]">
-                                                    <Checkbox
-                                                        checked={selectedOption === "nao"}
-                                                        onCheckedChange={() => handleCheckboxChange("nao")}
-                                                        className="hover:cursor-pointer"
-                                                    >
-                                                    </Checkbox>
-                                                    Não
-                                                </Flex>
-                                            </Flex>
-                                            <Flex align="center" justify="center" className="gap-4">
-                                                <Button
-                                                    title={isSavingGift ? "Salvando..." : "Salvar"}
-                                                    color="green"
-                                                    size="Medium"
-                                                    className="mt-5"
-                                                    onClick={handleSaveGift}
-                                                    disabled={isSavingGift}
-                                                >
-                                                </Button>
-                                            </Flex>
-                                        </Modal>
-                                        <Flex direction={"row"} align={"center"} justify={"center"} gap={"4"}>
-                                            {participant.giftdnessIndicatorsByResearcher ? 'Sim' : "Não"}
+                                    const punctuation = participant.adultForm?.totalPunctuation!;
+                                    const combinedAreas = [
+                                        ...(participant.knowledgeAreasIndicatedByResearcher?.general || []),
+                                        ...(participant.knowledgeAreasIndicatedByResearcher?.specific || []),
+                                        ...(participant.adultForm?.knowledgeAreas || []),
+                                    ];
 
-                                            <IconButton size="1" variant="surface" radius="full" >
-                                                <Icon.Pencil
 
-                                                    onClick={() => participant._id && handleShowIAH(participant._id)}
-                                                    className="cursor-pointer"
-                                                />
-                                            </IconButton>
-                                        </Flex>
-                                    </Table.Cell>
-                                    <Table.Cell justify="center">
-                                        <Flex align="center" direction="row" justify="center" className="mb-0" >
-                                            <Text as="label" className="pr-3">
-                                                {participant.adultForm?.knowledgeAreas?.[0]}{'...'}{''}
-                                            </Text>
-                                            <HoverCard.Root>
-                                                <HoverCard.Trigger >
-                                                    <IconButton size="1" variant="surface" radius="full">
-                                                        <Icon.Eye size={15} className="hover:cursor-pointer" />
-                                                    </IconButton>
-                                                </HoverCard.Trigger>
-                                                <HoverCard.Content size="3" >
-                                                    <Text as="div" size="3" trim="both">
-                                                        {participant.adultForm?.knowledgeAreas?.map((area, index) => (
-                                                            <span key={index}>
-                                                                {area}
-                                                                {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ", "}
-                                                            </span>
-                                                        ))}
-                                                    </Text>
-                                                </HoverCard.Content>
-                                            </HoverCard.Root>
-                                        </Flex>
-                                    </Table.Cell>
-                                    <Table.Cell justify="center">
-                                        <Modal
-                                            open={openModalKAG}
-                                            setOpen={setOpenModalKAG}
-                                            title={"Selecione as Áreas Gerias:"}
-                                            accessibleDescription={"Essas áreas gerais são utilizadas para compreender as habilidades e talentos amplos de um indivíduo, com o objetivo de fornecer suporte e orientação adequada, identificando o potencial de desenvolvimento em diversas dimensões da vida pessoal e acadêmica."} >
-                                            <Select
-                                                isMulti
-                                                aria-hidden="false"
-                                                options={selectItensKA.map((iten) => ({
-                                                    value: iten.value,
-                                                    label: iten.label,
-                                                }))}
-                                                className="text-black"
-                                                placeholder="Selecione uma ou várias opções"
-                                                menuPosition="fixed"
-                                                onChange={handleChangeKA}
+                                    // Filtro por nome
+                                    if (filters.searchName &&
+                                        !participant.personalData.fullName.toLowerCase().includes(filters.searchName.toLowerCase())) {
+                                        return false;
+                                    }
 
-                                            />
-                                            <Flex align="center" justify="center" className="gap-4 mt-0">
-                                                <Button
-                                                    title={isSavingGift ? "Salvando..." : "Salvar"}
-                                                    color="green"
-                                                    size="Medium"
-                                                    className="mt-5"
-                                                    onClick={async () => await handleSubmitKA("KAG")}
-                                                    disabled={isSavingGift}
-                                                >
-                                                </Button>
-                                            </Flex>
-                                        </Modal>
-                                        <Flex align="center" direction="row" justify="center" className="gap-2" >
-                                            <Text as="label" className="pr-3">
-                                                {participant.knowledgeAreasIndicatedByResearcher?.general[0]}{'...'}{''}
-                                            </Text>
-                                            <HoverCard.Root>
-                                                <HoverCard.Trigger >
-                                                    <IconButton size="1" variant="surface" radius="full">
-                                                        <Icon.Eye size={15} className="hover:cursor-pointer" />
-                                                    </IconButton>
-                                                </HoverCard.Trigger>
-                                                <HoverCard.Content size="3" >
-                                                    <Text as="div" size="3" trim="both">
-                                                        {participant.knowledgeAreasIndicatedByResearcher?.general.map((area, index) => (
-                                                            <span key={index}>
-                                                                {area}
-                                                                {index !== (participant.knowledgeAreasIndicatedByResearcher?.general.length ?? 0) - 1 && ", "}
-                                                            </span>
-                                                        ))}
-                                                    </Text>
-                                                </HoverCard.Content>
-                                            </HoverCard.Root>
-                                            <Tooltip content="Definir/Editar Áreas Gerais">
-                                                <IconButton size="1" variant="surface" radius="full" >
-                                                    <Icon.Pencil
-                                                        onClick={() => participant._id && handleShowKAG(participant._id)}
-                                                        className="cursor-pointer"
-                                                    />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Flex>
-                                    </Table.Cell>
-                                    <Table.Cell justify="center">
-                                        <Modal
-                                            open={openModalKAE}
-                                            setOpen={setOpenModalKAE}
-                                            title={"Selecione as Áreas Específicas:"}
-                                            accessibleDescription={"Essas áreas específicas são utilizadas para identificar talentos excepcionais em diferentes campos, ajudando a orientar intervenções educacionais e sociais para promover o desenvolvimento e o reconhecimento de indivíduos com AH/SD."} >
-                                            <Select
-                                                isMulti
-                                                options={selectItensKA.map((item) => ({
-                                                    value: item.value,
-                                                    label: item.label,
-                                                })) as any}
-                                                className="text-black"
-                                                placeholder="Selecione uma ou várias opções"
-                                                menuPosition="fixed"
-                                                onChange={handleChangeKA}
-                                            />
-                                            <Flex align="center" justify="center" className="gap-4">
-                                                <Button
-                                                    title={isSavingGift ? "Salvando..." : "Salvar"}
-                                                    color="green"
-                                                    size="Medium"
-                                                    className="mt-5"
-                                                    onClick={async () => await handleSubmitKA("KAE")}
-                                                    disabled={isSavingGift}
-                                                >
-                                                </Button>
-                                            </Flex>
-                                        </Modal>
-                                        <Flex align="center" direction="row" justify="center" className="gap-2" >
-                                            <Text as="label" className="pr-3">
-                                                {participant.knowledgeAreasIndicatedByResearcher?.specific[0]}{'...'}{''}
-                                            </Text>
-                                            <HoverCard.Root>
-                                                <HoverCard.Trigger >
-                                                    <IconButton size="1" variant="surface" radius="full">
-                                                        <Icon.Eye size={15} className="hover:cursor-pointer" />
-                                                    </IconButton>
-                                                </HoverCard.Trigger>
-                                                <HoverCard.Content size="3" >
-                                                    <Text as="div" size="3" trim="both">
-                                                        {participant.knowledgeAreasIndicatedByResearcher?.specific.map((area, index) => (
-                                                            <span key={index}>
-                                                                {area}
-                                                                {index !== (participant.knowledgeAreasIndicatedByResearcher?.specific.length ?? 0) - 1 && ",\u00A0"}
-                                                            </span>
-                                                        ))}
-                                                    </Text>
-                                                </HoverCard.Content>
-                                            </HoverCard.Root>
-                                            <Tooltip content="Definir/Editar Áreas Específicas">
-                                                <IconButton size="1" variant="surface" radius="full" >
-                                                    <Icon.Pencil
-                                                        onClick={() => participant._id && handleShowKAE(participant._id)}
-                                                        className="cursor-pointer"
-                                                    />
-                                                </IconButton>
-                                            </Tooltip>
-                                        </Flex>
-                                    </Table.Cell>
-                                    <Table.Cell justify="center">
-                                        <Flex justify="center" align="center" className="gap-4">
-                                            <Dialog.Root >
-                                                <Dialog.Trigger>
-                                                    <Box>
-                                                        <Tooltip content="Visualizar Informações completas do Participante">
-                                                            <IconButton size="2" color="lime" radius="full" variant="outline" className="hover:cursor-pointer hover:translate-y-[3px] transition-all ease-in-out">
-                                                                <Icon.IdentificationCard size={20} />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </Box>
-                                                </Dialog.Trigger>
-                                                <Dialog.Content style={{ maxWidth: 450 }}>
-                                                    <Dialog.Title align="center" mb="5" >Informações Gerais do Participante</Dialog.Title>
-                                                    <Flex direction="column" gap="3">
-                                                        <Text as="label" size="2" mb="1" weight="bold">
-                                                            Nome Completo
-                                                            <TextField.Root
-                                                                defaultValue={participant.personalData.fullName}
-                                                                disabled
-                                                            />
-                                                        </Text>
-                                                        <Text as="label" size="2" mb="1" weight="bold">
-                                                            Data de Nascimento
-                                                            <TextField.Root
-                                                                defaultValue={getFormattedBirthDate(participant.personalData.birthDate)}
-                                                                disabled
-                                                            />
-                                                        </Text>
-                                                        <Text as="label" size="2" mb="1" weight="bold">
-                                                            Gênero
-                                                            <TextField.Root
-                                                                defaultValue={participant.personalData.gender}
-                                                                disabled
-                                                            />
-                                                        </Text>
-                                                        <Text as="label" size="2" mb="1" weight="bold">
-                                                            Telefone
-                                                            <TextField.Root
-                                                                defaultValue={participant.personalData.phone}
-                                                                disabled
-                                                            />
-                                                        </Text>
-                                                        <Text as="label" size="2" mb="1" weight="bold">
-                                                            E-mail
-                                                            <TextField.Root
-                                                                defaultValue={participant.personalData.email}
-                                                                disabled
-                                                            />
-                                                        </Text>
-                                                        <Text as="label" size="2" mb="1" weight="bold">
-                                                            Estado Civil
-                                                            <TextField.Root
-                                                                defaultValue={participant.personalData.maritalStatus}
-                                                                disabled
-                                                            />
-                                                        </Text>
-                                                        <Text as="label" size="2" mb="1" weight="bold">
-                                                            Trabalho
-                                                            <TextField.Root
-                                                                defaultValue={participant.personalData.job}
-                                                                disabled
-                                                            />
-                                                        </Text>
+                                    // Filtro por área do saber
+                                    if (filters.knowledgeArea && filters.knowledgeArea !== "default") {
+                                        if (filters.knowledgeArea &&
+                                            !combinedAreas.includes(filters.knowledgeArea)) {
+                                            return false;
+                                        }
+                                    }
 
-                                                    </Flex>
-                                                    <Flex gap="3" mt="4" justify="end">
-                                                        <Dialog.Close>
-                                                            <Button color="red" className="w-[100px]" title={"Fechar"} size={"Extra Small"}>
-                                                            </Button>
-                                                        </Dialog.Close>
-                                                    </Flex>
-                                                </Dialog.Content>
-                                            </Dialog.Root>
-                                            <AlertDialog.Root>
-                                                <AlertDialog.Trigger>
-                                                    <Box className="flex gap-3" onClick={() => handleCompareSource(participant)}>
-                                                        <Tooltip content="Comparar as respostas do avaliado com as respostas das 2ª fontes">
-                                                            <IconButton color="cyan" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
-                                                                <Icon.ClipboardText size={20} />
-                                                            </IconButton>
-                                                        </Tooltip>
-                                                    </Box>
-                                                </AlertDialog.Trigger>
-                                                <AlertDialog.Content >
+                                    // Filtro por pontuação mínima
+                                    if (filters.minPunctuation && filters.minPunctuation !== 99) {
+                                        const selectedRange = getRangeForPercentage(Number(filters.minPunctuation));
 
-                                                    <EmptyState
-                                                        icon={<Icon.Users size={40} />}
-                                                        title="Aguardando resposta da 2ª fonte."
-                                                        description="A comparação só será exibida após a 2ª fonte concluir o questionário. Assim que a resposta for registrada, você poderá visualizar as diferenças e semelhanças entre as percepções."
-                                                    />
+                                        if (selectedRange) {
+                                            // Verifica se a pontuação está FORA do intervalo selecionado
+                                            if (punctuation < selectedRange.min || punctuation > selectedRange.max) {
+                                                return false;
+                                            }
+                                        }
+                                    }
 
-                                                    <Flex gap="3" mt="4" justify="end">
-                                                        <AlertDialog.Cancel className="absolute top-2 right-2">
-                                                            <Button
-                                                                className="hover:cursor-pointer"
-                                                                aria-label="Close modal" title={""} color={"red"} size={"Small"}>
-                                                                <Icon.X size={20} weight="bold" />
-                                                            </Button>
-                                                        </AlertDialog.Cancel>
-                                                    </Flex>
-                                                </AlertDialog.Content>
-                                            </AlertDialog.Root>
-                                            <Box className="flex gap-3" onClick={() => handleEvaluateAutobiography(participant, sample)}>
-                                                <Tooltip content="Visualizar Autobiaografia do participante">
-                                                    <IconButton color="bronze" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
-                                                        <Icon.IdentificationBadge size={20} />
-                                                    </IconButton>
-                                                </Tooltip>
-                                            </Box>
-                                        </Flex>
+                                    return true;
+                                }).length === 0 ? (
+                                <Table.Row align="center">
+                                    <Table.Cell colSpan={10} justify={"center"}>
+                                        Nenhum participante encontrado
                                     </Table.Cell>
                                 </Table.Row>
-                            ))}
+                            ) : sample.participants
+                                ?.slice(startIndex, endIndex)
+                                .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
+                                .map((participant, idx) => (
+                                    <Table.Row align={"center"}
+                                        className={isChecked[startIndex + idx] ? 'bg-violet-50' : ''}
+                                        key={startIndex + idx}>
+                                        <Table.Cell justify="center">
+                                            <Checkbox
+                                                className="hover:cursor-pointer"
+                                                checked={isChecked[startIndex + idx] ?? false}
+                                                onCheckedChange={() => handleChange(startIndex + idx)}
+                                                color="violet" />
+                                        </Table.Cell>
+                                        <Table.Cell justify="center"> {getFirstAndLastName(participant.personalData.fullName)}</Table.Cell>
+                                        <Table.Cell justify="center" >{participant.adultForm?.totalPunctuation}</Table.Cell>
+                                        <Table.Cell justify="center">{participant.secondSources?.length}</Table.Cell>
+                                        <Table.Cell justify="center">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
+                                        <Table.Cell justify="center">
+                                            <Modal
+                                                open={openModalIAH}
+                                                setOpen={setOpenModalIAH}
+                                                title={"Indicadores de AH/SD"}
+                                                accessibleDescription={"Essa área é destinada a identificar se a pessoa apresenta características de Altas Habilidades/Superdotação (AH/SD), com base nos critérios estabelecidos pelo pesquisador."}>
+                                                <Flex direction="column" gap="2">
+
+                                                    <Flex align="center" gap="2" className="text-[20px]">
+                                                        <Checkbox
+                                                            checked={selectedOption === "sim"}
+                                                            onCheckedChange={() => handleCheckboxChange("sim")}
+                                                            className="hover:cursor-pointer"
+                                                        >
+                                                        </Checkbox>
+                                                        Sim
+                                                    </Flex>
+                                                    <Flex align="center" gap="2" className="text-[20px]">
+                                                        <Checkbox
+                                                            checked={selectedOption === "nao"}
+                                                            onCheckedChange={() => handleCheckboxChange("nao")}
+                                                            className="hover:cursor-pointer"
+                                                        >
+                                                        </Checkbox>
+                                                        Não
+                                                    </Flex>
+                                                </Flex>
+                                                <Flex align="center" justify="center" className="gap-4">
+                                                    <Button
+                                                        loading={isSavingItem}
+                                                        title={"Salvar"}
+                                                        color="green"
+                                                        size="Medium"
+                                                        className="mt-5"
+                                                        onClick={handleSaveGift}
+                                                        disabled={isSavingItem}
+                                                    >
+                                                    </Button>
+                                                </Flex>
+                                            </Modal>
+                                            <Flex direction={"row"} align={"center"} justify={"center"} gap={"4"}>
+                                                {participant.giftdnessIndicatorsByResearcher ? 'Sim' : "Não"}
+
+                                                <IconButton size="1" variant="surface" radius="full" >
+                                                    <Icon.Pencil
+
+                                                        onClick={() => participant._id && handleShowIAH(participant._id)}
+                                                        className="cursor-pointer"
+                                                    />
+                                                </IconButton>
+                                            </Flex>
+                                        </Table.Cell>
+                                        <Table.Cell justify="center">
+                                            <Flex align="center" direction="row" justify="center" className="mb-0" >
+                                                <Text as="label" className="pr-3">
+                                                    {participant.adultForm?.knowledgeAreas?.[0]}{'...'}{''}
+                                                </Text>
+                                                <HoverCard.Root>
+                                                    <HoverCard.Trigger >
+                                                        <IconButton size="1" variant="surface" radius="full">
+                                                            <Icon.Eye size={15} className="hover:cursor-pointer" />
+                                                        </IconButton>
+                                                    </HoverCard.Trigger>
+                                                    <HoverCard.Content size="3" >
+                                                        <Text as="div" size="3" trim="both">
+                                                            {participant.adultForm?.knowledgeAreas?.map((area, index) => (
+                                                                <span key={index}>
+                                                                    {area}
+                                                                    {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ", "}
+                                                                </span>
+                                                            ))}
+                                                        </Text>
+                                                    </HoverCard.Content>
+                                                </HoverCard.Root>
+                                            </Flex>
+                                        </Table.Cell>
+                                        <Table.Cell justify="center">
+                                            <Modal
+                                                open={openModalKAG}
+                                                setOpen={setOpenModalKAG}
+                                                title={"Selecione as Áreas Gerias:"}
+                                                accessibleDescription={"Essas áreas gerais são utilizadas para compreender as habilidades e talentos amplos de um indivíduo, com o objetivo de fornecer suporte e orientação adequada, identificando o potencial de desenvolvimento em diversas dimensões da vida pessoal e acadêmica."} >
+                                                <Select
+                                                    isMulti
+                                                    aria-hidden="false"
+                                                    options={selectItensKA.map((iten) => ({
+                                                        value: iten.value,
+                                                        label: iten.label,
+                                                    }))}
+                                                    className="text-black"
+                                                    placeholder="Selecione uma ou várias opções"
+                                                    menuPosition="fixed"
+                                                    onChange={handleChangeKA}
+
+                                                />
+                                                <Flex align="center" justify="center" className="gap-4 mt-0">
+                                                    <Button
+                                                        loading={isSavingItem}
+                                                        title={"Salvar"}
+                                                        color="green"
+                                                        size="Medium"
+                                                        className="mt-5"
+                                                        onClick={async () => await handleSubmitKA("KAG")}
+                                                        disabled={isSavingItem}
+                                                    >
+                                                    </Button>
+                                                </Flex>
+                                            </Modal>
+                                            <Flex align="center" direction="row" justify="center" className="gap-2" >
+                                                <Text as="label" className="pr-3">
+                                                    {participant.knowledgeAreasIndicatedByResearcher?.general[0]}{'...'}{''}
+                                                </Text>
+                                                <HoverCard.Root>
+                                                    <HoverCard.Trigger >
+                                                        <IconButton size="1" variant="surface" radius="full">
+                                                            <Icon.Eye size={15} className="hover:cursor-pointer" />
+                                                        </IconButton>
+                                                    </HoverCard.Trigger>
+                                                    <HoverCard.Content size="3" >
+                                                        <Text as="div" size="3" trim="both">
+                                                            {participant.knowledgeAreasIndicatedByResearcher?.general.map((area, index) => (
+                                                                <span key={index}>
+                                                                    {area}
+                                                                    {index !== (participant.knowledgeAreasIndicatedByResearcher?.general.length ?? 0) - 1 && ", "}
+                                                                </span>
+                                                            ))}
+                                                        </Text>
+                                                    </HoverCard.Content>
+                                                </HoverCard.Root>
+                                                <Tooltip content="Definir/Editar Áreas Gerais">
+                                                    <IconButton size="1" variant="surface" radius="full" >
+                                                        <Icon.Pencil
+                                                            onClick={() => participant._id && handleShowKAG(participant._id)}
+                                                            className="cursor-pointer"
+                                                        />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Flex>
+                                        </Table.Cell>
+                                        <Table.Cell justify="center">
+                                            <Modal
+                                                open={openModalKAE}
+                                                setOpen={setOpenModalKAE}
+                                                title={"Selecione as Áreas Específicas:"}
+                                                accessibleDescription={"Essas áreas específicas são utilizadas para identificar talentos excepcionais em diferentes campos, ajudando a orientar intervenções educacionais e sociais para promover o desenvolvimento e o reconhecimento de indivíduos com AH/SD."} >
+                                                <Select
+                                                    isMulti
+                                                    options={selectItensKA.map((item) => ({
+                                                        value: item.value,
+                                                        label: item.label,
+                                                    })) as any}
+                                                    className="text-black"
+                                                    placeholder="Selecione uma ou várias opções"
+                                                    menuPosition="fixed"
+                                                    onChange={handleChangeKA}
+                                                />
+                                                <Flex align="center" justify="center" className="gap-4">
+                                                    <Button
+                                                        loading={isSavingItem}
+                                                        title={"Salvar"}
+                                                        color="green"
+                                                        size="Medium"
+                                                        className="mt-5"
+                                                        onClick={async () => await handleSubmitKA("KAE")}
+                                                        disabled={isSavingItem}
+                                                    >
+                                                    </Button>
+                                                </Flex>
+                                            </Modal>
+                                            <Flex align="center" direction="row" justify="center" className="gap-2" >
+                                                <Text as="label" className="pr-3">
+                                                    {participant.knowledgeAreasIndicatedByResearcher?.specific[0]}{'...'}{''}
+                                                </Text>
+                                                <HoverCard.Root>
+                                                    <HoverCard.Trigger >
+                                                        <IconButton size="1" variant="surface" radius="full">
+                                                            <Icon.Eye size={15} className="hover:cursor-pointer" />
+                                                        </IconButton>
+                                                    </HoverCard.Trigger>
+                                                    <HoverCard.Content size="3" >
+                                                        <Text as="div" size="3" trim="both">
+                                                            {participant.knowledgeAreasIndicatedByResearcher?.specific.map((area, index) => (
+                                                                <span key={index}>
+                                                                    {area}
+                                                                    {index !== (participant.knowledgeAreasIndicatedByResearcher?.specific.length ?? 0) - 1 && ",\u00A0"}
+                                                                </span>
+                                                            ))}
+                                                        </Text>
+                                                    </HoverCard.Content>
+                                                </HoverCard.Root>
+                                                <Tooltip content="Definir/Editar Áreas Específicas">
+                                                    <IconButton size="1" variant="surface" radius="full" >
+                                                        <Icon.Pencil
+                                                            onClick={() => participant._id && handleShowKAE(participant._id)}
+                                                            className="cursor-pointer"
+                                                        />
+                                                    </IconButton>
+                                                </Tooltip>
+                                            </Flex>
+                                        </Table.Cell>
+                                        <Table.Cell justify="center">
+                                            <Flex justify="center" align="center" className="gap-4">
+                                                <Dialog.Root >
+                                                    <Dialog.Trigger>
+                                                        <Box>
+                                                            <Tooltip content="Visualizar Informações completas do Participante">
+                                                                <IconButton size="2" color="lime" radius="full" variant="outline" className="hover:cursor-pointer hover:translate-y-[3px] transition-all ease-in-out">
+                                                                    <Icon.IdentificationCard size={20} />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </Dialog.Trigger>
+                                                    <Dialog.Content style={{ maxWidth: 450 }}>
+                                                        <Dialog.Title align="center" mb="5" >Informações Gerais do Participante</Dialog.Title>
+                                                        <Flex direction="column" gap="3">
+                                                            <Text as="label" size="2" mb="1" weight="bold">
+                                                                Nome Completo
+                                                                <TextField.Root
+                                                                    defaultValue={participant.personalData.fullName}
+                                                                    disabled
+                                                                />
+                                                            </Text>
+                                                            <Text as="label" size="2" mb="1" weight="bold">
+                                                                Data de Nascimento
+                                                                <TextField.Root
+                                                                    defaultValue={getFormattedBirthDate(participant.personalData.birthDate)}
+                                                                    disabled
+                                                                />
+                                                            </Text>
+                                                            <Text as="label" size="2" mb="1" weight="bold">
+                                                                Gênero
+                                                                <TextField.Root
+                                                                    defaultValue={participant.personalData.gender}
+                                                                    disabled
+                                                                />
+                                                            </Text>
+                                                            <Text as="label" size="2" mb="1" weight="bold">
+                                                                Telefone
+                                                                <TextField.Root
+                                                                    defaultValue={participant.personalData.phone}
+                                                                    disabled
+                                                                />
+                                                            </Text>
+                                                            <Text as="label" size="2" mb="1" weight="bold">
+                                                                E-mail
+                                                                <TextField.Root
+                                                                    defaultValue={participant.personalData.email}
+                                                                    disabled
+                                                                />
+                                                            </Text>
+                                                            <Text as="label" size="2" mb="1" weight="bold">
+                                                                Estado Civil
+                                                                <TextField.Root
+                                                                    defaultValue={participant.personalData.maritalStatus}
+                                                                    disabled
+                                                                />
+                                                            </Text>
+                                                            <Text as="label" size="2" mb="1" weight="bold">
+                                                                Trabalho
+                                                                <TextField.Root
+                                                                    defaultValue={participant.personalData.job}
+                                                                    disabled
+                                                                />
+                                                            </Text>
+
+                                                        </Flex>
+                                                        <Flex gap="3" mt="4" justify="end">
+                                                            <Dialog.Close>
+                                                                <Button color="red" className="w-[100px]" title={"Fechar"} size={"Extra Small"}>
+                                                                </Button>
+                                                            </Dialog.Close>
+                                                        </Flex>
+                                                    </Dialog.Content>
+                                                </Dialog.Root>
+                                                <AlertDialog.Root>
+                                                    <AlertDialog.Trigger>
+                                                        <Box className="flex gap-3" onClick={() => handleCompareSource(participant)}>
+                                                            <Tooltip content="Comparar as respostas do avaliado com as respostas das 2ª fontes">
+                                                                <IconButton color="cyan" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
+                                                                    <Icon.ClipboardText size={20} />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Box>
+                                                    </AlertDialog.Trigger>
+                                                    <AlertDialog.Content >
+
+                                                        <EmptyState
+                                                            icon={<Icon.Users size={40} />}
+                                                            title="Aguardando resposta da 2ª fonte."
+                                                            description="A comparação só será exibida após a 2ª fonte concluir o questionário. Assim que a resposta for registrada, você poderá visualizar as diferenças e semelhanças entre as percepções."
+                                                        />
+
+                                                        <Flex gap="3" mt="4" justify="end">
+                                                            <AlertDialog.Cancel className="absolute top-2 right-2">
+                                                                <Button
+                                                                    className="hover:cursor-pointer"
+                                                                    aria-label="Close modal" title={""} color={"red"} size={"Small"}>
+                                                                    <Icon.X size={20} weight="bold" />
+                                                                </Button>
+                                                            </AlertDialog.Cancel>
+                                                        </Flex>
+                                                    </AlertDialog.Content>
+                                                </AlertDialog.Root>
+                                                <Box className="flex gap-3" onClick={() => handleEvaluateAutobiography(participant, sample)}>
+                                                    <Tooltip content="Visualizar Autobiaografia do participante">
+                                                        <IconButton color="bronze" radius="full" variant="outline" className="hover:cursor-pointer  hover:translate-y-[3px] transition-all ease-in-out">
+                                                            <Icon.IdentificationBadge size={20} />
+                                                        </IconButton>
+                                                    </Tooltip>
+                                                </Box>
+                                            </Flex>
+                                        </Table.Cell>
+                                    </Table.Row>
+                                ))
+                            }
                         </Table.Body>
                     )}
 
@@ -1217,8 +1298,45 @@ const AnalysisPage = () => {
                         {loading ? (
                             <SkeletonDataList itens={3} titles={1} columns={3} actionButton={true} />
                         ) : (
-                            sample.participants?.slice(startIndex, endIndex)
+                            sample.participants
+                                ?.slice(startIndex, endIndex)
                                 .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
+                                .filter(participant => {
+                                    // Filtro por nome
+                                    const hasValidPunctuation = participant.adultForm?.totalPunctuation !== undefined;
+                                    if (!hasValidPunctuation) return false;
+
+                                    const punctuation = participant.adultForm?.totalPunctuation!;
+                                    const knowledgeAreas = participant.adultForm?.knowledgeAreas || [];
+
+                                    // Filtro por nome
+                                    if (filters.searchName &&
+                                        !participant.personalData.fullName.toLowerCase().includes(filters.searchName.toLowerCase())) {
+                                        return false;
+                                    }
+
+                                    // Filtro por área do saber
+                                    if (filters.knowledgeArea && filters.knowledgeArea !== "default") {
+                                        if (filters.knowledgeArea &&
+                                            !knowledgeAreas.includes(filters.knowledgeArea)) {
+                                            return false;
+                                        }
+                                    }
+
+                                    // Filtro por pontuação mínima
+                                    if (filters.minPunctuation && filters.minPunctuation !== 99) {
+                                        const selectedRange = getRangeForPercentage(Number(filters.minPunctuation));
+
+                                        if (selectedRange) {
+                                            // Verifica se a pontuação está FORA do intervalo selecionado
+                                            if (punctuation < selectedRange.min || punctuation > selectedRange.max) {
+                                                return false;
+                                            }
+                                        }
+                                    }
+
+                                    return true;
+                                })
                                 .map((participant, idx) => (
                                     //adicionar a datalist o onCheckedChange={() => handleChange(startIndex + idx)} para selecionar os participantes no mobo sem clicar no checkbox
                                     <DataList.Item key={startIndex + idx}

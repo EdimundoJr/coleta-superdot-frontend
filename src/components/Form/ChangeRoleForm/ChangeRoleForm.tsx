@@ -8,6 +8,7 @@ import { setUserRole } from "../../../api/auth.api";
 import { USER_ROLE, USER_ROLES_ARRAY } from "../../../utils/consts.utils";
 import { Button } from "../../Button/Button";
 import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
 
 
 interface ChangeRoleFormProps {
@@ -17,6 +18,7 @@ interface ChangeRoleFormProps {
 }
 
 const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormProps) => {
+    const [loading, setLoading] = useState(false);
     const usersPageSearchFormSchema = yup.object({
         newRole: yup
             .string()
@@ -33,6 +35,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
     } = useForm({ resolver: yupResolver(usersPageSearchFormSchema) });
 
     const onSubmit = handleSubmit(async (data) => {
+        setLoading(true);
         try {
             const response = await setUserRole(userId, data.newRole, data.emailMessage);
             if (response.status === 200) {
@@ -41,6 +44,8 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
             }
         } catch (e) {
             console.error(e);
+        } finally {
+            setLoading(false);
         }
     });
 
@@ -65,7 +70,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
                     className="border-2 border-gray-300"
                 />
                 <Form.Submit asChild>
-                    <Button title={"Salvar"} color={"green"} size={"Medium"} />
+                    <Button loading={loading} title={"Salvar"} color={"green"} size={"Medium"} />
                 </Form.Submit>
             </Flex>
         </Form.Root>

@@ -59,6 +59,7 @@ const RenderQuestions = ({ questions, setQuestions, handlerSaveAndContinue }: Re
         return <div>Sem perguntas para exibir.</div>;
     }
 
+
     const answerQuestionWithWithoutArray = (questionId: string, answer: string) => {
         setQuestions(
             questions.map((question) => {
@@ -104,6 +105,12 @@ const RenderQuestions = ({ questions, setQuestions, handlerSaveAndContinue }: Re
                 contentClassName="!h-[400px]"
                 nextButtonProps={{ className: disableButton ? "disabled:bg-neutral-dark disabled:hover:cursor-not-allowed" : "" }}
                 disableButton={disableButton}
+                completedStepContent={
+                    <Flex direction={"column"} align={"center"} className="gap-2">
+                        <h3 className="">Grupo Finalizado!</h3>
+                        <img className="m-auto w-72 rounded-md mb-5" src={check} alt="check-img"></img>
+                    </Flex>
+                }
             >
                 {questions.map((question, index) => (
                     <Step key={question._id} >
@@ -180,12 +187,7 @@ const RenderQuestions = ({ questions, setQuestions, handlerSaveAndContinue }: Re
                         )}
                     </Step>
                 ))}
-                <Step>
-                    <Flex direction={"column"} align={"center"} className="gap-2">
-                        <h3 className="">Grupo Finalizado!</h3>
-                        <img className="m-auto w-80 rounded-md" src={check} alt="check-img"></img>
-                    </Flex>
-                </Step>
+
             </Stepper>
 
 

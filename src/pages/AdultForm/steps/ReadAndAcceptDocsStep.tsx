@@ -86,8 +86,8 @@ const ReadAndAcceptDocsStep = ({
 
     useEffect(() => {
         const initializeDocs = async (sampleId: string) => {
+            setLoading(true);
             try {
-                setLoading(true);
                 const response = await getAllSampleRequiredDocs(sampleId);
 
                 if (response.data?.length) {
@@ -151,6 +151,7 @@ const ReadAndAcceptDocsStep = ({
     };
 
     const submitAllAcceptances = async () => {
+        setLoading(true);
         try {
             const response = sourceForm === EAdultFormSource.FIRST_SOURCE
                 ? await ParticipantApi.patchAcceptAllSampleDocs({ sampleId })
@@ -179,6 +180,8 @@ const ReadAndAcceptDocsStep = ({
                 description: "Tente novamente mais tarde",
                 type: "erro"
             });
+        } finally {
+            setLoading(false);
         }
     };
 
@@ -192,13 +195,7 @@ const ReadAndAcceptDocsStep = ({
         }
     };
 
-    if (loading) {
-        return (
-            <div className="flex justify-center items-center h-64">
-                <span className="text-primary">Carregando documentos...</span>
-            </div>
-        );
-    }
+
 
     if (!docsToAccept.current.length) {
         return (
@@ -291,25 +288,26 @@ const ReadAndAcceptDocsStep = ({
                 </label>
             </div>
 
-            <Flex align="center" justify="center" className="gap-4 mt-4">
+            <Flex align="center" justify="center" className="gap-4 mt-4 max-sm:flex-col">
                 <Button
-                    size="Medium"
+                    size="Full"
                     className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed disabled:hidden`}
                     onClick={handlePrevious}
                     title="Voltar"
-                    color="primary"
+                    color="gray"
                     disabled={currentDocIndex === 0}
                 />
 
                 <Button
-                    size="Medium"
+                    size="Full"
                     onClick={saveAndExit}
                     title="Salvar e Sair"
                     color="primary"
                 />
 
                 <Button
-                    size="Medium"
+                    loading={loading}
+                    size="Full"
                     onClick={handleAcceptDocument}
                     className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
                     title={currentDocIndex === docsToAccept.current.length - 1 ? "Finalizar" : "Avançar"}

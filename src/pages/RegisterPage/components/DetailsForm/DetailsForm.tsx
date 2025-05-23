@@ -6,6 +6,8 @@ import { Link } from "react-router-dom";
 import Flatpicker from "react-flatpickr";
 import "flatpickr/dist/themes/airbnb.css";
 import { Button } from "../../../../components/Button/Button";
+import { Portuguese } from "flatpickr/dist/l10n/pt.js";
+
 
 interface DetailsFormProps {
     handleOnSubmit: () => void;
@@ -70,6 +72,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData }: DetailsFormPr
                             options={{
                                 dateFormat: "d/m/Y",
                                 maxDate: minDate,
+                                locale: Portuguese,
                             }}
                         />
                         {errors?.personalData?.birthDate && (

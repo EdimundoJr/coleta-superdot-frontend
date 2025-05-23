@@ -18,13 +18,11 @@ const ActionButtonExplain = () => {
       <AlertDialog.Content>
         <AlertDialog.Title className="mb-2">Tipos de Ação:</AlertDialog.Title>
         <AlertDialog.Description className="flex gap-2 mb-2">
-          <Tooltip content="Visualizar Informações completas do Participante">
-            <IconButton size="2" color="lime" radius="full" variant="outline" className="">
-              <Icon.IdentificationCard size={20} />
-            </IconButton>
-          </Tooltip>
+          <IconButton size="2" color="lime" radius="full" variant="outline" className="">
+            <Icon.IdentificationCard size={20} />
+          </IconButton>
           <Text>
-            <Strong>
+            <Strong className="!font-roboto">
               Visualizar Informações completas do Participante
             </Strong>
             <br></br>
@@ -36,7 +34,7 @@ const ActionButtonExplain = () => {
             <Icon.ClipboardText size={20} />
           </IconButton>
           <Text>
-            <Strong>
+            <Strong className="!font-roboto">
               Comparar as respostas do avaliado com as respostas das 2ª fontes
             </Strong>
             <br></br>
@@ -48,7 +46,7 @@ const ActionButtonExplain = () => {
             <Icon.IdentificationBadge size={20} />
           </IconButton>
           <Text>
-            <Strong>
+            <Strong className="!font-roboto">
               Visualizar Autobiografia
             </Strong>
             <br></br>

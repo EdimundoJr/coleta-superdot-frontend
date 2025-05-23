@@ -60,8 +60,9 @@ const ProfilePhotoForm = ({
                     ></img>
                 </div>
                 <Form.Field name="personalData.profilePhoto" className="m-auto h-full">
+
                     <Form.Label asChild>
-                        <label className="button-neutral-dark block cursor-pointer">Carregar foto</label>
+                        <label className="block cursor-pointer py-2 px-4 text-sm bg-green-500 text-white hover:bg-green-600 active:bg-green-700 btn-primary rounded">Carregar foto</label>
                     </Form.Label>
                     <Form.Control
                         className="hidden"

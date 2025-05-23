@@ -1,6 +1,5 @@
-import { Box, Flex } from "@radix-ui/themes";
+import { Flex } from "@radix-ui/themes";
 import { Button } from "../Button/Button";
-import * as Icon from "@phosphor-icons/react"
 interface FiveOptionProps {
     options: string[];
     value: string;
@@ -18,7 +17,7 @@ const FiveOption = ({ options, value, onSelect }: FiveOptionProps) => {
                     title={option}
                     color={`${option === value ? "green" : "white"}`}
                     // children={value === option ? <Icon.Check size={20} color={`#fff`} /> : ""}
-                    className={"w-[300px] text-[15px] gap-1"}
+                    className={"w-[350px] text-[15px] max-sm:text-[14px] max-sm:w-[300px] gap-1"}
                 />
 
             ))}
