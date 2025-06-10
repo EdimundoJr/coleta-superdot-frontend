@@ -348,7 +348,7 @@ const CompareParticipantsSelected = () => {
           className="mb-10"
           content={
             <>
-              <Table.Root variant="surface" className="h-[500px] overflow desktop">
+              <Table.Root variant="surface" className="h-[500px] overflow-auto desktop">
                 <Table.Header className="text-[16px]">
                   <Table.Row align="center" className="text-center">
                     <Table.ColumnHeaderCell className="border-l">Perguntas</Table.ColumnHeaderCell>

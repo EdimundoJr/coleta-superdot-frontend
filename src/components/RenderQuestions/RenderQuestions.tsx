@@ -168,9 +168,7 @@ const RenderQuestions = ({ questions, setQuestions, handlerSaveAndContinue }: Re
                                 value={question.answer as string}
                                 onSelect={(v) => {
                                     answerQuestionWithWithoutArray(question._id, v);
-                                    setTimeout(() => {
-                                        stepperRef.current?.handleNext();
-                                    }, 1000);
+
                                 }}
                             />
                         )}

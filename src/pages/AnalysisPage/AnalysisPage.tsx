@@ -328,9 +328,18 @@ const AnalysisPage = () => {
     }, [isCheckedAll, sample.participants]);
 
     const handleCheckAll = () => {
+
         setIsCheckedAll(!isCheckedAll);
-        setIsChecked(sample.participants?.map(() => !isCheckedAll) || []);
+
+        setIsChecked(
+            sample.participants?.map(participant =>
+                participant.adultForm?.totalPunctuation !== undefined
+                    ? !isCheckedAll
+                    : false
+            ) || []
+        );
     };
+
 
     const handleChange = (index: number) => {
         const newCheckedState = isChecked.map((item, i) => (i === index ? !item : item));
@@ -345,10 +354,12 @@ const AnalysisPage = () => {
     };
 
     const handleCompareSelected = () => {
-        const selectedParticipants = sample.participants?.filter((participant, index) => isChecked[index]);
+        const selectedParticipants = sample.participants?.filter((participant, index) =>
+            isChecked[index] && participant.adultForm?.totalPunctuation !== undefined
+        );
 
         if (!selectedParticipants || selectedParticipants.length === 0) {
-            setOpenModalCompare(true)
+            setOpenModalCompare(true);
             return;
         }
 
@@ -359,6 +370,7 @@ const AnalysisPage = () => {
         });
         scrollToTop();
     };
+
 
     const handleShowPunctuation = () => {
         setOpenModal(true)
@@ -911,7 +923,6 @@ const AnalysisPage = () => {
                                 ?.slice(startIndex, endIndex)
                                 .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
                                 .filter(participant => {
-                                    // Filtro por nome
                                     const hasValidPunctuation = participant.adultForm?.totalPunctuation !== undefined;
                                     if (!hasValidPunctuation) return false;
 
@@ -923,13 +934,11 @@ const AnalysisPage = () => {
                                     ];
 
 
-                                    // Filtro por nome
                                     if (filters.searchName &&
                                         !participant.personalData.fullName.toLowerCase().includes(filters.searchName.toLowerCase())) {
                                         return false;
                                     }
 
-                                    // Filtro por área do saber
                                     if (filters.knowledgeArea && filters.knowledgeArea !== "default") {
                                         if (filters.knowledgeArea &&
                                             !combinedAreas.includes(filters.knowledgeArea)) {
