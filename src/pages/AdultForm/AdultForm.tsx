@@ -449,8 +449,8 @@ const AdultForm = () => {
 
                                 <div className="relative z-10 h-full w-full overflow-y-auto">
 
-                                    <div className="min-h-full w-full flex items-center justify-center p-4">
-                                        <div className="fixed inset-0 bg-glass opacity-90 w-[80%] max-sm:w-full max-sm:bg-glass-no-border pointer-events-none m-auto"></div>
+                                    <div className="min-h-full w-full flex items-center justify-center">
+                                        <div className="fixed inset-0 bg-glass opacity-90 w-[90%] max-sm:border-none max-sm:!rounded-none max-sm:w-full pointer-events-none m-auto"></div>
                                         <IntroductionStep
                                             researcherName={researcherName}
                                             sourceForm={EAdultFormSource.FIRST_SOURCE}

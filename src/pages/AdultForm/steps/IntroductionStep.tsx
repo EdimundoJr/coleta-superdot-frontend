@@ -122,17 +122,17 @@ const IntroductionStep = ({
 
 
             <FadeContent blur={true} duration={1000} easing="ease-out" initialOpacity={0}>
-                <Box className="p-5 gap-y-5 max-sm:gap-y-2 max-sm:p-0 font-roboto text-slate-950 w-[80%] max-sm:w-[100%] max-w-4xl relative z-10 my-8 m-auto">
+                <Box className="gap-y-3 max-sm:gap-y-2 max-sm:p-0 font-roboto text-slate-950 w-[80%]  max-w-4xl relative z-10 my-8 m-auto">
                     <div className="w-full text-justify font-roboto text-gray-50">
-                        <div className="flex">
-                            <img className="m-auto w-36 max-sm:w-24" src={logo} alt="Logo" />
+                        <div className="flex max-sm:mb-10">
+                            <img className="m-auto w-36" src={logo} alt="Logo" />
                         </div>
 
-                        <h1 className="text-center text-2xl font-bold max-sm:text-lg mt-4">
+                        <h1 className="text-center text-2xl font-bold  mt-4">
                             <Flex gap="2" align={"center"} justify={"center"}>
                                 <RotatingText
                                     texts={['Olá', 'Hello', 'Hola', 'Bonjour', 'Ciao']}
-                                    mainClassName="bg-primary text-white overflow-hidden px-2 py-1 justify-center rounded-lg"
+                                    mainClassName="bg-primary text-white overflow-hidden px-4 py-1 justify-center rounded-lg"
                                     staggerFrom={"last"}
                                     initial={{ y: "100%" }}
                                     animate={{ y: 0 }}
@@ -146,13 +146,13 @@ const IntroductionStep = ({
                             </Flex>
                         </h1>
 
-                        <div className="mt-6 space-y-4 max-sm:space-y-3">
+                        <div className="mt-6 space-y-4 max-sm:space-y-3 text-lg">
                             <p>
                                 Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação que está
-                                sendo realizada pelo(a) pesquisador(a) <b>{researcherName}</b>.{" "}
+                                sendo realizada pelo(a) pesquisador(a): <b>{researcherName}</b>.{" "}
                                 {sourceForm === EAdultFormSource.SECOND_SOURCE && (
                                     <>
-                                        Você foi indicado como a segunda fonte para os dados que foram coletados do participante{" "}
+                                        Você foi indicado como a segunda fonte para os dados que foram coletados do participante: {" "}
                                         <b>{participantName}</b>.
                                     </>
                                 )}
@@ -161,14 +161,14 @@ const IntroductionStep = ({
                             <p>
                                 O SuperDot é um sistema que visa auxiliar essa coleta de dados, facilitando o preenchimento dos
                                 questionários de superdotação. Ao preencher o questionário a seguir, você estará contribuindo tanto
-                                com a pesquisa do(a) <b>{researcherName}</b>, quanto com toda a comunidade de pesquisadores de <b>AH/SD</b> do
+                                com a pesquisa do(a): <b>{researcherName}</b>, quanto com toda a comunidade de pesquisadores de <b>AH/SD</b> do
                                 Brasil.
                             </p>
 
                             <p>
                                 A plataforma ainda se encontra em sua fase inicial, então é normal que alguns problemas apareçam
                                 durante sua utilização. Caso encontre algum problema ou tenha alguma sugestão de melhoria, por favor
-                                entre em contato conosco através do e-mail: <b>grupacdev@gmail.com</b>
+                                entre em contato conosco através do e-mail: <b>grupacsuperdot@gmail.com</b>
                             </p>
                         </div>
 
