@@ -30,8 +30,6 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             .required(),
         qttParticipantsAuthorized: yup
             .number()
-            .nullable()
-            .transform((value, originalValue) => (originalValue === "" ? null : value))
             .when('nextStatus', {
                 is: "Autorizado",
                 then: (schema) => schema
@@ -40,7 +38,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
                         sample?.qttParticipantsRequested || 0,
                         "A quantidade de participantes autorizados precisa ser menor ou igual a quantidade de participantes solicitados."
                     ),
-                otherwise: (schema) => schema.nullable().notRequired()
+                otherwise: (schema) => schema.default(0)
             }),
         reviewMessage: yup.string().required("Por favor, insira uma mensagem de revisão."),
     });
@@ -57,10 +55,14 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
     const onSubmit = handleSubmit(async (data) => {
         setLoading(true);
         try {
-            const response = await createReview({
+            const payload = {
                 ...data,
                 sampleId: sample?.sampleId || "",
-            });
+                // Send 0 if not authorized, or the actual number if authorized
+                qttParticipantsAuthorized: watchStatusChange !== "Autorizado" ? 0 : data.qttParticipantsAuthorized
+            };
+
+            const response = await createReview(payload);
             if (response.status === 200) {
                 onFinish();
                 return;
