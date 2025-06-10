@@ -92,7 +92,10 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
                     disabled={watchStatusChange !== "Autorizado"}
                     label="QUANTIDADE DE PARTICIPANTES AUTORIZADOS"
                     type="number"
-                    {...register("qttParticipantsAuthorized")}
+                    defaultValue={0}
+                    {...register("qttParticipantsAuthorized", {
+                        valueAsNumber: true,
+                    })}
                 />
                 <TextAreaField
                     className="border-2 border-stone-200"
