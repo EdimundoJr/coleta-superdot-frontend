@@ -119,14 +119,16 @@ const IntroductionStep = ({
 
     return (
         <>
-            <div className="absolute inset-0 bg-glass m-auto w-[50%] sm:w-[90%] md:w-[60%] lg:w-[50%] xl:w-[50%] text-justify max-sm:w-[90%]"></div>
+
+
             <FadeContent blur={true} duration={1000} easing="ease-out" initialOpacity={0}>
-                <Box className="p-5 gap-y-5 max-sm:gap-y-2 max-sm:p-0 font-roboto text-slate-950 m-auto w-[95%] mt-2 relative">
-                    <div className="m-auto w-[50%] sm:w-[90%] md:w-[60%] lg:w-[50%] xl:w-[50%] text-justify font-roboto text-gray-50 max-sm:w-[90%] mb-4 relative z-10">
+                <Box className="p-5 gap-y-5 max-sm:gap-y-2 max-sm:p-0 font-roboto text-slate-950 w-[80%] max-sm:w-[100%] max-w-4xl relative z-10 my-8 m-auto">
+                    <div className="w-full text-justify font-roboto text-gray-50">
                         <div className="flex">
-                            <img className="m-auto w-36" src={logo} alt="Logo" />
+                            <img className="m-auto w-36 max-sm:w-24" src={logo} alt="Logo" />
                         </div>
-                        <h1 className="text-center text-2xl font-bold max-sm:text-lg">
+
+                        <h1 className="text-center text-2xl font-bold max-sm:text-lg mt-4">
                             <Flex gap="2" align={"center"} justify={"center"}>
                                 <RotatingText
                                     texts={['Olá', 'Hello', 'Hola', 'Bonjour', 'Ciao']}
@@ -143,38 +145,57 @@ const IntroductionStep = ({
                                 , Bem vindo(a) ao SuperDot!
                             </Flex>
                         </h1>
-                        <br />
-                        <p>
-                            Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação que está
-                            sendo realizada pelo(a) pesquisador(a) <b>{researcherName}</b>.{" "}
-                            {sourceForm === EAdultFormSource.SECOND_SOURCE && (
-                                <>
-                                    Você foi indicado como a segunda fonte para os dados que foram coletados do participante{" "}
-                                    <b>{participantName}</b>.
-                                </>
-                            )}
-                        </p>
-                        <br />
-                        <p>
-                            O SuperDot é um sistema que visa auxiliar essa coleta de dados, facilitando o preenchimento dos
-                            questionários de superdotação. Ao preencher o questionário a seguir, você estará contribuindo tanto
-                            com a pesquisa do(a) <b>{researcherName}</b>, quanto com toda a comunidade de pesquisadores de <b>AH/SD</b> do
-                            Brasil.
-                        </p>
-                        <br />
-                        <p>
-                            A plataforma ainda se encontra em sua fase inicial, então é normal que alguns problemas apareçam
-                            durante sua utilização. Caso encontre algum problema ou tenha alguma sugestão de melhoria, por favor
-                            entre em contato conosco através do e-mail: <b>grupacdev@gmail.com</b>
-                        </p>
-                        <br />
-                        <p className="text-center text-lg mb-4">
+
+                        <div className="mt-6 space-y-4 max-sm:space-y-3">
+                            <p>
+                                Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação que está
+                                sendo realizada pelo(a) pesquisador(a) <b>{researcherName}</b>.{" "}
+                                {sourceForm === EAdultFormSource.SECOND_SOURCE && (
+                                    <>
+                                        Você foi indicado como a segunda fonte para os dados que foram coletados do participante{" "}
+                                        <b>{participantName}</b>.
+                                    </>
+                                )}
+                            </p>
+
+                            <p>
+                                O SuperDot é um sistema que visa auxiliar essa coleta de dados, facilitando o preenchimento dos
+                                questionários de superdotação. Ao preencher o questionário a seguir, você estará contribuindo tanto
+                                com a pesquisa do(a) <b>{researcherName}</b>, quanto com toda a comunidade de pesquisadores de <b>AH/SD</b> do
+                                Brasil.
+                            </p>
+
+                            <p>
+                                A plataforma ainda se encontra em sua fase inicial, então é normal que alguns problemas apareçam
+                                durante sua utilização. Caso encontre algum problema ou tenha alguma sugestão de melhoria, por favor
+                                entre em contato conosco através do e-mail: <b>grupacdev@gmail.com</b>
+                            </p>
+                        </div>
+
+                        <p className="text-center text-lg my-6 max-sm:my-4">
                             Para iniciar ou continuar o preenchimento, informe seu e-mail no campo abaixo:
                         </p>
-                        <Flex justify={"center"} align={"center"} direction="row" className="m-auto w-2/4 max-sm:w-[80%] gap-2">
-                            <input id="participantEmail" placeholder="Insira seu e-mail aqui..." type="email" className="h-10" onChange={(e) => setParticipantEmail(e.target.value)} />
-                            <Button loading={loading} type="button" className="button-primary" onClick={handleOnRequestVerificationCode} color={"primary"} title={"Enviar"} size={"Large"} />
-                        </Flex>
+
+                        <div
+                            className="flex justify-center items-centerw-full max-w-md mx-auto gap-2 flex-row max-sm:flex-col"
+                        >
+                            <input
+                                id="participantEmail"
+                                placeholder="Insira seu e-mail aqui..."
+                                type="email"
+                                className="h-10 flex-1 min-w-0 px-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-gray-800"
+                                onChange={(e) => setParticipantEmail(e.target.value)}
+                            />
+                            <Button
+                                loading={loading}
+                                type="button"
+                                className="button-primary max-sm:w-full"
+                                onClick={handleOnRequestVerificationCode}
+                                color={"primary"}
+                                title={"Enviar"}
+                                size={"Large"}
+                            />
+                        </div>
                     </div>
                 </Box>
             </FadeContent>

@@ -443,22 +443,22 @@ const AdultForm = () => {
 
                             <Flex
                                 direction={"column"}
-                                className="relative h-full lg:h-full max-sm:h-fit md:h-auto sm:h-auto pb-4 w-full overflow-hidden"
+                                className="relative h-screen w-full overflow-hidden"
                             >
-                                <div className="absolute inset-0 bg-default-bg max-sm:bg-default-bg-mobo bg-center bg-no-repeat bg-cover animate-forward-expand"></div>
+                                <div className="fixed inset-0 bg-default-bg max-sm:bg-default-bg-mobo bg-cover bg-center bg-no-repeat"></div>
 
-                                <Flex
-                                    align={"center"}
-                                    id="bg-div"
-                                    className={`font-roboto text-white m-auto relative z-10`}
-                                >
-                                    <IntroductionStep
-                                        researcherName={researcherName}
-                                        sourceForm={EAdultFormSource.FIRST_SOURCE}
-                                        sampleId={sampleId}
-                                        setNotificationData={setNotificationData}
-                                    />
-                                </Flex>
+                                <div className="relative z-10 h-full w-full overflow-y-auto">
+
+                                    <div className="min-h-full w-full flex items-center justify-center p-4">
+                                        <div className="fixed inset-0 bg-glass opacity-90 w-[80%] max-sm:w-full max-sm:bg-glass-no-border pointer-events-none m-auto"></div>
+                                        <IntroductionStep
+                                            researcherName={researcherName}
+                                            sourceForm={EAdultFormSource.FIRST_SOURCE}
+                                            sampleId={sampleId}
+                                            setNotificationData={setNotificationData}
+                                        />
+                                    </div>
+                                </div>
                             </Flex>
                         )
                     }
