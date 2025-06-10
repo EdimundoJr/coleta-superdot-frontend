@@ -125,14 +125,14 @@ const IntroductionStep = ({
                 <Box className="gap-y-3 max-sm:gap-y-2 max-sm:p-0 font-roboto text-slate-950 w-[80%]  max-w-4xl relative z-10 my-8 m-auto">
                     <div className="w-full text-justify font-roboto text-gray-50">
                         <div className="flex max-sm:mb-10">
-                            <img className="m-auto w-36" src={logo} alt="Logo" />
+                            <img className="m-auto w-36 max-sm:w-44" src={logo} alt="Logo" />
                         </div>
 
                         <h1 className="text-center text-2xl font-bold  mt-4">
-                            <Flex gap="2" align={"center"} justify={"center"}>
+                            <Flex gap="2" align={"center"} justify={"center"} className="max-sm:flex-col" >
                                 <RotatingText
-                                    texts={['Olá', 'Hello', 'Hola', 'Bonjour', 'Ciao']}
-                                    mainClassName="bg-primary text-white overflow-hidden px-4 py-1 justify-center rounded-lg"
+                                    texts={['Olá,', 'Hello,', 'Hola,', 'Bonjour,', 'Ciao,']}
+                                    mainClassName="bg-primary text-white overflow-hidden px-2 py-1 justify-center rounded-lg"
                                     staggerFrom={"last"}
                                     initial={{ y: "100%" }}
                                     animate={{ y: 0 }}
@@ -142,7 +142,7 @@ const IntroductionStep = ({
                                     transition={{ type: "spring", damping: 30, stiffness: 400 }}
                                     rotationInterval={2000}
                                 />
-                                , Bem vindo(a) ao SuperDot!
+                                Bem vindo(a) ao SuperDot!
                             </Flex>
                         </h1>
 

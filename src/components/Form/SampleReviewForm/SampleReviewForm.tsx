@@ -30,10 +30,18 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             .required(),
         qttParticipantsAuthorized: yup
             .number()
-            .max(
-                sample?.qttParticipantsRequested || 0,
-                "A quantidade de participantes autorizados precisa ser menor ou igual a quantidade de participantes solicitados."
-            ),
+            .nullable()
+            .transform((value, originalValue) => (originalValue === "" ? null : value))
+            .when('nextStatus', {
+                is: "Autorizado",
+                then: (schema) => schema
+                    .required("Por favor, informe a quantidade de participantes autorizados.")
+                    .max(
+                        sample?.qttParticipantsRequested || 0,
+                        "A quantidade de participantes autorizados precisa ser menor ou igual a quantidade de participantes solicitados."
+                    ),
+                otherwise: (schema) => schema.nullable().notRequired()
+            }),
         reviewMessage: yup.string().required("Por favor, insira uma mensagem de revisão."),
     });
 
