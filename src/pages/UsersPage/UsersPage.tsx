@@ -11,10 +11,12 @@ import { fetchUserRole } from "../../api/auth.api";
 import Notify from "../../components/Notify/Notify";
 import { usersPageSearchFormSchema } from "../../schemas/usersPage.schema";
 import { USER_ROLE } from "../../utils/consts.utils";
-import { Box, Container, Flex, Skeleton } from "@radix-ui/themes";
+import { Box, Container, Flex } from "@radix-ui/themes";
 import { Button } from "../../components/Button/Button";
 import * as Icon from "@phosphor-icons/react";
 import { AnimatePresence, motion } from "framer-motion";
+import axios from "axios";
+import ForbiddenPage from "../../components/ForbiddenPage/ForbiddenPage";
 
 const UsersPage = () => {
     const {
@@ -32,6 +34,7 @@ const UsersPage = () => {
     const [showSuccessNotify, setShowSuccessNotify] = useState(false);
     const [showSearch, setShowSearch] = useState(false);
     const [isDesktop, setIsDesktop] = useState(false);
+    const [notFound, setNotFound] = useState(false);
 
     const [modalOpen, setModalOpen] = useState(false);
     const showFilters = isDesktop || showSearch;
@@ -48,15 +51,27 @@ const UsersPage = () => {
 
     useEffect(() => {
         const getPage = async () => {
-            const response = await paginateResearcher(currentTablePage, PAGE_SIZE, filters);
-            if (response.status === 200) {
-                setTablePageData(response.data);
+            try {
+                const response = await paginateResearcher(currentTablePage, PAGE_SIZE, filters);
+                if (response.status === 200) {
+                    setTablePageData(response.data);
+                    setNotFound(false);
+                }
+            } catch (error) {
+                if (axios.isAxiosError(error) && error.response?.status === 403) {
+                    setNotFound(true);
+                }
+            } finally {
+                setLoading(false);
             }
         };
 
         getPage();
-        setLoading(false)
     }, [currentTablePage, filters]);
+
+    if (notFound) {
+        return <ForbiddenPage />;
+    }
 
     const onUserSelected = async (userId: string) => {
         const role = await fetchUserRole(userId);

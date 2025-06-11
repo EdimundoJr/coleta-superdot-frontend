@@ -13,7 +13,7 @@ const SkeletonDataList = ({ itens, titles, columns, actionButton }: SkeletonTabl
     [...Array(itens)].map((_, i) => (
       <DataList.Item
         key={i}
-        className="w-full p-4 rounded-lg mb-5 border-2 card-container"
+        className="w-full p-4 rounded-lg mb-5 border-2 card-container mobo"
       >
         <p className="text-[16px] font-bold text-center mb-1">
           <Skeleton className="h-[20px] w-[60%] mx-auto" />

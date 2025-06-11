@@ -7,7 +7,7 @@ import UserInfo from "../UserInfo/UserInfo";
 import { Flex } from "@radix-ui/themes";
 import { useMenu } from "../UseMenu/UseMenu ";
 import React from "react";
-
+import logo from "../../assets/Logo-GRUPAC.png"
 interface SideBarProps {
     userRole?: USER_ROLE;
 }
@@ -74,7 +74,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                 </div>
 
                 <div className="relative z-10">
-                    <div className={`flex items-center p-4 overflow-hidden transition-all duration-500 ${expanded ? "max-w-[200px]" : "max-w-[60px]"}`}>
+                    <div className={`flex items-center p-4 overflow-hidden transition-all duration-500 ${expanded ? "max-w-[250px]" : "max-w-[60px]"}`}>
                         <button
                             onClick={() => setExpanded(!expanded)}
                             className="relative z-50 text-white group transition-all duration-300 hover:scale-[1.15]"
@@ -102,9 +102,9 @@ const SideBar = ({ userRole }: SideBarProps) => {
 
                         <h1 className={`ml-4 text-xl font-bold text-white transition-all duration-300 ${expanded
                             ? "opacity-100 translate-x-0 scale-100 delay-150"
-                            : "opacity-0 -translate-x-4 scale-0 absolute"
+                            : "opacity-0 -translate-x-4 scale-0 "
                             } mt-2`}>
-                            SUPERDOT
+                            <img src={logo} alt="Logo" className="w-32" />
                         </h1>
                     </div>
 
@@ -174,7 +174,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
 
             {/* Mobile Menu */}
             <div className="fixed top-0 right-0 w-full bg-gradient-to-b from-violet-500 to-primary z-50 px-2 flex justify-between items-center xl:hidden">
-                <h2 className="text-2xl  font-bold text-white">SUPERDOT</h2>
+                <img src={logo} alt="Logo" className="w-28" />
                 <button onClick={toggleMobileMenu} className="text-white z-50">
                     {isMobileMenuOpen ? <Icon.X size={24} /> : <Icon.List size={24} />}
                 </button>

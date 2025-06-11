@@ -108,9 +108,8 @@ const RegisterPage = () => {
         >
             <Flex className="w-full">
                 <Flex className="bg-default-bg hidden h-full w-full desktop">
-                    {/* <img className="m-auto w-[80%]" src={saly12}></img> */}
                 </Flex>
-                <Flex direction="column" className="h-full w-full justify-center overflow-auto bg-slate-100 text-[#4F4F4F]">
+                <Flex direction="column" className="h-full w-full justify-center overflow-auto bg-offwhite text-[#4F4F4F]">
                     <Stepper ref={stepperRef}
                         initialStep={1}
                         footerClassName="hidden"

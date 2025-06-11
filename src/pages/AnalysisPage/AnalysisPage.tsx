@@ -1348,9 +1348,10 @@ const AnalysisPage = () => {
                                     });
 
                                 return filteredParticipants?.map((participant, idx) => {
-                                    const isExpanded = expandedParticipants[participant._id];
+
+                                    const isExpanded = participant._id ? expandedParticipants[participant._id] : false;
                                     const isSelected = isChecked[startIndex + idx];
-                                    const participantId = String(participant._id);
+                                    const participantId = String(participant._id) ?? '';
 
                                     return (
                                         <DataList.Item

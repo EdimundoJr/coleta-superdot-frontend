@@ -21,6 +21,7 @@ export const LoginPage = () => {
         formState: { errors },
     } = useForm({ resolver: yupResolver(loginSchema) });
     const navigate = useNavigate();
+    const [showPassword, setShowPassword] = useState(false);
 
     const [notificationData, setNotificationData] = useState({
         title: "",
@@ -70,7 +71,7 @@ export const LoginPage = () => {
                 <Flex direction="column" className="w-full text-[#4F4F4F] m-auto">
                     <Form.Root onSubmit={onSubmit} className="m-auto w-[70%] max-md:w-[80%] ">
                         <Box className="mb-10">
-                            <img className="m-auto w-40" src={logo}></img>
+                            <img className="m-auto w-80" src={logo}></img>
                         </Box>
                         <Box className="text-left mb-10 w-[70%] lg:w-[100%] md:w-[100%] max-sm:w-[100%]">
                             <h1 className="mb-4 text-[36px] leading-none">Acesse a plataforma</h1>
@@ -82,9 +83,25 @@ export const LoginPage = () => {
                             )}></InputField>
                         </Box>
                         <Box>
-                            <InputField label={""} type="password" placeholder="Senha" icon={<Icon.Key color="gray" />}  {...register("password")} errorMessage={errors?.password && (
-                                <Form.Message className="error-message">{errors.password.message}</Form.Message>
-                            )}></InputField>
+                            <InputField
+                                label={""}
+                                type={showPassword ? "text" : "password"}
+                                placeholder="Senha"
+                                icon={<Icon.Key color="gray" />}
+                                {...register("password")}
+                                errorMessage={errors?.password && (
+                                    <Form.Message className="error-message">{errors.password.message}</Form.Message>
+                                )}
+                                actionButton={
+                                    <button
+                                        type="button"
+                                        onClick={() => setShowPassword(!showPassword)}
+                                        className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                                    >
+                                        {showPassword ? <Icon.Eye size={16} /> : <Icon.EyeSlash size={16} />}
+                                    </button>
+                                }
+                            />
                         </Box>
                         <Box>
                             <Form.Submit asChild >

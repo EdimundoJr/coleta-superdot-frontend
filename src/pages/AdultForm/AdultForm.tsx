@@ -255,7 +255,6 @@ const AdultForm = () => {
                                         align={"center"}
                                         className="max-w-3xl m-auto px-4 py-4 gap-4"
                                     >
-                                        {/* Logo reduzida */}
                                         <img
                                             className="w-24 h-auto flex-shrink-0"
                                             src={logo}
