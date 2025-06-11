@@ -486,6 +486,41 @@ const AnalysisPage = () => {
         { title: "Autobiografia", value: "AUT-BIO" },
         { title: "Áreas do Saber", value: "ARE-SAB" },
     ];
+    const filterParticipants = (participant: IParticipant) => {
+        // Verifica se tem pontuação válida
+        if (participant.adultForm?.totalPunctuation === undefined) {
+            return false;
+        }
+
+        const punctuation = participant.adultForm.totalPunctuation;
+        const combinedAreas = [
+            ...(participant.knowledgeAreasIndicatedByResearcher?.general || []),
+            ...(participant.knowledgeAreasIndicatedByResearcher?.specific || []),
+            ...(participant.adultForm?.knowledgeAreas || []),
+        ];
+
+        // Filtro por nome
+        if (filters.searchName &&
+            !participant.personalData.fullName.toLowerCase().includes(filters.searchName.toLowerCase())) {
+            return false;
+        }
+
+        // Filtro por área de conhecimento
+        if (filters.knowledgeArea && filters.knowledgeArea !== "default" &&
+            !combinedAreas.includes(filters.knowledgeArea)) {
+            return false;
+        }
+
+        // Filtro por pontuação mínima
+        if (filters.minPunctuation && filters.minPunctuation !== 99) {
+            const selectedRange = getRangeForPercentage(Number(filters.minPunctuation));
+            if (selectedRange && (punctuation < selectedRange.min || punctuation > selectedRange.max)) {
+                return false;
+            }
+        }
+
+        return true;
+    };
 
     return (
 
@@ -919,65 +954,35 @@ const AnalysisPage = () => {
                         <SkeletonTableBody itens={5} columns={10} />
                     ) : (
                         <Table.Body className="text-[14px]">
-                            {sample.participants
-                                ?.slice(startIndex, endIndex)
-                                .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
-                                .filter(participant => {
-                                    const hasValidPunctuation = participant.adultForm?.totalPunctuation !== undefined;
-                                    if (!hasValidPunctuation) return false;
+                            {(() => {
+                                const filteredParticipants = sample.participants
+                                    ?.slice(startIndex, endIndex)
+                                    .filter(filterParticipants);
 
-                                    const punctuation = participant.adultForm?.totalPunctuation!;
-                                    const combinedAreas = [
-                                        ...(participant.knowledgeAreasIndicatedByResearcher?.general || []),
-                                        ...(participant.knowledgeAreasIndicatedByResearcher?.specific || []),
-                                        ...(participant.adultForm?.knowledgeAreas || []),
-                                    ];
+                                if (filteredParticipants?.length === 0) {
+                                    return (
+                                        <Table.Row align="center">
+                                            <Table.Cell colSpan={10} justify={"center"}>
+                                                Nenhum participante encontrado
+                                            </Table.Cell>
+                                        </Table.Row>
+                                    );
+                                }
 
-
-                                    if (filters.searchName &&
-                                        !participant.personalData.fullName.toLowerCase().includes(filters.searchName.toLowerCase())) {
-                                        return false;
-                                    }
-
-                                    if (filters.knowledgeArea && filters.knowledgeArea !== "default") {
-                                        if (filters.knowledgeArea &&
-                                            !combinedAreas.includes(filters.knowledgeArea)) {
-                                            return false;
-                                        }
-                                    }
-
-                                    // Filtro por pontuação mínima
-                                    if (filters.minPunctuation && filters.minPunctuation !== 99) {
-                                        const selectedRange = getRangeForPercentage(Number(filters.minPunctuation));
-
-                                        if (selectedRange) {
-                                            // Verifica se a pontuação está FORA do intervalo selecionado
-                                            if (punctuation < selectedRange.min || punctuation > selectedRange.max) {
-                                                return false;
-                                            }
-                                        }
-                                    }
-
-                                    return true;
-                                }).length === 0 ? (
-                                <Table.Row align="center">
-                                    <Table.Cell colSpan={10} justify={"center"}>
-                                        Nenhum participante encontrado
-                                    </Table.Cell>
-                                </Table.Row>
-                            ) : sample.participants
-                                ?.slice(startIndex, endIndex)
-                                .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
-                                .map((participant, idx) => (
-                                    <Table.Row align={"center"}
+                                return filteredParticipants?.map((participant, idx) => (
+                                    <Table.Row
+                                        align={"center"}
                                         className={isChecked[startIndex + idx] ? 'bg-violet-50' : ''}
-                                        key={startIndex + idx}>
+                                        key={startIndex + idx}
+                                    >
+
                                         <Table.Cell justify="center">
                                             <Checkbox
                                                 className="hover:cursor-pointer"
                                                 checked={isChecked[startIndex + idx] ?? false}
                                                 onCheckedChange={() => handleChange(startIndex + idx)}
-                                                color="violet" />
+                                                color="violet"
+                                            />
                                         </Table.Cell>
                                         <Table.Cell justify="center"> {getFirstAndLastName(participant.personalData.fullName)}</Table.Cell>
                                         <Table.Cell justify="center" >{participant.adultForm?.totalPunctuation}</Table.Cell>
@@ -1296,192 +1301,251 @@ const AnalysisPage = () => {
                                             </Flex>
                                         </Table.Cell>
                                     </Table.Row>
-                                ))
-                            }
+                                ));
+                            })()}
                         </Table.Body>
                     )}
 
                 </Table.Root>
                 <div className="mobo">
-                    <DataList.Root orientation="vertical" className="!font-roboto" >
+                    <DataList.Root orientation="vertical" className="!font-roboto">
                         {loading ? (
                             <SkeletonDataList itens={3} titles={1} columns={3} actionButton={true} />
                         ) : (
-                            sample.participants
-                                ?.slice(startIndex, endIndex)
-                                .filter(participant => participant.adultForm?.totalPunctuation !== undefined)
-                                .filter(participant => {
-                                    // Filtro por nome
-                                    const hasValidPunctuation = participant.adultForm?.totalPunctuation !== undefined;
-                                    if (!hasValidPunctuation) return false;
+                            (() => {
+                                const filteredParticipants = sample.participants
+                                    ?.slice(startIndex, endIndex)
+                                    .filter(participant => {
+                                        // Verificação básica de pontuação
+                                        if (participant.adultForm?.totalPunctuation === undefined) {
+                                            return false;
+                                        }
 
-                                    const punctuation = participant.adultForm?.totalPunctuation!;
-                                    const knowledgeAreas = participant.adultForm?.knowledgeAreas || [];
+                                        const punctuation = participant.adultForm.totalPunctuation;
+                                        const knowledgeAreas = participant.adultForm?.knowledgeAreas || [];
 
-                                    // Filtro por nome
-                                    if (filters.searchName &&
-                                        !participant.personalData.fullName.toLowerCase().includes(filters.searchName.toLowerCase())) {
-                                        return false;
-                                    }
+                                        // Filtro por nome
+                                        if (filters.searchName &&
+                                            !participant.personalData.fullName.toLowerCase().includes(filters.searchName.toLowerCase())) {
+                                            return false;
+                                        }
 
-                                    // Filtro por área do saber
-                                    if (filters.knowledgeArea && filters.knowledgeArea !== "default") {
-                                        if (filters.knowledgeArea &&
+                                        // Filtro por área do saber
+                                        if (filters.knowledgeArea && filters.knowledgeArea !== "default" &&
                                             !knowledgeAreas.includes(filters.knowledgeArea)) {
                                             return false;
                                         }
-                                    }
 
-                                    // Filtro por pontuação mínima
-                                    if (filters.minPunctuation && filters.minPunctuation !== 99) {
-                                        const selectedRange = getRangeForPercentage(Number(filters.minPunctuation));
-
-                                        if (selectedRange) {
-                                            // Verifica se a pontuação está FORA do intervalo selecionado
-                                            if (punctuation < selectedRange.min || punctuation > selectedRange.max) {
+                                        // Filtro por pontuação mínima
+                                        if (filters.minPunctuation && filters.minPunctuation !== 99) {
+                                            const selectedRange = getRangeForPercentage(Number(filters.minPunctuation));
+                                            if (selectedRange && (punctuation < selectedRange.min || punctuation > selectedRange.max)) {
                                                 return false;
                                             }
                                         }
-                                    }
 
-                                    return true;
-                                })
-                                .map((participant, idx) => (
-                                    //adicionar a datalist o onCheckedChange={() => handleChange(startIndex + idx)} para selecionar os participantes no mobo sem clicar no checkbox
-                                    <DataList.Item key={startIndex + idx}
-                                        className={`w-full p-3 card-container rounded-lg mb-5 border-2 border-[#baa7ff] bg-[#f9f6ffcc] transition-all duration-300 ease-in-out 
-                                        ${isChecked[startIndex + idx]
-                                                ? '!bg-violet-100 !border-primary'
-                                                : ''} 
-                                        
-                                        ${expandedParticipants[participant._id]
-                                                ? 'max-h-[1000px]'
-                                                : ' max-h-[300px]'
-                                            }`}>
+                                        return true;
+                                    });
 
-                                        {/* Informações Básicas */}
-                                        <p className="text-[16px] font-bold text-center  border-b-black">Informações do participante</p>
+                                return filteredParticipants?.map((participant, idx) => {
+                                    const isExpanded = expandedParticipants[participant._id];
+                                    const isSelected = isChecked[startIndex + idx];
+                                    const participantId = String(participant._id);
 
-                                        <DataList.Label>Nome:</DataList.Label>
-                                        <DataList.Value>{getFirstAndLastName(participant.personalData.fullName)}</DataList.Value>
-                                        <Separator size="4" className="" />
-                                        <DataList.Label>Pontuação do questionário:</DataList.Label>
-                                        <DataList.Value>{participant.adultForm?.totalPunctuation}</DataList.Value>
-                                        <Separator size="4" className="" />
-                                        <DataList.Label>Quantidade de 2ªs Fontes:</DataList.Label>
-                                        <DataList.Value>{participant.secondSources?.length}</DataList.Value>
-                                        <Separator size="4" className="mb-2" />
-                                        {participant?._id && expandedParticipants[participant._id] && (
-                                            <>
-                                                <p className="text-[16px] font-bold text-center">Indicadores de AH/SD:</p>
-                                                <DataList.Label>Pelo Questionário:</DataList.Label>
-                                                <DataList.Value className="gap-2">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
-                                                    <IconButton size="1" variant="surface" radius="full" className="ml-2" onClick={() => participant._id && handleShowIAH(participant._id)}>
-                                                        <Icon.Pencil size={15} />
-                                                    </IconButton>
-                                                </DataList.Value>
-                                                <Separator size="4" className="" />
-                                                <DataList.Label>Pelo Pesquisador:</DataList.Label>
-                                                <DataList.Value className="gap-2">{participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}
-                                                    <IconButton size="1" variant="surface" radius="full" className="ml-2" onClick={() => participant._id && handleShowIAH(participant._id)}>
-                                                        <Icon.Pencil size={15} />
-                                                    </IconButton>
-                                                </DataList.Value>
-                                                <Separator size="4" className="my-2" />
-                                                <p className="text-[16px] font-bold text-center">Áreas do saber:</p>
-                                                <Flex direction="column" gap="2" >
-                                                    <DataList.Label>Indicadas pelo Questionário:</DataList.Label>
-                                                    <DataList.Value className="gap-[1px] flex-wrap">{participant.adultForm?.knowledgeAreas?.map((area, index) => (
-                                                        <span key={index}>
-                                                            {area}
-                                                            {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
-                                                        </span>
-                                                    ))}
+                                    return (
+                                        <DataList.Item
+                                            key={startIndex + idx}
+                                            className={`w-full p-3 card-container rounded-lg mb-5 border-2 border-[#baa7ff] bg-[#f9f6ffcc] transition-all duration-300 ease-in-out 
+              ${isSelected ? '!bg-violet-100 !border-primary' : ''} 
+              ${isExpanded ? 'max-h-[1000px]' : 'max-h-[300px]'}`}
+                                            onClick={() => handleChange(startIndex + idx)} // Adiciona clique na linha inteira
+                                        >
+                                            {/* Informações Básicas */}
+                                            <p className="text-[16px] font-bold text-center border-b-black">Informações do participante</p>
+
+                                            <DataList.Label>Nome:</DataList.Label>
+                                            <DataList.Value>{getFirstAndLastName(participant.personalData.fullName)}</DataList.Value>
+                                            <Separator size="4" />
+
+                                            <DataList.Label>Pontuação do questionário:</DataList.Label>
+                                            <DataList.Value>{participant.adultForm?.totalPunctuation}</DataList.Value>
+                                            <Separator size="4" />
+
+                                            <DataList.Label>Quantidade de 2ªs Fontes:</DataList.Label>
+                                            <DataList.Value>{participant.secondSources?.length}</DataList.Value>
+                                            <Separator size="4" className="mb-2" />
+
+                                            {isExpanded && (
+                                                <>
+                                                    <p className="text-[16px] font-bold text-center">Indicadores de AH/SD:</p>
+                                                    <DataList.Label>Pelo Questionário:</DataList.Label>
+                                                    <DataList.Value className="gap-2">
+                                                        {participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
+
+                                                    </DataList.Value>
+                                                    <Separator size="4" />
+
+                                                    <DataList.Label>Pelo Pesquisador:</DataList.Label>
+                                                    <DataList.Value className="gap-2">
+                                                        {participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}
+                                                        <IconButton
+                                                            size="1"
+                                                            variant="surface"
+                                                            radius="full"
+                                                            className="ml-2"
+                                                            onClick={(e) => {
+                                                                e.stopPropagation();
+                                                                participant._id && handleShowIAH(participant._id);
+                                                            }}
+                                                        >
+                                                            <Icon.Pencil size={15} />
+                                                        </IconButton>
                                                     </DataList.Value>
                                                     <Separator size="4" className="my-2" />
-                                                    <DataList.Label>Indicadas pelo Pesquisador:</DataList.Label>
-                                                    <DataList.Label>Áreas Gerais</DataList.Label>
-                                                    <DataList.Value className="gap-2 flex-wrap">
-                                                        {participant.knowledgeAreasIndicatedByResearcher?.general?.map((area, index) => (
-                                                            <span key={index}>
-                                                                {area}
-                                                                {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
-                                                            </span>
-                                                        ))}
-                                                        <IconButton size="1" variant="surface" radius="full" onClick={() => participant._id && handleShowKAG(participant._id)}>
-                                                            <Icon.Pencil size={15} />
-                                                        </IconButton>
-                                                    </DataList.Value>
-                                                    <Separator size="4" className="" />
-                                                    <DataList.Label>Áreas Específicas</DataList.Label>
-                                                    <DataList.Value className="gap-2">{participant.knowledgeAreasIndicatedByResearcher?.specific?.map((area, index) => (
-                                                        <span key={index}>
-                                                            {area}
-                                                            {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
-                                                        </span>
-                                                    ))}
 
-                                                        <IconButton size="1" variant="surface" radius="full" onClick={() => participant._id && handleShowKAE(participant._id)}>
-                                                            <Icon.Pencil size={15} />
-                                                        </IconButton>
-                                                    </DataList.Value>
-                                                    <Separator size="4" className="" />
-                                                </Flex>
-                                                {/* Ações */}
-                                                <Flex gap={"2"} direction="row" align="center" className="mt-2 mb-0">
-                                                    <p className="text-[16px] font-bold text-center">Ações </p>
-                                                    <ActionButtonExplain />
-                                                    <Flex align="center" gap={"3"} className="!justify-end w-full">
-                                                        <Tooltip content="Informações completas">
-                                                            <IconButton variant="outline" color="lime" onClick={() => handleCompareSource(participant)}>
-                                                                <Icon.IdentificationCard size={20} />
-                                                            </IconButton>
-                                                        </Tooltip>
+                                                    <p className="text-[16px] font-bold text-center">Áreas do saber:</p>
+                                                    <Flex direction="column" gap="2">
+                                                        <DataList.Label>Indicadas pelo Questionário:</DataList.Label>
+                                                        <DataList.Value className="gap-[1px] flex-wrap">
+                                                            {participant.adultForm?.knowledgeAreas?.map((area, index) => (
+                                                                <span key={index}>
+                                                                    {area}
+                                                                    {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
+                                                                </span>
+                                                            ))}
+                                                        </DataList.Value>
+                                                        <Separator size="4" className="my-2" />
 
-                                                        <Tooltip content="Comparar fontes">
-                                                            <IconButton variant="outline" color="cyan" onClick={() => handleCompareSource(participant)}>
-                                                                <Icon.ClipboardText size={20} />
+                                                        <DataList.Label>Indicadas pelo Pesquisador:</DataList.Label>
+                                                        <DataList.Label>Áreas Gerais</DataList.Label>
+                                                        <DataList.Value className="gap-2 flex-wrap">
+                                                            {participant.knowledgeAreasIndicatedByResearcher?.general?.map((area, index) => (
+                                                                <span key={index}>
+                                                                    {area}
+                                                                    {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
+                                                                </span>
+                                                            ))}
+                                                            <IconButton
+                                                                size="1"
+                                                                variant="surface"
+                                                                radius="full"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    participant._id && handleShowKAG(participant._id);
+                                                                }}
+                                                            >
+                                                                <Icon.Pencil size={15} />
                                                             </IconButton>
-                                                        </Tooltip>
-                                                        <Tooltip content="Autobiografia">
-                                                            <IconButton variant="outline" color="bronze" onClick={() => handleEvaluateAutobiography(participant, sample)}>
-                                                                <Icon.IdentificationBadge size={20} />
+                                                        </DataList.Value>
+                                                        <Separator size="4" />
+
+                                                        <DataList.Label>Áreas Específicas</DataList.Label>
+                                                        <DataList.Value className="gap-2">
+                                                            {participant.knowledgeAreasIndicatedByResearcher?.specific?.map((area, index) => (
+                                                                <span key={index}>
+                                                                    {area}
+                                                                    {index !== (participant.adultForm?.knowledgeAreas?.length ?? 0) - 1 && ",\u00A0"}
+                                                                </span>
+                                                            ))}
+                                                            <IconButton
+                                                                size="1"
+                                                                variant="surface"
+                                                                radius="full"
+                                                                onClick={(e) => {
+                                                                    e.stopPropagation();
+                                                                    participant._id && handleShowKAE(participant._id);
+                                                                }}
+                                                            >
+                                                                <Icon.Pencil size={15} />
                                                             </IconButton>
-                                                        </Tooltip>
+                                                        </DataList.Value>
+                                                        <Separator size="4" />
                                                     </Flex>
+
+                                                    {/* Ações */}
+                                                    <Flex gap="2" direction="row" align="center" className="mt-2 mb-0">
+                                                        <p className="text-[16px] font-bold text-center">Ações </p>
+                                                        <ActionButtonExplain />
+                                                        <Flex align="center" gap="3" className="!justify-end w-full">
+                                                            <Tooltip content="Informações completas">
+                                                                <IconButton
+                                                                    variant="outline"
+                                                                    color="lime"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleCompareSource(participant);
+                                                                    }}
+                                                                >
+                                                                    <Icon.IdentificationCard size={20} />
+                                                                </IconButton>
+                                                            </Tooltip>
+
+                                                            <Tooltip content="Comparar fontes">
+                                                                <IconButton
+                                                                    variant="outline"
+                                                                    color="cyan"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleCompareSource(participant);
+                                                                    }}
+                                                                >
+                                                                    <Icon.ClipboardText size={20} />
+                                                                </IconButton>
+                                                            </Tooltip>
+
+                                                            <Tooltip content="Autobiografia">
+                                                                <IconButton
+                                                                    variant="outline"
+                                                                    color="bronze"
+                                                                    onClick={(e) => {
+                                                                        e.stopPropagation();
+                                                                        handleEvaluateAutobiography(participant, sample);
+                                                                    }}
+                                                                >
+                                                                    <Icon.IdentificationBadge size={20} />
+                                                                </IconButton>
+                                                            </Tooltip>
+                                                        </Flex>
+                                                    </Flex>
+                                                    <Separator size="4" className="my-2" />
+                                                </>
+                                            )}
+
+                                            <DataList.Label className="justify-end">
+                                                <Flex direction="row" justify="center" gap="2" align="center" className="mb-0">
+                                                    <p className="text-[12px] font-bold text-center">
+                                                        {isSelected ? "Desmarcar" : "Selecionar"} participante
+                                                    </p>
+                                                    <Checkbox
+                                                        className="hover:cursor-pointer justify-end"
+                                                        checked={isSelected ?? false}
+                                                        onCheckedChange={() => handleChange(startIndex + idx)}
+                                                        color="violet"
+                                                    />
                                                 </Flex>
+                                            </DataList.Label>
 
-                                                <Separator size="4" className="my-2" />
-                                            </>
-                                        )}
-                                        <DataList.Label className="justify-end" >
-                                            <Flex direction="row" justify={"center"} gap="2" align={"center"} className="mb-0 ">
-                                                <p className="text-[12px] font-bold text-center">
-                                                    {isChecked[startIndex + idx] ? "Desmarcar" : "Selecionar"} participante
-                                                </p>
-                                                <Checkbox
-                                                    className="hover:cursor-pointer justify-end"
-                                                    checked={isChecked[startIndex + idx] ?? false}
-                                                    onCheckedChange={() => handleChange(startIndex + idx)}
-                                                    color="violet" />
-                                            </Flex>
-                                        </DataList.Label>
-                                        <button
-                                            className="justify-end items-center leading-none flex gap-2 mt-2"
-                                            onClick={() => setExpandedParticipants(prev => ({
-                                                ...prev,
-                                                [String(participant._id)]: !prev[String(participant._id)]
-                                            }))} color={""} >
-                                            {participant._id && expandedParticipants[participant._id] ? "Veja menos" : "Ver mais"}
-
-                                            <Icon.CaretDown size={15} className={`transition-all duration-300 ${participant._id && expandedParticipants[participant._id] ? "rotate-180" : ""}`} />
-
-
-                                        </button>
-
-                                    </DataList.Item>
-                                )))
-                        }
+                                            <button
+                                                className="justify-end items-center leading-none flex gap-2 mt-2"
+                                                onClick={(e) => {
+                                                    e.stopPropagation();
+                                                    setExpandedParticipants(prev => ({
+                                                        ...prev,
+                                                        [participantId]: !prev[participantId]
+                                                    }));
+                                                }}
+                                            >
+                                                {isExpanded ? "Veja menos" : "Ver mais"}
+                                                <Icon.CaretDown
+                                                    size={15}
+                                                    className={`transition-all duration-300 ${isExpanded ? "rotate-180" : ""}`}
+                                                />
+                                            </button>
+                                        </DataList.Item>
+                                    );
+                                });
+                            })()
+                        )}
                     </DataList.Root>
                 </div>
             </Box>
