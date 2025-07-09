@@ -556,12 +556,30 @@ const EvaluateAutobiography: React.FC = () => {
                         <Box className="card-container  w-[70%] max-xl:w-full">
                             <Flex direction="column" className="h-full">
                                 <Flex p="4" align="center" gap="3" className="border-b border-neutral-100">
-                                    <Icon.Notebook size={24} className="text-violet-600" />
-                                    <h2 className="heading-2">Autobiografia</h2>
+                                    {participant?.autobiography?.text ?
+                                        <>
+                                            <Icon.Notebook size={24} className="text-violet-600" />
+                                            <h2 className="heading-2">Autobiografia</h2>
+                                        </>
+                                        : <>
+                                            <Icon.Link size={24} className="text-violet-600" />
+                                            <h2 className="heading-2">Link Disponivel</h2> </>
+                                    }
                                 </Flex>
                                 <Box className="p-6 overflow-auto h-[60vh]">
                                     <p id="autobiography" className="text-justify leading-relaxed text-neutral-700">
-                                        {renderMarkedTexts(participant?.autobiography?.text || "")}
+                                        {participant?.autobiography?.text ? (
+                                            renderMarkedTexts(participant.autobiography.text)
+                                        ) : (
+                                            <a
+                                                href={participant?.autobiography?.videoUrl || "#"}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 hover:underline"
+                                            >
+                                                {participant?.autobiography?.videoUrl || "Nenhum vídeo disponível"}
+                                            </a>
+                                        )}
                                     </p>
                                 </Box>
                             </Flex>

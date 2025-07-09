@@ -7,13 +7,19 @@ const ActionButtonExplain = () => {
   return (
     <AlertDialog.Root>
       <AlertDialog.Trigger>
-        <Box>
+        <Flex align="center" gap="2">
           <Tooltip content={"Visualizar Ações"}>
-            <IconButton size="1" variant="surface" radius="full" className="hover:cursor-pointer">
-              <Icon.QuestionMark size={15} />
-            </IconButton>
+            <button
+              className="text-gray-400 hover:text-gray-600 transition-colors"
+              aria-label="Informações sobre indicadores de superdotação"
+            >
+
+              <Icon.Info size={25} />
+            </button>
+
+
           </Tooltip>
-        </Box>
+        </Flex>
       </AlertDialog.Trigger>
       <AlertDialog.Content>
         <AlertDialog.Title className="mb-2">Tipos de Ação:</AlertDialog.Title>
