@@ -29,6 +29,7 @@ import SkeletonDataList from "../../components/Skeletons/SkeletonDataList";
 import ActionButtonExplain from "../../components/ActionButtonExplain/ActionButtonExplain";
 import SkeletonTableBody from "../../components/Skeletons/SkeletonTableBody";
 import SkeletonHeader from "../../components/Skeletons/SkeletonHeader";
+import InstrumentResponsesTable from "../../components/InstrumentResponsesTable/InstrumentResponsesTable";
 
 interface Filters {
     searchName?: string;
@@ -676,102 +677,7 @@ const AnalysisPage = () => {
                             title={"Pontuação:"}
                             accessibleDescription={""}
                             children={
-                                <Table.Root variant="ghost" className="w-full mt-3">
-                                    <Table.Header className="text-[16px]">
-                                        <Table.Row align="center" className="text-center">
-                                            <Table.ColumnHeaderCell colSpan={2} className="border-l">Nº da pergunta do Questionário</Table.ColumnHeaderCell>
-                                            <Table.ColumnHeaderCell colSpan={5} className="border-l"></Table.ColumnHeaderCell>
-                                        </Table.Row>
-                                    </Table.Header>
-                                    <Table.Header className="text-[16px]">
-                                        <Table.Row align="center" className="text-center">
-                                            <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto</Table.ColumnHeaderCell>
-                                            <Table.ColumnHeaderCell className="border-l">QIIAHSD - Adulto -
-                                                2ª Fonte</Table.ColumnHeaderCell>
-                                            <Table.ColumnHeaderCell className="border-l">Respostas comuns</Table.ColumnHeaderCell>
-                                            <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
-                                            <Table.ColumnHeaderCell className="border-l">Respostas não comuns</Table.ColumnHeaderCell>
-                                            <Table.ColumnHeaderCell className="border-l">Pontos</Table.ColumnHeaderCell>
-                                        </Table.Row>
-                                    </Table.Header>
-                                    <Table.Body>
-                                        <Table.Row align="center">
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                            <Table.Cell justify="center">1</Table.Cell>
-                                            <Table.Cell justify="center">Sim</Table.Cell>
-                                            <Table.Cell justify="center">2</Table.Cell>
-                                            <Table.Cell justify="center">Não</Table.Cell>
-                                            <Table.Cell justify="center">0</Table.Cell>
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                    <Table.Body>
-                                        <Table.Row align="center">
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                            <Table.Cell justify="center">1</Table.Cell>
-                                            <Table.Cell justify="center">Sim</Table.Cell>
-                                            <Table.Cell justify="center">2</Table.Cell>
-                                            <Table.Cell justify="center">Não</Table.Cell>
-                                            <Table.Cell justify="center">0</Table.Cell>
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                    <Table.Body>
-                                        <Table.Row align="center">
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                            <Table.Cell justify="center">1</Table.Cell>
-                                            <Table.Cell justify="center">Sim</Table.Cell>
-                                            <Table.Cell justify="center">2</Table.Cell>
-                                            <Table.Cell justify="center">Não</Table.Cell>
-                                            <Table.Cell justify="center">0</Table.Cell>
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                    <Table.Body>
-                                        <Table.Row align="center">
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                            <Table.Cell justify="center">1</Table.Cell>
-                                            <Table.Cell justify="center">Sim</Table.Cell>
-                                            <Table.Cell justify="center">2</Table.Cell>
-                                            <Table.Cell justify="center">Não</Table.Cell>
-                                            <Table.Cell justify="center">0</Table.Cell>
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                    <Table.Body>
-                                        <Table.Row align="center">
-                                            <Table.Cell justify="center">5</Table.Cell>
-                                            <Table.Cell justify="center">1</Table.Cell>
-                                            <Table.Cell justify="center">Sim</Table.Cell>
-                                            <Table.Cell justify="center">2</Table.Cell>
-                                            <Table.Cell justify="center">Não</Table.Cell>
-                                            <Table.Cell justify="center">0</Table.Cell>
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                    <Table.Body>
-                                        <Table.Row align="center">
-                                            <Table.Cell justify="center">6</Table.Cell>
-                                            <Table.Cell justify="center">1</Table.Cell>
-                                            <Table.Cell justify="center">Sim</Table.Cell>
-                                            <Table.Cell justify="center">2</Table.Cell>
-                                            <Table.Cell justify="center">Não</Table.Cell>
-                                            <Table.Cell justify="center">0</Table.Cell>
-                                            <Table.Cell justify="center">-</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                    <Table.Body>
-                                        <Table.Row align="center">
-                                            <Table.Cell justify="center">1</Table.Cell>
-                                            <Table.Cell justify="center">2</Table.Cell>
-                                            <Table.Cell justify="center">3</Table.Cell>
-                                            <Table.Cell justify="center">4</Table.Cell>
-                                            <Table.Cell justify="center">5</Table.Cell>
-                                            <Table.Cell justify="center">6</Table.Cell>
-                                            <Table.Cell justify="center">7</Table.Cell>
-                                        </Table.Row>
-                                    </Table.Body>
-                                </Table.Root>
+                                <InstrumentResponsesTable />
                             } />
                         <Button
                             size="Medium"
@@ -1560,12 +1466,13 @@ const AnalysisPage = () => {
                 children={
                     <>
                         <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg w-full pt-4 !font-roboto border-2 p-2">
+                            <Box className="rounded overflow-hidden  bg-white card-container p-2 font-roboto ">
                                 <PercentageGiftedChart participants={sample.participants?.filter(participant => participant.adultForm?.totalPunctuation != null) || []} />
                             </Box>
                         </Skeleton>
                         <Skeleton loading={loading} >
-                            <Box className="rounded overflow-hidden  bg-white rounded-b-lg w-full pt-4 drop-shadow-[0_4px_16px_rgba(22,22,22,0.1)] font-roboto border-2 p-2">
+                            <Box className="rounded overflow-hidden  bg-white card-container  font-roboto p-2">
+
                                 <ResponseChartByGender participants={sample.participants?.filter(participant => participant.adultForm?.totalPunctuation != null) || []} />
                             </Box>
                         </Skeleton>

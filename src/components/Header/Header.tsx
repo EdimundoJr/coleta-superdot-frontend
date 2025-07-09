@@ -17,7 +17,7 @@ export function Header({ title, icon, onMenuToggle }: HeaderProps) {
     return (
         <Flex
             asChild
-            className={`w-full bg-white border-b border-gray-100 fixed top-0 z-30 h-16 px-4 sm:px-6 xl:pl-24 transition-all duration-300 ease-in-out max-xl:mt-8 shadow-bottom-lg`}
+            className={`w-full bg-white border-b border-gray-100 fixed top-0 z-30 h-16 px-4 sm:px-6 xl:pl-24 transition-all duration-300 ease-in-out max-xl:mt-11 shadow-bottom-lg`}
         >
             <header>
                 <Flex align="center" className="w-full h-full">

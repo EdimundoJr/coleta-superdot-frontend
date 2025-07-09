@@ -138,9 +138,25 @@ export const LoginPage = () => {
                                 )}></InputField>
                             </Box>
                             <Box className="mb-4  rounded-lg">
-                                <InputField label={""} type="password" placeholder="Senha" icon={<Icon.Key color="gray" />}  {...register("password")} errorMessage={errors?.password && (
-                                    <Form.Message >{errors.password.message}</Form.Message>
-                                )}></InputField>
+                                <InputField
+                                    label={""}
+                                    type={showPassword ? "text" : "password"}
+                                    placeholder="Senha"
+                                    icon={<Icon.Key color="gray" />}
+                                    {...register("password")}
+                                    errorMessage={errors?.password && (
+                                        <Form.Message className="error-message">{errors.password.message}</Form.Message>
+                                    )}
+                                    actionButton={
+                                        <button
+                                            type="button"
+                                            onClick={() => setShowPassword(!showPassword)}
+                                            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+                                        >
+                                            {showPassword ? <Icon.Eye size={16} /> : <Icon.EyeSlash size={16} />}
+                                        </button>
+                                    }
+                                />
                             </Box>
                             <Box>
                                 <Form.Submit asChild >

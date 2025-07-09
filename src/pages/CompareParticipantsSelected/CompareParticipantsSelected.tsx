@@ -168,12 +168,14 @@ const CompareParticipantsSelected = () => {
     setSelectedBlockIndex(parseInt(event.target.value));
   };
 
-  const selectedQuestions = selectedParticipants[0].adultForm?.answersByGroup?.[selectedBlockIndex]?.questions || []
+  const selectedQuestions = selectedParticipants[0].adultForm?.answersByGroup?.find(
+    group => group.sequence === selectedBlockIndex
+  )?.questions || [];
 
 
   return (
     <>
-      {/* <Header title="Comparação dos Participantes Selecionados" icon={<Icon.Books size={24}></Icon.Books>}></Header> */}
+
       <Box className="w-[90%] m-auto">
         <Accordeon
           title="Informações do(s) Participante(s) Selecionado(s)"
@@ -353,44 +355,62 @@ const CompareParticipantsSelected = () => {
                   <Table.Row align="center" className="text-center">
                     <Table.ColumnHeaderCell className="border-l">Perguntas</Table.ColumnHeaderCell>
                     {selectedParticipants?.map((participant, index) => (
-                      <Table.ColumnHeaderCell key={index} className="border-l">{participant.personalData?.fullName}</Table.ColumnHeaderCell>
+                      <Table.ColumnHeaderCell key={index} className="border-l italic text-[#0400119c]">{participant.personalData?.fullName}</Table.ColumnHeaderCell>
                     ))}
                   </Table.Row>
                 </Table.Header>
                 <Table.Body>
-                  <Table.Row align="center">
-                    <Table.Cell>Pontuação:</Table.Cell>
-                    {selectedParticipants?.map((participant, index) => (
-                      <Table.Cell align="center" key={index} className="border-l">{participant.adultForm?.totalPunctuation} </Table.Cell>
-                    ))}
-                  </Table.Row>
+
                   {selectedQuestions.map((question, questionIndex) => (
-                    <Table.Row align="center" key={questionIndex}>
-                      <Table.Cell className="text-wrap">{question.statement}</Table.Cell>
+                    <Table.Row align="center" key={`question-${questionIndex}`}>
+                      <Table.Cell className="text-wrap font-bold">{question.statement}</Table.Cell>
+
                       {selectedParticipants.map((participant, participantIndex) => {
-                        const answers = participant.adultForm?.answersByGroup?.[selectedBlockIndex]?.questions
-                          ?.filter(q => q.statement === question.statement)
-                          ?.map(q => {
-                            if (typeof q.answer === 'string') {
-                              return q.answer.trim();
-                            } else if (Array.isArray(q.answer)) {
-                              return q.answer.map(a => (typeof a === 'string' ? a.trim() : '')).join(', ');
-                            } else {
-                              return '';
-                            }
-                          })
-                          ?.join(', ');
+                        const answerGroup = participant.adultForm?.answersByGroup?.find(
+                          group => group.sequence === selectedBlockIndex
+                        );
+
+                        const matchedQuestion = answerGroup?.questions?.find(
+                          q => q.statement === question.statement
+                        );
+
+                        let processedAnswer = '';
+                        if (matchedQuestion) {
+                          if (typeof matchedQuestion.answer === 'string') {
+                            processedAnswer = matchedQuestion.answer.trim();
+                          } else if (Array.isArray(matchedQuestion.answer)) {
+                            processedAnswer = matchedQuestion.answer
+                              .map(a => (typeof a === 'string' ? a.trim() : ''))
+                              .filter(a => a) // Remove valores vazios
+                              .join(', ');
+                          }
+                        }
+
+                        const answerClass = () => {
+                          const baseClass = "rounded py-1 w-[200px] text-center text-[#6f6e77]";
+
+                          switch (processedAnswer) {
+                            case 'Sempre':
+                            case 'Frequentemente':
+                              return `${baseClass} bg-green-400 !text-white font-bold`;
+                            case 'Ás vezes':
+                            case 'Raramente':
+                            case 'Nunca':
+                              return `${baseClass} bg-red-400 !text-white font-bold`;
+                            default:
+                              return baseClass;
+                          }
+                        };
 
                         return (
-                          <Table.Cell key={participantIndex} align="center" className="border-l">
-                            <p className={` rounded py-1   
-                          ${answers === "Sempre" ? "bg-green-400 text-white w-[200px] text-center font-semibold " :
-                                answers === "Frequentemente" ? "bg-green-400 text-white  w-[200px] text-center font-semibold " :
-                                  answers === "Ás vezes" ? "bg-red-400 text-white  w-[200px] text-center font-semibold " :
-                                    answers === "Raramente" ? "bg-red-400 text-white w-[200px] text-center font-semibold " :
-                                      answers === "Nunca" ? "bg-red-400 text-white w-[200px] text-center font-semibold " : " "
-                              }}`}
-                            >{answers}</p>
+                          <Table.Cell
+                            key={`participant-${participantIndex}`}
+                            align="center"
+                            className="border-l"
+                          >
+                            <p className={answerClass()}>
+                              {processedAnswer || '-'}
+                            </p>
                           </Table.Cell>
                         );
                       })}
@@ -413,62 +433,69 @@ const CompareParticipantsSelected = () => {
                   <Separator size="4" className="my-2" />
 
                   {/* Perguntas e respostas */}
-                  <DataList.Item
-
-                    className="w-full p-3 rounded-lg mb-1 card-container"
-                  >
+                  <DataList.Item className="w-full p-3 rounded-lg mb-1 card-container">
                     <p className="text-[16px] font-bold text-center mb-4 text-black">Questionário:</p>
+
                     {selectedQuestions.map((question, questionIndex) => (
-                      <div key={questionIndex} className="mb-2">
+                      <div key={`question-${questionIndex}`} className="mb-2">
                         <p className="text-[16px] font-bold mb-4 text-black">{question.statement}</p>
+
                         {selectedParticipants.map((participant, participantIndex) => {
-                          const answers = participant.adultForm?.answersByGroup?.[selectedBlockIndex]?.questions
-                            ?.filter(q => q.statement === question.statement)
-                            ?.map(q => {
-                              if (typeof q.answer === 'string') {
-                                return q.answer.trim();
-                              } else if (Array.isArray(q.answer)) {
-                                return q.answer.map(a => (typeof a === 'string' ? a.trim() : '')).join(', ');
-                              } else {
-                                return '';
-                              }
-                            })
-                            ?.join(', ');
+                          const answerGroup = participant.adultForm?.answersByGroup?.find(
+                            group => group.sequence === selectedBlockIndex
+                          );
+
+                          const matchedQuestion = answerGroup?.questions?.find(
+                            q => q.statement === question.statement
+                          );
+
+                          let processedAnswer = '';
+                          if (matchedQuestion) {
+                            if (typeof matchedQuestion.answer === 'string') {
+                              processedAnswer = matchedQuestion.answer.trim();
+                            } else if (Array.isArray(matchedQuestion.answer)) {
+                              processedAnswer = matchedQuestion.answer
+                                .map(a => (typeof a === 'string' ? a.trim() : ''))
+                                .filter(a => a)
+                                .join(', ');
+                            }
+                          }
 
                           const answerStyle = () => {
-                            switch (answers) {
-                              case "Sempre":
-                              case "Frequentemente":
-                                return "bg-green-400 text-white font-semibold text-center px-2 py-1 rounded justify-center";
-                              case "Ás vezes":
-                              case "Raramente":
-                              case "Nunca":
-                                return "bg-red-400 text-white font-semibold text-center px-2 py-1 rounded justify-center";
+                            const baseClass = "font-semibold text-center px-2 py-1 rounded justify-center";
+
+                            switch (processedAnswer) {
+                              case 'Sempre':
+                              case 'Frequentemente':
+                                return `${baseClass} bg-green-400 text-white`;
+                              case 'Ás vezes':
+                              case 'Raramente':
+                              case 'Nunca':
+                                return `${baseClass} bg-red-400 text-white`;
                               default:
                                 return "gap-2";
                             }
                           };
 
                           return (
-                            <div key={participantIndex} >
+                            <div key={`participant-${participantIndex}`}>
+                              <DataList.Label className="font-semibold italic">
+                                {participant.personalData.fullName}:
+                              </DataList.Label>
 
-                              <DataList.Label className="font-semibold italic">{participant.personalData.fullName}:</DataList.Label>
-                              <DataList.Value className={`${answerStyle()}  !mb-5 `} >
-                                {answers === "" ? (
+                              <DataList.Value className={`${answerStyle()} !mb-5`}>
+                                {!processedAnswer ? (
                                   <p className="text-red-500">Nenhuma resposta encontrada.</p>
                                 ) : (
-                                  <>
-                                    {answers}
-                                  </>
+                                  processedAnswer
                                 )}
                               </DataList.Value>
                             </div>
                           );
                         })}
+
                         <Separator size="4" className="my-2" />
                       </div>
-
-
                     ))}
                   </DataList.Item>
                 </DataList.Root>
