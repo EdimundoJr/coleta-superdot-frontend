@@ -279,11 +279,6 @@ const FormGroupsStep = ({
 
     };
 
-    /**
-     * The function `handlerSaveAndExit` sends questions to the backend, saves and exits if
-     * successful, otherwise it displays an error notification.
-     */
-
 
     const handleOnChangeQuestions = (questions: IQuestion[]) => {
         setCurrentGroup({

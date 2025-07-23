@@ -3,6 +3,7 @@ import { patchSaveAutobiography } from "../../../api/participant.api";
 import { IParticipant } from "../../../interfaces/participant.interface";
 import { Button } from "../../../components/Button/Button";
 import { Flex } from "@radix-ui/themes";
+import * as Icon from "@phosphor-icons/react";
 
 interface AutobiographyStepProps {
     formData: IParticipant;
@@ -107,18 +108,18 @@ const AutobiographyStep = ({
                         color="gray"
                         className="hover:bg-gray-50 border border-gray-200"
                     />
-                    <Button
-                        size="Full"
-                        onClick={() => handleSaveAutobiography(false)} title={"Salvar e Sair"} color={"primary"}
-                    />
+
                     <Button
                         loading={loading}
                         size="Full"
                         onClick={() => handleSaveAutobiography(true)}
                         className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
-                        title="Salvar e Continuar"
+                        title="Salvar alterações"
                         color={!autobiographyText && !autobiographyVideo ? "gray" : "green"}
-                        disabled={!autobiographyText && !autobiographyVideo ? true : false} />
+                        disabled={!autobiographyText && !autobiographyVideo ? true : false}
+                        children={<Icon.FloppyDisk size={18} weight="bold" />}
+                    />
+
                 </Flex>
             </Flex>
         </Flex>

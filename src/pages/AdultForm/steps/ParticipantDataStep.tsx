@@ -13,13 +13,14 @@ import {
 } from "../../../utils/consts.utils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { putSaveParticipantData, putSubmitParticipantData } from "../../../api/participant.api";
+import { putSubmitParticipantData } from "../../../api/participant.api";
 import Select from "react-select";
 import { IParticipant } from "../../../interfaces/participant.interface";
 import { Button } from "../../../components/Button/Button";
 import { Flex } from "@radix-ui/themes";
 import { useState } from "react";
 import { Portuguese } from "flatpickr/dist/l10n/pt.js";
+import * as Icon from "@phosphor-icons/react";
 
 interface ParticipantDataStepProps {
     nextStep: () => void;
@@ -27,7 +28,6 @@ interface ParticipantDataStepProps {
     setNotificationData: (data: { title: string; description: string; type: string }) => void;
     formData?: IParticipant;
     sampleId: string;
-    saveAndExit: () => void;
     header: string;
 }
 
@@ -38,14 +38,12 @@ const ParticipantDataStep = ({
     formData,
     setNotificationData,
     sampleId,
-    saveAndExit,
     header,
 }: ParticipantDataStepProps) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
-        watch,
         setValue,
         formState,
     } = useForm({
@@ -55,25 +53,8 @@ const ParticipantDataStep = ({
     });
 
     const [loading, setLoading] = useState(false);
-    const [loadingSE, setLoadingSE] = useState(false);
-    const onSaveAndExit = async () => {
-        setLoadingSE(true);
-        try {
-            const response = await putSaveParticipantData({ sampleId, participantData: watch() });
-            if (response.status === 200) {
-                saveAndExit();
-            }
-        } catch (e: any) {
-            console.error(e);
-            setNotificationData({
-                title: "Preenchimento inválido!",
-                description: "Preencha todos os campos corretamente.",
-                type: "erro"
-            });
-        } finally {
-            setLoadingSE(false);
-        }
-    };
+
+
     const scrollToTop = () => {
 
         try {
@@ -335,19 +316,16 @@ const ParticipantDataStep = ({
                     />
                 </div>
                 <div className="flex justify-center gap-6 mt-6">
-                    <Button
-                        loading={loadingSE}
-                        size="Medium"
-                        onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                     >
-                    </Button>
+
                     <Button
                         loading={loading}
                         size="Medium"
                         className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
-                        title={"Salvar e Continuar"}
+                        title={"Salvar alterações"}
                         color={`${formState.isValid ? "green" : "gray"}`}
                         type="submit"
                         disabled={!formState.isValid}
+                        children={<Icon.FloppyDisk size={18} weight="bold" />}
                     />
                 </div>
             </Form.Root>

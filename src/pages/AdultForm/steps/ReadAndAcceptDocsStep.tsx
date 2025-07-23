@@ -12,13 +12,13 @@ import { IParticipant } from "../../../interfaces/participant.interface";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
 import { Button } from "../../../components/Button/Button";
 import { Flex } from "@radix-ui/themes";
+import * as Icon from "@phosphor-icons/react";
 interface ReadAndAcceptDocsStepProps {
     sourceForm: EAdultFormSource;
     nextStep: () => void;
     previousStep: () => void;
     setNotificationData: (data: { title: string; description: string; type: string }) => void;
     sampleId: string;
-    saveAndExit: () => void;
     formData: IParticipant | ISecondSource;
     setFormData: (data: IParticipant | ISecondSource) => void;
 }
@@ -29,7 +29,6 @@ const ReadAndAcceptDocsStep = ({
     previousStep,
     setNotificationData,
     sampleId,
-    saveAndExit,
     formData,
     setFormData,
 }: ReadAndAcceptDocsStepProps) => {
@@ -298,21 +297,17 @@ const ReadAndAcceptDocsStep = ({
                     disabled={currentDocIndex === 0}
                 />
 
-                <Button
-                    size="Full"
-                    onClick={saveAndExit}
-                    title="Salvar e Sair"
-                    color="primary"
-                />
+
 
                 <Button
                     loading={loading}
                     size="Full"
                     onClick={handleAcceptDocument}
                     className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
-                    title={currentDocIndex === docsToAccept.current.length - 1 ? "Finalizar" : "Avançar"}
+                    title={currentDocIndex === docsToAccept.current.length - 1 ? "Salvar alterações" : "Salvar"}
                     color={accepted == true ? "green" : "gray"}
                     disabled={!accepted}
+                    children={<Icon.FloppyDisk size={18} weight="bold" />}
                 />
             </Flex>
 

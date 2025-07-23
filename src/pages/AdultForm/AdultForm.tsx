@@ -220,10 +220,7 @@ const AdultForm = () => {
         stepperRef.current?.handleBack();
     };
 
-    const saveAndExit = () => {
-        localStorage.setItem(`adult-form-step-${participantId}`, currentStep.toString());
-        setCurrentStep(EAdultFormSteps.INTRODUCTION);
-    };
+
 
 
 
@@ -256,7 +253,7 @@ const AdultForm = () => {
                                         className="max-w-3xl m-auto px-4 py-4 gap-4"
                                     >
                                         <img
-                                            className="w-24 h-auto flex-shrink-0"
+                                            className="w-40 max-sm:w-32 h-auto flex-shrink-0"
                                             src={logo}
                                             alt="Logo"
                                         />
@@ -323,7 +320,7 @@ const AdultForm = () => {
                                                                 nextStep={handleNextStep}
                                                                 sampleId={sampleId}
                                                                 setNotificationData={setNotificationData}
-                                                                saveAndExit={saveAndExit}
+
                                                             />
                                                         )}
 
@@ -338,7 +335,7 @@ const AdultForm = () => {
                                                                 nextStep={handleNextStep}
                                                                 previousStep={handlePreviousStep}
                                                                 sampleId={sampleId}
-                                                                saveAndExit={saveAndExit}
+
                                                             />
                                                         )}
 
@@ -351,7 +348,7 @@ const AdultForm = () => {
                                                                 nextStep={handleNextStep}
                                                                 previousStep={handlePreviousStep}
                                                                 sampleId={sampleId}
-                                                                saveAndExit={saveAndExit}
+
                                                             />
                                                         )}
 
@@ -396,20 +393,15 @@ const AdultForm = () => {
                                                                         color="gray"
                                                                         className="hover:bg-gray-50 border border-gray-200"
                                                                     />
-                                                                    <Button
-                                                                        size="Full"
-                                                                        onClick={saveAndExit}
-                                                                        title="Salvar e Sair"
-                                                                        color="primary"
-                                                                        className="hover:bg-gray-50 border border-gray-200"
-                                                                    />
+
                                                                     <Button
                                                                         // loading={loading}
                                                                         size="Full"
                                                                         onClick={handleNextStep}
                                                                         className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
-                                                                        title="Salvar e Continuar"
-                                                                        disabled={!allStepsCompleted} color={!allStepsCompleted ? "gray" : "green"} />
+                                                                        title="Salvar alterações"
+                                                                        disabled={!allStepsCompleted} color={!allStepsCompleted ? "gray" : "green"} children={<Icon.FloppyDisk size={18} weight="bold" />} />
+
                                                                 </div>
                                                             </Flex>
                                                         )}

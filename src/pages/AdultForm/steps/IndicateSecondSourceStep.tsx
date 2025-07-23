@@ -16,7 +16,6 @@ interface IndicateSecondSourceStepProps {
     nextStep: () => void;
     setNotificationData: (data: { title: string; description: string; type: string }) => void;
     sampleId: string;
-    saveAndExit: () => void;
     previousStep: () => void;
     header: string;
 }
@@ -30,7 +29,6 @@ const IndicateSecondSourceStep = ({
     setFormData,
     nextStep,
     sampleId,
-    saveAndExit,
     previousStep,
     setNotificationData,
     header,
@@ -182,12 +180,11 @@ const IndicateSecondSourceStep = ({
                     description: "As indicações foram registradas e os e-mails foram enviados.",
                     type: "success"
                 });
-                if (exit) {
-                    saveAndExit();
-                } else {
-                    nextStep();
-                    scrollToTop();
-                }
+
+
+            } else {
+                nextStep();
+                scrollToTop();
             }
         } catch (err: any) {
             console.error(err);
@@ -202,7 +199,7 @@ const IndicateSecondSourceStep = ({
                     setNotificationData({
                         title: "Erro no servidor.",
                         description:
-                            "Ocorreu um erro ao tentar salvar as inforamções, contate o responsável pela pesquisa ou os responsáveis pela plataforma.",
+                            "Ocorreu um erro ao tentar salvar as informações, contate o responsável pela pesquisa ou os responsáveis pela plataforma.",
                         type: "erro"
                     });
                 }
@@ -362,16 +359,13 @@ const IndicateSecondSourceStep = ({
                 <Button size="Full" onClick={previousStep} title={"Voltar"} color={"gray"}>
 
                 </Button>
-                <Button
-                    size="Full" onClick={() => onSubmit(true)} title={"Salvar e Sair"} color={"primary"}>
 
-                </Button>
                 <Button
                     loading={loading}
                     size="Full"
                     className=" disabled:bg-neutral-dark disabled:hover:cursor-not-allowed"
                     disabled={!formData.secondSources?.length}
-                    onClick={() => onSubmit()} title={"Salvar e Continuar"} color={!formData.secondSources?.length ? "gray" : "green"}                    >
+                    onClick={() => onSubmit()} title={"Salvar alterações"} color={!formData.secondSources?.length ? "gray" : "green"} children={<Icon.FloppyDisk size={18} weight="bold" />}                  >
 
                 </Button>
 

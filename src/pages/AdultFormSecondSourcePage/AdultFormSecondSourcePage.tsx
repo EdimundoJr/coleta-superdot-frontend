@@ -203,10 +203,7 @@ const AdultFormSecondSourcePage = () => {
         stepperRef.current?.handleBack();
     };
 
-    const saveAndExit = () => {
-        clearTokens();
-        setCurrentStep(EAdultFormSteps.INTRODUCTION);
-    };
+
 
     return (
         <Notify
@@ -223,6 +220,7 @@ const AdultFormSecondSourcePage = () => {
 
             {!isPageLoading && (
                 <>
+
                     {currentStep != EAdultFormSteps.INTRODUCTION && (
                         <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover">
                             <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
@@ -234,7 +232,6 @@ const AdultFormSecondSourcePage = () => {
                                         align={"center"}
                                         className="max-w-3xl m-auto px-4 py-4 gap-4"
                                     >
-                                        {/* Logo reduzida */}
                                         <img
                                             className="w-24 h-auto flex-shrink-0"
                                             src={logo}
@@ -255,10 +252,9 @@ const AdultFormSecondSourcePage = () => {
                                                 </div>
                                             )}
 
-                                            {currentStep === 10 && (
+                                            {currentStep === 4 && (
                                                 <div className="text-primary flex-shrink-0">
-
-                                                    {React.cloneElement(stepsInfo[4].icon, { className: "w-6 h-6" })
+                                                    {React.cloneElement(stepsInfo[2].icon, { className: "w-6 h-6" })
                                                     }
 
                                                 </div>)
@@ -267,62 +263,7 @@ const AdultFormSecondSourcePage = () => {
                                             <div className="flex flex-col gap-0.5">
                                                 <h1 className="text-lg font-semibold text-gray-900 leading-tight">
                                                     {stepsInfo[currentStep - 1]?.title}
-                                                    {currentStep === 10 ? stepsInfo[4].title : ""}
-                                                </h1>
-
-                                            </div>
-                                        </div>
-                                    </Flex>
-                                </header>
-                            </Flex>
-                        </div>
-                    )}
-
-                    {currentStep != EAdultFormSteps.INTRODUCTION && (
-                        <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover">
-                            <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
-
-                                <header className="z-10 ml-7 mr-8 max-xl:ml-5 max-xl:mr-6 mt-4 rounded-md card-container-border-variant bg-off-white">
-                                    <Flex
-                                        direction={"row"}
-                                        justify={"center"}
-                                        align={"center"}
-                                        className="max-w-3xl m-auto px-4 py-4 gap-4"
-                                    >
-                                        {/* Logo reduzida */}
-                                        <img
-                                            className="w-24 h-auto flex-shrink-0"
-                                            src={logo}
-                                            alt="Logo"
-                                        />
-
-
-                                        <div className="h-8 w-px bg-gray-200 mx-2" />
-
-
-                                        <div className="flex items-center gap-3 max-sm:flex-col">
-                                            {stepsInfo[currentStep - 1]?.icon && (
-                                                <div className="text-primary flex-shrink-0">
-                                                    {React.cloneElement(stepsInfo[currentStep - 1]?.icon, {
-                                                        className: "w-6 h-6"
-                                                    })}
-
-                                                </div>
-                                            )}
-
-                                            {currentStep === 10 && (
-                                                <div className="text-primary flex-shrink-0">
-
-                                                    {React.cloneElement(stepsInfo[4].icon, { className: "w-6 h-6" })
-                                                    }
-
-                                                </div>)
-                                            }
-
-                                            <div className="flex flex-col gap-0.5">
-                                                <h1 className="text-lg font-semibold text-gray-900 leading-tight">
-                                                    {stepsInfo[currentStep - 1]?.title}
-                                                    {currentStep === 10 ? stepsInfo[4].title : ""}
+                                                    {currentStep === 4 ? stepsInfo[2].title : ""}
                                                 </h1>
 
                                             </div>
@@ -358,7 +299,7 @@ const AdultFormSecondSourcePage = () => {
                                                                 nextStep={handleNextStep}
                                                                 sampleId={sampleId}
                                                                 setNotificationData={setNotificationData}
-                                                                saveAndExit={saveAndExit} />
+                                                            />
                                                         )}
                                                         {currentStep === EAdultFormSteps.READ_AND_ACCEPT_DOCS && (
 
@@ -372,7 +313,6 @@ const AdultFormSecondSourcePage = () => {
                                                                 nextStep={handleNextStep}
                                                                 previousStep={handlePreviousStep}
                                                                 sampleId={sampleId}
-                                                                saveAndExit={saveAndExit}
                                                             />
                                                         )}
                                                         {currentStep === EAdultFormSteps.GENERAL_CHARACTERISTICS && (
@@ -414,19 +354,15 @@ const AdultFormSecondSourcePage = () => {
                                                                         title="Voltar"
                                                                         color="gray"
                                                                     />
-                                                                    <Button
-                                                                        size="Full"
-                                                                        onClick={saveAndExit}
-                                                                        title="Salvar e Sair"
-                                                                        color="primary"
-                                                                    />
+
                                                                     <Button
                                                                         size="Full"
                                                                         className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
                                                                         onClick={handleNextStep}
-                                                                        title="Salvar e Continuar"
+                                                                        title="Salvar alterações"
                                                                         color={`${!allStepsCompleted ? "gray" : "green"}`}
                                                                         disabled={!allStepsCompleted}
+                                                                        children={<Icon.FloppyDisk size={18} weight="bold" />}
                                                                     />
                                                                 </div>
                                                             </Flex>
@@ -449,24 +385,33 @@ const AdultFormSecondSourcePage = () => {
                     {currentStep === EAdultFormSteps.INTRODUCTION && (
                         <Flex
                             direction={"column"}
-                            className="relative h-full lg:h-full max-sm:h-fit md:h-auto sm:h-auto pb-4 w-full overflow-hidden"
+                            className="relative h-screen w-full overflow-hidden"
                         >
-                            <div className="absolute inset-0 bg-default-bg max-sm:bg-default-bg-mobo bg-center bg-no-repeat bg-cover animate-forward-expand"></div>
+                            <div className="fixed inset-0 bg-default-bg max-sm:bg-default-bg-mobo bg-cover bg-center bg-no-repeat"></div>
 
-                            <Flex
-                                align={"center"}
-                                id="bg-div"
-                                className={`font-roboto text-white m-auto relative z-10`}
-                            >
-                                <IntroductionStep
-                                    participantName={researchData.participantName}
-                                    researcherName={researchData.researcherName}
-                                    participantId={participantId}
-                                    sourceForm={EAdultFormSource.SECOND_SOURCE}
-                                    sampleId={sampleId}
-                                    setNotificationData={setNotificationData}
-                                />
-                            </Flex>
+                            <div className="relative z-10 h-full w-full overflow-y-auto">
+
+                                <div className="min-h-full w-full flex items-center justify-center">
+                                    <div className="fixed inset-0 bg-glass opacity-90 w-[90%] max-sm:border-none max-sm:!rounded-none max-sm:w-full pointer-events-none m-auto"></div>
+
+                                    <Flex
+                                        align={"center"}
+                                        id="bg-div"
+                                        className={`font-roboto text-white m-auto relative z-10`}
+                                    >
+                                        <IntroductionStep
+                                            participantName={researchData.participantName}
+                                            researcherName={researchData.researcherName}
+                                            participantId={participantId}
+                                            sourceForm={EAdultFormSource.SECOND_SOURCE}
+                                            sampleId={sampleId}
+                                            setNotificationData={setNotificationData}
+                                        />
+                                    </Flex>
+                                </div>
+
+                            </div>
+
                         </Flex>
 
                     )}

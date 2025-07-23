@@ -7,10 +7,10 @@ import { EDUCATION_LEVEL_ARRAY, RELATIONSHIPS_ARRAY, RELATIONSHIP_TIME_ARRAY } f
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { SecondSourceDTO, secondSourceDataSchema } from "../../../schemas/adultForm/secondSourceData.schema";
-import { putSaveSecondSourceData, putSubmitSecondSourceData } from "../../../api/secondSource.api";
+import { putSubmitSecondSourceData } from "../../../api/secondSource.api";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
 import { Portuguese } from "flatpickr/dist/l10n/pt.js";
-
+import * as Icon from "@phosphor-icons/react";
 
 import { Button } from "../../../components/Button/Button";
 import { useState } from "react";
@@ -21,7 +21,6 @@ interface SecondSourceDataStepProps {
     nextStep: () => void;
     setNotificationData: (data: { title: string; description: string, type: string }) => void;
     sampleId: string;
-    saveAndExit: () => void;
     header: string;
 }
 
@@ -31,7 +30,6 @@ const SecondSourceDataStep = ({
     nextStep,
     setNotificationData,
     sampleId,
-    saveAndExit,
     header
 }: SecondSourceDataStepProps) => {
     const {
@@ -46,21 +44,7 @@ const SecondSourceDataStep = ({
         mode: "onChange",
     });
     const [loading, setLoading] = useState(false);
-    const onSaveAndExit = async () => {
-        try {
-            const response = await putSaveSecondSourceData({ sampleId, secondSourceData: watch() });
-            if (response.status === 200) {
-                saveAndExit();
-            }
-        } catch (e: any) {
-            console.error(e);
-            setNotificationData({
-                title: "Preenchimento inválido!",
-                description: "Preencha todos os campos corretamente.",
-                type: "erro"
-            });
-        }
-    };
+
     const today = new Date();
     const minDate = new Date(today.getFullYear() - 8, today.getMonth(), today.getDate());
     const scrollToTop = () => {
@@ -199,19 +183,17 @@ const SecondSourceDataStep = ({
                     />
                 </div>
                 <div className="flex justify-center gap-6 mt-6">
-                    <Button
-                        size="Medium"
-                        onClick={onSaveAndExit} title={"Salvar e Sair"} color={"primary"}                     >
-                    </Button>
+
                     <Form.Submit asChild>
                         <Button
                             loading={loading}
                             size="Medium"
                             className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
-                            title={"Salvar e Continuar"}
+                            title={"Salvar alterações"}
                             color={`${isValid ? "green" : "gray"}`}
                             type="submit"
                             disabled={!isValid}
+                            children={<Icon.FloppyDisk size={18} weight="bold" />}
                         />
                     </Form.Submit>
                 </div>
