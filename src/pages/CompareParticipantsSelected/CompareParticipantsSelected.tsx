@@ -176,7 +176,7 @@ const CompareParticipantsSelected = () => {
   return (
     <>
 
-      <Box className="w-[90%] m-auto">
+      <Box className="w-full m-auto">
         <Accordeon
           title="Informações do(s) Participante(s) Selecionado(s)"
           content={

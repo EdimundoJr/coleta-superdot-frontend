@@ -43,24 +43,32 @@ const SideBar = ({ userRole }: SideBarProps) => {
     }, []);
 
     const location = useLocation();
-
     const isActive = (...pathNames: string[]) => {
-        return pathNames.includes(location.pathname)
-            ? `truncate text-white rounded flex items-center overerflow-hidden 
-             transition-all duration-300 ease-in-out bg-glass-no-border   
-             ${expanded ? "w-[200px] " : "w-[full]  max-xl:w-full"} 
-           `
-            : "";
+        return pathNames.includes(location.pathname) ? "bg-white/20 shadow-lg backdrop-blur-sm" : "";
     };
-
     function isActiveIcon(...pathNames: string[]) {
         return pathNames.includes(location.pathname) ? "bold" : "thin";
     }
 
     const Menus = [
-        { title: "Dashboard", icon: <Icon.SquaresFour weight={`${isActiveIcon("/app/home")}`} size={24} />, link: "/app/home", active: `${isActive("/app/home")}` },
-        { title: "Minhas Amostras", icon: <Icon.Books weight={`${isActiveIcon("/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/participants-registration", "/app/my-samples/seconds-source-compare", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample")}`} size={24} />, link: "/app/my-samples", active: `${isActive("/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/seconds-source-compare", "/app/my-samples/participants-registration", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample")}` },
-        { title: "Criar Amostras", icon: <Icon.FolderSimplePlus weight={`${isActiveIcon("/app/create-sample", "/app/choose-sample-group")}`} size={24} />, link: "/app/create-sample", active: `${isActive("/app/choose-sample-group", "/app/create-sample")}` },
+        {
+            title: "Dashboard",
+            icon: <Icon.SquaresFour weight={`${isActiveIcon("/app/home")}`} size={24} />,
+            link: "/app/home",
+            active: `${isActive("/app/home")}`
+        },
+        {
+            title: "Minhas Amostras",
+            icon: <Icon.Books weight={`${isActiveIcon("/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/participants-registration", "/app/my-samples/seconds-source-compare", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample")}`} size={24} />,
+            link: "/app/my-samples",
+            paths: ["/app/my-samples", "/app/my-samples/analyze-sample", "/app/my-samples/seconds-source-compare", "/app/my-samples/participants-registration", "/app/my-samples/evaluate-autobiography", "/app/my-samples/compare-participants-selected", "/app/edit-sample"]
+        },
+        {
+            title: "Criar Amostras",
+            icon: <Icon.FolderSimplePlus weight={`${isActiveIcon("/app/create-sample", "/app/choose-sample-group")}`} size={24} />,
+            link: "/app/create-sample",
+            paths: ["/app/create-sample", "/app/choose-sample-group"]
+        },
     ];
 
     return (
@@ -104,7 +112,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             ? "opacity-100 translate-x-0 scale-100 delay-150"
                             : "opacity-0 -translate-x-4 scale-0 "
                             } mt-2`}>
-                            <img src={logo} alt="Logo" className="w-32" />
+                            <img src={logo} alt="Logo" className="w-28" />
                         </h1>
                     </div>
 
@@ -114,7 +122,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                                 key={idx}
                                 to={menu.link}
                                 onClick={() => setExpanded(false)}
-                                className={`group flex truncate items-center ${expanded ? "!justify-start pl-4 gap-4" : "justify-center pl-3 gap-3"}  p-3 rounded-md transition-all duration-300 hover:bg-white/20 text-white  ${isActive(menu.link) ? "bg-white/20 shadow-lg backdrop-blur-sm" : ""}`}
+                                className={`group flex truncate items-center ${expanded ? "!justify-start pl-4 gap-4" : "justify-center pl-3 gap-3"}  p-3 rounded-md transition-all duration-300 hover:bg-white/20 text-white   ${menu.paths?.includes(location.pathname) ? "bg-white/20 shadow-lg backdrop-blur-sm" : ""}`}
                             >
                                 <div className=" flex justify-center w-[24px]">
                                     {React.cloneElement(menu.icon, {
@@ -135,7 +143,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             <Link
                                 to="/app/review-requests"
                                 onClick={() => setExpanded(false)}
-                                className={`group flex items-center ${expanded ? "!justify-start pl-4 gap-4" : "justify-center pl-3 gap-3"} truncate  p-3 rounded-md transition-all duration-300  text-white ${isActive("/app/review-requests") ? "bg-white/30 shadow-lg" : ""} `}
+                                className={`group flex items-center ${expanded ? "!justify-start pl-4 gap-4" : "justify-center pl-3 gap-3"} truncate  p-3 rounded-md transition-all duration-300  text-white ${isActive("/app/review-requests")}`}
                             >
                                 <Icon.Check size={24} className={`transition-transform duration-300 ${expanded ? "translate-x-0" : "translate-x-1"}`} weight={`${isActiveIcon("/app/review-requests")}`} />
                                 <span className={`origin-left font-medium transition-[opacity,transform] duration-300 ${expanded
@@ -152,7 +160,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             <Link
                                 to="/app/users"
                                 onClick={() => setExpanded(false)}
-                                className={`group flex items-center truncate ${expanded ? "!justify-start pl-4 gap-4" : "justify-center pl-3 gap-3"} p-3 rounded-md transition-all duration-300  text-white  ${isActive("/app/users") ? "bg-white/20 backdrop-blur-lg" : ""} `}
+                                className={`group flex items-center truncate ${expanded ? "!justify-start pl-4 gap-4" : "justify-center pl-3 gap-3"} p-3 rounded-md transition-all duration-300  text-white  ${isActive("/app/users")} `}
                             >
                                 <Icon.UserGear size={24} className={`transition-transform duration-300 ${expanded ? "translate-x-0" : "translate-x-1"}`} weight={`${isActiveIcon("/app/users")}`} />
                                 <span className={`origin-left font-medium transition-[opacity,transform] duration-300 ${expanded

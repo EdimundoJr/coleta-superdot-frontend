@@ -276,6 +276,7 @@ const CreateSamplePage = () => {
                             color={`${isValid ? "green" : "gray"}`}
                             disabled={!isValid}
                             title={"Enviar Solicitação"}
+                            children={<Icon.FloppyDisk size={18} weight="bold" />}
                         />
                     </Form.Submit>
                 </Form.Root>

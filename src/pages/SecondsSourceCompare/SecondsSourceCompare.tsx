@@ -240,8 +240,7 @@ const SecondsSourceCompare = () => {
 
     return (
         <>
-            {/* <Header title="Comparação com Segunda Fonte" icon={<Icon.Books size={24} />} /> */}
-            <Box className="w-[90%] m-auto">
+            <Box className="w-full m-auto">
                 <Accordeon
                     title="Informações do Participante Avaliado"
                     content={

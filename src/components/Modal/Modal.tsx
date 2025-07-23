@@ -24,12 +24,12 @@ const Modal = ({
         <AlertDialog.Root open={open} onOpenChange={setOpen}>
 
             <AlertDialog.Content
-                className={`relative bg-white rounded-md  p-6 z-50 ${className}`}
+                className={`relative bg-white rounded-md  p-6 z-50 ${className} !font-roboto`}
 
             >
                 {/* Close Button */}
 
-                <AlertDialog.Cancel className="absolute top-2 right-2">
+                <AlertDialog.Cancel className="absolute top-2 right-2 !font-roboto">
                     <Button
                         className="hover:cursor-pointer"
                         aria-label="Close modal" title={""} color={"red"} size={"Small"}>
@@ -39,16 +39,16 @@ const Modal = ({
 
 
                 {/* Title */}
-                <AlertDialog.Title className={"text-xl font-bold mb-4 max-sm:!text-[18px]"}>{title}</AlertDialog.Title>
+                <AlertDialog.Title className={"text-xl font-bold mb-4 max-sm:!text-[18px] !font-roboto"}>{title}</AlertDialog.Title>
 
                 {/* Description */}
                 <AlertDialog.Description>
-                    <Flex direction="column" gap="2" className="mb-4">
-                        <Text as="p" className="text-sm">
+                    <Flex direction="column" gap="2" className="mb-4 !font-roboto">
+                        <Text as="p" className="text-sm max-sm:text-xs">
                             {accessibleDescription}
                         </Text>
                         {accessibleDescription2 && (
-                            <Text as="p" className="text-sm">
+                            <Text as="p" className="text-sm !font-roboto">
                                 {accessibleDescription2}
                             </Text>
                         )}

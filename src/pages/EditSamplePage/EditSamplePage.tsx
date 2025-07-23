@@ -294,6 +294,7 @@ const EditSamplePage = () => {
                             size="Medium"
                             color={`green`}
                             title={"Salvar e Enviar Solicitação"}
+                            children={<Icon.FloppyDisk size={18} weight="bold" />}
                         />
                     </Form.Submit>
                 </Form.Root>

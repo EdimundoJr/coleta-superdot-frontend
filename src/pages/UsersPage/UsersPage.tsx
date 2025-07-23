@@ -227,7 +227,7 @@ const UsersPage = () => {
                     </Form.Root>
                 </Box>
 
-                <Container className="mb-8 p-4">
+                <Container className="mb-8">
 
                     <UsersTable
                         onClickPencil={onUserSelected}

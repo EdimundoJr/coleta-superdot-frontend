@@ -11,6 +11,7 @@ import { SampleSummary } from "../../../api/sample.api";
 import { Button } from "../../Button/Button";
 import { Flex } from "@radix-ui/themes";
 import { useState } from "react";
+import * as Icon from "@phosphor-icons/react";
 
 interface SampleReviewFormProps {
     sample?: SampleSummary;
@@ -106,7 +107,7 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             </Flex>
 
             <Form.Submit asChild>
-                <Button loading={loading} className="w-full" title={"Salvar"} color={"green"} size={"Medium"}></Button>
+                <Button loading={loading} className="w-full" title={"Salvar alterações"} color={"green"} size={"Medium"} children={<Icon.FloppyDisk size={18} weight="bold" />}></Button>
             </Form.Submit>
         </Form.Root>
     );

@@ -90,7 +90,7 @@ const AccordionContent = React.forwardRef<HTMLDivElement, AccordionContentProps>
       {...props}
       ref={forwardedRef}
     >
-      <div className="py-[15px] px-5 max-xl:px-2">{children}</div>
+      <div className="py-[15px] px-5 max-xl:px-0">{children}</div>
     </Accordion.Content>
   )
 );

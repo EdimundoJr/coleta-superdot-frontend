@@ -644,6 +644,7 @@ const EvaluateAutobiography: React.FC = () => {
                             title="Salvar Análise"
                             className="btn-primary px-8"
                             color="green"
+                            children={<Icon.FloppyDisk size={18} weight="bold" />}
                         />
                         <Button
                             color="primary"

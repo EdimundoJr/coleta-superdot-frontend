@@ -9,6 +9,7 @@ import { USER_ROLE, USER_ROLES_ARRAY } from "../../../utils/consts.utils";
 import { Button } from "../../Button/Button";
 import { Flex } from "@radix-ui/themes";
 import { useState } from "react";
+import * as Icon from "@phosphor-icons/react";
 
 
 interface ChangeRoleFormProps {
@@ -70,7 +71,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
                     className="border-2 border-gray-300"
                 />
                 <Form.Submit asChild>
-                    <Button loading={loading} title={"Salvar"} color={"green"} size={"Medium"} />
+                    <Button loading={loading} title={"Salvar alterações"} color={"green"} size={"Medium"} children={<Icon.FloppyDisk size={18} weight="bold" />} />
                 </Form.Submit>
             </Flex>
         </Form.Root>

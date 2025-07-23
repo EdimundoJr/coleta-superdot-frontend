@@ -23,7 +23,7 @@ export const InputField = forwardRef<HTMLInputElement, InputFieldProps>(
                     {icon && <Flex className="p-2">{icon}</Flex>}
                     <Form.Control asChild className={`h-10 w-full`}>
 
-                        <input placeholder={placeholder} ref={ref} type={type} {...rest} className="bg-white border-none max-sm:placeholder:text-[12px] max-sm:p-2" />
+                        <input placeholder={placeholder} ref={ref} type={type} {...rest} className="bg-white border-none max-sm:placeholder:text-[12px] max-sm:p-2 !font-roboto" />
 
                     </Form.Control>
                     {actionButton && (

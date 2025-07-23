@@ -254,7 +254,7 @@ const ParticipantsRegistration = () => {
                 <Modal
                     open={modalIndicateParticipantsOpen}
                     setOpen={setModalIndicateParticipantsOpen}
-                    title={"Indicar Novos Participantes"} accessibleDescription={""}
+                    title={"Indicar Novos Participantes"} accessibleDescription={"Para indicar novos participantes à pesquisa informe seus dados de contato. Após a inclusão, o sistema envia automaticamente um e-mail personalizado contendo o convite e as instruções necessárias para que o participante acesse e responda ao questionário."}
                 >
                     <ParticipantsIndicationForm
                         setNotificationData={setNotificationData}

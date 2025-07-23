@@ -17,15 +17,15 @@ export function Alert({ trigger, title, description, buttonAction, buttoncancel 
           {trigger}
         </AlertDialog.Trigger>
         <AlertDialog.Content maxWidth="450px" className=''>
-          <AlertDialog.Title>{title}</AlertDialog.Title>
+          <AlertDialog.Title className='!font-roboto'>{title}</AlertDialog.Title>
           <AlertDialog.Description size="1">
             {description}
           </AlertDialog.Description>
           <Flex gap="3" mt="4" justify="end">
-            <AlertDialog.Cancel>
+            <AlertDialog.Cancel className='!font-roboto bg-slate-400'>
               {buttoncancel}
             </AlertDialog.Cancel>
-            <AlertDialog.Action>
+            <AlertDialog.Action className='!font-roboto'>
               {buttonAction}
             </AlertDialog.Action>
           </Flex>

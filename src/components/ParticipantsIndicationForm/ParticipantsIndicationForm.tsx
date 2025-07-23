@@ -120,7 +120,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                         value={fullName}
                         onChange={(e) => setFullName(e.target.value)}
                         label="Nome completo"
-                        placeholder="Informe o nome da pessoa"
+                        placeholder="Informe o nome do participante"
                     />
                     <InputField
                         name="email"
@@ -128,7 +128,7 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                         onChange={(e) => setEmail(e.target.value)}
                         label="E-mail"
                         type="email"
-                        placeholder="Informe o e-mail da pessoa"
+                        placeholder="Informe o e-mail do participante"
                     />
                 </div>
                 {(participants?.length || 0) > 0 && (
@@ -187,7 +187,8 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                                             <Separator size={"4"} className="mb-2 mt-2" />
 
                                             <DataList.Label color="red"
-                                                onClick={() => handleDeleteParticipantIndicated(participant?.personalData?.email as string)} minWidth="88px" className="flex justify-center mb-2 border border-red-300 cursor-pointer hover:bg-red-100">Remover</DataList.Label>
+                                                onClick={() => handleDeleteParticipantIndicated(participant?.personalData?.email as string)} minWidth="88px" className="flex   justify-center mb-2 border border-red-300 cursor-pointer hover:bg-red-100 rounded-md">
+                                                Remover</DataList.Label>
 
                                         </div>
                                     ))}
@@ -197,17 +198,19 @@ const ParticipantsIndicationForm = ({ setNotificationData, onFinish, sampleId }:
                         </div>
                     </>
                 )}
-                <div className="flex justify-between mt-5">
+                <div className="flex justify-between mt-5 gap-2">
                     <Form.Submit asChild>
-                        <Button size="Extra Small" className="hover:cursor-pointer" title={`Adicionar`} color={"primary"}></Button>
+                        <Button size="Small" className="hover:cursor-pointer" title={`Adicionar`} color={"primary"}
+                            children={<Icon.PlusCircle size={18} weight="bold" />}
+                        ></Button>
                     </Form.Submit>
                     <Button
-                        size="Extra Small"
+                        size="Small"
                         className={`disabled:hover:cursor-not-allowed`}
                         color={participants.length ? "green" : "white"}
                         disabled={!participants.length}
                         onClick={onSubmit}
-                        title={"Finalizar"}                    >
+                        title={"Salvar alterações"} children={<Icon.FloppyDisk size={18} weight="bold" />}                   >
 
                     </Button>
                 </div>

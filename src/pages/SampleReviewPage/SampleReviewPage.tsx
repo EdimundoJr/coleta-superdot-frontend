@@ -119,7 +119,7 @@ const SampleReviewPage = () => {
                         <ForbiddenPage />
                     ) : (
                         <Skeleton loading={loading}>
-                            <Container className="mb-8 p-4 ">
+                            <Container className="mb-8">
 
                                 <SamplesTable
                                     onClickToReviewSample={handleOnClickToReviewSample}

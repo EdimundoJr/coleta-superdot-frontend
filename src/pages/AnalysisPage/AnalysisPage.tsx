@@ -557,7 +557,7 @@ const AnalysisPage = () => {
                                 <Button
                                     type="button"
                                     onClick={() => setShowSearch(!showSearch)}
-                                    className="block xl:hidden mb-5"
+                                    className="block xl:hidden "
                                     title={showSearch ? "Fechar Filtros" : "Mostrar Filtros"}
                                     color="primary"
                                     size="Medium"
@@ -574,7 +574,7 @@ const AnalysisPage = () => {
                                         transition={{ duration: 0.3 }}
                                         className="flex flex-col xl:flex-row xl:items-end gap-3 w-full overflow-hidden"
                                     >
-                                        <Form.Submit asChild className="hidden xl:block">
+                                        <Form.Submit asChild className="desktop xl:block">
                                             <Button
                                                 size="Large"
                                                 className="items-center w-full xl:w-[300px]"
@@ -619,7 +619,7 @@ const AnalysisPage = () => {
                                                 ))}
                                             </SelectField>
                                         </Flex>
-                                        <Form.Submit asChild className="block xl:hidden">
+                                        <Form.Submit asChild className="desktop xl:mobo">
                                             <Button
                                                 size="Large"
                                                 className="items-center w-full xl:w-[300px]"
@@ -633,7 +633,7 @@ const AnalysisPage = () => {
                                             size="Large"
                                             onClick={clearFilters}
                                             type="button"
-                                            className="items-center w-full xl:w-[300px]"
+                                            className="items-center w-full xl:w-[300px] "
                                             color="primary"
                                             title="Limpar Filtro"
                                         >
@@ -808,9 +808,6 @@ const AnalysisPage = () => {
             )}
 
 
-
-
-
             <Box className="w-full m-auto ">
 
                 <Table.Root variant="surface" className="desktop card-container" >
@@ -922,14 +919,16 @@ const AnalysisPage = () => {
                                                     </Flex>
                                                 </Flex>
                                                 <Flex align="center" justify="center" className="gap-4">
+
                                                     <Button
                                                         loading={isSavingItem}
-                                                        title={"Salvar"}
+                                                        title={"Salvar alterações"}
                                                         color="green"
                                                         size="Medium"
                                                         className="mt-5"
                                                         onClick={handleSaveGift}
                                                         disabled={isSavingItem}
+                                                        children={<Icon.FloppyDisk size={18} weight="bold" />}
                                                     >
                                                     </Button>
                                                 </Flex>
@@ -992,12 +991,13 @@ const AnalysisPage = () => {
                                                 <Flex align="center" justify="center" className="gap-4 mt-0">
                                                     <Button
                                                         loading={isSavingItem}
-                                                        title={"Salvar"}
+                                                        title={"Salvar alterações"}
                                                         color="green"
                                                         size="Medium"
                                                         className="mt-5"
                                                         onClick={async () => await handleSubmitKA("KAG")}
                                                         disabled={isSavingItem}
+                                                        children={<Icon.FloppyDisk size={18} weight="bold" />}
                                                     >
                                                     </Button>
                                                 </Flex>
@@ -1053,12 +1053,13 @@ const AnalysisPage = () => {
                                                 <Flex align="center" justify="center" className="gap-4">
                                                     <Button
                                                         loading={isSavingItem}
-                                                        title={"Salvar"}
+                                                        title={"Salvar alterações"}
                                                         color="green"
                                                         size="Medium"
                                                         className="mt-5"
                                                         onClick={async () => await handleSubmitKA("KAE")}
                                                         disabled={isSavingItem}
+                                                        children={<Icon.FloppyDisk size={18} weight="bold" />}
                                                     >
                                                     </Button>
                                                 </Flex>
