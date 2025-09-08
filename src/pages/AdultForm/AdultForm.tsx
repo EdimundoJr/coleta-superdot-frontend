@@ -21,6 +21,7 @@ import logo from "../../assets/Logo-GRUPAC.png"
 import React from "react";
 import { PageLoader } from "../../components/Loading/Loading";
 import QuestionnaireCompleted from "../../components/QuestionnaireCompleted/QuestionnaireCompleted";
+import BackgroundComponent from "../../components/Background/Background";
 
 const stepsInfo = [
     {
@@ -242,7 +243,8 @@ const AdultForm = () => {
             {!isPageLoading && (
                 <>
                     {currentStep != EAdultFormSteps.INTRODUCTION && (
-                        <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover">
+
+                        <BackgroundComponent children={
                             <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
 
                                 <header className="z-10 ml-7 mr-8 max-xl:ml-5 max-xl:mr-6 mt-4 rounded-md card-container-border-variant bg-off-white">
@@ -250,10 +252,10 @@ const AdultForm = () => {
                                         direction={"row"}
                                         justify={"center"}
                                         align={"center"}
-                                        className="max-w-3xl m-auto px-4 py-4 gap-4"
+                                        className="max-w-3xl m-auto p-4 gap-4"
                                     >
                                         <img
-                                            className="w-40 max-sm:w-32 h-auto flex-shrink-0"
+                                            className="w-14  h-auto flex-shrink-0"
                                             src={logo}
                                             alt="Logo"
                                         />
@@ -292,7 +294,7 @@ const AdultForm = () => {
                                     </Flex>
                                 </header>
 
-                                <div className="flex-1 overflow-y-auto z-10 mt-2">
+                                <div className="flex-1 overflow-y-auto z-10 mt-4">
                                     <Stepper
                                         ref={stepperRef}
                                         className="w-[100%] max-sm:w-full m-auto "
@@ -416,18 +418,14 @@ const AdultForm = () => {
                                                         )}
                                                     </Flex>
                                                 </Flex>
-
                                             </Step>
-
                                         )
                                         )}
-
                                     </Stepper>
-
                                 </div>
-
                             </Flex>
-                        </div>
+                        } />
+
                     )}
                     {
                         currentStep === EAdultFormSteps.INTRODUCTION && (
@@ -436,20 +434,14 @@ const AdultForm = () => {
                                 direction={"column"}
                                 className="relative h-screen w-full overflow-hidden"
                             >
-                                <div className="fixed inset-0 bg-default-bg max-sm:bg-default-bg-mobo bg-cover bg-center bg-no-repeat"></div>
-
-                                <div className="relative z-10 h-full w-full overflow-y-auto">
-
-                                    <div className="min-h-full w-full flex items-center justify-center">
-                                        <div className="fixed inset-0 bg-glass opacity-90 w-[90%] max-sm:border-none max-sm:!rounded-none max-sm:w-full pointer-events-none m-auto"></div>
-                                        <IntroductionStep
-                                            researcherName={researcherName}
-                                            sourceForm={EAdultFormSource.FIRST_SOURCE}
-                                            sampleId={sampleId}
-                                            setNotificationData={setNotificationData}
-                                        />
-                                    </div>
-                                </div>
+                                <BackgroundComponent classNameCard="w-[90%]  m-auto bg-glass card-container" children={
+                                    <IntroductionStep
+                                        researcherName={researcherName}
+                                        sourceForm={EAdultFormSource.FIRST_SOURCE}
+                                        sampleId={sampleId}
+                                        setNotificationData={setNotificationData}
+                                    />
+                                } />
                             </Flex>
                         )
                     }
@@ -467,7 +459,8 @@ const AdultForm = () => {
                     }
 
                 </>
-            )}
+            )
+            }
         </Notify >
 
     );

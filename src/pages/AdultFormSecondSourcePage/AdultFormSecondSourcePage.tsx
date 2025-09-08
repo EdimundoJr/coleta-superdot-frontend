@@ -19,6 +19,7 @@ import logo from "../../assets/Logo-GRUPAC.png"
 import QuestionnaireCompleted from "../../components/QuestionnaireCompleted/QuestionnaireCompleted";
 import { PageLoader } from "../../components/Loading/Loading";
 import React from "react";
+import BackgroundComponent from "../../components/Background/Background";
 
 
 const stepsInfo = [
@@ -222,7 +223,7 @@ const AdultFormSecondSourcePage = () => {
                 <>
 
                     {currentStep != EAdultFormSteps.INTRODUCTION && (
-                        <div className="absolute inset-0 z-10 bg-default-bg max-xl:bg-default-bg-mobo bg-cover">
+                        <BackgroundComponent children={
                             <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
 
                                 <header className="z-10 ml-7 mr-8 max-xl:ml-5 max-xl:mr-6 mt-4 rounded-md card-container-border-variant bg-off-white">
@@ -230,18 +231,14 @@ const AdultFormSecondSourcePage = () => {
                                         direction={"row"}
                                         justify={"center"}
                                         align={"center"}
-                                        className="max-w-3xl m-auto px-4 py-4 gap-4"
+                                        className="max-w-3xl m-auto p-4 gap-4"
                                     >
                                         <img
                                             className="w-24 h-auto flex-shrink-0"
                                             src={logo}
                                             alt="Logo"
                                         />
-
-
                                         <div className="h-8 w-px bg-gray-200 mx-2" />
-
-
                                         <div className="flex items-center gap-3 max-sm:flex-col">
                                             {stepsInfo[currentStep - 1]?.icon && (
                                                 <div className="text-primary flex-shrink-0">
@@ -251,7 +248,6 @@ const AdultFormSecondSourcePage = () => {
 
                                                 </div>
                                             )}
-
                                             {currentStep === 4 && (
                                                 <div className="text-primary flex-shrink-0">
                                                     {React.cloneElement(stepsInfo[2].icon, { className: "w-6 h-6" })
@@ -375,10 +371,7 @@ const AdultFormSecondSourcePage = () => {
                                     </Stepper>
                                 </div>
                             </Flex>
-
-
-                        </div>
-
+                        } />
                     )}
 
 
@@ -387,7 +380,7 @@ const AdultFormSecondSourcePage = () => {
                             direction={"column"}
                             className="relative h-screen w-full overflow-hidden"
                         >
-                            <div className="fixed inset-0 bg-default-bg max-sm:bg-default-bg-mobo bg-cover bg-center bg-no-repeat"></div>
+                            <BackgroundComponent />
 
                             <div className="relative z-10 h-full w-full overflow-y-auto">
 

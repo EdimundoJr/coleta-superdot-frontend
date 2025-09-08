@@ -181,8 +181,6 @@ const IndicateSecondSourceStep = ({
                     type: "success"
                 });
 
-
-            } else {
                 nextStep();
                 scrollToTop();
             }
@@ -343,7 +341,7 @@ const IndicateSecondSourceStep = ({
                                         <Separator size={"4"} className="mb-2" />
 
                                         <DataList.Label color="red"
-                                            onClick={() => people.personalData?.email && handleDeleteSourceIndicated(people.personalData.email)} minWidth="88px" className="flex justify-center mb-2 border border-red-500 cursor-pointer hover:bg-red-100">Remover</DataList.Label>
+                                            onClick={() => people.personalData?.email && handleDeleteSourceIndicated(people.personalData.email)} minWidth="88px" className="flex justify-center rounded-lg mb-2 border border-red-500 cursor-pointer hover:bg-red-100 items-center">Remover</DataList.Label>
                                     </DataList.Item>
 
                                 ))}

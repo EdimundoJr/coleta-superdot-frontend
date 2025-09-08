@@ -10,6 +10,9 @@ import { clearTokens } from '../../utils/tokensHandler';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '../Alert/Alert';
 import { Button } from '../Button/Button';
+import Modal from '../Modal/Modal';
+import { ProfileEdit } from '../ProfileEdit/ProfileEdit'
+import { useMemo } from 'react';
 
 interface UserInfoProps {
   sampleFile?: SampleFile;
@@ -24,8 +27,14 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const [userData, setUserData] = useState<null | Users>(null);
   const [loading, setLoading] = useState(true);
+  const [openProfileModal, setOpenProfileModal] = useState(false);
 
   const [error, setError] = useState();
+
+
+  const profilePhotoCache = useMemo(() => {
+    return new Map<string, string>();
+  }, []);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -41,6 +50,7 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
 
     fetchData();
   }, []);
+
   const getFirstAndLastName = (fullName: string) => {
     if (typeof fullName !== 'string') {
       return '';
@@ -55,19 +65,35 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
 
   useEffect(() => {
     const fetchImage = async () => {
-      if (userData?.researcher.profilePhoto === "undefined") {
+      if (!userData?.researcher.profilePhoto) {
+        setLoading(false);
         return;
-      } else {
-        try {
-          const url = await seeAttachmentImage(`${userData?.researcher.profilePhoto}`);
-          setImageUrl(url);
-        } catch (error) {
-          console.error("Erro ao recuperar a imagem:", error);
-        } finally {
-          setLoading(false);
-        }
+      }
+
+      const cacheKey = userData.researcher.profilePhoto;
+
+
+      if (profilePhotoCache.has(cacheKey) && !sampleFile) {
+        setImageUrl(profilePhotoCache.get(cacheKey)!);
+        setLoading(false);
+        return;
+      }
+
+      try {
+        setLoading(true);
+        const url = await seeAttachmentImage(cacheKey);
+
+
+        profilePhotoCache.set(cacheKey, url);
+        setImageUrl(url);
+
+      } catch (error) {
+        console.error("Erro ao recuperar a imagem:", error);
+      } finally {
+        setLoading(false);
       }
     };
+
     fetchImage();
   }, [sampleFile, userData?.researcher.profilePhoto]);
 
@@ -78,8 +104,26 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
     navigate("/");
   };
 
+  function openProfileEditModal() {
+    setOpenProfileModal(true);
+  }
+
   return (
     <>
+      <Modal
+        open={openProfileModal}
+        setOpen={setOpenProfileModal}
+        title="Configurações da Conta"
+        accessibleDescription="Gerencie suas informações pessoais e segurança"
+        accessibleDescription2=""
+        className=""
+      >
+        <ProfileEdit currentUser={{
+          name: userData?.researcher.fullName || 'Nome não disponível',
+          email: userData?.researcher.email || 'Email não disponível',
+          avatar: imageUrl ? imageUrl : NoImg
+        }} />
+      </Modal>
       <Box className={`flex items-center gap-3  ${className} `}>
 
         <DropdownMenu.Root>
@@ -93,7 +137,7 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
                   <Box>
                     <Skeleton loading={loading} className="mb-1">
                       <Text as="div" size="2" weight="bold" className='max-sm:hidden'>
-                        {userData?.researcher.fullName}
+                        {getFirstAndLastName(userData?.researcher.fullName || ' ')}
                       </Text>
                     </Skeleton>
 
@@ -109,15 +153,16 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
             </button>
           </DropdownMenu.Trigger>
           <DropdownMenu.Content variant="soft" className='w-full mt-1'>
-            {/* <DropdownMenu.Item className='hover:cursor-pointer' >Editar Perfil</DropdownMenu.Item>
-            <DropdownMenu.Separator /> */}
+            <DropdownMenu.Item className='hover:cursor-pointer' onClick={openProfileEditModal}>Editar Perfil</DropdownMenu.Item>
+            <DropdownMenu.Separator />
             <Alert
-              trigger={<Button size='' className='w-[200px]' color='red' title={''}>
+              trigger={<Button size='' className='w-[200px] !font-roboto' color='red' title={''}>
 
                 <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer hover:bg-red-600 active:bg-red-700'>Sair</DropdownMenu.Item>
 
               </Button>}
-              title={'Tem certeza que deseja sair da plataforma?'} description={''}
+              title={'Tem certeza que deseja sair da plataforma?'}
+              description={''}
               buttoncancel={<Button size='Small' color="gray" title={'Cancelar'} />}
               buttonAction={<Button size='Small' onClick={logout}
                 color="red"

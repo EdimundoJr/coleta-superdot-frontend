@@ -18,7 +18,8 @@ export interface Users {
         phone: number,
         profilePhoto?: string,
         birthDate: Date,
-        countryState: string
+        countryState: string,
+        email?: string
     },
     role: string
 

@@ -5,6 +5,7 @@ import { ChangeEvent, useState } from "react";
 import { SampleFile } from "../../interfaces/sample.interface";
 import { seeAttachment } from "../../api/sample.api";
 import { Flex } from "@radix-ui/themes";
+import * as Icon from "@phosphor-icons/react";
 
 interface SampleUploadFileProps {
     sampleFiles: SampleFile[];
@@ -112,9 +113,10 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
                         <Flex justify={"center"} align={"center"}>
                             <label
                                 htmlFor="chooseFile"
-                                className="bg-primary  border-2 rounded-lg p-2 justify-center  text-white  min-w-[150px] hover:cursor-pointer align-middle hover:bg-secondary active:bg-primary active:brightness-90 max-sm:text-[12px] btn-primary animate-bounce-in"
+                                className="bg-primary flex border-2 rounded-lg p-2 justify-center  text-white  min-w-[200px] hover:cursor-pointer align-middle hover:bg-secondary active:bg-primary active:brightness-90 max-sm:text-[12px] btn-primary animate-bounce-in"
                             >
                                 Anexar arquivo
+                                <Icon.UploadSimple className="ml-2 h-[20px] w-[20px]" />
                             </label>
                         </Flex>
                         <input

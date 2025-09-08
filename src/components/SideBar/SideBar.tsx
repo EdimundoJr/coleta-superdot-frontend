@@ -2,7 +2,6 @@ import { Link, useLocation } from "react-router-dom";
 import { USER_ROLE } from "../../utils/consts.utils";
 import * as Icon from "@phosphor-icons/react"
 import { useEffect, useState } from "react";
-import { getUser, Users } from "../../api/researchers.api";
 import UserInfo from "../UserInfo/UserInfo";
 import { Flex } from "@radix-ui/themes";
 import { useMenu } from "../UseMenu/UseMenu ";
@@ -14,7 +13,6 @@ interface SideBarProps {
 
 const SideBar = ({ userRole }: SideBarProps) => {
     const [expanded, setExpanded] = useState(false);
-    const [userData, setUserData] = useState<null | Users>(null);
     const [error, setError] = useState<Error | null>(null);
     const { isMobileMenuOpen, toggleMobileMenu, closeMobileMenu } = useMenu();
 
@@ -29,18 +27,6 @@ const SideBar = ({ userRole }: SideBarProps) => {
         return () => window.removeEventListener("resize", handleResize);
     }, [isMobileMenuOpen, closeMobileMenu]);
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await getUser();
-                setUserData(data);
-            } catch (error: any) {
-                setError(error);
-            }
-        };
-
-        fetchData();
-    }, []);
 
     const location = useLocation();
     const isActive = (...pathNames: string[]) => {
@@ -112,7 +98,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             ? "opacity-100 translate-x-0 scale-100 delay-150"
                             : "opacity-0 -translate-x-4 scale-0 "
                             } mt-2`}>
-                            <img src={logo} alt="Logo" className="w-28" />
+                            MENU
                         </h1>
                     </div>
 
@@ -181,8 +167,8 @@ const SideBar = ({ userRole }: SideBarProps) => {
 
 
             {/* Mobile Menu */}
-            <div className="fixed top-0 right-0 w-full bg-gradient-to-b from-violet-500 to-primary z-50 px-2 flex justify-between items-center xl:hidden">
-                <img src={logo} alt="Logo" className="w-28" />
+            <div className="fixed top-0 right-0 w-full bg-gradient-to-b from-violet-500 to-primary z-50 px-2 flex justify-between items-center xl:hidden h-[54px]">
+
                 <button onClick={toggleMobileMenu} className="text-white z-50">
                     {isMobileMenuOpen ? <Icon.X size={24} /> : <Icon.List size={24} />}
                 </button>

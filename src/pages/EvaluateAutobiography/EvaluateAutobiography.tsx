@@ -2,7 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import * as Icon from '@phosphor-icons/react';
 import { IParticipant } from '../../interfaces/participant.interface';
 import { useLocation } from "react-router-dom";
-import { Flex, Text, HoverCard, Separator, Tooltip, Popover, TextArea, Box } from '@radix-ui/themes';
+import { Flex, Text, HoverCard, Tooltip, Popover, TextArea, Box } from '@radix-ui/themes';
 import Notify from '../../components/Notify/Notify';
 import { Button } from "../../components/Button/Button"
 import { Alert } from '../../components/Alert/Alert';
@@ -27,7 +27,6 @@ interface LocationState {
 }
 
 const EvaluateAutobiography: React.FC = () => {
-    const [markedTextsBack, setMarkedTextsBack] = useState<MarkedText[]>([]);
     const [markedTexts, setMarkedTexts] = useState<MarkedText[]>([]);
     const [selectedText, setSelectedText] = useState<string | null>(null);
     const [selectionRange, setSelectionRange] = useState<{ start: number, end: number } | null>(null);
@@ -67,31 +66,27 @@ const EvaluateAutobiography: React.FC = () => {
                     participantId: participant._id
                 });
 
-                const transformedData = data.evaluateAutobiography.map((item: IBio) => ({
-                    id: item.id ?? 0,
-                    text: item.text ?? "",
-                    comment: item.comment ?? "",
-                    mark: item.mark ?? "",
-                    start: item.start ?? 0,
-                    end: item.end ?? 0,
-                    background: item.background ?? "",
-                }));
-
-                if (Array.isArray(transformedData)) {
-                    setMarkedTextsBack(transformedData);
-                } else {
-                    console.error("Expected evaluateAutobiography to be an array", transformedData);
+                if (data.evaluateAutobiography && Array.isArray(data.evaluateAutobiography)) {
+                    const transformedData = data.evaluateAutobiography.map((item: IBio, index: number) => ({
+                        id: item.id || index + 1,
+                        text: item.text || "",
+                        comment: item.comment || "",
+                        mark: item.mark || "",
+                        start: item.start || 0,
+                        end: item.end || 0,
+                        background: item.background || "",
+                    }));
+                    setMarkedTexts(transformedData);
                 }
-
             } catch (error: any) {
                 setError(error);
             }
         };
 
-        if (markedTexts.length === 0 && sample?._id && participant?._id) {
+        if (sample?._id && participant?._id) {
             fetchData();
         }
-    }, []);
+    }, [sample?._id, participant?._id]);
 
 
 
@@ -100,42 +95,22 @@ const EvaluateAutobiography: React.FC = () => {
     }
 
     const handleSaveEvalueAutobiography = async (submitForm?: boolean) => {
-        if (submitForm && markedTexts.length === 0) {
-            setNotificationData({
-                title: "Preencha pelo menos um campo!",
-                description: "Para salvar, é obrigatório adicionar um comentário.",
-                type: "aviso"
+        try {
+            // Envie todas as marcações de uma vez
+            const response = await patchSaveEvalueAutobiography({
+                sampleId: sample._id,
+                participantId: participant._id,
+                markedTexts: markedTexts,
+                submitForm: submitForm || false,
             });
 
-            return;
-        }
-
-        try {
-            const responsePromises = markedTexts.map(markedText =>
-                patchSaveEvalueAutobiography({
-                    sampleId: sample._id,
-                    participantId: participant._id,
-                    idEvalueAutobiography: markedText.id,
-                    textEvalueAutobiography: markedText.text,
-                    commentEvalueAutobiography: markedText.comment,
-                    markEvalueAutobiography: markedText.mark,
-                    startEvalueAutobiography: markedText.start,
-                    endEvalueAutobiography: markedText.end,
-                    backgroundEvalueAutobiography: markedText.background,
-                    submitForm: submitForm || false,
-                })
-            );
-
-            const responses = await Promise.all(responsePromises);
-            const success = responses.every(response => response === true);
-
-            if (success) {
+            if (response) {
                 setNotificationData({
                     title: "Comentários salvos com sucesso!",
                     description: "Os comentários foram salvos com sucesso!",
                     type: "success"
                 });
-                window.location.reload()
+
             } else {
                 setNotificationData({
                     title: "Erro ao salvar os comentários!",
@@ -203,7 +178,9 @@ const EvaluateAutobiography: React.FC = () => {
     };
 
     const handleRemoveComment = (id: number) => {
-        setMarkedTexts(prev => prev.filter(markedText => markedText.id !== id));
+        const updatedMarkedTexts = markedTexts.filter(markedText => markedText.id !== id);
+        setMarkedTexts(updatedMarkedTexts);
+
         setNotificationData({
             title: "Comentário Excluído",
             description: "O comentário e a marcação foram excluídos com sucesso!",
@@ -211,15 +188,15 @@ const EvaluateAutobiography: React.FC = () => {
         });
     };
 
-    const handleRemoveCommentBack = (id: number) => {
-        setMarkedTextsBack(prev => prev.filter(markedTextsBack => markedTextsBack.id !== id));
-        setNotificationData({
-            title: "Comentário Excluído",
-            description: "O comentário e a marcação foram excluídos com sucesso!",
-            type: "success"
-        });
+    // const handleRemoveCommentBack = (id: number) => {
+    //     setMarkedTextsBack(prev => prev.filter(markedTextsBack => markedTextsBack.id !== id));
+    //     setNotificationData({
+    //         title: "Comentário Excluído",
+    //         description: "O comentário e a marcação foram excluídos com sucesso!",
+    //         type: "success"
+    //     });
 
-    }
+    // }
 
     const handleAddComment = (title: string, bg: string,) => {
         if (selectedText && commentInputRef.current && selectionRange) {
@@ -262,119 +239,72 @@ const EvaluateAutobiography: React.FC = () => {
     const renderMarkedTexts = (text: string) => {
         const parts = [];
         let lastIndex = 0;
-
-        markedTexts.forEach((markedText, index) => {
+        const sortedMarkedTexts = [...markedTexts].sort((a, b) => a.start - b.start);
+        sortedMarkedTexts.forEach((markedText) => {
             if (markedText.start >= lastIndex) {
                 const before = text.substring(lastIndex, markedText.start);
                 const marked = text.substring(markedText.start, markedText.end);
 
-                parts.push(<span key={`${index}-before`}>{before}</span>);
+                parts.push(<span key={`before-${markedText.id}`}>{before}</span>);
                 parts.push(
                     <HoverCard.Root key={markedText.id}>
-                        <HoverCard.Trigger>
-                            <span className={`rounded-sm font-semibold px-1
-                                ${markedText.background}`}>
+                        <HoverCard.Trigger >
+                            <span
+                                className={`relative rounded-md font-medium px-1.5 py-0.5 transition-all duration-200 hover:scale-105 ${markedText.background} cursor-pointer`}
+                            >
                                 {marked}
                             </span>
                         </HoverCard.Trigger>
-                        <HoverCard.Content size="3" className={`!p-3 drop-shadow-xl ${markedText.mark === "Criatividade" ? "bg-gradient-to-tl from-red-50 to-red-400 " :
-                            markedText.mark === "Liderança" ? "bg-gradient-to-tl from-amber-50 to-amber-400" :
-                                markedText.mark === "Características Gerais" ? "bg-gradient-to-tl from-lime-50 to-lime-400" :
-                                    markedText.mark === "Habilidades acima da média" ? "bg-gradient-to-tl from-sky-50 to-sky-400" :
-                                        markedText.mark === "Comprometimento com a tarefa" ? "bg-gradient-to-tl from-violet-50 to-violet-400" :
-                                            markedText.mark === "Atividades artísticas e esportivas" ? "bg-gradient-to-tl from-pink-50 to-pink-400" : ""} 
-                                    }  `} >
-                            <Flex gap="4" direction="column">
-                                <Box>
-                                    <Text as="p" size="3" mb="2" className='font-bold'>
-                                        Comentário
-                                    </Text>
-                                    <Text size="2" as="p" className='text-justufy'>
-                                        {markedText.comment}
-                                    </Text>
+                        <HoverCard.Content
+                            sideOffset={5}
+                            collisionPadding={16}
+                            className="p-4 shadow-xl rounded-lg border border-gray-100 max-w-sm animate-in fade-in-0 zoom-in-95"
+                        >
+                            <div className={`rounded-lg overflow-hidden p-4 ${markedText.mark === "Criatividade" ? "bg-gradient-to-br from-red-50 to-red-100 border border-red-200" :
+                                markedText.mark === "Liderança" ? "bg-gradient-to-br from-amber-50 to-amber-100 border border-amber-200" :
+                                    markedText.mark === "Características Gerais" ? "bg-gradient-to-br from-lime-50 to-lime-100 border border-lime-200" :
+                                        markedText.mark === "Habilidades acima da média" ? "bg-gradient-to-br from-sky-50 to-sky-100 border border-sky-200" :
+                                            markedText.mark === "Comprometimento com a tarefa" ? "bg-gradient-to-br from-violet-50 to-violet-100 border border-violet-200" :
+                                                markedText.mark === "Atividades artísticas e esportivas" ? "bg-gradient-to-br from-pink-50 to-pink-100 border border-pink-200" :
+                                                    "bg-white"
+                                }`}>
 
-                                </Box>
-                                <Flex direction="column" align="center">
-                                    <Separator size="4" className="my-2" />
-                                    <Alert
-                                        trigger={
-                                            <Box>
-                                                <Tooltip content={"Excluir marcação"}>
-                                                    <Button className='w-full' size='Extra Small' color="red" title={''} children={<Icon.Trash />} />
-                                                </Tooltip>
-                                            </Box>}
+                                <div className="flex flex-col gap-3">
+                                    <div>
+                                        <h3 className="font-semibold text-gray-900 text-sm mb-1.5 flex items-center">
+                                            <Icon.ChatText size={24} className="mr-1" />
+                                            Comentário
+                                        </h3>
+                                        <p className="text-gray-700 text-sm leading-relaxed text-justify">
+                                            {markedText.comment}
+                                        </p>
+                                    </div>
 
-                                        title={'Excluir marcação'}
-                                        description={'Tem certeza que deseja excluir a marcação e o comentário?'}
-                                        buttoncancel={<Button color="gray" title={'Cancelar'} size={'Small'}>
-                                        </Button>}
-                                        buttonAction={<Button onClick={() => handleRemoveComment(markedText.id)} title={'Sim, Excluir'} color="red" size={'Small'}>
-                                        </Button>} />
-                                </Flex>
-                            </Flex>
+                                    <div className="border-t border-gray-200 pt-3 mt-1">
+                                        <Alert
+                                            trigger={
+                                                <Box>
+                                                    <Tooltip content={"Excluir marcação"}>
+                                                        <Button className='w-full' size='Extra Small' color="red" title={''} children={<Icon.Trash />} />
+                                                    </Tooltip>
+                                                </Box>}
+
+                                            title={'Excluir marcação'}
+                                            description={'Tem certeza que deseja excluir a marcação e o comentário?'}
+                                            buttoncancel={<Button color="gray" title={'Cancelar'} size={'Small'}>
+                                            </Button>}
+                                            buttonAction={<Button onClick={() => handleRemoveComment(markedText.id)} title={'Sim, Excluir'} color="red" size={'Small'}>
+                                            </Button>} />
+                                    </div>
+                                </div>
+                            </div>
                         </HoverCard.Content>
                     </HoverCard.Root>
                 );
                 lastIndex = markedText.end;
             }
         });
-        markedTextsBack.forEach((markedTextBack, index) => {
-            if (markedTextBack.start >= lastIndex) {
-                const before = text.substring(lastIndex, markedTextBack.start);
-                const marked = text.substring(markedTextBack.start, markedTextBack.end);
 
-                parts.push(<span key={`${index}-before `}>{before}</span>);
-                parts.push(
-                    <HoverCard.Root key={markedTextBack.id}>
-                        <HoverCard.Trigger>
-                            <span className={`rounded-sm font-semibold px-1
-                                ${markedTextBack.background}`}>
-                                {marked}
-                            </span>
-                        </HoverCard.Trigger>
-                        <HoverCard.Content size="3" className={`!p-3 drop-shadow-xl ${markedTextBack.mark === "Criatividade" ? "bg-gradient-to-tl from-red-50 to-red-400 " :
-                            markedTextBack.mark === "Liderança" ? "bg-gradient-to-tl from-amber-50 to-amber-400" :
-                                markedTextBack.mark === "Características Gerais" ? "bg-gradient-to-tl from-lime-50 to-lime-400" :
-                                    markedTextBack.mark === "Habilidades acima da média" ? "bg-gradient-to-tl from-sky-50 to-sky-400" :
-                                        markedTextBack.mark === "Comprometimento com a tarefa" ? "bg-gradient-to-tl from-violet-50 to-violet-400" :
-                                            markedTextBack.mark === "Atividades artísticas e esportivas" ? "bg-gradient-to-tl from-pink-50 to-pink-400" : ""} 
-                                    }  `} >
-                            <Flex gap="4" direction="column">
-
-                                <Box>
-                                    <Text as="p" size="3" mb="2" className='font-bold'>
-                                        Comentário
-                                    </Text>
-                                    <Text size="2" as="p" className='text-justufy'>
-                                        {markedTextBack.comment}
-                                    </Text>
-
-                                </Box>
-                                <Flex direction="column" align="center" gap="2">
-                                    <Separator size="4" />
-
-                                    <Alert
-                                        trigger={
-                                            <Box >
-                                                <Tooltip content={"Excluir marcação"}>
-                                                    <Button size='Extra Small' color="red" title={''} children={<Icon.Trash />} />
-                                                </Tooltip>
-                                            </Box>}
-
-                                        title={'Excluir marcação'}
-                                        description={'Tem certeza que deseja excluir a marcação e o comentário?'}
-                                        buttoncancel={<Button color="gray" title={'Cancelar'} size={'Small'}>
-                                        </Button>}
-                                        buttonAction={<Button onClick={() => handleRemoveCommentBack(markedTextBack.id)} title={'Sim, Excluir'} color="red" size={'Small'} >
-                                        </Button>} />
-                                </Flex>
-                            </Flex>
-                        </HoverCard.Content>
-                    </HoverCard.Root>
-                );
-                lastIndex = markedTextBack.end;
-            }
-        });
         parts.push(<span key="last-part">{text.substring(lastIndex)}</span>);
         return parts;
     };
@@ -556,15 +486,30 @@ const EvaluateAutobiography: React.FC = () => {
                         <Box className="card-container  w-[70%] max-xl:w-full">
                             <Flex direction="column" className="h-full">
                                 <Flex p="4" align="center" gap="3" className="border-b border-neutral-100">
-                                    {participant?.autobiography?.text ?
+                                    {participant?.autobiography?.text && participant?.autobiography?.videoUrl ? (
+                                        <>
+                                            <Icon.Notebook size={24} className="text-violet-600" />
+
+                                            <h2 className="heading-2">Autobiografia / Link Disponível : <a
+                                                href={participant?.autobiography?.videoUrl || "#"}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                                className="text-blue-600 hover:underline"
+                                            >
+                                                {participant?.autobiography?.videoUrl || "Nenhum vídeo disponível"}
+                                            </a></h2>
+                                        </>
+                                    ) : participant?.autobiography?.text ? (
                                         <>
                                             <Icon.Notebook size={24} className="text-violet-600" />
                                             <h2 className="heading-2">Autobiografia</h2>
                                         </>
-                                        : <>
+                                    ) : (
+                                        <>
                                             <Icon.Link size={24} className="text-violet-600" />
-                                            <h2 className="heading-2">Link Disponivel</h2> </>
-                                    }
+                                            <h2 className="heading-2">Link Disponível</h2>
+                                        </>
+                                    )}
                                 </Flex>
                                 <Box className="p-6 overflow-auto h-[60vh]">
                                     <p id="autobiography" className="text-justify leading-relaxed text-neutral-700">
@@ -602,31 +547,15 @@ const EvaluateAutobiography: React.FC = () => {
                                             <Text size="2" className="font-medium text-neutral-700 mb-1 ">
                                                 {marked.mark}: &nbsp;
                                             </Text>
-                                            <Text size="1" className="text-neutral-500 mb-2">
+                                            <Text size="1" className="text-white mb-2">
                                                 "{marked.text}"
                                             </Text>
                                             <br></br>
                                             <Text size="2" className="text-neutral-700 font-medium ">
+
                                                 Comentário: &nbsp;
                                             </Text>
-                                            <Text size="1" className="text-neutral-500 mb-2">
-                                                {marked.comment}
-                                            </Text>
-                                        </Box>
-                                    ))}
-                                    {markedTextsBack.map((marked, index) => (
-                                        <Box key={index} className={`mb-4 last:mb-0 p-3  rounded-lg ${marked.background} text-left`}>
-                                            <Text size="2" className="font-medium text-neutral-700 mb-1 ">
-                                                {marked.mark}: &nbsp;
-                                            </Text>
-                                            <Text size="1" className="text-neutral-500 mb-2">
-                                                "{marked.text}"
-                                            </Text>
-                                            <br></br>
-                                            <Text size="2" className="text-neutral-700 font-medium ">
-                                                Comentário: &nbsp;
-                                            </Text>
-                                            <Text size="1" className="text-neutral-500 mb-2">
+                                            <Text size="1" className="text-white mb-2">
                                                 {marked.comment}
                                             </Text>
                                         </Box>

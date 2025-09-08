@@ -4,7 +4,7 @@ import { EAdultFormSource } from "../../../utils/consts.utils";
 import * as ParticipantApi from "../../../api/participant.api";
 import * as SecondSourceApi from "../../../api/secondSource.api";
 import { Box, Flex } from "@radix-ui/themes";
-import logo from '../../../assets/Logo-GRUPAC.png'
+import logo from '../../../assets/Logo-GRUPAC-white.png'
 import { Button } from "../../../components/Button/Button";
 import FadeContent from "../../../components/FadeContent/FadeContent";
 import RotatingText from "../../../components/RotatingText/RotatingText";
@@ -120,20 +120,21 @@ const IntroductionStep = ({
     return (
         <>
 
-
             <FadeContent blur={true} duration={1000} easing="ease-out" initialOpacity={0}>
-                <Box className="gap-y-3 max-sm:gap-y-2 max-sm:p-0 font-roboto text-slate-950 w-[80%]  max-w-4xl relative z-10 my-8 m-auto">
+                <Box className="min-h-screen overflow-y-auto font-roboto text-slate-950 w-full px-4 max-w-4xl relative z-10 my-8 mx-auto">
                     <div className="w-full text-justify font-roboto text-gray-50">
-                        <div className="flex max-sm:mb-10">
-                            <img className="m-auto w-80 max-sm:w-44" src={logo} alt="Logo" />
+                        {/* Logo */}
+                        <div className="flex justify-center mb-6 sm:mb-10">
+                            <img className="w-32 sm:w-44" src={logo} alt="Logo" />
                         </div>
 
-                        <h1 className="text-center text-2xl font-bold  mt-4">
-                            <Flex gap="2" align={"center"} justify={"center"} className="max-sm:flex-col" >
+                        {/* Título */}
+                        <h1 className="text-center text-xl sm:text-2xl font-bold mt-4">
+                            <Flex gap="2" align="center" justify="center" className="flex-col sm:flex-row">
                                 <RotatingText
                                     texts={['Olá,', 'Hello,', 'Hola,', 'Bonjour,', 'Ciao,']}
                                     mainClassName="bg-primary text-white overflow-hidden px-2 py-1 justify-center rounded-lg"
-                                    staggerFrom={"last"}
+                                    staggerFrom="last"
                                     initial={{ y: "100%" }}
                                     animate={{ y: 0 }}
                                     exit={{ y: "-120%" }}
@@ -146,58 +147,58 @@ const IntroductionStep = ({
                             </Flex>
                         </h1>
 
-                        <div className="mt-6 space-y-4 max-sm:space-y-3 text-lg">
+                        {/* Texto introdutório */}
+                        <div className="mt-6 space-y-4 text-sm sm:text-lg leading-relaxed">
                             <p>
-                                Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação que está
-                                sendo realizada pelo(a) pesquisador(a): <b>{researcherName}</b>.{" "}
+                                Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação
+                                que está sendo realizada pelo(a) pesquisador(a): <b>{researcherName}</b>.{" "}
                                 {sourceForm === EAdultFormSource.SECOND_SOURCE && (
                                     <>
-                                        Você foi indicado como a segunda fonte para os dados que foram coletados do participante: {" "}
+                                        Você foi indicado como a segunda fonte para os dados coletados do participante:{" "}
                                         <b>{participantName}</b>.
                                     </>
                                 )}
                             </p>
 
                             <p>
-                                O SuperDot é um sistema que visa auxiliar essa coleta de dados, facilitando o preenchimento dos
-                                questionários de superdotação. Ao preencher o questionário a seguir, você estará contribuindo tanto
-                                com a pesquisa do(a): <b>{researcherName}</b>, quanto com toda a comunidade de pesquisadores de <b>AH/SD</b> do
-                                Brasil.
+                                O SuperDot é um sistema que visa auxiliar essa coleta de dados, facilitando o preenchimento
+                                dos questionários. Ao preencher, você estará contribuindo tanto com a pesquisa do(a):{" "}
+                                <b>{researcherName}</b>, quanto com a comunidade de pesquisadores de <b>AH/SD</b>.
                             </p>
 
                             <p>
-                                A plataforma ainda se encontra em sua fase inicial, então é normal que alguns problemas apareçam
-                                durante sua utilização. Caso encontre algum problema ou tenha alguma sugestão de melhoria, por favor
-                                entre em contato conosco através do e-mail: <b>grupacsuperdot@gmail.com</b>
+                                A plataforma ainda se encontra em fase inicial, então é normal que alguns problemas apareçam.
+                                Caso encontre algum problema ou tenha alguma sugestão, entre em contato pelo e-mail:{" "}
+                                <b>grupacsuperdot@gmail.com</b>
                             </p>
                         </div>
 
-                        <p className="text-center text-lg my-6 max-sm:my-4">
+                        {/* Campo de e-mail */}
+                        <p className="text-center text-sm sm:text-lg my-6">
                             Para iniciar ou continuar o preenchimento, informe seu e-mail no campo abaixo:
                         </p>
 
-                        <div
-                            className="flex justify-center items-centerw-full max-w-md mx-auto gap-2 flex-row max-sm:flex-col"
-                        >
+                        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto">
                             <input
                                 id="participantEmail"
                                 placeholder="Insira seu e-mail aqui..."
                                 type="email"
-                                className="h-10 flex-1 min-w-0 px-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-gray-800"
+                                className="h-10 w-full sm:flex-1 px-3 rounded border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary text-gray-800"
                                 onChange={(e) => setParticipantEmail(e.target.value)}
                             />
                             <Button
                                 loading={loading}
                                 type="button"
-                                className="button-primary max-sm:w-full"
+                                className="button-primary w-full sm:w-auto"
                                 onClick={handleOnRequestVerificationCode}
-                                color={"primary"}
-                                title={"Enviar"}
-                                size={"Large"}
+                                color="primary"
+                                title="Enviar"
+                                size="Large"
                             />
                         </div>
                     </div>
                 </Box>
+
             </FadeContent>
         </>
 

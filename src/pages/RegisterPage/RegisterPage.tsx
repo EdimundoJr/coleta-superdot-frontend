@@ -11,6 +11,7 @@ import Notify from "../../components/Notify/Notify";
 import { Flex } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
 import Stepper, { Step } from "../../components/NewStepper/NewStteper";
+import BackgroundComponent from "../../components/Background/Background";
 
 
 
@@ -107,8 +108,7 @@ const RegisterPage = () => {
             className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
             <Flex className="w-full">
-                <Flex className="bg-default-bg hidden h-full w-full desktop">
-                </Flex>
+                <BackgroundComponent />
                 <Flex direction="column" className="h-full w-full justify-center overflow-auto bg-offwhite text-[#4F4F4F]">
                     <Stepper ref={stepperRef}
                         initialStep={1}

@@ -141,46 +141,35 @@ export const patchSaveKnowledgeAreasIndicatedByResearcher = async ({
     );
     return response.data;
 };
+export interface MarkedText {
+    id: number;
+    text: string;
+    comment: string;
+    mark: string;
+    start: number;
+    end: number;
+    background: string;
+}
+
+// Modifique a interface dos parâmetros
 interface PatchSaveEvalueAutobiographyParams {
     sampleId?: string;
     participantId?: string;
-    idEvalueAutobiography?: number;
-    textEvalueAutobiography?: string;
-    commentEvalueAutobiography?: string;
-    markEvalueAutobiography?: string;
-    startEvalueAutobiography?: number;
-    endEvalueAutobiography?: number;
-    backgroundEvalueAutobiography?: string;
+    markedTexts: MarkedText[];
     submitForm?: boolean;
 }
 
 export const patchSaveEvalueAutobiography = async ({
     sampleId,
     participantId,
-    idEvalueAutobiography,
-    textEvalueAutobiography,
-    commentEvalueAutobiography,
-    markEvalueAutobiography,
-    startEvalueAutobiography,
-    endEvalueAutobiography,
-    backgroundEvalueAutobiography,
+    markedTexts,
     submitForm,
 }: PatchSaveEvalueAutobiographyParams): Promise<boolean> => {
     try {
-
         const response = await axios.patch<boolean>(
             `${import.meta.env.VITE_BACKEND_HOST}/api/participant/save-evalueAutobiography/sample/${sampleId}/participant/${participantId}?submitForm=${String(submitForm)}`,
-            {
-                idEvalueAutobiography,
-                textEvalueAutobiography,
-                commentEvalueAutobiography,
-                markEvalueAutobiography,
-                startEvalueAutobiography,
-                endEvalueAutobiography,
-                backgroundEvalueAutobiography,
-            }
+            { markedTexts }
         );
-
         return response.data;
     } catch (error) {
         throw error;
