@@ -130,9 +130,38 @@ export interface DashboardInfo {
 export const getinfoDashboard = async () => {
     try {
         setAuthHeaders();
-        const response = await axios.get<DashboardInfo>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/load-Information-deashboard`);
+        const response = await axios.get<DashboardInfo>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/load-Information-dashboard`);
 
-        console.log("Resposta da requisição para obter dados do pesquisador:", response.data);
+        return response.data;
+    } catch (error) {
+        console.error("Erro ao fazer requisição para obter dados: ", error);
+        throw error;
+    }
+};
+export interface AnswerByGender {
+    result: {
+        feminino: {
+            frequentemente: number,
+            sempre: number,
+            asVezes: number,
+            raramente: number,
+            nunca: number
+        },
+        masculino: {
+            frequentemente: number,
+            sempre: number,
+            asVezes: number,
+            raramente: number,
+            nunca: number
+        }
+    }
+}
+
+export const answerByGender = async () => {
+    try {
+        setAuthHeaders();
+        const response = await axios.get<AnswerByGender>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/answer-by-gender`);
+
         return response.data;
     } catch (error) {
         console.error("Erro ao fazer requisição para obter dados: ", error);

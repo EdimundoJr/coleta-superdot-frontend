@@ -11,11 +11,11 @@ interface TextAreaFieldProps extends React.PropsWithRef<React.JSX.IntrinsicEleme
 export const TextAreaField = forwardRef<HTMLTextAreaElement, TextAreaFieldProps>(
     ({ label, placeholder, name, errorMessage, ...rest }, ref) => {
         return (
-            <Form.Field className="relative mb-6 w-full px-3" name={name}>
-                <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+            <Form.Field className="relative mb-6 w-full" name={name}>
+                <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                     {label}
                 </Form.Label>
-                <Form.Control asChild className="h-20 w-full rounded-[4px] px-4 text-sm">
+                <Form.Control asChild className="h-20 w-full rounded-[4px] p-2  text-sm">
                     <textarea placeholder={placeholder} ref={ref} {...rest} />
                 </Form.Control>
                 {errorMessage && (

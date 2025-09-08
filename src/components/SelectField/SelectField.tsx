@@ -1,4 +1,5 @@
 import * as Form from "@radix-ui/react-form";
+import { Flex } from "@radix-ui/themes";
 import { ReactNode, forwardRef } from "react";
 
 interface SelectFieldProps extends React.PropsWithRef<React.JSX.IntrinsicElements["select"]> {
@@ -9,28 +10,42 @@ interface SelectFieldProps extends React.PropsWithRef<React.JSX.IntrinsicElement
 }
 
 export const SelectField = forwardRef<HTMLSelectElement, SelectFieldProps>(
-    ({ label, name, errorMessage, className, children, extraItem, ...rest }, ref) => {
+    ({ label,
+        name,
+        errorMessage,
+        className = "",
+        children,
+        extraItem,
+        onChange,
+        onBlur,
+        value,
+        ...rest }, ref) => {
         return (
-            <Form.Field className="mb-6 w-full px-3" name={name}>
-                <div className="flex items-baseline justify-between">
-                    <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+            <Form.Field className="max-xl:w-full" name={name}>
+                <Flex justify={"between"} align={"baseline"}>
+                    <Form.Label className="text-left text-xs font-bold uppercase tracking-wide">
                         {label}
                     </Form.Label>
-                </div>
-                <div className="flex gap-4">
+                </Flex>
+                <Flex gap="4">
                     <Form.Control asChild>
                         <select
+                            name={name}
                             ref={ref}
+                            onChange={onChange}
+                            onBlur={onBlur}
+                            value={value}
                             {...rest}
-                            className={`h-[35px] w-full rounded-[4px] px-4 text-sm ${className}}`}
+                            className={`h-10 hover:cursor-pointer ${className}`}
                         >
                             {children}
                         </select>
                     </Form.Control>
                     {extraItem}
-                </div>
+                </Flex>
                 {errorMessage && <Form.Message className="error-message">{errorMessage}</Form.Message>}
             </Form.Field>
         );
     }
 );
+

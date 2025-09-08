@@ -1,19 +1,39 @@
-import { Navigate } from "react-router-dom";
-import { PropsWithChildren } from "react";
+import { Navigate, useLocation } from "react-router-dom";
 import { isLoggedIn } from "../../utils/auth.utils";
 
-const GuardRoute = ({ scope, children }: PropsWithChildren & { scope: "INNER" | "OUTER" }) => {
+interface GuardRouteProps {
+    children: React.ReactNode;
+    scope: "INNER" | "OUTER";
+    publicRoute?: boolean;
+}
+
+export const GuardRoute = ({
+    children,
+    scope,
+    publicRoute = false
+}: GuardRouteProps) => {
     const userLogged = isLoggedIn();
+    const location = useLocation();
 
-    if (scope === "INNER" && !userLogged) {
-        return <Navigate to="/" />;
+    // Rotas públicas
+    if (publicRoute) {
+        if (userLogged && location.pathname === "/") {
+            return <Navigate to="/app/home" replace />;
+        }
+        return <>{children}</>;
     }
 
-    if (scope === "OUTER" && userLogged) {
-        return <Navigate to="/app/home" />;
+    // Rotas privadas
+    if (!userLogged && scope === "INNER") {
+        return <Navigate to="/" state={{ from: location }} replace />;
     }
 
-    return children;
+    if (userLogged && scope === "OUTER") {
+        return <Navigate to="/app/home" replace />;
+    }
+    if (location.pathname.startsWith('/formulario-adulto')) {
+        return <>{children}</>;
+    }
+
+    return <>{children}</>;
 };
-
-export default GuardRoute;

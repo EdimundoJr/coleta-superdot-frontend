@@ -12,11 +12,17 @@ export interface Filters {
 }
 
 export interface Users {
-    fullName: string,
-    phone: string,
-    profilePhoto: string,
-    birthDate: Date,
-    countryState: string,
+
+    researcher: {
+        fullName: string,
+        phone: number,
+        profilePhoto?: string,
+        birthDate: Date,
+        countryState: string,
+        email?: string
+    },
+    role: string
+
 }
 
 
@@ -56,12 +62,10 @@ export const getResearchDataBySampleIdAndParticipantId = ({
 export const getUser = async () => {
     try {
         setAuthHeaders();
-        const response = await axios.get(`${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher`);
+        const response = await axios.get<Users>(`${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher`);
 
-        console.log("Resposta da requisição para obter dados do pesquisador:", response.data);
         return response.data;
     } catch (error) {
-        console.error("Erro ao fazer requisição para obter dados do pesquisador:", error);
         throw error;
     }
 };

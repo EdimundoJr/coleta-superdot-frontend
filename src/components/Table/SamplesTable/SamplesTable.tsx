@@ -1,8 +1,12 @@
-import { ClipboardIcon, MagnifyingGlassIcon, Pencil1Icon } from "@radix-ui/react-icons";
 import Pagination from "../Pagination/Pagination";
 import { PAGE_SIZE } from "../../../api/researchers.api";
 import { PageSampleSummary, SampleSummary } from "../../../api/sample.api";
 import { SampleStatus } from "../../../utils/consts.utils";
+import { Box, Flex, IconButton, Select, Table, Tooltip, Text, DataList, Separator } from "@radix-ui/themes";
+import * as Icon from "@phosphor-icons/react";
+import SkeletonTableBody from "../../Skeletons/SkeletonTableBody";
+import SkeletonDataList from "../../Skeletons/SkeletonDataList";
+import EmptyState from "../../EmptyState/EmptyState";
 
 interface SamplesTableProps {
     page?: PageSampleSummary;
@@ -13,6 +17,7 @@ interface SamplesTableProps {
     onClickToViewSampleReviews: (sample: SampleSummary) => void;
     onClickToViewSampleAttachments: (files: SampleSummary["files"]) => void;
     onChangeFilterStatus: (filter: SampleStatus | "") => void;
+    loading: boolean; 
 }
 
 const SamplesTable = ({
@@ -24,104 +29,213 @@ const SamplesTable = ({
     onClickToViewSampleReviews,
     onClickToViewSampleAttachments,
     onChangeFilterStatus,
+    loading, 
 }: SamplesTableProps) => {
+    const handleValueChange = (newValue: string) => {
+        const status = newValue === 'Todos' ? "" : newValue as SampleStatus;
+        onChangeFilterStatus(status);
+        setCurrentPage(1); 
+    };
+
+    const hasData = page?.data && page.data.length > 0;
+
     return (
         <>
-            <div className="mt-11 flex gap-5 text-alternative-text sm:justify-center ">
-                <div
-                    onClick={() => onChangeFilterStatus("")}
-                    className={`w-fit cursor-pointer rounded-t-lg p-1 ${
-                        !currentStatus ? "bg-primary" : "bg-gray-500"
-                    } hover:bg-primary-light`}
-                >
-                    Todos
-                </div>
-                <div
-                    onClick={() => onChangeFilterStatus("Pendente")}
-                    className={`w-fit cursor-pointer rounded-t-lg ${
-                        currentStatus === "Pendente" ? "bg-primary" : "bg-gray-500"
-                    } p-1 hover:bg-primary-light`}
-                >
-                    Pendentes
-                </div>
-                <div
-                    onClick={() => onChangeFilterStatus("Autorizado")}
-                    className={`w-fit cursor-pointer rounded-t-lg ${
-                        currentStatus === "Autorizado" ? "bg-primary" : "bg-gray-500"
-                    } p-1 hover:bg-primary-light`}
-                >
-                    Autorizados
-                </div>
-                <div
-                    onClick={() => onChangeFilterStatus("Não Autorizado")}
-                    className={`w-fit cursor-pointer rounded-t-lg ${
-                        currentStatus === "Não Autorizado" ? "bg-primary" : "bg-gray-500"
-                    } p-1 hover:bg-primary-light`}
-                >
-                    Não autorizados
-                </div>
-            </div>
-            <table className="bg-dark-gradient mx-auto w-11/12 border-collapse rounded-md text-alternative-text">
-                <thead>
-                    <tr>
-                        <th className="px-6 py-3">Nome do Pesquisador</th>
-                        <th className="px-6 py-3">Nome da amostra</th>
-                        <th className="px-6 py-3">
-                            <span title="Certificado de Apresentação de Apreciação Ética">CAAE</span>
-                        </th>
-                        <th className="px-6 py-3">Participantes solicitados</th>
-                        <th className="px-6 py-3">Participantes autorizados</th>
-                        <th className="px-6 py-3">Status</th>
-                        <th className="px-6 py-3">Ações</th>
-                    </tr>
-                </thead>
-                <tbody className="bg-white text-primary">
-                    {page?.data?.map((sample) => (
-                        <tr key={sample.sampleId} className="odd:bg-gray-200">
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.researcherName}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.sampleName}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.cepCode}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.qttParticipantsRequested}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.qttParticipantsAuthorized}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3">{sample.currentStatus}</td>
-                            <td className="border-x-2 border-gray-600 px-6 py-3 text-center">
-                                <div className="flex justify-center gap-2">
-                                    <span title="Alterar status.">
-                                        <Pencil1Icon
-                                            onClick={() => onClickToReviewSample(sample.sampleId)}
-                                            className="cursor-pointer"
-                                        />
-                                    </span>
-                                    <span title="Visualizar histórico de reivisões.">
-                                        <MagnifyingGlassIcon
-                                            onClick={() => onClickToViewSampleReviews(sample)}
-                                            className="cursor-pointer"
-                                        />
-                                    </span>
-                                    <span title="Visualizar documentos anexados.">
-                                        <ClipboardIcon
-                                            onClick={() => onClickToViewSampleAttachments(sample.files)}
-                                            className="cursor-pointer"
-                                        />
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                    ))}
-                </tbody>
-                <tfoot>
-                    <tr className="text-right">
-                        <td className="px-6 py-3" colSpan={3}>
+            <Flex direction="column" className="w-full mb-6 px-4 sm:px-6 lg:px-8">
+                <Text className="text-sm text-gray-600">
+                    Revise o status, visualize os documentos ou aprove as amostras solicitadas pelos pesquisadores.
+                </Text>
+            </Flex>
+
+            {/* Versão Desktop */}
+            <Table.Root variant="surface" className="w-full m-auto desktop">
+                <Table.Header className="text-[15px]">
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r"> Nome do Pesquisador</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r">Nome da amostra</Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r">
+                        <Tooltip content="Certificado de Apresentação de Apreciação Ética">
+                            <Box>CAAE</Box>
+                        </Tooltip>
+                    </Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r"> Participantes solicitados </Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r">Participantes autorizados</Table.ColumnHeaderCell>
+
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r">
+                        <Flex direction="column">
+                            <Box className="mb-1">Status</Box>
+                            <Select.Root defaultValue="Todos" size="1" onValueChange={handleValueChange}>
+                                <Select.Trigger />
+
+                                <Select.Content>
+                                    <Select.Group>
+                                        <Select.Label>Status</Select.Label>
+                                        <Select.Item value="Todos" >Todos</Select.Item>
+                                        <Select.Item value="Pendente">Pendente</Select.Item>
+                                        <Select.Item value="Autorizado">Autorizado</Select.Item>
+                                        <Select.Item value="Não Autorizado">Não Autorizado</Select.Item>
+                                    </Select.Group>
+                                </Select.Content>
+                            </Select.Root>
+                        </Flex>
+
+                    </Table.ColumnHeaderCell>
+                    <Table.ColumnHeaderCell align="center" colSpan={1} className="border-r"> Ações</Table.ColumnHeaderCell>
+
+
+                </Table.Header>
+
+                {loading ? (
+                    <SkeletonTableBody itens={PAGE_SIZE} columns={7} />
+                ) : hasData ? (
+                    <>
+                        <Table.Body>
+                            {page.data.map((sample) => (
+                                <Table.Row align="center" key={sample.sampleId}>
+                                    <Table.Cell justify="center">{sample.researcherName}</Table.Cell>
+                                    <Table.Cell justify="center">{sample.sampleName}</Table.Cell>
+                                    <Table.Cell justify="center">{sample.cepCode}</Table.Cell>
+                                    <Table.Cell justify="center">{sample.qttParticipantsRequested}</Table.Cell>
+                                    <Table.Cell justify="center">{sample.qttParticipantsAuthorized}</Table.Cell>
+                                    <Table.Cell justify="center">{sample.currentStatus}</Table.Cell>
+                                    <Table.Cell justify="center">
+                                        <Flex justify="center" gap="4">
+                                            <Tooltip content="Alterar status.">
+                                                <IconButton size="1" variant="surface" radius="full">
+                                                    <Icon.Pencil
+                                                        onClick={() => onClickToReviewSample(sample.sampleId)}
+                                                        className="cursor-pointer"
+                                                    />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip content="Visualizar histórico de reivisões.">
+                                                <IconButton size="1" variant="surface" radius="full">
+                                                    <Icon.MagnifyingGlass
+                                                        onClick={() => onClickToViewSampleReviews(sample)}
+                                                        className="cursor-pointer"
+                                                    />
+                                                </IconButton>
+                                            </Tooltip>
+                                            <Tooltip content="Visualizar documentos anexados.">
+                                                <IconButton size="1" variant="surface" radius="full">
+                                                    <Icon.Clipboard
+                                                        onClick={() => onClickToViewSampleAttachments(sample.files)}
+                                                        className="cursor-pointer"
+                                                    />
+                                                </IconButton>
+                                            </Tooltip>
+                                        </Flex>
+                                    </Table.Cell>
+                                </Table.Row>
+                            ))}
+                        </Table.Body>
+                        <Table.Row>
                             <Pagination
                                 currentPage={currentPage}
                                 pageSize={PAGE_SIZE}
                                 totalCount={page?.pagination?.totalItems || 0}
-                                onPageChange={(page: number) => setCurrentPage(page)}
+                                onPageChange={setCurrentPage}
                             />
-                        </td>
-                    </tr>
-                </tfoot>
-            </table>
+                        </Table.Row>
+                    </>
+                ) : (
+                    <Table.Body>
+                        <Table.Row>
+                            <Table.Cell colSpan={7} className="text-center">
+                                Nenhuma amostra encontrada.
+                            </Table.Cell>
+                        </Table.Row>
+                    </Table.Body>
+                )}
+            </Table.Root>
+
+            {/* Versão Mobile */}
+            <DataList.Root orientation="vertical" className="w-full mobo">
+                <Flex justify="center" align="center" gap="4" className="card-container w-fit p-4 m-auto mb-5">
+                    <p>Filtrar Status por:</p>
+                    <Select.Root
+                        value={currentStatus || "Todos"}
+                        size="1"
+                        onValueChange={handleValueChange}
+                    >
+                        <Select.Trigger />
+                        <Select.Content>
+                            <Select.Group>
+                                <Select.Label>Status</Select.Label>
+                                <Select.Item value="Todos">Todos</Select.Item>
+                                <Select.Item value="Pendente">Pendente</Select.Item>
+                                <Select.Item value="Autorizado">Autorizado</Select.Item>
+                                <Select.Item value="Não Autorizado">Não Autorizado</Select.Item>
+                            </Select.Group>
+                        </Select.Content>
+                    </Select.Root>
+                </Flex>
+
+                {loading ? (
+                    <SkeletonDataList itens={PAGE_SIZE} columns={7} titles={1} />
+                ) : hasData ? (
+                    page.data.map((sample) => (
+                        <DataList.Item
+                            key={sample.sampleId}
+                            className="w-full p-4 rounded-lg mb-5 border-2 card-container"
+                        >
+                            <p className="text-[16px] font-bold text-center  border-b-black">Informações da Amostra</p>
+                            <DataList.Label>Nome do Pesquisador:</DataList.Label>
+                            <DataList.Value>{sample.researcherName}</DataList.Value>
+                            <Separator size="4" />
+
+                            <DataList.Label>Nome da Amostra:</DataList.Label>
+                            <DataList.Value>{sample.sampleName}</DataList.Value>
+                            <Separator size="4" />
+
+                            <DataList.Label>CAAE:</DataList.Label>
+                            <DataList.Value>{sample.cepCode}</DataList.Value>
+                            <Separator size="4" />
+
+                            <DataList.Label>Participantes Solicitados:</DataList.Label>
+                            <DataList.Value>{sample.qttParticipantsRequested}</DataList.Value>
+                            <Separator size="4" />
+
+                            <DataList.Label>Participantes Autorizados:</DataList.Label>
+                            <DataList.Value>{sample.qttParticipantsAuthorized}</DataList.Value>
+                            <Separator size="4" />
+
+                            <DataList.Label>Status:</DataList.Label>
+                            <DataList.Value>{sample.currentStatus}</DataList.Value>
+                            <Separator size="4" />
+
+                            <DataList.Label>Ações:</DataList.Label>
+                            <Flex justify="start" gap="4">
+                                <Tooltip content="Alterar status.">
+                                    <IconButton size="1" variant="surface" radius="full">
+                                        <Icon.Pencil
+                                            onClick={() => onClickToReviewSample(sample.sampleId)}
+                                            className="cursor-pointer"
+                                        />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip content="Visualizar histórico de revisões.">
+                                    <IconButton size="1" variant="surface" radius="full">
+                                        <Icon.MagnifyingGlass
+                                            onClick={() => onClickToViewSampleReviews(sample)}
+                                            className="cursor-pointer"
+                                        />
+                                    </IconButton>
+                                </Tooltip>
+                                <Tooltip content="Visualizar documentos anexados.">
+                                    <IconButton size="1" variant="surface" radius="full">
+                                        <Icon.Clipboard
+                                            onClick={() => onClickToViewSampleAttachments(sample.files)}
+                                            className="cursor-pointer"
+                                        />
+                                    </IconButton>
+                                </Tooltip>
+                            </Flex>
+                        </DataList.Item>
+                    ))
+                ) : (
+                    <EmptyState icon={<Icon.FileX weight="thin" size={100} />} title={"Nenhuma Solicitação encontrada."} description={"Não foram encontradas solicitações que correspondam aos critérios de busca ou filtros aplicados. Verifique os parâmetros utilizados e tente novamente."} />
+                )}
+            </DataList.Root>
         </>
     );
 };

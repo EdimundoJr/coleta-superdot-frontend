@@ -5,19 +5,22 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { Link } from "react-router-dom";
 import Flatpicker from "react-flatpickr";
 import "flatpickr/dist/themes/airbnb.css";
+import { Button } from "../../../../components/Button/Button";
+import { Portuguese } from "flatpickr/dist/l10n/pt.js";
+
 
 interface DetailsFormProps {
     handleOnSubmit: () => void;
     setStepData: (stepData: RegisterValues) => void;
     currentData: RegisterValues;
-    hidden: boolean;
+
 }
 
-const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: DetailsFormProps) => {
+const DetailsForm = ({ handleOnSubmit, setStepData, currentData }: DetailsFormProps) => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
         setValue,
     } = useForm({ resolver: yupResolver(detailsSchema) });
 
@@ -28,17 +31,18 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
         });
         handleOnSubmit();
     });
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 8, today.getMonth(), today.getDate());
 
     return (
         <Form.Root
-            hidden={hidden}
             about="Form to provide personal details."
             onSubmit={onSubmit}
-            className="m-auto w-10/12"
+            className="mt-8 m-auto w-10/12"
         >
             <h1>Criar uma conta</h1>
             <h3>Seus dados</h3>
-            <div className="mt-16 grid gap-y-10">
+            <div className="mt-8 grid gap-y-10">
                 <div>
                     <Form.Field name="personalData.fullName" className="col-span-3">
                         <Form.Control
@@ -52,7 +56,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
                         )}
                     </Form.Field>
                 </div>
-                <div className="gap-2 md:flex">
+                <div className="gap-2 flex">
                     <Form.Field name="personalData.phone" className="w-full">
                         <Form.Control placeholder="Telefone*" {...register("personalData.phone")}></Form.Control>
                         {errors?.personalData?.phone && (
@@ -66,7 +70,9 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
                             options={{
-                                maxDate: "today",
+                                dateFormat: "d/m/Y",
+                                maxDate: minDate,
+                                locale: Portuguese,
                             }}
                         />
                         {errors?.personalData?.birthDate && (
@@ -76,7 +82,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
                         )}
                     </Form.Field>
                 </div>
-                <div className="gap-2 md:flex">
+                <div className="gap-2 flex">
                     <Form.Field name="instituition" className="w-full">
                         <Form.Control
                             placeholder="Instituição de trabalho*"
@@ -97,11 +103,18 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData, hidden }: Detai
                     </Form.Field>
                 </div>
 
-                <button className="button-neutral-dark w-full  ">Continuar</button>
+                <Button
+                    size="Large"
+                    className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                    title={"Continuar"}
+                    color={`${isValid ? "green" : "gray"}`}
+                    disabled={!isValid}
+                />
+
                 <div>
                     <div className=" text-red-600 ">* Campos obrigatórios</div>
                     <div className="mt-5 text-xs">
-                        <Link to="/">Já tenho uma conta...</Link>
+                        <Link className="" to="/">Já tenho uma conta...</Link>
                     </div>
                 </div>
             </div>

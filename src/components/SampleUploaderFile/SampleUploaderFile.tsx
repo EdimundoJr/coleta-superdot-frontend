@@ -4,6 +4,8 @@ import * as Form from "@radix-ui/react-form";
 import { ChangeEvent, useState } from "react";
 import { SampleFile } from "../../interfaces/sample.interface";
 import { seeAttachment } from "../../api/sample.api";
+import { Flex } from "@radix-ui/themes";
+import * as Icon from "@phosphor-icons/react";
 
 interface SampleUploadFileProps {
     sampleFiles: SampleFile[];
@@ -84,21 +86,21 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
     };
 
     return (
-        <div className="col-span-3">
-            <h3 className="text-left">Anexos</h3>
+        <div className="col-span-3 animate-fade-in animate-delay-800">
+            <h3 className="text-left text-primary">Anexos</h3>
             <Separator.Root className="my-6 h-px w-full bg-black" />
-            <div className="sm:flex">
-                <Form.Field name="sampleFiles" className="mb-6 w-full px-3">
-                    <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+            <div className="flex">
+                <Form.Field name="sampleFiles" className=" w-full ">
+                    <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                         Tipo de Anexo
                     </Form.Label>
-                    <div className="gap-2 sm:flex">
+                    <div className="gap-2 flex max-lg:flex-col  items-center">
                         <select
                             onChange={handleChangeFileToUpload}
                             value={currentFileKeyToUpload}
-                            className="h-[35px] w-full rounded-[4px] border-2 border-gray-500 bg-white px-4 text-sm text-black"
+                            className="h-[40px] w-full rounded-[4px] px-4  border-2 border-gray-500 bg-white text-sm max-sm:text-[14px]  max-sm:px-2 text-black"
                         >
-                            <option value="">Selecione um tipo de arquivo para fazer o carregamento</option>
+                            <option value="" className="">Selecionar Arquivo</option>
                             {sampleFiles.map((sampleFile, index) => {
                                 if (!sampleFile.uploadedFile)
                                     return (
@@ -108,13 +110,15 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
                                     );
                             })}
                         </select>
-
-                        <label
-                            htmlFor="chooseFile"
-                            className="bg-neutralLight block max-h-[35px] min-w-[150px] rounded-[8px] p-1"
-                        >
-                            Anexar arquivo
-                        </label>
+                        <Flex justify={"center"} align={"center"}>
+                            <label
+                                htmlFor="chooseFile"
+                                className="bg-primary flex border-2 rounded-lg p-2 justify-center  text-white  min-w-[200px] hover:cursor-pointer align-middle hover:bg-secondary active:bg-primary active:brightness-90 max-sm:text-[12px] btn-primary animate-bounce-in"
+                            >
+                                Anexar arquivo
+                                <Icon.UploadSimple className="ml-2 h-[20px] w-[20px]" />
+                            </label>
+                        </Flex>
                         <input
                             disabled={!currentFileKeyToUpload}
                             id="chooseFile"
@@ -128,7 +132,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
             </div>
             {sampleFiles && (
                 <div>
-                    <h3 className="text-left text-blue-900">Anexos carregados</h3>
+                    <h3 className="text-left text-primary">Anexos carregados:</h3>
                     {sampleFiles.map((sampleFile, index) => {
                         if (sampleFile.uploadedFile)
                             return (

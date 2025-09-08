@@ -1,91 +1,47 @@
-import { Avatar, Box, Text, Separator , Flex, Section, } from '@radix-ui/themes';
-import NoImg from "../../assets/no-image.jpg"
-import { ReactNode, useEffect, useState } from 'react';
-import { seeAttachmentImage } from '../../api/sample.api';
-import { SampleFile } from '../../interfaces/sample.interface';
-import { getUser, Users } from '../../api/researchers.api';
-import * as Form from "@radix-ui/react-form";
-import { InputField } from "../../components/InputField/InputField";
-import * as Icon from "@phosphor-icons/react"
-
-
-
+import { Flex, Text } from '@radix-ui/themes';
+import UserInfo from '../UserInfo/UserInfo';
+import * as Icon from '@phosphor-icons/react';
+import React from 'react';
+import { useMenu } from '../UseMenu/UseMenu ';
 
 interface HeaderProps {
-    title: String;
+    title: string;
     icon?: React.ReactNode;
-    children?: ReactNode;
-    sampleFile?: SampleFile;
+    onMenuToggle?: () => void;
 }
 
-
-export function Header({ title, icon, children, sampleFile }: HeaderProps) {
-    const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
-    const [userData, setUserData] = useState<null | Users>(null);
-    const [error, setError] = useState();
+export function Header({ title, icon, onMenuToggle }: HeaderProps) {
+    const { isMobileMenuOpen } = useMenu();
 
 
-    useEffect(() => {
-        const fetchData = async () => {
-            try {
-                const data = await getUser();
-                setUserData(data);
-            } catch (error: any) {
-                setError(error);
-            }
-        };
-
-        fetchData();
-    }, []);
-
-    useEffect(() => {
-        const fetchImage = async () => {
-            try {
-                const url = await seeAttachmentImage(`${userData?.profilePhoto}`);
-                setImageUrl(url);
-            } catch (error) {
-                console.error("Erro ao recuperar a imagem:", error);
-            }
-        };
-        fetchImage();
-    }, [sampleFile, userData?.profilePhoto]);
-
-
-
-
-
-    return (        
-        <Section size={'1'} className="left-0 right-0 top-0 w-full pt-3 pb-3 pr-10 pl-10 font-roboto">
-           
-            <Box className="flex justify-between mb-5">
-
-                <Flex align="center" className="gap-2">
-                    <Text as="p" className="text-gray-300"> Página / </Text>
-                    <Text as="p" className="">{title}</Text>
-                    {icon}
-                </Flex>
-
-                <Flex>
-                    <Form.Root className="flex flex-col sm:flex-row items-center justify-between px-10 py-10 pt-0 pb-1 ">
-                        <Form.Submit asChild>
-                        </Form.Submit>
-                        <InputField icon={<button className="items-center">
-                            <Icon.MagnifyingGlass />
-                            </button>} placeholder="Faça sua busca aqui..." label="" name="participant-name" className="" />
-                    </Form.Root>
-                    <Flex justify="center" align="center" gap="3" >
-
-
-                        <Avatar size="4" src={imageUrl ? imageUrl : NoImg} radius="full" fallback="" className='' />
-
+    return (
+        <Flex
+            asChild
+            className={`w-full bg-white border-b border-gray-100 fixed top-0 z-30 h-16 px-4 sm:px-6 xl:pl-24 transition-all duration-300 ease-in-out max-xl:mt-11 shadow-bottom-lg`}
+        >
+            <header>
+                <Flex align="center" className="w-full h-full">
+                    {/* Left Section - Mobile Menu Button + Title */}
+                    <Flex align="center" gap="4" className="flex-1">
+                        <Flex align="center" gap="2" className="text-gray-800">
+                            {icon && React.cloneElement(icon as React.ReactElement, {
+                                className: "text-primary w-6 h-6"
+                            })}
+                            <h2 className="text-xl font-semibold truncate">
+                                {title}
+                            </h2>
+                        </Flex>
                     </Flex>
 
-                </Flex>
+                    {/* Right Section - User Info */}
+                    <Flex align="center" gap="4" className="flex-shrink-0 mr-14 max-xl:!hidden">
+                        <div className="hidden md:flex">
+                            <UserInfo />
+                        </div>
 
-            </Box>
-            <h3>{children}
-            </h3>
-            <Separator my="3" size="4" />
-        </Section>
+                    </Flex>
+                </Flex>
+            </header>
+        </Flex>
     );
 }

@@ -1,11 +1,13 @@
 import axios, { AxiosHeaders } from "axios";
-import jwtDecoded, { JwtPayload } from "jwt-decode";
+import jwtDecode, { JwtPayload } from "jwt-decode";
 import { DateTime } from "luxon";
 
 export interface Tokens {
     accessToken: string;
     refreshToken: string;
 }
+
+
 
 export const saveTokens = ({ accessToken, refreshToken }: Tokens) => {
     localStorage.removeItem(import.meta.env.VITE_PARTICIPANT_TOKEN_KEY);
@@ -17,15 +19,31 @@ export const saveTokens = ({ accessToken, refreshToken }: Tokens) => {
 export const clearTokens = () => {
     localStorage.removeItem(import.meta.env.VITE_ACCESS_TOKEN_KEY);
     localStorage.removeItem(import.meta.env.VITE_REFRESH_TOKEN_KEY);
+    localStorage.removeItem(import.meta.env.VITE_PARTICIPANT_TOKEN_KEY);
 };
 
+let isInterceptorSet = false;
+
 export const setAuthHeaders = () => {
+    if (isInterceptorSet) {
+        return;
+    }
+    isInterceptorSet = true;
+
     axios.interceptors.request.use((request) => {
         const token =
             localStorage.getItem(import.meta.env.VITE_ACCESS_TOKEN_KEY) ??
             localStorage.getItem(import.meta.env.VITE_PARTICIPANT_TOKEN_KEY);
-        request.headers.set("Authorization", `Bearer ${token}`);
-        request.headers.set("X-Refresh", localStorage.getItem(import.meta.env.VITE_REFRESH_TOKEN_KEY));
+
+        if (token) {
+            request.headers.set("Authorization", `Bearer ${token}`);
+        }
+
+        const refreshToken = localStorage.getItem(import.meta.env.VITE_REFRESH_TOKEN_KEY);
+
+        if (refreshToken) {
+            request.headers.set("X-Refresh", refreshToken);
+        }
 
         return request;
     });
@@ -43,7 +61,9 @@ export const setAuthHeaders = () => {
 };
 
 export const saveParticipantToken = (participantToken?: string) => {
-    if (!participantToken) return;
+    if (!participantToken) {
+        return;
+    }
     clearTokens();
     localStorage.setItem(import.meta.env.VITE_PARTICIPANT_TOKEN_KEY, participantToken);
     setAuthHeaders();
@@ -58,40 +78,45 @@ export const deserializeJWTParticipantToken = (): ParticipantToken => {
     const token = localStorage.getItem(import.meta.env.VITE_PARTICIPANT_TOKEN_KEY);
 
     if (!token) {
-        throw new Error("Token not found!");
+        throw new Error("Token não fornecido!");
     }
 
-    const tokenDecoded = jwtDecoded<ParticipantToken & JwtPayload>(token);
+    try {
+        const tokenDecoded = jwtDecode<ParticipantToken & JwtPayload>(token);
 
-    if (tokenDecoded.exp && DateTime.now().toSeconds() > tokenDecoded.exp) {
-        console.log(tokenDecoded.exp);
-        console.log(DateTime.now().toSeconds());
-        throw new Error("Token expired!");
+        if (tokenDecoded.exp && DateTime.now().toSeconds() > tokenDecoded.exp) {
+            throw new Error("Token expirado!");
+        }
+
+        if (!tokenDecoded.participantEmail) {
+            throw new Error("Token inválido!");
+        }
+
+        return tokenDecoded;
+    } catch (error) {
+        throw new Error("Erro ao decodificar o token!");
     }
-
-    if (!tokenDecoded.participantEmail) {
-        throw new Error("Invalid token!");
-    }
-
-    return tokenDecoded;
 };
 
 export const hasActiveSession = () => {
     const accessToken = localStorage.getItem(import.meta.env.VITE_ACCESS_TOKEN_KEY);
+    const refreshToken = localStorage.getItem(import.meta.env.VITE_REFRESH_TOKEN_KEY);
 
-    if (!accessToken) {
+    if (!accessToken || !refreshToken) {
+        console.warn("Access token ou refresh token não encontrados.");
         return false;
     }
 
-    const tokenDecoded = jwtDecoded<JwtPayload>(accessToken);
+    const accessTokenDecoded = jwtDecode<JwtPayload>(accessToken);
+    const refreshTokenDecoded = jwtDecode<JwtPayload>(refreshToken);
 
-    if (tokenDecoded.exp && DateTime.now().toSeconds() > tokenDecoded.exp) {
-        const refreshToken = localStorage.getItem(import.meta.env.VITE_REFRESH_TOKEN_KEY);
-        if (!refreshToken) return false;
-
-        const refreshTokenDecoded = jwtDecoded<JwtPayload>(refreshToken);
-
-        if (refreshTokenDecoded.exp && DateTime.now().toSeconds() > refreshTokenDecoded.exp) return false;
+    if (accessTokenDecoded.exp && DateTime.now().toSeconds() > accessTokenDecoded.exp) {
+        console.warn("Access token expirado.");
+        if (refreshTokenDecoded.exp && DateTime.now().toSeconds() > refreshTokenDecoded.exp) {
+            console.warn("Refresh token expirado.");
+            return false;
+        }
+        return true;
     }
 
     return true;

@@ -7,16 +7,21 @@ import { EDUCATION_LEVEL_ARRAY, RELATIONSHIPS_ARRAY, RELATIONSHIP_TIME_ARRAY } f
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
 import { SecondSourceDTO, secondSourceDataSchema } from "../../../schemas/adultForm/secondSourceData.schema";
-import { putSaveSecondSourceData, putSubmitSecondSourceData } from "../../../api/secondSource.api";
+import { putSubmitSecondSourceData } from "../../../api/secondSource.api";
 import { ISecondSource } from "../../../interfaces/secondSource.interface";
+import { Portuguese } from "flatpickr/dist/l10n/pt.js";
+import * as Icon from "@phosphor-icons/react";
+
+import { Button } from "../../../components/Button/Button";
+import { useState } from "react";
 
 interface SecondSourceDataStepProps {
     formData?: ISecondSource;
     setFormData: (formData: ISecondSource) => void;
     nextStep: () => void;
-    setNotificationData: (data: { title: string; description: string }) => void;
+    setNotificationData: (data: { title: string; description: string, type: string }) => void;
     sampleId: string;
-    saveAndExit: () => void;
+    header: string;
 }
 
 const SecondSourceDataStep = ({
@@ -25,32 +30,34 @@ const SecondSourceDataStep = ({
     nextStep,
     setNotificationData,
     sampleId,
-    saveAndExit,
+    header
 }: SecondSourceDataStepProps) => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
+        formState: { errors, isValid },
         setValue,
         watch,
-    } = useForm({ resolver: yupResolver(secondSourceDataSchema), defaultValues: formData });
+    } = useForm({
+        resolver: yupResolver(secondSourceDataSchema),
+        defaultValues: formData,
+        mode: "onChange",
+    });
+    const [loading, setLoading] = useState(false);
 
-    const onSaveAndExit = async () => {
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 8, today.getMonth(), today.getDate());
+    const scrollToTop = () => {
+
         try {
-            const response = await putSaveSecondSourceData({ sampleId, secondSourceData: watch() });
-            if (response.status === 200) {
-                saveAndExit();
-            }
-        } catch (e: any) {
-            console.error(e);
-            setNotificationData({
-                title: "Preenchimento inválido!",
-                description: "Preencha todos os campos corretamente.",
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
         }
-};
+    };
 
     const onSubmit = handleSubmit(async (secondSourceData: SecondSourceDTO) => {
+        setLoading(true);
         try {
             const response = await putSubmitSecondSourceData({ sampleId, secondSourceData });
             if (response.status === 200) {
@@ -63,24 +70,30 @@ const SecondSourceDataStep = ({
                     setFormData(secondSourceData);
                 }
                 nextStep();
+                scrollToTop();
             }
         } catch (e: any) {
             console.error(e);
             setNotificationData({
                 title: "Preenchimento inválido!",
                 description: "Preencha todos os campos corretamente.",
+                type: "erro"
             });
+        } finally {
+            setLoading(false);
         }
     });
 
     return (
-        <div className="grid gap-y-10">
-            <header>
-                <h1>Informações pessoais</h1>
-                <h3>Preencha os campos abaixo para continuar.</h3>
+        <div className="rt-Flex rt-r-fd-column bg-white gap-y-5  max-sm:p-0  relative w-[100%]  m-auto rounded-2xl p-5">
+            <header className="text-primary">
+                <h3 className="text-xl max-sm:text-lg md:text-xl lg:text-2xl font-bold">
+                    {header}
+                </h3>
+
             </header>
             <Form.Root onSubmit={onSubmit} className="w-full">
-                <div className="grid grid-cols-1 gap-y-5 sm:grid-cols-2 md:grid-cols-3 ">
+                <div className="grid grid-cols-1 gap-y-5  gap-3 ">
                     <InputField
                         {...register("personalData.fullName")}
                         label="Nome completo*"
@@ -99,17 +112,19 @@ const SecondSourceDataStep = ({
                         placeholder="Qual a sua profissão?"
                         errorMessage={errors.personalData?.job?.message}
                     />
-                    <Form.Field name="birthDate" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="birthDate" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Data de nascimento*
                         </Form.Label>
                         <Flatpicker
                             className="h-[35px] w-full rounded-[4px] px-4 text-sm"
                             placeholder="Informe sua data de nascimento"
                             multiple={false}
-                            onChange={([date]) => setValue("personalData.birthDate", date)}
+                            onChange={([date]) => setValue("personalData.birthDate", date, { shouldValidate: true })}
                             options={{
-                                maxDate: "today",
+                                dateFormat: "d/m/Y",
+                                maxDate: minDate,
+                                locale: Portuguese,
                             }}
                         />
                         {errors.personalData?.birthDate?.message && (
@@ -167,12 +182,19 @@ const SecondSourceDataStep = ({
                         errorMessage={errors.personalData?.street?.message}
                     />
                 </div>
-                <div className="flex justify-center gap-6">
-                    <button type="button" onClick={onSaveAndExit} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
-                        SALVAR E SAIR
-                    </button>
+                <div className="flex justify-center gap-6 mt-6">
+
                     <Form.Submit asChild>
-                        <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">SALVAR E CONTINUAR</button>
+                        <Button
+                            loading={loading}
+                            size="Medium"
+                            className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                            title={"Salvar alterações"}
+                            color={`${isValid ? "green" : "gray"}`}
+                            type="submit"
+                            disabled={!isValid}
+                            children={<Icon.FloppyDisk size={18} weight="bold" />}
+                        />
                     </Form.Submit>
                 </div>
             </Form.Root>

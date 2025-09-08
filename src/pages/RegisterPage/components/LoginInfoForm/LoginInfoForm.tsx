@@ -5,13 +5,14 @@ import { CheckIcon } from "@radix-ui/react-icons";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { RegisterValues, loginInfoSchema } from "../../../../schemas/registerSchema";
 import { useState } from "react";
+import { Button } from "../../../../components/Button/Button";
 
 interface LoginInfoProps {
     handleOnSubmit: (data: RegisterValues) => void;
     handleOnClickPreviousStep: () => void;
     setStepData: (stepData: RegisterValues) => void;
     currentData: RegisterValues;
-    hidden: boolean;
+    loading: boolean;
 }
 
 const LoginInfoForm = ({
@@ -19,15 +20,19 @@ const LoginInfoForm = ({
     handleOnClickPreviousStep,
     setStepData,
     currentData,
-    hidden,
+    loading,
 }: LoginInfoProps) => {
     const {
         register,
         handleSubmit,
-        formState: { errors },
-    } = useForm({ resolver: yupResolver(loginInfoSchema) });
+        formState: { errors, isValid },
+    } = useForm({
+        resolver: yupResolver(loginInfoSchema),
+        mode: "onChange",
+    });
     const [errorUseTerm, setErrorUseTerm] = useState("");
     const [useTermChecked, setUseTermChecked] = useState(false);
+
 
     const onSubmit = handleSubmit((stepData) => {
         setErrorUseTerm("");
@@ -49,12 +54,12 @@ const LoginInfoForm = ({
     };
 
     return (
-        <Form.Root about="Form to provide login info." hidden={hidden} onSubmit={onSubmit} className="m-auto w-10/12">
+        <Form.Root about="Form to provide login info." onSubmit={onSubmit} className="m-auto w-10/12">
             <h1>Criar uma conta</h1>
             <h3>Seus dados de acesso</h3>
-            <div className="mt-20 grid gap-y-10">
-                <div className="gap-2 md:flex">
-                    <Form.Field name="email" className="w-full">
+            <div className="mt-8 grid gap-5 max-md:gap-2">
+                <div className="gap-2 flex max-md:block mb-1">
+                    <Form.Field name="email" className="w-full max-md:mb-3">
                         <Form.Control placeholder="E-mail*" type="email" {...register("email")}></Form.Control>
                         {errors?.email && <Form.Message className="error-message">{errors.email.message}</Form.Message>}
                     </Form.Field>
@@ -70,8 +75,8 @@ const LoginInfoForm = ({
                         )}
                     </Form.Field>
                 </div>
-                <div className="gap-2 md:flex">
-                    <Form.Field name="password" className="w-full">
+                <div className="gap-2 flex max-md:block">
+                    <Form.Field name="password" className="w-full max-md:mb-3">
                         <Form.Control type="password" placeholder="Senha*" {...register("password")}></Form.Control>
                         {errors?.password && (
                             <Form.Message className="error-message">{errors.password.message}</Form.Message>
@@ -102,7 +107,7 @@ const LoginInfoForm = ({
                         </Checkbox.Root>
                         <label
                             htmlFor="acceptUseTerm"
-                            className="pl-[15px] text-left text-[15px] leading-6 text-rose-500 "
+                            className="pl-[15px] text-left text-[15px] leading-none  "
                         >
                             <p>
                                 Estou ciente de que todos os <b>dados de pesquisa</b> que forem cadastrados na
@@ -113,12 +118,19 @@ const LoginInfoForm = ({
                     {errorUseTerm && <Form.Message className="error-message mt-7">{errorUseTerm}</Form.Message>}
                 </Form.Field>
                 <div className="mt-8 flex gap-x-2">
-                    <button onClick={handleOnClickPreviousStep} type="button" className="button-neutral-light w-full ">
-                        Voltar
-                    </button>
-                    <button className="button-neutral-dark w-full ">Continuar</button>
+                    <Button onClick={handleOnClickPreviousStep} type="button" className="w-full " title={"Voltar"} color={"gray"} size={"Large"}>
+
+                    </Button>
+                    <Button
+                        size="Large"
+                        className={`w-full disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                        title={"Concluir"}
+                        color={`${isValid ? "green" : "gray"}`}
+                        disabled={!isValid}
+                        loading={loading}
+                    />
                 </div>
-                <div className=" text-red-600 ">* Campos obrigatórios</div>
+                <div className="text-red-600">* Campos obrigatórios</div>
             </div>
         </Form.Root>
     );

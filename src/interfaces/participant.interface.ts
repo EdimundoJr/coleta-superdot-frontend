@@ -9,6 +9,7 @@ import {
 } from "../utils/consts.utils";
 import IQuestion from "./question.interface";
 import { ISecondSource } from "./secondSource.interface";
+import IBio from "./evaluateAutobiography.interface";
 
 export interface IParticipant {
     _id?: string;
@@ -18,6 +19,7 @@ export interface IParticipant {
         email: string;
         maritalStatus: TMaritalStatus;
         job: string;
+        occupation: string;
         educationLevel: TEducationLevel;
         gender: TGender;
         birthDate: Date;
@@ -31,6 +33,7 @@ export interface IParticipant {
         outsideHouseDevices?: TDevices[];
     };
     addressData: {
+        state: string;
         city: string;
         district: string;
         street: string;
@@ -38,6 +41,11 @@ export interface IParticipant {
     };
     acceptTcleAt?: Date;
     acceptTaleAt?: Date;
+    giftdnessIndicatorsByResearcher?: boolean;
+    knowledgeAreasIndicatedByResearcher?: {
+        general: [String],
+        specific: [String]
+    },
     adultForm?: {
         endFillFormAt?: string;
         startFillFormAt?: string;
@@ -50,7 +58,10 @@ export interface IParticipant {
         text?: string;
         videoUrl?: string;
     };
+    evaluateAutobiography: IBio[];
     secondSources?: DeepPartial<ISecondSource>[];
     createdAt?: string;
     updatedAt?: string;
 }
+
+export type { ISecondSource };

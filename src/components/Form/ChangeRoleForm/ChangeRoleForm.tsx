@@ -6,6 +6,11 @@ import { SelectField } from "../../SelectField/SelectField";
 import { TextAreaField } from "../../TextAreaField/TextAreaField";
 import { setUserRole } from "../../../api/auth.api";
 import { USER_ROLE, USER_ROLES_ARRAY } from "../../../utils/consts.utils";
+import { Button } from "../../Button/Button";
+import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
+import * as Icon from "@phosphor-icons/react";
+
 
 interface ChangeRoleFormProps {
     userId: string;
@@ -14,6 +19,7 @@ interface ChangeRoleFormProps {
 }
 
 const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormProps) => {
+    const [loading, setLoading] = useState(false);
     const usersPageSearchFormSchema = yup.object({
         newRole: yup
             .string()
@@ -30,38 +36,44 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
     } = useForm({ resolver: yupResolver(usersPageSearchFormSchema) });
 
     const onSubmit = handleSubmit(async (data) => {
+        setLoading(true);
         try {
             const response = await setUserRole(userId, data.newRole, data.emailMessage);
             if (response.status === 200) {
                 onFinish(data.newRole);
                 return;
             }
-            console.log(response);
         } catch (e) {
             console.error(e);
+        } finally {
+            setLoading(false);
         }
     });
 
     return (
         <Form.Root onSubmit={onSubmit}>
-            <SelectField
-                defaultValue={currentUserRole}
-                errorMessage={errors?.newRole?.message}
-                label="Perfil"
-                {...register("newRole")}
-            >
-                <option>Pesquisador</option>
-                <option>Revisor</option>
-                <option>Administrador</option>
-            </SelectField>
-            <TextAreaField
-                errorMessage={errors?.emailMessage?.message}
-                label="Mensagem (será enviada ao e-mail do usuário)"
-                {...register("emailMessage")}
-            />
-            <Form.Submit asChild>
-                <button className="button-primary float-right mr-3">Salvar</button>
-            </Form.Submit>
+            <Flex direction={"column"} gap={"3"}>
+                <SelectField
+                    defaultValue={currentUserRole}
+                    errorMessage={errors?.newRole?.message}
+                    label="Perfil"
+                    {...register("newRole")}
+                >
+
+                    <option>Pesquisador</option>
+                    <option>Revisor</option>
+                    <option>Administrador</option>
+                </SelectField>
+                <TextAreaField
+                    errorMessage={errors?.emailMessage?.message}
+                    label="Mensagem (será enviada ao e-mail do usuário)"
+                    {...register("emailMessage")}
+                    className="border-2 border-gray-300"
+                />
+                <Form.Submit asChild>
+                    <Button loading={loading} title={"Salvar alterações"} color={"green"} size={"Medium"} children={<Icon.FloppyDisk size={18} weight="bold" />} />
+                </Form.Submit>
+            </Flex>
         </Form.Root>
     );
 };

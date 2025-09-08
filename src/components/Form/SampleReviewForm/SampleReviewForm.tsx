@@ -8,6 +8,10 @@ import { createReview } from "../../../api/sampleReview.api";
 import { InputField } from "../../InputField/InputField";
 import { SAMPLE_STATUS_ARRAY } from "../../../utils/consts.utils";
 import { SampleSummary } from "../../../api/sample.api";
+import { Button } from "../../Button/Button";
+import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
+import * as Icon from "@phosphor-icons/react";
 
 interface SampleReviewFormProps {
     sample?: SampleSummary;
@@ -15,6 +19,8 @@ interface SampleReviewFormProps {
 }
 
 const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
+    const [loading, setLoading] = useState(false);
+
     if (!sample) return null;
 
     const sampleReviewFormSchema = yup.object({
@@ -25,10 +31,16 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
             .required(),
         qttParticipantsAuthorized: yup
             .number()
-            .max(
-                sample?.qttParticipantsRequested || 0,
-                "A quantidade de participantes autorizados precisa ser menor ou igual a quantidade de participantes solicitados."
-            ),
+            .when('nextStatus', {
+                is: "Autorizado",
+                then: (schema) => schema
+                    .required("Por favor, informe a quantidade de participantes autorizados.")
+                    .max(
+                        sample?.qttParticipantsRequested || 0,
+                        "A quantidade de participantes autorizados precisa ser menor ou igual a quantidade de participantes solicitados."
+                    ),
+                otherwise: (schema) => schema.default(0)
+            }),
         reviewMessage: yup.string().required("Por favor, insira uma mensagem de revisão."),
     });
 
@@ -42,24 +54,30 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
     const watchStatusChange = watch("nextStatus");
 
     const onSubmit = handleSubmit(async (data) => {
+        setLoading(true);
         try {
-            const response = await createReview({
+            const payload = {
                 ...data,
                 sampleId: sample?.sampleId || "",
-            });
+                // Send 0 if not authorized, or the actual number if authorized
+                qttParticipantsAuthorized: watchStatusChange !== "Autorizado" ? 0 : data.qttParticipantsAuthorized
+            };
+
+            const response = await createReview(payload);
             if (response.status === 200) {
                 onFinish();
                 return;
             }
-            console.log(response);
         } catch (e) {
             console.error(e);
+        } finally {
+            setLoading(false);
         }
     });
 
     return (
         <Form.Root onSubmit={onSubmit}>
-            <div className="gap-x-2 lg:flex">
+            <Flex direction="column" className="gap-3">
                 <SelectField
                     defaultValue={sample?.currentStatus}
                     errorMessage={errors?.nextStatus?.message}
@@ -75,16 +93,21 @@ const SampleReviewForm = ({ sample, onFinish }: SampleReviewFormProps) => {
                     disabled={watchStatusChange !== "Autorizado"}
                     label="QUANTIDADE DE PARTICIPANTES AUTORIZADOS"
                     type="number"
-                    {...register("qttParticipantsAuthorized")}
+                    defaultValue={0}
+                    {...register("qttParticipantsAuthorized", {
+                        valueAsNumber: true,
+                    })}
                 />
-            </div>
-            <TextAreaField
-                errorMessage={errors?.reviewMessage?.message}
-                label="MENSAGEM (essa mensagem será enviada para o e-mail do pesquisador)"
-                {...register("reviewMessage")}
-            />
+                <TextAreaField
+                    className="border-2 border-stone-200"
+                    errorMessage={errors?.reviewMessage?.message}
+                    label="MENSAGEM (essa mensagem será enviada para o e-mail do pesquisador)"
+                    {...register("reviewMessage")}
+                />
+            </Flex>
+
             <Form.Submit asChild>
-                <button className="button-primary float-right mr-3">Salvar</button>
+                <Button loading={loading} className="w-full" title={"Salvar alterações"} color={"green"} size={"Medium"} children={<Icon.FloppyDisk size={18} weight="bold" />}></Button>
             </Form.Submit>
         </Form.Root>
     );

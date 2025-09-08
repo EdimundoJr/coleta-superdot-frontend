@@ -13,17 +13,22 @@ import {
 } from "../../../utils/consts.utils";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { useForm } from "react-hook-form";
-import { putSaveParticipantData, putSubmitParticipantData } from "../../../api/participant.api";
+import { putSubmitParticipantData } from "../../../api/participant.api";
 import Select from "react-select";
 import { IParticipant } from "../../../interfaces/participant.interface";
+import { Button } from "../../../components/Button/Button";
+import { Flex } from "@radix-ui/themes";
+import { useState } from "react";
+import { Portuguese } from "flatpickr/dist/l10n/pt.js";
+import * as Icon from "@phosphor-icons/react";
 
 interface ParticipantDataStepProps {
     nextStep: () => void;
     setFormData: (formData: IParticipant) => void;
-    setNotificationData: (data: { title: string; description: string }) => void;
+    setNotificationData: (data: { title: string; description: string; type: string }) => void;
     formData?: IParticipant;
     sampleId: string;
-    saveAndExit: () => void;
+    header: string;
 }
 
 /* This step will collect the personal, family, and address data from participant. */
@@ -33,35 +38,34 @@ const ParticipantDataStep = ({
     formData,
     setNotificationData,
     sampleId,
-    saveAndExit,
+    header,
 }: ParticipantDataStepProps) => {
     const {
         register,
         handleSubmit,
         formState: { errors },
-        watch,
         setValue,
+        formState,
     } = useForm({
         resolver: yupResolver(participantDataSchema),
         defaultValues: formData,
+        mode: "onChange",
     });
 
-    const onSaveAndExit = async () => {
+    const [loading, setLoading] = useState(false);
+
+
+    const scrollToTop = () => {
+
         try {
-            const response = await putSaveParticipantData({ sampleId, participantData: watch() }); // watch?
-            if (response.status === 200) {
-                saveAndExit();
-            }
-        } catch (e: any) {
-            console.error(e);
-            setNotificationData({
-                title: "Preenchimento inválido!",
-                description: "Preencha todos os campos corretamente.",
-            });
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        } catch (error) {
+            window.scrollTo(0, 0);
         }
     };
 
     const onSubmit = handleSubmit(async (participantData: ParticipantDataDTO) => {
+        setLoading(true);
         try {
             const response = await putSubmitParticipantData({ sampleId, participantData });
             if (response.status === 200) {
@@ -74,24 +78,33 @@ const ParticipantDataStep = ({
                     setFormData(participantData);
                 }
                 nextStep();
+                scrollToTop();
             }
         } catch (e: any) {
             console.error(e);
             setNotificationData({
                 title: "Preenchimento inválido!",
                 description: "Preencha todos os campos corretamente.",
+                type: "erro"
             });
+        } finally {
+            setLoading(false);
         }
     });
 
+    const today = new Date();
+    const minDate = new Date(today.getFullYear() - 8, today.getMonth(), today.getDate());
+
     return (
-        <div className="grid gap-y-10">
-            <header>
-                <h1>Informações pessoais</h1>
-                <h3>Preencha os campos abaixo para continuar.</h3>
+        <Flex direction={"column"} className="rt-Flex rt-r-fd-column bg-white gap-y-5  max-sm:p-0  relative w-[100%]  m-auto rounded-2xl p-5">
+            <header className="text-primary">
+                <h3 className="text-xl max-sm:text-lg md:text-xl lg:text-2xl font-bold">
+                    {header}
+                </h3>
+
             </header>
             <Form.Root onSubmit={onSubmit} className="w-full">
-                <div className="grid grid-cols-1 gap-y-5 sm:grid-cols-2 md:grid-cols-3 ">
+                <div className="grid grid-cols-1 gap-y-5  gap-3 ">
                     <InputField
                         {...register("personalData.fullName")}
                         label="Nome completo*"
@@ -140,8 +153,8 @@ const ParticipantDataStep = ({
                             <option key={gender}>{gender}</option>
                         ))}
                     </SelectField>
-                    <Form.Field name="birthDate" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="birthDate" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Data de nascimento*
                         </Form.Label>
                         <Flatpicker
@@ -150,7 +163,9 @@ const ParticipantDataStep = ({
                             multiple={false}
                             onChange={([date]) => setValue("personalData.birthDate", date)}
                             options={{
-                                maxDate: "today",
+                                dateFormat: "d/m/Y",
+                                maxDate: minDate,
+                                locale: Portuguese,
                             }}
                         />
                         {errors.personalData?.birthDate?.message && (
@@ -195,8 +210,8 @@ const ParticipantDataStep = ({
                         ))}
                     </SelectField>
 
-                    <Form.Field name="personalData.houseDevices" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="personalData.houseDevices" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Aparelhos na casa
                         </Form.Label>
                         <Select
@@ -207,19 +222,36 @@ const ParticipantDataStep = ({
                                 )
                             }
                             isMulti
+                            styles={{
+                                control: (provided) => ({
+                                    ...provided,
+                                    minHeight: '40px',
+                                    height: '40px',
+                                    overflowY: 'auto',
+                                }),
+                                valueContainer: (provided) => ({
+                                    ...provided,
+                                    flexWrap: 'nowrap',
+                                    overflowX: 'auto',
+                                }),
+                                placeholder: (provided) => ({
+                                    ...provided,
+                                    fontSize: '14px',
+                                })
+                            }}
                             options={DEVICES_ARRAY.map((device) => {
                                 return { value: device, label: device };
                             })}
                             className="text-black"
                             placeholder="Selecione uma ou várias opções"
                         />
-                        <span className="error-message">
+                        {/* <span className="error-message h-0 text-[12px]">
                             {(watch("familyData.outsideHouseDevices")?.length || 0) > 0 &&
                                 "Você pode selecionar mais do que uma opção."}
-                        </span>
+                        </span> */}
                     </Form.Field>
-                    <Form.Field name="personalData.outsideHouseDevices" className="mb-6 w-full px-3">
-                        <Form.Label className="mb-2 block text-left text-xs font-bold uppercase tracking-wide">
+                    <Form.Field name="personalData.outsideHouseDevices" className="w-full">
+                        <Form.Label className="block text-left text-xs font-bold uppercase tracking-wide">
                             Fora de casa, você tem acesso a
                         </Form.Label>
                         <Select
@@ -233,13 +265,30 @@ const ParticipantDataStep = ({
                                 return { value: device, label: device };
                             })}
                             isMulti
-                            className="text-black"
+                            className="text-black !h-10"
                             placeholder="Selecione uma ou várias opções"
+                            styles={{
+                                control: (provided) => ({
+                                    ...provided,
+                                    minHeight: '40px',
+                                    height: '40px',
+                                    overflowY: 'auto',
+                                }),
+                                valueContainer: (provided) => ({
+                                    ...provided,
+                                    flexWrap: 'nowrap',
+                                    overflowX: 'auto',
+                                }),
+                                placeholder: (provided) => ({
+                                    ...provided,
+                                    fontSize: '14px',
+                                })
+                            }}
                         />
-                        <span className="error-message">
+                        {/* <span className="error-message h-0 text-[12px]">
                             {(watch("familyData.houseDevices")?.length || 0) > 0 &&
                                 "Você pode selecionar mais do que uma opção."}
-                        </span>
+                        </span> */}
                     </Form.Field>
                     <InputField
                         {...register("addressData.city")}
@@ -266,14 +315,21 @@ const ParticipantDataStep = ({
                         errorMessage={errors.addressData?.houseNumber?.message}
                     />
                 </div>
-                <div className="flex justify-center gap-6">
-                    <button type="button" onClick={onSaveAndExit} className="button-secondary mt-5 w-3/4 px-3 md:w-56">
-                        SALVAR E SAIR
-                    </button>
-                    <button className="button-secondary mt-5 w-3/4 px-3 md:w-56">SALVAR E CONTINUAR</button>
+                <div className="flex justify-center gap-6 mt-6">
+
+                    <Button
+                        loading={loading}
+                        size="Medium"
+                        className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed`}
+                        title={"Salvar alterações"}
+                        color={`${formState.isValid ? "green" : "gray"}`}
+                        type="submit"
+                        disabled={!formState.isValid}
+                        children={<Icon.FloppyDisk size={18} weight="bold" />}
+                    />
                 </div>
             </Form.Root>
-        </div>
+        </Flex>
     );
 };
 

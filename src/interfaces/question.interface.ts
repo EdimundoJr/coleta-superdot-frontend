@@ -13,5 +13,6 @@ export default interface IQuestion {
         parentId: string;
         isRequiredOnParentValue: string;
     };
-    answer?: string | string[]; // Participant answer
+    answer?: string | string[]; 
+    answerPoints?: number;
 }
