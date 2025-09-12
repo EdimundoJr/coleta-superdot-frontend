@@ -42,7 +42,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData }: DetailsFormPr
         >
             <h1>Criar uma conta</h1>
             <h3>Seus dados</h3>
-            <div className="mt-8 grid gap-y-10">
+            <div className="mt-8 grid gap-y-10 max-sm:gap-y-4">
                 <div>
                     <Form.Field name="personalData.fullName" className="col-span-3">
                         <Form.Control
@@ -56,7 +56,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData }: DetailsFormPr
                         )}
                     </Form.Field>
                 </div>
-                <div className="gap-2 flex">
+                <div className="gap-2 flex max-sm:flex-col max-sm:gap-4">
                     <Form.Field name="personalData.phone" className="w-full">
                         <Form.Control placeholder="Telefone*" {...register("personalData.phone")}></Form.Control>
                         {errors?.personalData?.phone && (
@@ -82,7 +82,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData }: DetailsFormPr
                         )}
                     </Form.Field>
                 </div>
-                <div className="gap-2 flex">
+                <div className="gap-2 flex max-sm:flex-col max-sm:gap-4">
                     <Form.Field name="instituition" className="w-full">
                         <Form.Control
                             placeholder="Instituição de trabalho*"
@@ -113,7 +113,7 @@ const DetailsForm = ({ handleOnSubmit, setStepData, currentData }: DetailsFormPr
 
                 <div>
                     <div className=" text-red-600 ">* Campos obrigatórios</div>
-                    <div className="mt-5 text-xs">
+                    <div className="mt-5 text-xs max-sm:mt-2">
                         <Link className="" to="/">Já tenho uma conta...</Link>
                     </div>
                 </div>

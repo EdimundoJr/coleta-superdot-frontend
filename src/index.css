@@ -81,7 +81,7 @@ span.error-message {
     @apply rounded-xl border border-neutral-100 bg-white shadow-lg;
 }
 .card-container-variante-border {
-    @apply bg-white shadow-lg;
+    @apply rounded-none bg-white shadow-lg;
 }
 
 .heading-1 {

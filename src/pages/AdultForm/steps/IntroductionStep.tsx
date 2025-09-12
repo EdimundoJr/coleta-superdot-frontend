@@ -121,15 +121,16 @@ const IntroductionStep = ({
         <>
 
             <FadeContent blur={true} duration={1000} easing="ease-out" initialOpacity={0}>
-                <Box className="min-h-screen overflow-y-auto font-roboto text-slate-950 w-full px-4 max-w-4xl relative z-10 my-8 mx-auto">
+                <Box
+                    className="min-h-screen sm:h-screen font-roboto text-slate-950 w-full px-4 max-w-4xl relative z-10 mx-auto flex flex-col justify-center  ">
                     <div className="w-full text-justify font-roboto text-gray-50">
                         {/* Logo */}
-                        <div className="flex justify-center mb-6 sm:mb-10">
-                            <img className="w-32 sm:w-44" src={logo} alt="Logo" />
+                        <div className="flex justify-center max-sm:mb-10">
+                            <img className="w-36 max-sm:w-44" src={logo} alt="Logo" />
                         </div>
 
                         {/* Título */}
-                        <h1 className="text-center text-xl sm:text-2xl font-bold mt-4">
+                        <h1 className="text-center text-xl sm:text-2xl font-bold mt-2">
                             <Flex gap="2" align="center" justify="center" className="flex-col sm:flex-row">
                                 <RotatingText
                                     texts={['Olá,', 'Hello,', 'Hola,', 'Bonjour,', 'Ciao,']}
@@ -148,7 +149,7 @@ const IntroductionStep = ({
                         </h1>
 
                         {/* Texto introdutório */}
-                        <div className="mt-6 space-y-4 text-sm sm:text-lg leading-relaxed">
+                        <div className="mt-4 space-y-4 sm:text-lg leading-relaxed">
                             <p>
                                 Você foi convidado a participar da coleta de dados sobre altas habilidades/superdotação
                                 que está sendo realizada pelo(a) pesquisador(a): <b>{researcherName}</b>.{" "}
@@ -178,7 +179,7 @@ const IntroductionStep = ({
                             Para iniciar ou continuar o preenchimento, informe seu e-mail no campo abaixo:
                         </p>
 
-                        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto">
+                        <div className="flex flex-col sm:flex-row gap-3 w-full max-w-md mx-auto mb-2">
                             <input
                                 id="participantEmail"
                                 placeholder="Insira seu e-mail aqui..."
@@ -197,9 +198,11 @@ const IntroductionStep = ({
                             />
                         </div>
                     </div>
-                </Box>
 
-            </FadeContent>
+                </Box>
+            </FadeContent >
+
+
         </>
 
     );

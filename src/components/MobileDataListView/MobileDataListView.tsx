@@ -109,10 +109,7 @@ const MobileDataListView: React.FC<MobileDataListViewProps> = ({
                           variant="surface"
                           radius="full"
                           className="ml-2"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            participant._id && handleShowIAH(participant._id);
-                          }}
+                          onClick={() => participant._id && handleShowIAH(participant._id)}
                         >
                           <Icon.Pencil size={15} />
                         </IconButton>
@@ -145,10 +142,7 @@ const MobileDataListView: React.FC<MobileDataListViewProps> = ({
                             size="1"
                             variant="surface"
                             radius="full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              participant._id && handleShowKAG(participant._id);
-                            }}
+                            onClick={() => participant._id && handleShowKAG(participant._id)}
                           >
                             <Icon.Pencil size={15} />
                           </IconButton>
@@ -167,10 +161,7 @@ const MobileDataListView: React.FC<MobileDataListViewProps> = ({
                             size="1"
                             variant="surface"
                             radius="full"
-                            onClick={(e) => {
-                              e.stopPropagation();
-                              participant._id && handleShowKAE(participant._id);
-                            }}
+                            onClick={() => participant._id && handleShowKAE(participant._id)}
                           >
                             <Icon.Pencil size={15} />
                           </IconButton>

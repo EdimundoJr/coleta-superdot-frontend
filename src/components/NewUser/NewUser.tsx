@@ -37,7 +37,7 @@ const WelcomeModal = ({ open, setOpen, isNewUser }: WelcomeModalProps) => {
     >
       <div className="relative h-full p-2 ">
         {/* Elementos decorativos */}
-        <div className="absolute  flex items-center justify-center max-sm:hidden">
+        <div className="absolute  flex items-center justify-center ">
           <div className="absolute transform -translate-x-1/2 -translate-y-1/2 
               w-64 h-64 lg:w-96 lg:h-96 
               bg-purple-500/20 rounded-full 
@@ -101,8 +101,8 @@ const WelcomeModal = ({ open, setOpen, isNewUser }: WelcomeModalProps) => {
         </div>
 
         {/* Elementos flutuantes */}
-        <div className="absolute top-8 right-8 max-sm:hidden w-16 h-16 bg-white/10 rounded-full animate-float"></div>
-        <div className="absolute bottom-16 left-12 max-sm:hidden w-8 h-8 bg-white/10 rounded-full animate-float-delayed"></div>
+        <div className="absolute top-8 right-8  w-16 h-16 bg-white/10 rounded-full animate-float"></div>
+        <div className="absolute bottom-16 left-12  w-8 h-8 bg-white/10 rounded-full animate-float-delayed"></div>
       </div>
     </Modal>
   );

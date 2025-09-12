@@ -177,7 +177,7 @@ const IndicateSecondSourceStep = ({
             if (response.status === 200) {
                 setNotificationData({
                     title: "Indicações concluídas.",
-                    description: "As indicações foram registradas e os e-mails foram enviados.",
+                    description: "Obrigado por indicar os participantes. As indicações foram registradas.",
                     type: "success"
                 });
 

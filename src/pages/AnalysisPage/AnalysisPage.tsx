@@ -186,7 +186,7 @@ const AnalysisPage = () => {
             setNotificationData({
                 title: "Erro ao salvar os dados",
                 description: "Não foi possível salvar os dados. Tente novamente.",
-                type: "error"
+                type: "erro"
             });
             console.error("Erro ao salvar os dados:", error);
         } finally {

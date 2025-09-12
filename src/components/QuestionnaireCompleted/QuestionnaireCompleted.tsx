@@ -11,10 +11,10 @@ const QuestionnaireCompleted = () => {
   }
 
   return (
-    <Flex className="relative bg-gradient-to-r from-violet-500 to-primary overflow-hidden border-none w-full h-screen">
+    <Flex className="relative bg-gradient-to-br from-violet-600 via-purple-500 to-primary overflow-hidden border-none w-full h-screen">
       <div className="relative h-full w-full p-2 m-auto flex items-center justify-center">
         {/* Elementos decorativos */}
-        <div className="absolute  flex items-center justify-center max-sm:hidden">
+        <div className="absolute  flex items-center justify-center ">
           <div className="absolute transform  
           w-64 h-64 lg:w-96 lg:h-96 
           bg-purple-500/20 rounded-full 
@@ -33,7 +33,7 @@ const QuestionnaireCompleted = () => {
         </div>
 
         {/* Conteúdo principal */}
-        <div className="relative z-10 bg-white/10 backdrop-blur-lg rounded-2xl p-8 max-sm:p-4 shadow-2xl m-auto w-[50%] transform transition-all hover:scale-[1.02] max-sm:hover:scale-100 duration-300">
+        <div className="relative z-10 bg-white/10 backdrop-blur-lg rounded-2xl p-8 max-sm:p-4 shadow-2xl m-auto w-[50%] max-sm:w-[80%] transform transition-all hover:scale-[1.02] max-sm:hover:scale-100 duration-300">
           <div className="flex flex-col items-center space-y-6 max-sm:space-y-4">
             <div className="p-4 max-sm:p-2 bg-white/20 rounded-full animate-bounce">
               <Icon.CheckCircle className="w-12 h-12 max-sm:w-8 max-sm:h-8 text-white" />
@@ -63,8 +63,8 @@ const QuestionnaireCompleted = () => {
         </div>
 
         {/* Elementos flutuantes */}
-        <div className="absolute top-8 right-8 max-sm:hidden w-16 h-16 bg-white/10 rounded-full animate-float"></div>
-        <div className="absolute bottom-16 left-12 max-sm:hidden w-8 h-8 bg-white/10 rounded-full animate-float-delayed"></div>
+        <div className="absolute top-8 right-8  w-16 h-16 bg-white/10 rounded-full animate-float"></div>
+        <div className="absolute bottom-16 left-12  w-8 h-8 bg-white/10 rounded-full animate-float-delayed"></div>
       </div>
     </Flex>
 
