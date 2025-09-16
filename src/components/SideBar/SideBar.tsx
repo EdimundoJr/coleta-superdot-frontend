@@ -205,7 +205,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             key={idx}
                             to={menu.link}
                             onClick={toggleMobileMenu}
-                            className={`flex items-center gap-4 p-3 rounded-md text-white btn-primary ${isActive(menu.link) ? "bg-white/20 backdrop-blur-lg" : ""}`}
+                            className={`flex items-center gap-4 p-3 rounded-md text-white btn-primary ${menu.paths?.includes(location.pathname) ? "bg-white/20 shadow-lg backdrop-blur-sm" : ""}  ? "bg-white/20 backdrop-blur-lg" : ""}`}
                         >
                             {menu.icon}
                             <span>{menu.title}</span>
@@ -218,7 +218,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             onClick={toggleMobileMenu}
                             className={`flex items-center gap-2 p-2 rounded-md text-white  btn-primary ${isActive("/app/review-requests") ? "bg-white/20 backdrop-blur-lgs" : ""}`}
                         >
-                            <Icon.Check size={24} />
+                            <Icon.Check size={24} weight={`${isActiveIcon("/app/review-requests")}`} />
                             <span>Revisar solicitações</span>
                         </Link>
                     )}
@@ -229,7 +229,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             onClick={toggleMobileMenu}
                             className={`flex items-center gap-4 p-3 rounded-md text-white  btn-primary ${isActive("/app/users") ? "bg-white/20 backdrop-blur-lg" : ""}`}
                         >
-                            <Icon.UserGear size={24} />
+                            <Icon.UserGear size={24} weight={`${isActiveIcon("/app/users")}`} />
                             <span>Usuários</span>
                         </Link>
                     )}

@@ -3,7 +3,7 @@ import { ISample } from "../../../interfaces/sample.interface";
 import { TFormFillStatus } from "../../../utils/consts.utils";
 import { IParticipant } from "../../../interfaces/participant.interface";
 import Accordeon from "../../Accordeon/Accordeon";
-import { DataList, Flex, IconButton, Separator, Skeleton, Table } from "@radix-ui/themes";
+import { Badge, DataList, Flex, IconButton, Separator, Table } from "@radix-ui/themes";
 import * as Icon from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
 import SkeletonTableBody from "../../Skeletons/SkeletonTableBody";
@@ -115,7 +115,7 @@ const ParticipantsRegistrationTable = ({
                                                 ? DateTime.fromISO(participant.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
                                                 : "Não Finalizado"}</Table.Cell>
                                             <Table.Cell justify="center">
-                                                {participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
+                                                <Badge color={participant.adultForm?.giftednessIndicators ? "green" : "red"}>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Badge>
                                             </Table.Cell>
                                             <Table.Cell justify="center">
                                                 <IconButton
@@ -200,7 +200,7 @@ const ParticipantsRegistrationTable = ({
 
                                                 <DataList.Label minWidth="88px">Indicadores de AH/SD</DataList.Label>
 
-                                                <DataList.Value >{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</DataList.Value>
+                                                <DataList.Value ><Badge color={participant.adultForm?.giftednessIndicators ? "green" : "red"}>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Badge></DataList.Value>
                                                 <Separator size={"4"} className="mb-2 mt-2" />
 
                                                 <DataList.Label minWidth="88px">URL 2ª fonte</DataList.Label>

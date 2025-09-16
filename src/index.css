@@ -23,7 +23,7 @@
 
 body,
 html {
-    @apply m-0 h-full  overflow-x-auto max-sm:overflow-x-clip;
+    @apply m-0 h-full overflow-x-auto max-sm:overflow-x-clip;
 }
 
 * DEFAULT ELEMENTS * h1,
@@ -98,6 +98,9 @@ span.error-message {
 
 .btn-primary-mobo {
     @apply transition-all duration-200 hover:scale-95 active:scale-105;
+}
+.rt-Badge {
+    @apply !font-roboto;
 }
 @keyframes fadeIn {
     from {

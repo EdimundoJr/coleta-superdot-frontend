@@ -5,6 +5,7 @@ import * as Icon from '@phosphor-icons/react'
 import SkeletonTableBody from "../../Skeletons/SkeletonTableBody";
 import { useEffect, useState } from "react";
 import SkeletonDataList from "../../Skeletons/SkeletonDataList";
+import { Button } from "../../Button/Button";
 
 
 interface UsersTableProps {
@@ -108,14 +109,11 @@ const UsersTable = ({ data, currentPage, setCurrentPage, onClickPencil }: UsersT
                             <DataList.Label>Ações:</DataList.Label>
                             <div className="flex justify-start mt-1">
                                 <Tooltip content="Alterar perfil do usuário.">
-                                    <IconButton
-                                        variant="surface"
-                                        radius="full"
+                                    <Button
                                         onClick={() => onClickPencil(user._id)}
-                                        className="hover:cursor-pointer"
-                                    >
+                                        className="hover:cursor-pointer w-full" title={"Alterar perfil do usuário"}>
                                         <Icon.Pencil />
-                                    </IconButton>
+                                    </Button>
                                 </Tooltip>
                             </div>
                         </DataList.Item>

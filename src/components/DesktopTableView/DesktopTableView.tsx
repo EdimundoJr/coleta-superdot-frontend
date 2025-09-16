@@ -11,7 +11,8 @@ import {
   Box,
   TextField,
   AlertDialog,
-  Strong
+  Strong,
+  Badge
 } from '@radix-ui/themes';
 import * as Icon from '@phosphor-icons/react';
 import { IParticipant } from "../../interfaces/participant.interface";
@@ -199,7 +200,7 @@ const DesktopTableView: React.FC<DesktopTableViewProps> = ({
                 </Table.Cell>
 
                 <Table.Cell justify="center">
-                  {participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
+                  <Badge size={"3"} className='!px2' color={participant.adultForm?.giftednessIndicators ? "green" : "red"}>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Badge>
                 </Table.Cell>
 
                 <Table.Cell justify="center">
@@ -242,7 +243,7 @@ const DesktopTableView: React.FC<DesktopTableViewProps> = ({
                     </Flex>
                   </Modal>
                   <Flex direction="row" align="center" justify="center" gap="4">
-                    {participant.giftdnessIndicatorsByResearcher ? 'Sim' : "Não"}
+                    <Badge size={"3"} className='!px2' color={participant.giftdnessIndicatorsByResearcher ? "green" : "red"}>{participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}</Badge>
                     <IconButton
                       size="1"
                       variant="surface"

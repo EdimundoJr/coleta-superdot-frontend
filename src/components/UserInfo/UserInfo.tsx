@@ -1,11 +1,25 @@
-import { Avatar, Box, Text, Flex, Card, Skeleton, DropdownMenu } from '@radix-ui/themes';
+import {
+  Avatar,
+  Box,
+  Text,
+  Flex,
+  Card,
+  Skeleton,
+  DropdownMenu,
+  IconButton
+} from '@radix-ui/themes';
+import {
+  CaretDown,
+  Gear,
+  SignOut,
+  User,
+  Pencil
+} from '@phosphor-icons/react';
 import NoImg from "../../assets/no-image.jpg"
 import { useEffect, useState } from 'react';
 import { seeAttachmentImage } from '../../api/sample.api';
 import { SampleFile } from '../../interfaces/sample.interface';
 import { getUser, Users } from '../../api/researchers.api';
-
-import * as Icon from "@phosphor-icons/react"
 import { clearTokens } from '../../utils/tokensHandler';
 import { useNavigate } from 'react-router-dom';
 import { Alert } from '../Alert/Alert';
@@ -20,21 +34,18 @@ interface UserInfoProps {
   variant?: 'compact' | 'full';
 }
 
-
-
-export function UserInfo({ sampleFile, className }: UserInfoProps) {
-
+export function UserInfo({ sampleFile, className, variant = 'full' }: UserInfoProps) {
   const [imageUrl, setImageUrl] = useState<string | undefined>(undefined);
   const [userData, setUserData] = useState<null | Users>(null);
   const [loading, setLoading] = useState(true);
   const [openProfileModal, setOpenProfileModal] = useState(false);
-
-  const [error, setError] = useState();
-
+  const [error, setError] = useState<any>();
 
   const profilePhotoCache = useMemo(() => {
     return new Map<string, string>();
   }, []);
+
+  const navigate = useNavigate();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -93,11 +104,7 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
     };
 
     fetchImage();
-  }, [sampleFile, userData?.personalData?.profilePhoto]);
-
-
-
-  const navigate = useNavigate();
+  }, [sampleFile, userData?.personalData?.profilePhoto, profilePhotoCache]);
 
   const logout = () => {
     clearTokens();
@@ -107,6 +114,7 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
   function openProfileEditModal() {
     setOpenProfileModal(true);
   }
+
   const handleProfileSave = (updatedData: {
     fullName?: string;
     profilePhoto?: string;
@@ -122,6 +130,35 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
 
     setOpenProfileModal(false);
   };
+
+  // Componente de avatar com skeleton
+  const AvatarWithSkeleton = () => (
+    <Skeleton loading={loading} width="40px" height="40px" >
+      <Avatar
+        size="4"
+        src={imageUrl || NoImg}
+        radius="full"
+        fallback={userData?.personalData?.fullName?.charAt(0) || <User size={20} />}
+        className="transition-all duration-300 hover:scale-105 border-2 border-white shadow-md"
+      />
+    </Skeleton>
+  );
+
+  // Componente de informações do usuário
+  const UserDetails = () => (
+    <Box className="max-sm:hidden">
+      <Skeleton loading={loading} className="mb-1">
+        <Text as="div" size="2" weight="bold" className="text-gray-900 truncate max-w-[140px]">
+          {getFirstAndLastName(userData?.personalData?.fullName || ' ')}
+        </Text>
+      </Skeleton>
+      <Skeleton loading={loading}>
+        <Text as="div" size="1" color="gray" className="font-medium">
+          {userData?.role || ' '}
+        </Text>
+      </Skeleton>
+    </Box>
+  );
 
   return (
     <>
@@ -144,92 +181,102 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
           />
         </Modal>
       )}
-      <Box className={`flex items-center gap-3  ${className} `}>
 
+      {/* Versão Desktop */}
+      <Box className={`hidden sm:flex items-center ${className} desktop`}>
         <DropdownMenu.Root>
-          <DropdownMenu.Trigger className='desktop'>
-            <button>
-              <Card variant='ghost'>
-                <Flex gap="3" align="center">
-                  <Skeleton loading={loading} className="w-10 h-10">
-                    <Avatar
-                      size="4"
-                      src={imageUrl || NoImg}
-                      radius="full"
-                      fallback={userData?.personalData?.profilePhoto || NoImg}
-                    />
-                  </Skeleton>
-                  <Box>
-                    <Skeleton loading={loading} className="mb-1">
-                      <Text as="div" size="2" weight="bold" className='max-sm:hidden'>
-                        {getFirstAndLastName(userData?.personalData?.fullName || ' ')}
-                      </Text>
-                    </Skeleton>
-
-                    <Skeleton loading={loading} className="w-20 h-3">
-                      <Text as="div" size="2" color="gray" className='max-sm:hidden'>
-                        {userData?.role || ' '}
-                      </Text>
-                    </Skeleton>
-                  </Box>
-                  <Icon.CaretDown className='desktop' />
-                </Flex>
-              </Card>
+          <DropdownMenu.Trigger>
+            <button className="flex items-center gap-3 p-2 rounded-lg transition-colors duration-200 hover:bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50">
+              <AvatarWithSkeleton />
+              {variant === 'full' && <UserDetails />}
+              <CaretDown size={16} weight="bold" className="text-gray-600" />
             </button>
           </DropdownMenu.Trigger>
-          <DropdownMenu.Content variant="soft" className='w-full mt-1'>
-            <DropdownMenu.Item className='hover:cursor-pointer' onClick={openProfileEditModal}>Editar Perfil</DropdownMenu.Item>
-            <DropdownMenu.Separator />
+
+          <DropdownMenu.Content
+            variant="soft"
+            sideOffset={8}
+            className="min-w-[220px] p-2 rounded-xl shadow-lg border border-gray-100"
+          >
+            <DropdownMenu.Item
+              className="flex items-center gap-2 p-3 rounded-lg  text-gray-900 hover:bg-gray-100 focus:bg-gray-100 !cursor-pointer"
+              onClick={openProfileEditModal}
+            >
+              <Pencil size={16} />
+              Editar Perfil
+            </DropdownMenu.Item>
+
+            <DropdownMenu.Separator className="my-1 bg-gray-100" />
+
             <Alert
-              trigger={<Button size='' className='w-[200px] !font-roboto' color='red' title={''}>
-
-                <DropdownMenu.Item onSelect={(event) => event.preventDefault()} className='hover:cursor-pointer hover:bg-red-600 active:bg-red-700'>Sair</DropdownMenu.Item>
-
-              </Button>}
+              trigger={
+                <DropdownMenu.Item
+                  onSelect={(e) => e.preventDefault()}
+                  className="flex items-center gap-2 p-3 rounded-lg !cursor-pointer text-red-600 hover:bg-red-200 focus:bg-red-200"
+                >
+                  <SignOut size={16} />
+                  Sair
+                </DropdownMenu.Item>
+              }
               title={'Tem certeza que deseja sair da plataforma?'}
               description={''}
               buttoncancel={<Button size='Small' color="gray" title={'Cancelar'} />}
-              buttonAction={<Button size='Small' onClick={logout}
-                color="red"
-                title={'Sim, desejo sair.'} />} />
+              buttonAction={
+                <Button
+                  size='Small'
+                  onClick={logout}
+                  color="red"
+                  title={'Sim, desejo sair.'}
+                />
+              }
+            />
           </DropdownMenu.Content>
         </DropdownMenu.Root>
+      </Box>
 
-      </Box >
-      <Flex direction={'row'} align="center" className={`gap-3 !justify-between w-full ${className} mobo-flex`}>
+      {/* Versão Mobile */}
+      <div
 
+        className={`sm:hidden w-full px-2 py-1 shadow-sm rounded-xl ${className} mobo-flex !align-center  w-full flex flex-col  !items-center `}
+      >
+        <div className=' flex items-center !justify-between w-full'>
+          <IconButton
+            variant="ghost"
+            size="3"
+            onClick={openProfileEditModal}
+            className=" rounded-full transition-transform hover:scale-105 shadow-sm"
+          >
+            <Gear size={30} className='text-white' />
+          </IconButton>
 
-        <Card variant='ghost' >
-          <Flex gap="3" align="center">
-            <Skeleton loading={loading} className="w-10 h-10">
-              <Avatar size="2" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={userData?.personalData.profilePhoto ? userData?.personalData.profilePhoto : NoImg} />
-            </Skeleton>
-            <Box>
-              <Skeleton loading={loading} className="mb-1">
-                <Text as="div" size="2" weight="bold" className='max-sm:!text-[12px]'>
-                  {getFirstAndLastName(userData?.personalData.fullName || ' ')}
-                </Text>
-              </Skeleton>
+          <Box className="text-center">
+            <AvatarWithSkeleton />
 
-              <Skeleton loading={loading} className="w-20 h-3">
-                <Text as="div" size="2" color="gray" className='max-sm:!text-[12px]'>
-                  {userData?.role || ' '}
-                </Text>
-              </Skeleton>
-            </Box>
-            <Icon.CaretDown className='desktop' />
-          </Flex>
-        </Card>
-        <Button size='Small' onClick={openProfileEditModal} color="" title={''} children={<Icon.Gear size={24} />} className='mobo' />
-        <Alert
-          trigger={<Icon.SignOut size={24} />}
-          title={'Tem certeza que deseja sair da plataforma?'} description={''}
-          buttoncancel={<Button size='Small' color="gray" title={'Cancelar'} />}
-          buttonAction={<Button size='Small' onClick={logout}
-            color="red"
-            title={'Sim, desejo sair.'} />} />
+            <Text as="div" size="3" weight="bold" className="text-white mt-3">
+              {getFirstAndLastName(userData?.personalData?.fullName || " ")}
+            </Text>
+            <Text as="div" size="2" className="font-medium text-white">
+              {userData?.role || " "}
+            </Text>
+          </Box>
+          <Alert
+            trigger={<IconButton
+              variant="ghost"
+              size="3"
+              className="rounded-full  shadow-sm"
+            >
+              <SignOut size={30} className='text-white' />
+            </IconButton>}
+            title="Tem certeza que deseja sair da plataforma?"
+            buttoncancel={<Button size="Small" color="gray" title="Cancelar" />}
+            buttonAction={<Button
+              size="Small"
+              onClick={logout}
+              color="red"
+              title="Sim, desejo sair." />} description={''} />
+        </div>
+      </div>
 
-      </Flex>
 
     </>
   );
