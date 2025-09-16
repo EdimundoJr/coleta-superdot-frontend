@@ -23,7 +23,7 @@
 
 body,
 html {
-    @apply m-0 h-full  overflow-x-auto max-sm:overflow-x-clip;
+    @apply m-0 h-full overflow-x-auto max-sm:overflow-x-clip;
 }
 
 * DEFAULT ELEMENTS * h1,
@@ -81,7 +81,7 @@ span.error-message {
     @apply rounded-xl border border-neutral-100 bg-white shadow-lg;
 }
 .card-container-variante-border {
-    @apply bg-white shadow-lg;
+    @apply rounded-none bg-white shadow-lg;
 }
 
 .heading-1 {
@@ -98,6 +98,9 @@ span.error-message {
 
 .btn-primary-mobo {
     @apply transition-all duration-200 hover:scale-95 active:scale-105;
+}
+.rt-Badge {
+    @apply !font-roboto;
 }
 @keyframes fadeIn {
     from {

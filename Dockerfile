@@ -4,8 +4,8 @@ FROM node:20-alpine AS builder
 RUN mkdir /app
 WORKDIR /app
 COPY . .
-RUN npm install
-RUN npm run build
+RUN npm install --legacy-peer-deps
+RUN npm run build --force
 
 # -- SERVING --
 FROM nginx:stable-alpine AS runner

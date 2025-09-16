@@ -165,7 +165,7 @@ const SampleReviewPage = () => {
 
                                         <Button
                                             onClick={() => handleSeeAttachment(attachmentsToDisplay.researchDocument || "")} title={"Projeto de pesquisa"}
-                                            children={<Icon.Files size={20} />} color={"primary"} size={"Small"}                            >
+                                            children={<Icon.Files size={20} />} color={"primary"} size={"Small"} className="w-full"                           >
 
                                         </Button>
 
@@ -175,7 +175,7 @@ const SampleReviewPage = () => {
                                         <Button
                                             onClick={() => handleSeeAttachment(attachmentsToDisplay.tcleDocument || "")}
                                             title={"TCLE"}
-                                            children={<Icon.Files size={20} />} color={"primary"} size={"Small"}                            >
+                                            children={<Icon.Files size={20} />} color={"primary"} size={"Small"} className="w-full"                           >
 
                                         </Button>
                                     )}
@@ -185,7 +185,7 @@ const SampleReviewPage = () => {
                                         <Button
                                             onClick={() => handleSeeAttachment(attachmentsToDisplay.taleDocument || "")}
                                             title={"TALE"}
-                                            children={<Icon.Files size={20} />} color={"primary"} size={"Small"}                            >
+                                            children={<Icon.Files size={20} />} color={"primary"} size={"Small"} className="w-full"                          >
 
                                         </Button>
 

@@ -76,24 +76,69 @@ const ParticipantsRegistration = () => {
     };
 
 
-    const handleCopy = async () => {
+    const handleCopy = (url: string) => {
+        const tempInput = document.createElement('input');
+        tempInput.style.position = 'absolute';
+        tempInput.style.left = '-9999px';
+        tempInput.value = url;
+        document.body.appendChild(tempInput);
+
+        tempInput.focus();
+        tempInput.select();
+        tempInput.setSelectionRange(0, tempInput.value.length);
+
         try {
-            await navigator.clipboard.writeText(urlParticipantForm);
-            setCopied(true);
-            setTimeout(() => setCopied(false), 2000); // volta pro ícone original após 2s
+            const result = document.execCommand('copy');
+
+            if (result) {
+                setCopied(true);
+                setTimeout(() => setCopied(false), 2000);
+
+                setTimeout(() => {
+                    const pasteTest = document.createElement('input');
+                    pasteTest.style.position = 'absolute';
+                    pasteTest.style.left = '-9999px';
+                    document.body.appendChild(pasteTest);
+                    pasteTest.focus();
+                    document.execCommand('paste');
+                    document.body.removeChild(pasteTest);
+                }, 100);
+
+            } else {
+                console.warn('execCommand retornou false');
+                fallbackCopy();
+            }
+
         } catch (error) {
-            console.error("Erro ao copiar:", error);
+            console.error('Erro no execCommand:', error);
+            fallbackCopy();
+        } finally {
+            // Limpa sempre
+            document.body.removeChild(tempInput);
+            setNotificationData({
+                title: "Link copiado.",
+                description: "O link foi copiado para a sua área de transferência.",
+                type: "success"
+            });
         }
     };
 
-    const handleSendTextToClipBoard = (text: string) => {
-        navigator.clipboard.writeText(text);
-        setNotificationData({
-            title: "Link copiado.",
-            description: "O link foi copiado para a sua área de transferência.",
-            type: "success"
-        });
+    const fallbackCopy = () => {
+        alert(`Não foi possível copiar automaticamente. Selecione e copie o texto:\n\n${urlParticipantForm}`);
+
+        window.prompt('Copie o texto abaixo (Ctrl+C):', urlParticipantForm);
     };
+
+
+
+    // const handleSendTextToClipBoard = (text: string) => {
+    //     navigator.clipboard.writeText(text);
+    //     setNotificationData({
+    //         title: "Link copiado.",
+    //         description: "O link foi copiado para a sua área de transferência.",
+    //         type: "success"
+    //     });
+    // };
 
 
 
@@ -179,8 +224,7 @@ const ParticipantsRegistration = () => {
                                     <IconButton
                                         variant="soft"
                                         onClick={() => {
-                                            handleCopy();
-                                            handleSendTextToClipBoard(urlParticipantForm)
+                                            handleCopy(urlParticipantForm);
                                         }}
                                         className="transition-transform duration-150 active:scale-90"
                                     >
@@ -246,7 +290,7 @@ const ParticipantsRegistration = () => {
                         sampleId={sample?._id || ""}
                         data={sample?.participants}
                         onClickToViewSecondSources={handleViewSecondSources}
-                        onClickToCopySecondSourceURL={handleSendTextToClipBoard}
+                        onClickToCopySecondSourceURL={handleCopy}
                     />
                 </div>
 
@@ -287,14 +331,12 @@ const ParticipantsRegistration = () => {
                                             <Table.Cell justify="center">{secondSource.personalData?.fullName}</Table.Cell>
                                             <Table.Cell justify="center">{getFormFillStatus(secondSource)}</Table.Cell>
                                             <Table.Cell justify="center">{secondSource.personalData?.relationship}</Table.Cell>
-                                            <Table.Cell justify="center"> {secondSource.adultForm?.startFillFormAt &&
-                                                DateTime.fromISO(secondSource.adultForm.startFillFormAt).toFormat(
-                                                    "dd/LL/yyyy - HH:mm"
-                                                )}</Table.Cell>
-                                            <Table.Cell justify="center"> {secondSource.adultForm?.endFillFormAt &&
-                                                DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat(
-                                                    "dd/LL/yyyy - HH:mm"
-                                                )}</Table.Cell>
+                                            <Table.Cell justify="center"> {secondSource.adultForm?.startFillFormAt
+                                                ? DateTime.fromISO(secondSource.adultForm.startFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                : "Não iniciado"}</Table.Cell>
+                                            <Table.Cell justify="center"> {secondSource.adultForm?.endFillFormAt
+                                                ? DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
+                                                : "Não finalizado"}</Table.Cell>
                                         </Table.Row>
                                     ))}
                                 </Table.Body>
@@ -338,7 +380,7 @@ const ParticipantsRegistration = () => {
                                                 <DataList.Value >
                                                     {secondSource.adultForm?.endFillFormAt
                                                         ? DateTime.fromISO(secondSource.adultForm.endFillFormAt).toFormat("dd/LL/yyyy - HH:mm")
-                                                        : "Não iniciado"}
+                                                        : "Não finalizado"}
                                                 </DataList.Value>
                                             </div>
                                         ))}

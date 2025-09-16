@@ -158,7 +158,7 @@ const CreateSamplePage = () => {
 
                 <Form.Root
                     onSubmit={onSubmit}
-                    className="mx-auto mb-6 mt-11 max-sm:mt-5 w-11/12 opacity-0 animate-fade-in animate-delay-100 animate-fill-forwards"
+                    className=" mb-6   w-11/12 opacity-0 animate-fade-in animate-delay-100 animate-fill-forwards max-sm:w-full"
                 >
                     <h3 className="text-left text-primary animate-fade-in animate-delay-200">
                         Detalhes da amostra
@@ -210,7 +210,7 @@ const CreateSamplePage = () => {
                                 label="REGIÃO DA AMOSTRA*"
                                 errorMessage={errors.countryRegion?.message}
                                 {...register("countryRegion")}
-                                className="md:flex-1 w-full md:w-auto "
+                                className="md:flex-1 w-full md:w-auto mb-2"
                             >
                                 <option value="Norte">Norte</option>
                                 <option value="Nordeste">Nordeste</option>
@@ -250,6 +250,7 @@ const CreateSamplePage = () => {
                             />
 
                             <SelectField
+                                className="max-sm:mb-12"
                                 label="TIPO*"
                                 errorMessage={errors.instituition?.instType?.message}
                                 {...register("instituition.instType")}
@@ -271,8 +272,7 @@ const CreateSamplePage = () => {
                         <Button
                             size="Medium"
                             loading={loading}
-                            className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed mx-auto 
-        btn-primary `}
+                            className={`disabled:bg-neutral-dark disabled:hover:cursor-not-allowed mx-auto btn-primary max-sm:w-full`}
                             color={`${isValid ? "green" : "gray"}`}
                             disabled={!isValid}
                             title={"Enviar Solicitação"}

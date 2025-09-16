@@ -324,9 +324,9 @@ const EvaluateAutobiography: React.FC = () => {
                 <header className="mb-2 max-xl:mb-4 text-center">
                     <Flex align="center" justify="center" gap="3" className="mb-4">
                         <Icon.User weight="bold" size={32} className="text-violet-600" />
-                        <h1 className="heading-1">{participant.personalData.fullName}</h1>
+                        <h1 className="heading-1 max-sm:text-lg">{participant.personalData.fullName}</h1>
                     </Flex>
-                    <Text size="5" className="text-neutral-600">
+                    <Text className="text-neutral-600 text-lg max-sm:text-[20px]">
                         Análise de Autobiografia
                     </Text>
                 </header>
@@ -566,7 +566,7 @@ const EvaluateAutobiography: React.FC = () => {
                     </Flex>
 
                     {/* Ações */}
-                    <Flex justify="center" gap="4" className="mt-8">
+                    <div className="mt-8 gap-2 flex justify-center max-sm:flex-col">
                         <Button
                             onClick={() => handleSaveEvalueAutobiography(true)}
                             size="Medium"
@@ -582,7 +582,7 @@ const EvaluateAutobiography: React.FC = () => {
                             onClick={() => handleOpenBox()}
 
                         />
-                    </Flex>
+                    </div>
                 </main>
 
                 <BackToTop />

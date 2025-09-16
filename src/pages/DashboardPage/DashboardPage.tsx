@@ -1,6 +1,6 @@
 import * as Icon from "@phosphor-icons/react";
 import { useEffect, useState } from "react";
-import { DashboardInfo, getinfoDashboard } from "../../api/sample.api";
+import { DashboardInfo, getinfoDashboard, MonthlyProgressItem } from "../../api/sample.api";
 import Dcard from "../../components/DashboardCard/DCard";
 import ApexChart from 'react-apexcharts';
 import { ApexOptions } from 'apexcharts';
@@ -10,7 +10,7 @@ import NewUser from "../../components/NewUser/NewUser";
 import { useLocation } from "react-router-dom";
 
 function DashBoardPage() {
-    const [dados, setDados] = useState<null | DashboardInfo>(null);
+    const [dados, setDados] = useState<DashboardInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [notificationData, setNotificationData] = useState({
@@ -30,61 +30,22 @@ function DashBoardPage() {
     useEffect(() => {
         const fetchDados = async () => {
             try {
-                const response = await getinfoDashboard()
+                const response = await getinfoDashboard();
                 setDados(response);
+                console.log(response);
                 setLoading(false);
             } catch (error: any) {
                 setError(error.message);
                 setNotificationData({
                     title: "Erro no servidor",
                     description: "Não foi possível carregar os dados do Dashboard",
-                    type: "error"
+                    type: "erro"
                 });
             }
         };
 
         fetchDados();
     }, []);
-
-    // Dados fictícios para os novos gráficos
-    const sampleData = {
-        monthlyProgress: [30, 40, 35, 50, 49, 60, 70, 91, 125, 150, 170, 190],
-        ageDistribution: [10, 41, 35, 51, 49, 62, 69, 91, 148, 120, 85, 40],
-        institutionDistribution: {
-            labels: ['USP', 'UNICAMP', 'UFMG', 'UFRJ', 'UFPR', 'Outras'],
-            series: [120, 90, 75, 60, 45, 110]
-        },
-        collectionStatus: {
-            completed: 75,
-            pending: 25
-        },
-        regionalDistribution: {
-            labels: ['Sudeste', 'Sul', 'Nordeste', 'Centro-Oeste', 'Norte'],
-            series: [320, 150, 120, 80, 30]
-        },
-        timelineData: [
-            { month: 'Jan', samples: 30, participants: 25 },
-            { month: 'Fev', samples: 40, participants: 32 },
-            { month: 'Mar', samples: 35, participants: 28 },
-            { month: 'Abr', samples: 50, participants: 45 },
-            { month: 'Mai', samples: 49, participants: 42 },
-            { month: 'Jun', samples: 60, participants: 55 },
-            { month: 'Jul', samples: 70, participants: 63 },
-            { month: 'Ago', samples: 91, participants: 85 },
-            { month: 'Set', samples: 125, participants: 110 },
-            { month: 'Out', samples: 150, participants: 135 },
-            { month: 'Nov', samples: 170, participants: 155 },
-            { month: 'Dez', samples: 190, participants: 175 }
-        ],
-        heatmapData: {
-            labels: ['Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb', 'Dom'],
-            series: [
-                { name: 'Manhã', data: [12, 15, 10, 8, 14, 5, 2] },
-                { name: 'Tarde', data: [20, 22, 18, 25, 30, 15, 8] },
-                { name: 'Noite', data: [5, 8, 6, 10, 12, 20, 25] }
-            ]
-        }
-    };
 
     // Configurações dos gráficos
     const genderChartOptions: ApexOptions = {
@@ -144,7 +105,7 @@ function DashBoardPage() {
             }
         },
         xaxis: {
-            categories: ['Jan', 'Fev', 'Mar', 'Abr', 'Mai', 'Jun', 'Jul', 'Ago', 'Set', 'Out', 'Nov', 'Dez'],
+            categories: dados?.monthlyProgress.map((item: MonthlyProgressItem) => item.month) || [],
         },
         yaxis: {
             title: {
@@ -155,7 +116,7 @@ function DashBoardPage() {
             shared: true,
             intersect: false,
             y: {
-                formatter: function (val) {
+                formatter: function (val: number) {
                     return val + " unidades";
                 }
             }
@@ -191,7 +152,7 @@ function DashBoardPage() {
             colors: ['transparent']
         },
         xaxis: {
-            categories: sampleData.institutionDistribution.labels,
+            categories: dados?.institutionDistribution?.labels || [],
         },
         yaxis: {
             title: {
@@ -203,40 +164,9 @@ function DashBoardPage() {
         },
         tooltip: {
             y: {
-                formatter: function (val) {
+                formatter: function (val: number) {
                     return val + " amostras";
                 }
-            }
-        }
-    };
-
-    const ageDistributionOptions: ApexOptions = {
-        chart: {
-            type: 'bar',
-            height: 350,
-            toolbar: {
-                show: true
-            }
-        },
-        colors: ['#2A5C8B'],
-        plotOptions: {
-            bar: {
-                borderRadius: 4,
-                horizontal: true,
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        xaxis: {
-            categories: ['0-10', '11-20', '21-30', '31-40', '41-50', '51-60', '61-70', '71-80', '81-90', '91-100', '101-110', '111+'],
-            title: {
-                text: 'Número de Participantes'
-            }
-        },
-        yaxis: {
-            title: {
-                text: 'Faixa Etária'
             }
         }
     };
@@ -261,7 +191,7 @@ function DashBoardPage() {
                         offsetY: 76,
                         fontSize: '22px',
                         color: undefined,
-                        formatter: function (val) {
+                        formatter: function (val: number) {
                             return val + "%";
                         }
                     }
@@ -297,7 +227,7 @@ function DashBoardPage() {
         fill: {
             opacity: 0.8
         },
-        labels: sampleData.regionalDistribution.labels,
+        labels: dados?.regionalDistribution?.labels || [],
         legend: {
             position: 'bottom'
         },
@@ -316,78 +246,44 @@ function DashBoardPage() {
         },
         tooltip: {
             y: {
-                formatter: function (val) {
+                formatter: function (val: number) {
                     return val + " amostras";
                 }
             }
         }
     };
 
-    const heatmapOptions: ApexOptions = {
-        chart: {
-            type: 'heatmap',
-            height: 350,
-            toolbar: {
-                show: true
-            }
-        },
-        dataLabels: {
-            enabled: false
-        },
-        colors: ["#2A5C8B"],
-        xaxis: {
-            type: 'category',
-            categories: sampleData.heatmapData.labels
-        },
-        plotOptions: {
-            heatmap: {
-                shadeIntensity: 0.5,
-                radius: 0,
-                useFillColorAsStroke: false,
-                colorScale: {
-                    ranges: [
-                        {
-                            from: 0,
-                            to: 10,
-                            name: 'Baixo',
-                            color: '#E0F7FA'
-                        },
-                        {
-                            from: 11,
-                            to: 20,
-                            name: 'Médio',
-                            color: '#80DEEA'
-                        },
-                        {
-                            from: 21,
-                            to: 30,
-                            name: 'Alto',
-                            color: '#2A5C8B'
-                        }
-                    ]
-                }
-            }
-        }
-    };
-
     const genderSeries = [
-        dados?.result.count_female || 0,
-        dados?.result.count_male || 0
+        dados?.count_female || 0,
+        dados?.count_male || 0
     ];
 
     const lineSeries = [
         {
             name: "Amostras",
-            data: sampleData.timelineData.map(item => item.samples)
+            data: dados?.monthlyProgress.map((item: MonthlyProgressItem) => item.samples) || []
         },
         {
             name: "Participantes",
-            data: sampleData.timelineData.map(item => item.participants)
+            data: dados?.monthlyProgress.map((item: MonthlyProgressItem) => item.participants) || []
         }
     ];
 
-    const heatmapSeries = sampleData.heatmapData.series;
+    const collectionStatusSeries = [
+        (dados?.collectionStatus.completed || 0),
+        (dados?.collectionStatus.pending || 0)
+    ]
+    const calculateGrowth = () => {
+        if (!dados?.monthlyProgress || dados.monthlyProgress.length < 6) return 0;
 
+        const last3 = dados.monthlyProgress.slice(-3).map(m => m.participants).reduce((a, b) => a + b, 0) / 3;
+        const prev3 = dados.monthlyProgress.slice(-6, -3).map(m => m.participants).reduce((a, b) => a + b, 0) / 3;
+
+        if (prev3 === 0) return last3 > 0 ? 100 : 0;
+
+        return (((last3 - prev3) / prev3) * 100).toFixed(0);
+    };
+    const activeDays = dados?.monthlyProgress.length || 0;
     return (
         <>
             <Notify
@@ -412,14 +308,14 @@ function DashBoardPage() {
                 <Dcard
                     loading={loading}
                     title="Total de Amostras"
-                    value={dados?.result.total_samples}
+                    value={dados?.total_samples}
                     icon={<Icon.Swatches size={32} />}
                     style="bg-gradient-to-l from-red-500 to-amber-500" />
 
                 <Dcard
                     loading={loading}
                     title="Participantes"
-                    value={dados?.result.total_participants}
+                    value={dados?.total_participants}
                     icon={<Icon.UsersThree size={32} />}
                     style="bg-gradient-to-l from-lime-500 to-sky-500"
                 />
@@ -427,7 +323,7 @@ function DashBoardPage() {
                 <Dcard
                     loading={loading}
                     title="Instituições"
-                    value={dados?.result.total_unique_instituition}
+                    value={dados?.total_unique_instituition}
                     icon={<Icon.GraduationCap size={32} />}
                     style="bg-gradient-to-l from-violet-500 to-pink-500"
                 />
@@ -435,7 +331,7 @@ function DashBoardPage() {
                 <Dcard
                     loading={loading}
                     title="Taxa de Completude"
-                    value={`${sampleData.collectionStatus.completed}%`}
+                    value={`${dados?.collectionStatus?.completed || 0}%`}
                     icon={<Icon.ChartLineUp size={32} />}
                     style="bg-green-500"
                 />
@@ -470,7 +366,7 @@ function DashBoardPage() {
                 </ChartContainer>
             </div>
 
-            {/* <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-6">
                 <ChartContainer
                     title="Distribuição por Instituição"
                     loading={loading}
@@ -478,7 +374,7 @@ function DashBoardPage() {
                 >
                     <ApexChart
                         options={barChartOptions}
-                        series={[{ data: sampleData.institutionDistribution.series }]}
+                        series={[{ data: dados?.institutionDistribution?.series || [] }]}
                         type="bar"
                         height={350}
                     />
@@ -491,7 +387,7 @@ function DashBoardPage() {
                 >
                     <ApexChart
                         options={regionalDistributionOptions}
-                        series={sampleData.regionalDistribution.series}
+                        series={dados?.regionalDistribution?.series || []}
                         type="polarArea"
                         height={350}
                     />
@@ -504,40 +400,13 @@ function DashBoardPage() {
                 >
                     <ApexChart
                         options={radialChartOptions}
-                        series={[sampleData.collectionStatus.completed, sampleData.collectionStatus.pending]}
+                        series={collectionStatusSeries}
                         type="radialBar"
                         height={350}
                     />
                 </ChartContainer>
-            </div> */}
+            </div>
 
-            {/* <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-                <ChartContainer
-                    title="Distribuição por Faixa Etária"
-                    loading={loading}
-                    tooltip="Número de participantes por faixa etária"
-                >
-                    <ApexChart
-                        options={ageDistributionOptions}
-                        series={[{ data: sampleData.ageDistribution }]}
-                        type="bar"
-                        height={350}
-                    />
-                </ChartContainer>
-
-                <ChartContainer
-                    title="Padrão de Coleta por Período"
-                    loading={loading}
-                    tooltip="Frequência de coletas por dia da semana e período"
-                >
-                    <ApexChart
-                        options={heatmapOptions}
-                        series={heatmapSeries}
-                        type="heatmap"
-                        height={350}
-                    />
-                </ChartContainer>
-            </div> */}
 
             <div className="bg-white card-container p-6 mb-6">
                 <h3 className="text-xl font-semibold mb-4 text-gray-800 ">Resumo Estatístico</h3>
@@ -547,7 +416,10 @@ function DashBoardPage() {
                             <Icon.ChartPieSlice size={20} className="text-blue-500 mr-2" />
                             <span className="font-medium text-gray-700 ">Média Mensal</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-800 ">158</p>
+                        <p className="text-2xl font-bold text-gray-800">
+                            {((dados?.total_samples ?? 0) / (dados?.monthlyProgress?.length || 1)).toFixed(0)}
+                        </p>
+
                         <p className="text-sm text-gray-500 ">amostras/mês</p>
                     </div>
                     <div className="bg-gray-50  p-4 rounded-lg">
@@ -555,7 +427,7 @@ function DashBoardPage() {
                             <Icon.TrendUp size={20} className="text-green-500 mr-2" />
                             <span className="font-medium text-gray-700 ">Crescimento</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-800 ">+28%</p>
+                        <p className="text-2xl font-bold text-gray-800 ">{calculateGrowth()}%</p>
                         <p className="text-sm text-gray-500 ">últimos 3 meses</p>
                     </div>
                     <div className="bg-gray-50  p-4 rounded-lg">
@@ -563,7 +435,7 @@ function DashBoardPage() {
                             <Icon.CalendarCheck size={20} className="text-purple-500 mr-2" />
                             <span className="font-medium text-gray-700 ">Dias Ativos</span>
                         </div>
-                        <p className="text-2xl font-bold text-gray-800 ">92%</p>
+                        <p className="text-2xl font-bold text-gray-800 "> {activeDays}</p>
                         <p className="text-sm text-gray-500 ">coletas realizadas</p>
                     </div>
                 </div>

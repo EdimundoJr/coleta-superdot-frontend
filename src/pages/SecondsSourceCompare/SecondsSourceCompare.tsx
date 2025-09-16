@@ -1,7 +1,7 @@
 import { useLocation } from "react-router-dom";
 import { IParticipant, ISecondSource } from "../../interfaces/participant.interface";
 import * as Icon from "@phosphor-icons/react";
-import { Flex, Table, Box, Skeleton, Tooltip, DataList, Separator } from "@radix-ui/themes";
+import { Flex, Table, Box, Skeleton, Tooltip, DataList, Separator, Badge } from "@radix-ui/themes";
 import Accordeon from "../../components/Accordeon/Accordeon";
 import { GridComponent } from "../../components/Grid/Grid";
 import ApexChart from "react-apexcharts";
@@ -268,9 +268,10 @@ const SecondsSourceCompare = () => {
                                         <Table.Cell justify="center">{participant.adultForm?.totalPunctuation}</Table.Cell>
                                         <Table.Cell justify="center">{handleAge(participant.personalData.birthDate)}</Table.Cell>
                                         <Table.Cell justify="center">{participant.personalData.gender}</Table.Cell>
-                                        <Table.Cell justify="center">{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Table.Cell>
+                                        <Table.Cell justify="center"><Badge color={participant.adultForm?.giftednessIndicators ? "green" : "red"}>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Badge></Table.Cell>
                                         <Table.Cell justify="center">
-                                            {participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}
+                                            <Badge color={participant.giftdnessIndicatorsByResearcher ? "green" : "red"}>{participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}</Badge>
+
                                         </Table.Cell>
                                     </Table.Row>
                                 </Table.Body>
@@ -301,24 +302,16 @@ const SecondsSourceCompare = () => {
                                         {expandedParticipants && (
                                             <>
                                                 <p className="text-[16px] font-bold text-center">Indicadores de AH/SD:</p>
-                                                <Separator size="4" className="mt-2" />
+                                                <DataList.Label className='mt-2 !items-center'>Pelo Questionário: <Badge size={"3"} className='ml-2 !px2' color={participant.adultForm?.giftednessIndicators ? "green" : "red"}>{participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}</Badge> </DataList.Label>
+                                                <Separator size="4" className='mt-2' />
+                                                <DataList.Label className='mt-1 !items-center'>Pelo Pesquisador: <Badge size={"3"} className='ml-2 !px2' color={participant.giftdnessIndicatorsByResearcher ? "green" : "red"}>{participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}</Badge> </DataList.Label>
 
-                                                <DataList.Label>Pelo Questionário:</DataList.Label>
-                                                <DataList.Value className="gap-2">
-                                                    {participant.adultForm?.giftednessIndicators ? "Sim" : "Não"}
-                                                </DataList.Value>
-                                                <Separator size="4" />
-
-                                                <DataList.Label>Pelo Pesquisador:</DataList.Label>
-                                                <DataList.Value className="gap-2">
-                                                    {participant.giftdnessIndicatorsByResearcher ? "Sim" : "Não"}
-                                                </DataList.Value>
                                             </>
                                         )}
 
                                         <Button
                                             size="Small"
-                                            className="!justify-end flex mt-2"
+                                            className="!justify-end mt-2"
                                             onClick={() =>
                                                 setExpandedParticipants(!expandedParticipants)
                                             }

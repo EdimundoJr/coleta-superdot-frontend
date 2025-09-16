@@ -42,7 +42,7 @@ const ChooseSampleGroupPage = () => {
                     Selecione um grupo para criar uma amostra.
                 </h2>
             </header>
-            <Container className="mb-4 p-4">
+            <Container >
                 <GridComponent columns={2} children={
 
                     loading

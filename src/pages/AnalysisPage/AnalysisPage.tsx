@@ -186,7 +186,7 @@ const AnalysisPage = () => {
             setNotificationData({
                 title: "Erro ao salvar os dados",
                 description: "Não foi possível salvar os dados. Tente novamente.",
-                type: "error"
+                type: "erro"
             });
             console.error("Erro ao salvar os dados:", error);
         } finally {
@@ -587,14 +587,31 @@ const AnalysisPage = () => {
                         isChecked={isChecked}
                         handleChange={handleChange}
                         filterParticipants={filterParticipants}
-                        expandedParticipants={expandedParticipants}
-                        setExpandedParticipants={setExpandedParticipants}
+                        openModalIAH={openModalIAH}
+                        setOpenModalIAH={setOpenModalIAH}
+                        openModalKAG={openModalKAG}
+                        setOpenModalKAG={setOpenModalKAG}
+                        openModalKAE={openModalKAE}
+                        setOpenModalKAE={setOpenModalKAE}
+                        selectedOption={selectedOption}
+                        isSavingItem={isSavingItem}
+                        handleSaveGift={handleSaveGift}
+                        handleChangeKA={handleChangeKA}
+                        handleSubmitKA={handleSubmitKA}
                         getFirstAndLastName={getFirstAndLastName}
+                        getFormattedBirthDate={getFormattedBirthDate}
                         handleCompareSource={handleCompareSource}
                         handleEvaluateAutobiography={handleEvaluateAutobiography}
                         handleShowIAH={handleShowIAH}
                         handleShowKAG={handleShowKAG}
                         handleShowKAE={handleShowKAE}
+                        selectItensKA={selectItensKA}
+                        expandedParticipants={expandedParticipants}
+                        setExpandedParticipants={setExpandedParticipants}
+                        isCheckedAll={isCheckedAll}
+                        handleCheckAll={handleCheckAll}
+                        handleCheckboxChange={handleCheckboxChange}
+                        selectedItems={selectedItems}
                     />
                 )}
             </Box>

@@ -23,13 +23,13 @@ export function Header({ title, icon, onMenuToggle }: HeaderProps) {
                 <Flex align="center" className="w-full h-full">
                     {/* Left Section - Mobile Menu Button + Title */}
                     <Flex align="center" gap="4" className="flex-1">
-                        <Flex align="center" gap="2" className="text-gray-800">
+                        <Flex align="center" className="text-gray-800 gap-3">
                             {icon && React.cloneElement(icon as React.ReactElement, {
                                 className: "text-primary w-6 h-6"
                             })}
-                            <h2 className="text-xl font-semibold truncate">
+                            <h1 className="text-xl font-semibold truncate">
                                 {title}
-                            </h2>
+                            </h1>
                         </Flex>
                     </Flex>
 

@@ -221,7 +221,6 @@ const AdultFormSecondSourcePage = () => {
 
             {!isPageLoading && (
                 <>
-
                     {currentStep != EAdultFormSteps.INTRODUCTION && (
                         <BackgroundComponent children={
                             <Flex direction={"column"} className="w-full max-xl:w-[90%] max-sm:w-full m-auto max-w-3xl bg-glass relative h-screen card-container-border-variant">
@@ -380,30 +379,21 @@ const AdultFormSecondSourcePage = () => {
                             direction={"column"}
                             className="relative h-screen w-full overflow-hidden"
                         >
-                            <BackgroundComponent />
+                            <BackgroundComponent classNameCard="w-[90%] m-auto bg-glass card-container" children={
 
-                            <div className="relative z-10 h-full w-full overflow-y-auto">
+                                <IntroductionStep
+                                    participantName={researchData.participantName}
+                                    researcherName={researchData.researcherName}
+                                    participantId={participantId}
+                                    sourceForm={EAdultFormSource.SECOND_SOURCE}
+                                    sampleId={sampleId}
+                                    setNotificationData={setNotificationData}
+                                />
 
-                                <div className="min-h-full w-full flex items-center justify-center">
-                                    <div className="fixed inset-0 bg-glass opacity-90 w-[90%] max-sm:border-none max-sm:!rounded-none max-sm:w-full pointer-events-none m-auto"></div>
 
-                                    <Flex
-                                        align={"center"}
-                                        id="bg-div"
-                                        className={`font-roboto text-white m-auto relative z-10`}
-                                    >
-                                        <IntroductionStep
-                                            participantName={researchData.participantName}
-                                            researcherName={researchData.researcherName}
-                                            participantId={participantId}
-                                            sourceForm={EAdultFormSource.SECOND_SOURCE}
-                                            sampleId={sampleId}
-                                            setNotificationData={setNotificationData}
-                                        />
-                                    </Flex>
-                                </div>
+                            } />
 
-                            </div>
+
 
                         </Flex>
 

@@ -9,7 +9,7 @@ const CardRoot = ({ children, className, loading }: CardRootProps) => {
     return (
         <Skeleton loading={loading ? loading : false} className="h-full">
             <div
-                className={`w-full  mb-3 rounded-lg card-container overflow-hidden bg-white  !border-l-8 !border-t-0 !border-r-0  !border-b-0 group transition-all ease-in-out pt-6 px-6 xl:pl-4 hover:drop-shadow-lg hover:translate-y-2 font-roboto ${className ? className : "!border-gray-400"}`}
+                className={`w-full  mb-3 rounded-lg card-container overflow-hidden bg-white  !border-l-8 !border-t-0 !border-r-0  !border-b-0 group transition-all ease-in-out pt-6 px-6 max-sm:px-2 xl:pl-4 hover:drop-shadow-lg hover:translate-y-2 font-roboto ${className ? className : "!border-gray-400"}`}
             >
                 {children}
             </div>

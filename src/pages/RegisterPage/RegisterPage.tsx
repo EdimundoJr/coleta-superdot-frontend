@@ -108,7 +108,9 @@ const RegisterPage = () => {
             className={notificationData.type === "erro" ? "bg-red-500" : notificationData.type === "aviso" ? "bg-yellow-400" : notificationData.type === "success" ? "bg-green-500" : ""}
         >
             <Flex className="w-full">
-                <BackgroundComponent />
+                <Flex className="desktop w-full">
+                    <BackgroundComponent />
+                </Flex>
                 <Flex direction="column" className="h-full w-full justify-center overflow-auto bg-offwhite text-[#4F4F4F]">
                     <Stepper ref={stepperRef}
                         initialStep={1}

@@ -41,7 +41,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
             title: "Dashboard",
             icon: <Icon.SquaresFour weight={`${isActiveIcon("/app/home")}`} size={24} />,
             link: "/app/home",
-            active: `${isActive("/app/home")}`
+            paths: ["/app/home"]
         },
         {
             title: "Minhas Amostras",
@@ -94,12 +94,12 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             </div>
                         </button>
 
-                        <h1 className={`ml-4 text-xl font-bold text-white transition-all duration-300 ${expanded
+                        <h2 className={`ml-4 text-xl font-bold text-white transition-all duration-300 ${expanded
                             ? "opacity-100 translate-x-0 scale-100 delay-150"
                             : "opacity-0 -translate-x-4 scale-0 "
                             } mt-2`}>
-                            MENU
-                        </h1>
+                            SUPERDOT
+                        </h2>
                     </div>
 
                     <nav className="flex flex-col space-y-4 px-2 mt-2 ">
@@ -167,21 +167,45 @@ const SideBar = ({ userRole }: SideBarProps) => {
 
 
             {/* Mobile Menu */}
-            <div className="fixed top-0 right-0 w-full bg-gradient-to-b from-violet-500 to-primary z-50 px-2 flex justify-between items-center xl:hidden h-[54px]">
+            <div className="fixed top-0 !right-0 w-full bg-gradient-to-b from-violet-500 to-primary z-50 px-2 flex justify-between items-center xl:hidden h-[54px]">
+                <p className="text-white font-bold">SUPERDOT</p>
+                <button
+                    onClick={() => {
+                        toggleMobileMenu();
+                        setExpanded(!expanded);
+                    }}
+                    className="relative z-50 text-white group transition-all duration-300 hover:scale-[1.15]"
+                >
+                    <div className="relative w-6 h-6 ml-3 mt-2">
+                        {/* Ícone X */}
+                        <Icon.X
+                            size={24}
+                            className={`absolute transition-all duration-300 origin-center ${expanded
+                                ? 'opacity-100 rotate-180 scale-100'
+                                : 'opacity-0 -rotate-90 scale-50'
+                                }`}
+                        />
 
-                <button onClick={toggleMobileMenu} className="text-white z-50">
-                    {isMobileMenuOpen ? <Icon.X size={24} /> : <Icon.List size={24} />}
+                        {/* Ícone Hambúrguer */}
+                        <Icon.List
+                            size={24}
+                            className={`absolute transition-all duration-300 origin-center ${expanded
+                                ? 'opacity-0 rotate-90 scale-50'
+                                : 'opacity-100 rotate-0 scale-100'
+                                }`}
+                        />
+                    </div>
                 </button>
             </div >
 
-            <div className={`fixed truncate top-0 right-0 h-full w-[60%]  bg-primary z-40 transform transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
+            <div className={`fixed truncate top-0 right-0 h-full w-[100%]  bg-primary z-40 transform transition-transform duration-300 ${isMobileMenuOpen ? "translate-x-0" : "translate-x-full"}`}>
                 <div className="relative z-10 p-2 mt-12 space-y-4">
                     {userRole?.match(/Pesquisador|Revisor|Administrador/) && Menus.map((menu, idx) => (
                         <Link
                             key={idx}
                             to={menu.link}
                             onClick={toggleMobileMenu}
-                            className={`flex items-center gap-4 p-3 rounded-md text-white btn-primary ${isActive(menu.link) ? "bg-white/20 backdrop-blur-lg" : ""}`}
+                            className={`flex items-center gap-4 p-3 rounded-md text-white btn-primary ${menu.paths?.includes(location.pathname) ? "bg-white/20 shadow-lg backdrop-blur-sm" : ""}  ? "bg-white/20 backdrop-blur-lg" : ""}`}
                         >
                             {menu.icon}
                             <span>{menu.title}</span>
@@ -194,7 +218,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             onClick={toggleMobileMenu}
                             className={`flex items-center gap-2 p-2 rounded-md text-white  btn-primary ${isActive("/app/review-requests") ? "bg-white/20 backdrop-blur-lgs" : ""}`}
                         >
-                            <Icon.Check size={24} />
+                            <Icon.Check size={24} weight={`${isActiveIcon("/app/review-requests")}`} />
                             <span>Revisar solicitações</span>
                         </Link>
                     )}
@@ -205,7 +229,7 @@ const SideBar = ({ userRole }: SideBarProps) => {
                             onClick={toggleMobileMenu}
                             className={`flex items-center gap-4 p-3 rounded-md text-white  btn-primary ${isActive("/app/users") ? "bg-white/20 backdrop-blur-lg" : ""}`}
                         >
-                            <Icon.UserGear size={24} />
+                            <Icon.UserGear size={24} weight={`${isActiveIcon("/app/users")}`} />
                             <span>Usuários</span>
                         </Link>
                     )}

@@ -7,6 +7,7 @@ import * as Icon from "@phosphor-icons/react";
 import SkeletonTableBody from "../../Skeletons/SkeletonTableBody";
 import SkeletonDataList from "../../Skeletons/SkeletonDataList";
 import EmptyState from "../../EmptyState/EmptyState";
+import { Button } from "../../Button/Button";
 
 interface SamplesTableProps {
     page?: PageSampleSummary;
@@ -17,7 +18,7 @@ interface SamplesTableProps {
     onClickToViewSampleReviews: (sample: SampleSummary) => void;
     onClickToViewSampleAttachments: (files: SampleSummary["files"]) => void;
     onChangeFilterStatus: (filter: SampleStatus | "") => void;
-    loading: boolean; 
+    loading: boolean;
 }
 
 const SamplesTable = ({
@@ -29,16 +30,23 @@ const SamplesTable = ({
     onClickToViewSampleReviews,
     onClickToViewSampleAttachments,
     onChangeFilterStatus,
-    loading, 
+    loading,
 }: SamplesTableProps) => {
     const handleValueChange = (newValue: string) => {
         const status = newValue === 'Todos' ? "" : newValue as SampleStatus;
         onChangeFilterStatus(status);
-        setCurrentPage(1); 
+        setCurrentPage(1);
     };
 
     const hasData = page?.data && page.data.length > 0;
-
+    const getFirstAndLastName = (fullName: string) => {
+        const names = fullName.split(' ');
+        if (names.length > 1) {
+            return `${names[0]} ${names[names.length - 1]}`;
+        } else {
+            return fullName;
+        }
+    };
     return (
         <>
             <Flex direction="column" className="w-full mb-6 px-4 sm:px-6 lg:px-8">
@@ -91,7 +99,7 @@ const SamplesTable = ({
                         <Table.Body>
                             {page.data.map((sample) => (
                                 <Table.Row align="center" key={sample.sampleId}>
-                                    <Table.Cell justify="center">{sample.researcherName}</Table.Cell>
+                                    <Table.Cell justify="center">{getFirstAndLastName(sample.researcherName)}</Table.Cell>
                                     <Table.Cell justify="center">{sample.sampleName}</Table.Cell>
                                     <Table.Cell justify="center">{sample.cepCode}</Table.Cell>
                                     <Table.Cell justify="center">{sample.qttParticipantsRequested}</Table.Cell>
@@ -204,31 +212,27 @@ const SamplesTable = ({
                             <Separator size="4" />
 
                             <DataList.Label>Ações:</DataList.Label>
-                            <Flex justify="start" gap="4">
-                                <Tooltip content="Alterar status.">
-                                    <IconButton size="1" variant="surface" radius="full">
-                                        <Icon.Pencil
-                                            onClick={() => onClickToReviewSample(sample.sampleId)}
-                                            className="cursor-pointer"
-                                        />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip content="Visualizar histórico de revisões.">
-                                    <IconButton size="1" variant="surface" radius="full">
-                                        <Icon.MagnifyingGlass
-                                            onClick={() => onClickToViewSampleReviews(sample)}
-                                            className="cursor-pointer"
-                                        />
-                                    </IconButton>
-                                </Tooltip>
-                                <Tooltip content="Visualizar documentos anexados.">
-                                    <IconButton size="1" variant="surface" radius="full">
-                                        <Icon.Clipboard
-                                            onClick={() => onClickToViewSampleAttachments(sample.files)}
-                                            className="cursor-pointer"
-                                        />
-                                    </IconButton>
-                                </Tooltip>
+                            <Flex justify="center" gap="2" direction={"column"}>
+                                <Button title={"Alterar status"} className="w-full" onClick={() => onClickToReviewSample(sample.sampleId)} >
+                                    <Icon.Pencil
+
+                                        className="cursor-pointer"
+                                    />
+                                </Button>
+
+                                <Button title={"Visualizar Revisões"} className="w-full" onClick={() => onClickToViewSampleReviews(sample)} >
+                                    <Icon.MagnifyingGlass
+
+                                        className="cursor-pointer"
+                                    />
+                                </Button>
+
+                                <Button title={"Visualizar Documentos"} className="w-full" onClick={() => onClickToViewSampleAttachments(sample.files)}>
+                                    <Icon.Clipboard
+
+                                        className="cursor-pointer"
+                                    />
+                                </Button>
                             </Flex>
                         </DataList.Item>
                     ))

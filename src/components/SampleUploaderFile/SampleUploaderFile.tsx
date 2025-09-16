@@ -113,7 +113,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
                         <Flex justify={"center"} align={"center"}>
                             <label
                                 htmlFor="chooseFile"
-                                className="bg-primary flex border-2 rounded-lg p-2 justify-center  text-white  min-w-[200px] hover:cursor-pointer align-middle hover:bg-secondary active:bg-primary active:brightness-90 max-sm:text-[12px] btn-primary animate-bounce-in"
+                                className="bg-primary flex border-2 rounded-lg p-2 justify-center  text-white  min-w-[200px] hover:cursor-pointer align-middle hover:bg-secondary active:bg-primary active:brightness-90 max-sm:text-[16px] btn-primary animate-bounce-in"
                             >
                                 Anexar arquivo
                                 <Icon.UploadSimple className="ml-2 h-[20px] w-[20px]" />
@@ -132,7 +132,7 @@ const SampleUploadFile = ({ sampleFiles, setSampleFiles, notifyFileChange, messa
             </div>
             {sampleFiles && (
                 <div>
-                    <h3 className="text-left text-primary">Anexos carregados:</h3>
+                    <h3 className="text-left text-primary max-sm:mt-12">Anexos carregados:</h3>
                     {sampleFiles.map((sampleFile, index) => {
                         if (sampleFile.uploadedFile)
                             return (

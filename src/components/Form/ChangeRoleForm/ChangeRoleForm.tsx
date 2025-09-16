@@ -68,7 +68,7 @@ const ChangeRoleForm = ({ userId, onFinish, currentUserRole }: ChangeRoleFormPro
                     errorMessage={errors?.emailMessage?.message}
                     label="Mensagem (será enviada ao e-mail do usuário)"
                     {...register("emailMessage")}
-                    className="border-2 border-gray-300"
+                    className="border-2 border-gray-300 mt-1"
                 />
                 <Form.Submit asChild>
                     <Button loading={loading} title={"Salvar alterações"} color={"green"} size={"Medium"} children={<Icon.FloppyDisk size={18} weight="bold" />} />

@@ -119,20 +119,40 @@ export const getSampleById = async ({ sampleId }: { sampleId: string }) => {
 };
 
 export interface DashboardInfo {
-    result: {
-        count_female: number,
-        count_male: number,
-        total_unique_instituition: number,
-        total_samples: number,
-        total_participants: number
-    }
+    count_female: number;
+    count_male: number;
+    total_unique_instituition: number;
+    total_samples: number;
+    total_participants: number;
+    monthlyProgress: MonthlyProgressItem[];
+    institutionDistribution: {
+        labels: string[];
+        series: number[];
+    };
+    regionalDistribution: {
+        labels: string[];
+        series: number[];
+    };
+    collectionStatus: {
+        completed: number;
+        pending: number;
+    };
 }
+
+export interface MonthlyProgressItem {
+    month: string;
+    samples: number;
+    participants: number;
+}
+
 export const getinfoDashboard = async () => {
     try {
         setAuthHeaders();
-        const response = await axios.get<DashboardInfo>(`${import.meta.env.VITE_BACKEND_HOST}/api/sample/load-Information-dashboard`);
+        const response = await axios.get<DashboardInfo>(
+            `${import.meta.env.VITE_BACKEND_HOST}/api/sample/load-Information-dashboard`
+        );
 
-        return response.data;
+        return response.data; // já vem no formato DashboardInfo
     } catch (error) {
         console.error("Erro ao fazer requisição para obter dados: ", error);
         throw error;
