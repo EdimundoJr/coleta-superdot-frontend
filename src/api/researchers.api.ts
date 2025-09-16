@@ -12,18 +12,20 @@ export interface Filters {
 }
 
 export interface Users {
-
-    researcher: {
+    personalData: {
         fullName: string,
-        phone: number,
+        phone: string,
         profilePhoto?: string,
         birthDate: Date,
-        countryState: string,
-        email?: string
+        countryState: string
     },
-    role: string
-
+    email: string,
+    role: string,
+    instituition?: string,
+    createdAt?: Date,
+    updatedAt?: Date
 }
+
 
 
 export const PAGE_SIZE = 10;
@@ -63,9 +65,37 @@ export const getUser = async () => {
     try {
         setAuthHeaders();
         const response = await axios.get<Users>(`${import.meta.env.VITE_BACKEND_HOST}/api/researcher/get-researcher`);
-
         return response.data;
     } catch (error) {
         throw error;
     }
 };
+export interface UpdateUserData {
+    personalData?: {
+        fullName?: string;
+        profilePhoto?: string | null;
+    };
+    currentPassword?: string;
+    newPassword?: string;
+    confirmPassword?: string;
+}
+
+export const updateUser = async (data: FormData) => {
+    try {
+        setAuthHeaders();
+        const response = await axios.put<Users>(
+            `${import.meta.env.VITE_BACKEND_HOST}/api/researcher/update-researcher`,
+            data,
+            {
+                headers: {
+                    "Content-Type": "multipart/form-data",
+                },
+            }
+        );
+        return response.data;
+    } catch (error) {
+        throw error;
+    }
+};
+
+

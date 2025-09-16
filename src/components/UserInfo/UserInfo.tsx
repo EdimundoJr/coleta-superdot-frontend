@@ -65,13 +65,14 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
 
   useEffect(() => {
     const fetchImage = async () => {
-      if (!userData?.researcher.profilePhoto) {
+      const profilePhoto = userData?.personalData.profilePhoto;
+
+      if (!profilePhoto) {
         setLoading(false);
         return;
       }
 
-      const cacheKey = userData.researcher.profilePhoto;
-
+      const cacheKey = profilePhoto;
 
       if (profilePhotoCache.has(cacheKey) && !sampleFile) {
         setImageUrl(profilePhotoCache.get(cacheKey)!);
@@ -82,11 +83,8 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
       try {
         setLoading(true);
         const url = await seeAttachmentImage(cacheKey);
-
-
         profilePhotoCache.set(cacheKey, url);
         setImageUrl(url);
-
       } catch (error) {
         console.error("Erro ao recuperar a imagem:", error);
       } finally {
@@ -95,7 +93,9 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
     };
 
     fetchImage();
-  }, [sampleFile, userData?.researcher.profilePhoto]);
+  }, [sampleFile, userData?.personalData?.profilePhoto]);
+
+
 
   const navigate = useNavigate();
 
@@ -107,23 +107,43 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
   function openProfileEditModal() {
     setOpenProfileModal(true);
   }
+  const handleProfileSave = (updatedData: {
+    fullName?: string;
+    profilePhoto?: string;
+  }) => {
+    setUserData((prev) => prev ? {
+      ...prev,
+      personalData: {
+        ...prev.personalData,
+        fullName: updatedData.fullName || prev.personalData.fullName,
+        profilePhoto: updatedData.profilePhoto || prev.personalData.profilePhoto,
+      },
+    } : null);
+
+    setOpenProfileModal(false);
+  };
 
   return (
     <>
-      <Modal
-        open={openProfileModal}
-        setOpen={setOpenProfileModal}
-        title="Configurações da Conta"
-        accessibleDescription="Gerencie suas informações pessoais e segurança"
-        accessibleDescription2=""
-        className=""
-      >
-        <ProfileEdit currentUser={{
-          name: userData?.researcher.fullName || 'Nome não disponível',
-          email: userData?.researcher.email || 'Email não disponível',
-          avatar: imageUrl ? imageUrl : NoImg
-        }} />
-      </Modal>
+      {userData && (
+        <Modal
+          open={openProfileModal}
+          setOpen={setOpenProfileModal}
+          title="Configurações da Conta"
+          accessibleDescription="Gerencie suas informações pessoais e segurança"
+          accessibleDescription2=""
+          className=""
+        >
+          <ProfileEdit
+            currentUser={{
+              fullName: userData.personalData?.fullName || 'Nome não disponível',
+              email: userData.email || 'Email não disponível',
+              profilePhoto: imageUrl || NoImg
+            }}
+            onSave={handleProfileSave}
+          />
+        </Modal>
+      )}
       <Box className={`flex items-center gap-3  ${className} `}>
 
         <DropdownMenu.Root>
@@ -132,12 +152,17 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
               <Card variant='ghost'>
                 <Flex gap="3" align="center">
                   <Skeleton loading={loading} className="w-10 h-10">
-                    <Avatar size="4" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={userData?.researcher.profilePhoto ? userData?.researcher.profilePhoto : NoImg} />
+                    <Avatar
+                      size="4"
+                      src={imageUrl || NoImg}
+                      radius="full"
+                      fallback={userData?.personalData?.profilePhoto || NoImg}
+                    />
                   </Skeleton>
                   <Box>
                     <Skeleton loading={loading} className="mb-1">
                       <Text as="div" size="2" weight="bold" className='max-sm:hidden'>
-                        {getFirstAndLastName(userData?.researcher.fullName || ' ')}
+                        {getFirstAndLastName(userData?.personalData?.fullName || ' ')}
                       </Text>
                     </Skeleton>
 
@@ -172,15 +197,17 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
 
       </Box >
       <Flex direction={'row'} align="center" className={`gap-3 !justify-between w-full ${className} mobo-flex`}>
+
+
         <Card variant='ghost' >
           <Flex gap="3" align="center">
             <Skeleton loading={loading} className="w-10 h-10">
-              <Avatar size="2" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={userData?.researcher.profilePhoto ? userData?.researcher.profilePhoto : NoImg} />
+              <Avatar size="2" src={imageUrl ? imageUrl : NoImg} radius="full" fallback={userData?.personalData.profilePhoto ? userData?.personalData.profilePhoto : NoImg} />
             </Skeleton>
             <Box>
               <Skeleton loading={loading} className="mb-1">
                 <Text as="div" size="2" weight="bold" className='max-sm:!text-[12px]'>
-                  {userData?.researcher.fullName}
+                  {getFirstAndLastName(userData?.personalData.fullName || ' ')}
                 </Text>
               </Skeleton>
 
@@ -193,8 +220,9 @@ export function UserInfo({ sampleFile, className }: UserInfoProps) {
             <Icon.CaretDown className='desktop' />
           </Flex>
         </Card>
+        <Button size='Small' onClick={openProfileEditModal} color="" title={''} children={<Icon.Gear size={24} />} className='mobo' />
         <Alert
-          trigger={<Icon.SignOut size={30} />}
+          trigger={<Icon.SignOut size={24} />}
           title={'Tem certeza que deseja sair da plataforma?'} description={''}
           buttoncancel={<Button size='Small' color="gray" title={'Cancelar'} />}
           buttonAction={<Button size='Small' onClick={logout}

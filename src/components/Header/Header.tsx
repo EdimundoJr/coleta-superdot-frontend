@@ -27,9 +27,9 @@ export function Header({ title, icon, onMenuToggle }: HeaderProps) {
                             {icon && React.cloneElement(icon as React.ReactElement, {
                                 className: "text-primary w-6 h-6"
                             })}
-                            <h2 className="text-xl font-semibold truncate">
+                            <h1 className="text-xl font-semibold truncate">
                                 {title}
-                            </h2>
+                            </h1>
                         </Flex>
                     </Flex>
 
