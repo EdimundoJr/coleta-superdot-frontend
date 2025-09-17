@@ -270,9 +270,9 @@ function DashBoardPage() {
     ];
 
     const collectionStatusSeries = [
-        (dados?.collectionStatus.completed || 0),
-        (dados?.collectionStatus.pending || 0)
-    ]
+        dados?.collectionStatus?.completed ?? 0,
+        dados?.collectionStatus?.pending ?? 0
+    ];
     const calculateGrowth = () => {
         const progress = dados?.monthlyProgress ?? [];
         if (progress.length < 6) return 0;
@@ -315,7 +315,7 @@ function DashBoardPage() {
                 <Dcard
                     loading={loading}
                     title="Participantes"
-                    value={dados?.total_participants}
+                    value={dados?.total_participants ?? 0}
                     icon={<Icon.UsersThree size={32} />}
                     style="bg-gradient-to-l from-lime-500 to-sky-500"
                 />
@@ -323,7 +323,7 @@ function DashBoardPage() {
                 <Dcard
                     loading={loading}
                     title="Instituições"
-                    value={dados?.total_unique_instituition}
+                    value={dados?.total_unique_instituition ?? 0}
                     icon={<Icon.GraduationCap size={32} />}
                     style="bg-gradient-to-l from-violet-500 to-pink-500"
                 />
@@ -331,7 +331,7 @@ function DashBoardPage() {
                 <Dcard
                     loading={loading}
                     title="Taxa de Completude"
-                    value={`${dados?.collectionStatus?.completed || 0}%`}
+                    value={`${dados?.collectionStatus?.completed ?? 0}%`}
                     icon={<Icon.ChartLineUp size={32} />}
                     style="bg-green-500"
                 />
