@@ -254,8 +254,8 @@ function DashBoardPage() {
     };
 
     const genderSeries = [
-        dados?.count_female || 0,
-        dados?.count_male || 0
+        dados?.count_female ?? 0,
+        dados?.count_male ?? 0
     ];
 
     const lineSeries = [
@@ -283,7 +283,7 @@ function DashBoardPage() {
         if (prev3 === 0) return last3 > 0 ? 100 : 0;
         return (((last3 - prev3) / prev3) * 100).toFixed(0);
     };
-    const activeDays = dados?.monthlyProgress.length || 0;
+    const activeDays = (dados?.monthlyProgress ?? []).length;
     return (
         <>
             <Notify
