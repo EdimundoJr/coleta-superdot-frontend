@@ -105,7 +105,7 @@ function DashBoardPage() {
             }
         },
         xaxis: {
-            categories: dados?.monthlyProgress.map((item: MonthlyProgressItem) => item.month) || [],
+            categories: (dados?.monthlyProgress ?? []).map((item: MonthlyProgressItem) => item.month),
         },
         yaxis: {
             title: {
@@ -261,11 +261,11 @@ function DashBoardPage() {
     const lineSeries = [
         {
             name: "Amostras",
-            data: dados?.monthlyProgress.map((item: MonthlyProgressItem) => item.samples) || []
+            data: (dados?.monthlyProgress ?? []).map((item: MonthlyProgressItem) => item.samples)
         },
         {
             name: "Participantes",
-            data: dados?.monthlyProgress.map((item: MonthlyProgressItem) => item.participants) || []
+            data: (dados?.monthlyProgress ?? []).map((item: MonthlyProgressItem) => item.participants)
         }
     ];
 
@@ -274,13 +274,13 @@ function DashBoardPage() {
         (dados?.collectionStatus.pending || 0)
     ]
     const calculateGrowth = () => {
-        if (!dados?.monthlyProgress || dados.monthlyProgress.length < 6) return 0;
+        const progress = dados?.monthlyProgress ?? [];
+        if (progress.length < 6) return 0;
 
-        const last3 = dados.monthlyProgress.slice(-3).map(m => m.participants).reduce((a, b) => a + b, 0) / 3;
-        const prev3 = dados.monthlyProgress.slice(-6, -3).map(m => m.participants).reduce((a, b) => a + b, 0) / 3;
+        const last3 = progress.slice(-3).map(m => m.participants).reduce((a, b) => a + b, 0) / 3;
+        const prev3 = progress.slice(-6, -3).map(m => m.participants).reduce((a, b) => a + b, 0) / 3;
 
         if (prev3 === 0) return last3 > 0 ? 100 : 0;
-
         return (((last3 - prev3) / prev3) * 100).toFixed(0);
     };
     const activeDays = dados?.monthlyProgress.length || 0;
